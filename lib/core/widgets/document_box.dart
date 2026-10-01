@@ -147,6 +147,7 @@ class _DocumentBoxState extends State<DocumentBox> {
             _buildSpans(context, text, widget.highlight),
             textAlign: TextAlign.justify,
             style: AppTheme.documentText(context),
+            textScaler: AppTheme.documentTextScaler,
           ),
         ),
       );

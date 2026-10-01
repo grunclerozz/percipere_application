@@ -21,7 +21,7 @@ enum AppFont {
   final String family;
 }
 
-/// The user's text size, in sp (profiling Step 2 and Settings).
+/// The user's reading-text size, in sp (profiling Step 2 and Settings).
 abstract final class TextSize {
   /// Smallest size (and the default: the design's own size).
   static const double min = 18;
@@ -35,17 +35,9 @@ abstract final class TextSize {
   /// Default size.
   static const double standard = 18;
 
-  /// UI text (buttons, prompts) grows with the text size up to this factor;
-  /// beyond it only document text keeps growing, so buttons stay usable.
-  static const double maxUiScale = 2;
-
   /// Clamps to the range and rounds to whole steps.
   static double normalize(double size) =>
       ((size.clamp(min, max) - min) / step).round() * step + min;
-
-  /// How much UI text is scaled for [size].
-  static double uiScale(double size) =>
-      (normalize(size) / standard).clamp(1.0, maxUiScale).toDouble();
 
   /// Converts the pre-6B percentage multiplier (0.8–2.0) to a size.
   static double fromLegacyScale(double scale) => normalize(standard * scale);
@@ -68,14 +60,12 @@ class ThemeSettings {
   /// Active font family.
   final AppFont font;
 
-  /// Text size in sp (document text uses it exactly).
+  /// Size of the reading text in sp (Document Box, setup preview). The rest
+  /// of the UI keeps its design size.
   final double textSize;
 
   /// Text color id (see `TextColors`); null = the theme default.
   final String? textColor;
-
-  /// Multiplier applied to UI text (on top of Android's font size).
-  double get uiScale => TextSize.uiScale(textSize);
 
   @override
   bool operator ==(Object other) =>

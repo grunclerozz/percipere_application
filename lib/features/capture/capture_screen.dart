@@ -135,21 +135,29 @@ class CaptureScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppDimens.buttonGap),
                     // Secondary destinations, smaller than the two main
-                    // choices from the design.
-                    // Stacked, not side by side: labels like "Kasaysayan" must
-                    // never wrap mid-word, at any text size.
-                    SmallLink(
-                      label: l10n.captureHistory,
-                      icon: Icons.history,
-                      focused: focused == Ids.captureHistory,
-                      onPressed: () => bus.activate(Ids.captureHistory),
-                    ),
-                    const SizedBox(height: AppDimens.buttonGap),
-                    SmallLink(
-                      label: l10n.captureSettings,
-                      icon: Icons.tune,
-                      focused: focused == Ids.captureSettings,
-                      onPressed: () => bus.activate(Ids.captureSettings),
+                    // choices from the design, side by side so everything
+                    // fits on one screen. Labels shrink to fit their button
+                    // (never wrapping mid-word).
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SmallLink(
+                            label: l10n.captureHistory,
+                            icon: Icons.history,
+                            focused: focused == Ids.captureHistory,
+                            onPressed: () => bus.activate(Ids.captureHistory),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: SmallLink(
+                            label: l10n.captureSettings,
+                            icon: Icons.tune,
+                            focused: focused == Ids.captureSettings,
+                            onPressed: () => bus.activate(Ids.captureSettings),
+                          ),
+                        ),
+                      ],
                     ),
                     const Spacer(),
                   ],

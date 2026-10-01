@@ -423,9 +423,9 @@ class VoiceFormView extends ConsumerWidget {
                 ],
               ],
             ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
         ],
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         submit,
       ],
     );

@@ -98,8 +98,17 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   screen offers to close the app (`appCloserProvider`).
 - Themes: `config/palette.dart` (`ThemeId`, `TextColors`), `AppPalette.withTextColor`;
   `AppSettings.withTheme` applies the "unavailable color → theme default" rule. Text
-  size in sp: UI scaled by `TextSize.uiScale` (≤ 2×), document text exact
-  (`AppTextMetrics`). Theme extensions need value `==` or every rebuild animates.
+  size in sp sets only the reading text (Document Box, setup preview), shown at
+  exactly that size (`AppTextMetrics`, `AppTheme.documentTextScaler`) inside a
+  box that scrolls. UI text keeps its design size; Android's font size is
+  capped at 1.3× for it (`UiTextScale`). Theme extensions need value `==` or
+  every rebuild animates.
+- Fixed layout (review, 2026-10-01): text never grows a box. `FitText` keeps a
+  fixed number of lines and shrinks longer text (Speaking Zone subtitle: 3
+  lines, 2 on forms; button labels: 1 line). Long lists (`BoxedList`: security
+  questions, setup summary, old accounts) scroll inside a bordered box.
+  `test/features/screens_fit_test.dart` checks every screen at 360 × 800 dp
+  with the system bars and text size 48: no page scrolling.
 - `GestureSurface` turns off overscroll effects under it: the Android stretch effect
   crashed `flutter_tester` (0xC0000005) on vertical swipes over a scroll view.
 - Reading history is per user (`documents.user_id`); `DocumentsDao.list(userId:)`.

@@ -27,22 +27,25 @@ class PercipereApp extends ConsumerWidget {
       supportedLocales: AppLocales.supported,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: router,
-      builder: (context, child) => UserTextScale(
-        factor: settings.uiScale,
+      builder: (context, child) => UiTextScale(
         child: AccessibilityHost(child: child ?? const SizedBox.shrink()),
       ),
     );
   }
 }
 
-/// Multiplies the Android system font scale by the user's in-app text size
-/// setting, so both are respected.
-class UserTextScale extends StatelessWidget {
-  /// Applies [factor] on top of the ambient text scaler for [child].
-  const UserTextScale({super.key, required this.factor, required this.child});
+/// Keeps the screen layout fixed: buttons, fields and boxes keep their
+/// design size, so nothing overlaps or needs scrolling.
+///
+/// The in-app text size only enlarges the reading text inside its box (the
+/// Document Box and the setup preview; see `AppTheme.documentText`). Android's
+/// own font size still applies to the rest, but at most [maxUiScale].
+class UiTextScale extends StatelessWidget {
+  /// Caps the ambient text scaler for [child].
+  const UiTextScale({super.key, required this.child});
 
-  /// In-app text size multiplier.
-  final double factor;
+  /// Largest system font scale applied to UI text.
+  static const double maxUiScale = 1.3;
 
   /// Subtree to scale.
   final Widget child;
@@ -52,33 +55,9 @@ class UserTextScale extends StatelessWidget {
     final media = MediaQuery.of(context);
     return MediaQuery(
       data: media.copyWith(
-        textScaler: _CombinedTextScaler(media.textScaler, factor),
+        textScaler: media.textScaler.clamp(maxScaleFactor: maxUiScale),
       ),
       child: child,
     );
   }
-}
-
-class _CombinedTextScaler extends TextScaler {
-  const _CombinedTextScaler(this.system, this.factor);
-
-  final TextScaler system;
-  final double factor;
-
-  @override
-  double scale(double fontSize) => system.scale(fontSize) * factor;
-
-  // Required by the TextScaler interface; approximates the combined factor at
-  // a typical body size.
-  @override
-  double get textScaleFactor => scale(14) / 14;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _CombinedTextScaler &&
-      other.system == system &&
-      other.factor == factor;
-
-  @override
-  int get hashCode => Object.hash(system, factor);
 }

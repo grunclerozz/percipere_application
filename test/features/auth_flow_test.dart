@@ -41,12 +41,14 @@ extension on WidgetTester {
   }
 }
 
-/// Welcome → [button]; voice and gestures both on (mic allowed).
+/// Welcome → [button].
 Future<TestEnv> _open(WidgetTester tester, String button) async {
   final env = await createEnv(
     tester,
     loggedIn: false,
-    permissions: FakePermissions(mic: PermissionAccess.granted),
+    // No microphone: the tests speak through the bus, and an open
+    // recognizer keeps the waveform animating (pumpAndSettle never ends).
+    permissions: FakePermissions(micOnRequest: PermissionAccess.denied),
   );
   await pumpApp(tester, env);
   await tester.tap(find.text(button));

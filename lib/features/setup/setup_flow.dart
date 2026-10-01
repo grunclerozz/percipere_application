@@ -79,10 +79,12 @@ class SetupFlow {
     bool? seesText,
   }) {
     final List<SetupStep> plan;
-    if (guest) {
-      plan = guestPlan;
-    } else if (mode == SetupMode.redo) {
+    // "Ulitin ang setup" asks everything, guests included (their first run
+    // is the short list; the full setup is available from Settings).
+    if (mode == SetupMode.redo) {
       plan = SetupStep.values;
+    } else if (guest) {
+      plan = guestPlan;
     } else {
       plan = [
         for (final s in SetupStep.values)

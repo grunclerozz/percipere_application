@@ -31,6 +31,7 @@ import '../../core/tts/speech_language.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/bordered_panel.dart';
+import '../../core/widgets/boxed_list.dart';
 import '../../core/widgets/eye_logo.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../core/widgets/live_speaking_zone.dart';
@@ -919,11 +920,14 @@ class _StepView extends ConsumerWidget {
         pill('$screenId.fil', l10n.langTagalog, primary: true),
         pill('$screenId.en', l10n.langEnglishBoth),
       ],
+      // The list scrolls inside its own box (below); Finish stays visible.
       SetupStep.summary => [
-        for (final s in flow.summaryItems)
-          pill('$screenId.${s.name}', summaryLine(s, settings, l10n)),
         pill('$screenId.confirm', l10n.actionFinishSetup, primary: true),
       ],
+      // As in the customization mockups: logo, preview box, Speaking Zone,
+      // Gesture Pad. The value is spoken and shown in the subtitle; confirm
+      // by double-tap or "okay" (TalkBack: tap the preview).
+      _ when preview => const <Widget>[],
       _ => [
         Semantics(
           liveRegion: true,
@@ -938,6 +942,18 @@ class _StepView extends ConsumerWidget {
       ],
     };
 
+    final below = <Widget>[
+      Text(
+        l10n.setupProgress(flow.number, flow.total),
+        textAlign: TextAlign.center,
+        style: textTheme.bodyMedium,
+      ),
+      const SizedBox(height: 8),
+      LiveSpeakingZone(screenId: screenId, fallback: stepQuestion(step, l10n)),
+      const SizedBox(height: 18),
+      ...controls,
+    ];
+
     return GesturePadLayout(
       padHint: switch (step) {
         SetupStep.textSize ||
@@ -947,39 +963,106 @@ class _StepView extends ConsumerWidget {
         SetupStep.summary => l10n.helpSetupSummary,
         _ => l10n.helpSetupChoice,
       },
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const EyeLogo(),
-            const SizedBox(height: 12),
-            if (preview) ...[
-              BorderedPanel(
-                padding: const EdgeInsets.all(14),
-                child: Semantics(
-                  label: l10n.setupPreviewLabel,
-                  child: Text(
-                    l10n.setupSample,
-                    textAlign: TextAlign.center,
-                    style: AppTheme.documentText(context),
+      content: preview
+          // The preview box keeps its size; bigger text scrolls inside it,
+          // so the rest of the screen never moves (mockup customization_2).
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const EyeLogo(),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: _PreviewBox(
+                    label:
+                        '${l10n.setupPreviewLabel}. '
+                        '${stepValue(step, settings, l10n)}',
+                    onConfirm: () => bus.activate('$screenId.confirm'),
                   ),
                 ),
+                const SizedBox(height: 12),
+                ...below,
+              ],
+            )
+          : step == SetupStep.summary
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const EyeLogo(),
+                const SizedBox(height: 12),
+                ...below.take(below.length - controls.length),
+                Expanded(
+                  child: BoxedList(
+                    items: [
+                      for (final s in flow.summaryItems)
+                        BoxedListItem(
+                          '$screenId.${s.name}',
+                          summaryLine(s, settings, l10n),
+                        ),
+                    ],
+                    focused: focused,
+                    onTap: bus.activate,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...controls,
+              ],
+            )
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const EyeLogo(),
+                  const SizedBox(height: 12),
+                  ...below,
+                ],
               ),
-              const SizedBox(height: 16),
-            ],
-            Text(
-              l10n.setupProgress(flow.number, flow.total),
+            ),
+    );
+  }
+}
+
+/// The sample paragraph in a fixed box (text size, color and theme steps).
+/// The text is shown at exactly the chosen size and scrolls inside the box.
+class _PreviewBox extends StatefulWidget {
+  const _PreviewBox({required this.label, required this.onConfirm});
+
+  final String label;
+
+  /// TalkBack's double-tap on the preview confirms the step.
+  final VoidCallback onConfirm;
+
+  @override
+  State<_PreviewBox> createState() => _PreviewBoxState();
+}
+
+class _PreviewBoxState extends State<_PreviewBox> {
+  final ScrollController _controller = ScrollController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: widget.label,
+      onTap: widget.onConfirm,
+      child: BorderedPanel(
+        child: Scrollbar(
+          controller: _controller,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: _controller,
+            padding: const EdgeInsets.all(14),
+            child: Text(
+              AppLocalizations.of(context).setupSample,
               textAlign: TextAlign.center,
-              style: textTheme.bodyMedium,
+              style: AppTheme.documentText(context),
+              textScaler: AppTheme.documentTextScaler,
             ),
-            const SizedBox(height: 8),
-            LiveSpeakingZone(
-              screenId: screenId,
-              fallback: stepQuestion(step, l10n),
-            ),
-            const SizedBox(height: 18),
-            ...controls,
-          ],
+          ),
         ),
       ),
     );

@@ -4,25 +4,18 @@ import 'package:flutter/services.dart';
 import 'app_palette.dart';
 import 'theme_settings.dart';
 
-/// Text measurements that depend on the user's text size, as a
-/// [ThemeExtension].
+/// The user's reading-text size, as a [ThemeExtension].
 @immutable
 class AppTextMetrics extends ThemeExtension<AppTextMetrics> {
   /// Creates the metrics.
-  const AppTextMetrics({required this.textSize, required this.uiScale});
+  const AppTextMetrics({required this.textSize});
 
-  /// The user's text size in sp.
+  /// Reading-text size in sp.
   final double textSize;
 
-  /// The factor UI text is scaled by (see [TextSize.uiScale]).
-  final double uiScale;
-
   @override
-  AppTextMetrics copyWith({double? textSize, double? uiScale}) =>
-      AppTextMetrics(
-        textSize: textSize ?? this.textSize,
-        uiScale: uiScale ?? this.uiScale,
-      );
+  AppTextMetrics copyWith({double? textSize}) =>
+      AppTextMetrics(textSize: textSize ?? this.textSize);
 
   @override
   AppTextMetrics lerp(AppTextMetrics? other, double t) =>
@@ -30,12 +23,10 @@ class AppTextMetrics extends ThemeExtension<AppTextMetrics> {
 
   @override
   bool operator ==(Object other) =>
-      other is AppTextMetrics &&
-      other.textSize == textSize &&
-      other.uiScale == uiScale;
+      other is AppTextMetrics && other.textSize == textSize;
 
   @override
-  int get hashCode => Object.hash(textSize, uiScale);
+  int get hashCode => textSize.hashCode;
 }
 
 /// Builds the app [ThemeData] from the user's [ThemeSettings].
@@ -111,7 +102,7 @@ abstract final class AppTheme {
       textTheme: textTheme,
       extensions: [
         p,
-        AppTextMetrics(textSize: settings.textSize, uiScale: settings.uiScale),
+        AppTextMetrics(textSize: settings.textSize),
       ],
       materialTapTargetSize: MaterialTapTargetSize.padded,
       appBarTheme: AppBarTheme(
@@ -141,17 +132,22 @@ abstract final class AppTheme {
     );
   }
 
-  /// Style for document text in the Document Box: bold, in the user's text
-  /// color, at exactly the user's text size (the UI text scaler is undone).
+  /// Style for reading text (Document Box, setup preview): bold, in the
+  /// user's text color, at exactly the user's text size. Show it with
+  /// [documentTextScaler] so Android's font size isn't applied on top, and
+  /// inside a fixed box that scrolls: the layout around it never grows.
   static TextStyle documentText(BuildContext context) {
     final m =
         Theme.of(context).extension<AppTextMetrics>() ??
-        const AppTextMetrics(textSize: TextSize.standard, uiScale: 1);
+        const AppTextMetrics(textSize: TextSize.standard);
     return TextStyle(
-      fontSize: m.textSize / m.uiScale,
+      fontSize: m.textSize,
       height: 1.25,
       fontWeight: FontWeight.w700,
       color: context.palette.body,
     );
   }
+
+  /// Reading text is already at the user's chosen size.
+  static const TextScaler documentTextScaler = TextScaler.noScaling;
 }

@@ -20,7 +20,11 @@ class LiveSpeakingZone extends ConsumerWidget {
     super.key,
     required this.screenId,
     required this.fallback,
+    this.subtitleLines = 3,
   });
+
+  /// Lines the subtitle box holds (see [SpeakingZone.subtitleLines]).
+  final int subtitleLines;
 
   /// The screen this zone belongs to.
   final String screenId;
@@ -48,6 +52,7 @@ class LiveSpeakingZone extends ConsumerWidget {
       subtitle: subtitle,
       active: (mine && speech.speaking) || voice.listening,
       heard: voice.heard,
+      subtitleLines: subtitleLines,
     );
   }
 }

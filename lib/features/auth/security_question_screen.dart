@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
 import '../../app/router.dart';
-import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
@@ -16,6 +15,7 @@ import '../../core/auth/account.dart';
 import '../../core/auth/account_repository.dart';
 import '../../core/auth/biometrics.dart';
 import '../../core/auth/session.dart';
+import '../../core/widgets/boxed_list.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
@@ -167,21 +167,18 @@ class _SecurityQuestionScreenState
             ? l10n.securityChoose
             : l10n.askAnswer(q.text(l10n)),
         padHint: q == null ? l10n.helpChooseList : null,
+        fill: q == null,
         child: q == null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final question in SecurityQuestion.values) ...[
-                    PillButton(
-                      label: question.text(l10n),
-                      variant: PillVariant.secondary,
-                      focused: focusedId == 'security.${question.name}',
-                      onPressed: () =>
-                          bus.activate('security.${question.name}'),
+            ? BoxedList(
+                items: [
+                  for (final question in SecurityQuestion.values)
+                    BoxedListItem(
+                      'security.${question.name}',
+                      question.text(l10n),
                     ),
-                    const SizedBox(height: AppDimens.buttonGap),
-                  ],
                 ],
+                focused: focusedId,
+                onTap: bus.activate,
               )
             : VoiceFormView(
                 form: _form,

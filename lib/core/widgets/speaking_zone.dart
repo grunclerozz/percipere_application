@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../../l10n/app_localizations.dart';
+import 'fit_text.dart';
 import 'waveform.dart';
 
 /// The Speaking Zone: waveform plus a live subtitle of what TTS is saying.
@@ -18,6 +19,7 @@ class SpeakingZone extends StatelessWidget {
     required this.subtitle,
     this.active = false,
     this.heard,
+    this.subtitleLines = 3,
   });
 
   /// Exactly what TTS is currently saying (or last said).
@@ -29,6 +31,10 @@ class SpeakingZone extends StatelessWidget {
   /// Recognized speech to echo, or null to hide the line.
   final String? heard;
 
+  /// Lines the subtitle box holds before its text is shrunk to fit (forms
+  /// use 2, as in their mockups).
+  final int subtitleLines;
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -39,30 +45,27 @@ class SpeakingZone extends StatelessWidget {
       children: [
         Waveform(active: active),
         const SizedBox(height: 14),
+        // Fixed boxes: a long sentence shrinks to fit instead of pushing
+        // the buttons down; the "Narinig" line has its slot reserved.
         Semantics(
           liveRegion: true,
-          child: Text(
+          child: FitText(
             subtitle,
-            textAlign: TextAlign.center,
+            lines: subtitleLines,
             style: textTheme.bodyLarge,
           ),
         ),
+        const SizedBox(height: 4),
         AnimatedSwitcher(
           duration: AppDurations.fade,
-          child: heard == null
-              ? const SizedBox.shrink()
-              : Padding(
-                  key: ValueKey(heard),
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    AppLocalizations.of(context).heardLabel(heard),
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: context.palette.muted,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
+          child: FitText(
+            heard == null ? '' : AppLocalizations.of(context).heardLabel(heard),
+            key: ValueKey(heard),
+            style: textTheme.bodyMedium?.copyWith(
+              color: context.palette.muted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ),
       ],
     );

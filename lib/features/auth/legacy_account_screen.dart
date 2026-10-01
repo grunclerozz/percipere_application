@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
 import '../../app/router.dart';
-import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
@@ -16,7 +15,7 @@ import '../../core/auth/account.dart';
 import '../../core/auth/account_repository.dart';
 import '../../core/auth/session.dart';
 import '../../core/tts/speech_language.dart';
-import '../../core/widgets/pill_button.dart';
+import '../../core/widgets/boxed_list.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
 import 'legacy_pin.dart';
@@ -131,20 +130,15 @@ class _LegacyAccountScreenState extends ConsumerState<LegacyAccountScreen> {
             ? l10n.legacyNone
             : l10n.legacyChoose,
         padHint: chosen != null ? l10n.helpPin : l10n.helpChooseList,
+        fill: chosen == null,
         child: chosen == null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final a in accounts) ...[
-                    PillButton(
-                      label: a.firstName,
-                      variant: PillVariant.secondary,
-                      focused: focused == 'legacy.${a.id}',
-                      onPressed: () => bus.activate('legacy.${a.id}'),
-                    ),
-                    const SizedBox(height: AppDimens.buttonGap),
-                  ],
+            ? BoxedList(
+                items: [
+                  for (final a in accounts)
+                    BoxedListItem('legacy.${a.id}', a.firstName),
                 ],
+                focused: focused,
+                onTap: bus.activate,
               )
             : PinPad(
                 entry: _pin,

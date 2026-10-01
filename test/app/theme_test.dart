@@ -102,14 +102,25 @@ void main() {
     expect(p.body, AppPalette.creamNavy.body);
   });
 
-  test('text size: 18–48 in steps of 2; UI scale capped at 2x', () {
+  test('text size: 18–48 in steps of 2', () {
     expect(TextSize.normalize(9), 18);
     expect(TextSize.normalize(99), 48);
     expect(TextSize.normalize(23), 24);
-    expect(TextSize.uiScale(18), 1);
-    expect(TextSize.uiScale(27), closeTo(28 / 18, 1e-9));
-    expect(TextSize.uiScale(48), 2);
     expect(TextSize.fromLegacyScale(1.5), 28);
+  });
+
+  test('the text size sets the reading text only; UI text keeps its size', () {
+    final small = AppTheme.build(const ThemeSettings());
+    final big = AppTheme.build(const ThemeSettings(textSize: 48));
+    expect(big.extension<AppTextMetrics>()!.textSize, 48);
+    expect(
+      big.textTheme.labelLarge!.fontSize,
+      small.textTheme.labelLarge!.fontSize,
+    );
+    expect(
+      big.textTheme.bodyLarge!.fontSize,
+      small.textTheme.bodyLarge!.fontSize,
+    );
   });
 
   test('pre-6B settings convert (palette names, text scale)', () {

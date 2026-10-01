@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../gestures/gesture_surface.dart';
+import 'fit_text.dart';
 
 /// A compact outlined link to a secondary destination (History, Settings,
 /// "Nakalimutan ang password"). Full width, at least 56 dp tall; labels
@@ -15,7 +16,11 @@ class SmallLink extends StatelessWidget {
     required this.icon,
     required this.focused,
     required this.onPressed,
+    this.lines = 1,
   });
+
+  /// Lines the label may use before it shrinks to fit.
+  final int lines;
 
   /// Visible and spoken label.
   final String label;
@@ -42,9 +47,9 @@ class SmallLink extends StatelessWidget {
         child: OutlinedButton.icon(
           onPressed: onPressed,
           icon: Icon(icon, color: p.primary),
-          label: Text(
+          label: FitText(
             label,
-            textAlign: TextAlign.center,
+            lines: lines,
             style: Theme.of(context).textTheme.bodyLarge
                 ?.copyWith(color: p.primary, fontWeight: FontWeight.w700),
           ),

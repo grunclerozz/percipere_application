@@ -68,6 +68,12 @@ void main() {
     expect(f.number, 1);
   });
 
+  test('guests get the full setup from "Ulitin ang setup"', () {
+    final f = SetupFlow.start(guest: true, mode: SetupMode.redo);
+    expect(f.plan, SetupStep.values);
+    expect(f.total, 10);
+  });
+
   test('"Ulitin ang setup" asks everything again', () {
     final f = SetupFlow.start(
       guest: false,

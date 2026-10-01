@@ -2,6 +2,23 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-01 — Review: no overlaps, no page scrolling
+- Review finding: screens overlapped or needed scrolling when the text got bigger.
+- **The text size setting now enlarges only the reading text** (Reader's Document Box,
+  setup preview), at exactly 18–48 sp, inside its box, which scrolls. Buttons, fields
+  and all other boxes keep their design size; replaces proposed decision 4 ("all other
+  UI text scales by size / 18").
+- Text never grows a box: longer text shrinks to fit (Speaking Zone subtitle 3 lines,
+  2 on forms; button labels 1 line). Android's own font size applies to UI text up to
+  1.3×.
+- Long lists (security questions, setup summary, old accounts) scroll inside a fixed
+  box; the main button stays visible.
+- Setup Steps 2, 3 and 7 follow their mockup: logo, preview box, Speaking Zone,
+  Gesture Pad (no value line or Okay button; confirm by double-tap / "okay").
+- Capture: Kasaysayan and Mga Setting side by side.
+- Login: extra links (fingerprint, forgot password, old account) two per row.
+- Fix: "Ulitin ang setup" now gives guests the full setup (was their short one).
+
 ## 2026-10-01 — Phase 6B implementation notes
 - Step 1 wording follows the mockup ("Paano mo gustong mag-navigate sa app?"), not the
   prompt text; its layout is the `how_do_they_want_to_use` mockup (no Gesture Pad).
@@ -23,7 +40,8 @@ Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** o
   upgrading; they then set a security question and do the setup.
 - Saying a Settings row's name opens it only for rows that open something (Logout,
   Ulitin ang setup, Fingerprint); values change only by swipe/double-tap.
-- UI text scaling is capped at 2× (36 sp); document text goes to 48 sp.
+- ~~UI text scaling is capped at 2× (36 sp); document text goes to 48 sp.~~
+  Superseded by the review entry above.
 - Tests: one in-memory database per test; `tool/test_each.sh` runs each file and retries
   `flutter_tester` crashes (the overscroll crash above was one real cause).
 

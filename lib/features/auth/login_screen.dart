@@ -272,6 +272,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  static List<Widget> _linkRows(
+    List<(String, String, IconData)> links,
+    String? focusedId,
+    CommandBus bus,
+  ) {
+    Widget link((String, String, IconData) l, {required bool half}) =>
+        SmallLink(
+          label: l.$2,
+          icon: l.$3,
+          lines: half ? 2 : 1,
+          focused: focusedId == l.$1,
+          onPressed: () => bus.activate(l.$1),
+        );
+    if (links.length == 1) return [link(links.single, half: false)];
+    return [
+      for (var i = 0; i < links.length; i += 2) ...[
+        if (i > 0) const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: link(links[i], half: true)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: i + 1 < links.length
+                  ? link(links[i + 1], half: true)
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -317,30 +349,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ],
             const SizedBox(height: AppDimens.buttonGap),
-            if (_fingerprintAccount != null) ...[
-              SmallLink(
-                label: l10n.actionUseFingerprint,
-                icon: Icons.fingerprint,
-                focused: focusedId == Ids.loginFingerprint,
-                onPressed: () => bus.activate(Ids.loginFingerprint),
-              ),
-              const SizedBox(height: AppDimens.buttonGap),
-            ],
-            SmallLink(
-              label: l10n.actionForgotPassword,
-              icon: Icons.help_outline,
-              focused: focusedId == Ids.loginForgot,
-              onPressed: () => bus.activate(Ids.loginForgot),
+            // Two per row when there are several, so the form never grows
+            // past the screen.
+            ..._linkRows(
+              [
+                if (_fingerprintAccount != null)
+                  (
+                    Ids.loginFingerprint,
+                    l10n.actionUseFingerprint,
+                    Icons.fingerprint,
+                  ),
+                (
+                  Ids.loginForgot,
+                  l10n.actionForgotPassword,
+                  Icons.help_outline,
+                ),
+                if (_hasLegacy)
+                  (
+                    Ids.loginLegacy,
+                    l10n.actionLegacyAccount,
+                    Icons.pin_outlined,
+                  ),
+              ],
+              focusedId,
+              bus,
             ),
-            if (_hasLegacy) ...[
-              const SizedBox(height: AppDimens.buttonGap),
-              SmallLink(
-                label: l10n.actionLegacyAccount,
-                icon: Icons.pin_outlined,
-                focused: focusedId == Ids.loginLegacy,
-                onPressed: () => bus.activate(Ids.loginLegacy),
-              ),
-            ],
           ],
         ),
       ),

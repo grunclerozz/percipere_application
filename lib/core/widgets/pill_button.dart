@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../gestures/gesture_surface.dart';
+import 'fit_text.dart';
 
 /// Visual style of a [PillButton].
 enum PillVariant {
@@ -122,9 +123,9 @@ class PillButton extends StatelessWidget {
                     ),
                     child: Center(
                       widthFactor: 1,
-                      child: Text(
+                      // One line, shrunk to fit: the button never grows.
+                      child: FitText(
                         label,
-                        textAlign: TextAlign.center,
                         style: labelStyle?.copyWith(color: ink),
                       ),
                     ),

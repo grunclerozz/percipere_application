@@ -20,7 +20,8 @@ import '../../core/tts/speech_language.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../l10n/app_localizations.dart';
-import '../account/account_repository.dart';
+import '../../core/auth/session.dart';
+import '../../core/db/daos/preferences_dao.dart';
 import 'setting_items.dart';
 
 /// Accessibility Settings.
@@ -39,13 +40,18 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  final Map<String, GlobalKey> _rowKeys = {
-    for (final item in settingItems) item.id: GlobalKey(),
-  };
+  final Map<String, GlobalKey> _rowKeys = {};
+  bool _remindGuest = false;
+
+  List<SettingItem> get _items =>
+      settingItemsFor(ref.read(currentAccountProvider));
+
+  GlobalKey _keyFor(String id) => _rowKeys.putIfAbsent(id, GlobalKey.new);
 
   @override
   void initState() {
     super.initState();
+    unawaited(_loadGuestReminder());
     // Keep the focused row in view.
     ref.listenManual(focusControllerProvider, (_, id) {
       final ctx = _rowKeys[id]?.currentContext;
@@ -57,6 +63,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     });
+  }
+
+  /// Guests hear "Naka-save ito sa phone na ito lamang…" once, the first
+  /// time they open Settings.
+  Future<void> _loadGuestReminder() async {
+    final account = ref.read(currentAccountProvider);
+    if (account == null || !account.isGuest) return;
+    final prefs = ref.read(userPrefsProvider);
+    if (await prefs.get(PrefKeys.guestReminderSettings, userId: account.id) ==
+        true) {
+      return;
+    }
+    _remindGuest = true;
+  }
+
+  String _intro(AppLocalizations l) {
+    if (!_remindGuest) return l.settingsIntro;
+    _remindGuest = false;
+    final account = ref.read(currentAccountProvider);
+    if (account != null) {
+      unawaited(
+        ref
+            .read(userPrefsProvider)
+            .set(PrefKeys.guestReminderSettings, true, userId: account.id),
+      );
+    }
+    return '${l.settingsIntro} ${l.guestReminder}';
   }
 
   static SettingContext _shifted(SettingContext c, SettingItem item, int d) =>
@@ -82,10 +115,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!mounted) return;
     // Spoken in the (possibly new) language; speed at the new speed.
     final l = ref.read(speechLanguageProvider).strings;
+    final colorReset =
+        item.id == Ids.settingColors &&
+        before.textColor != null &&
+        after.textColor == null;
     await ref
         .read(announcerProvider.notifier)
         .say(
-          l.settingValue(item.label(l), item.value(_context(l))),
+          [
+            l.settingValue(item.label(l), item.value(_context(l))),
+            if (colorReset) l.textColorReset,
+          ].join(' '),
           rate: item.id == Ids.settingReadingRate ? after.readingRate : 1.0,
         );
     if (after.navMode == NavMode.voice && before.navMode != NavMode.voice) {
@@ -106,7 +146,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _adjustFocused(CommandBus bus, int direction) async {
     final id = ref.read(focusControllerProvider);
-    final item = settingItems.where((i) => i.id == id).firstOrNull;
+    final item = _items.where((i) => i.id == id).firstOrNull;
     if (item == null) {
       unawaited(ref.read(hapticsProvider).error());
       return bus.say(bus.strings.nothingFocused);
@@ -118,12 +158,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   ScreenRegistration _registration(WidgetRef ref) => ScreenRegistration(
     id: Ids.settings,
     title: (l) => l.screenSettings,
-    prompt: (l) => l.settingsIntro,
+    prompt: _intro,
     listOptions: false,
     includeModeHint: false,
     help: (l) => l.helpSettings,
     actions: [
-      for (final item in settingItems)
+      for (final item in _items)
         A11yAction(
           id: item.id,
           // Spoken when focused: "Bilis ng pagbasa: 1.0x".
@@ -143,14 +183,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     // Rebuild on any settings change (values, theme) and account change.
-    ref
-      ..watch(settingsProvider)
-      ..watch(currentAccountProvider);
+    ref.watch(settingsProvider);
+    final account = ref.watch(currentAccountProvider);
+    final items = settingItemsFor(account);
     final focused = ref.watch(focusControllerProvider);
     final c = SettingContext(ref.read(settingsProvider), l10n, ref);
 
     return AccessibleScreen(
       registration: _registration,
+      dependencies: [account?.id, account?.isGuest],
       child: GesturePadLayout(
         padHint: l10n.helpSettings,
         content: Column(
@@ -166,12 +207,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 12),
             Expanded(
               child: ListView.separated(
-                itemCount: settingItems.length,
+                itemCount: items.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, i) {
-                  final item = settingItems[i];
+                  final item = items[i];
                   return _SettingRow(
-                    key: _rowKeys[item.id],
+                    key: _keyFor(item.id),
                     item: item,
                     label: item.label(l10n),
                     value: item.value(c),

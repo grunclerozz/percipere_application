@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import '../../app/locale_provider.dart';
-import '../../app/theme/app_palette.dart';
 import '../../app/theme/theme_settings.dart';
+import '../../config/palette.dart';
 import '../accessibility/navigation_mode.dart';
 import '../db/daos/preferences_dao.dart';
 import '../tts/reading_rate.dart';
@@ -43,21 +43,24 @@ class AppSettings {
     this.pitch = 1.0,
     this.locale = AppLocales.filipino,
     this.documentVoice = DocumentVoice.auto,
-    this.textScale = 1.0,
+    this.textSize = TextSize.standard,
+    this.textColor,
     this.font = AppFont.montserrat,
-    this.palette = PaletteId.defaultCream,
+    this.themeId = ThemeId.creamNavy,
     this.haptics = true,
     this.verbosity = Verbosity.normal,
     this.autoCapture = true,
+    this.autoRead = true,
+    this.stayLoggedIn = true,
   });
 
-  /// Voice or gestures; null until chosen on Welcome.
+  /// Voice or gestures; null until chosen (profiling Step 1).
   final NavMode? navMode;
 
-  /// Reading speed multiplier (0.5–2.0).
+  /// Reading speed multiplier (0.5–2.0, steps of 0.25).
   final double readingRate;
 
-  /// Voice pitch (0.5–2.0).
+  /// Voice pitch (0.5–2.0, steps of 0.25).
   final double pitch;
 
   /// UI and prompt language.
@@ -66,14 +69,17 @@ class AppSettings {
   /// Document voice override.
   final DocumentVoice documentVoice;
 
-  /// In-app text size multiplier.
-  final double textScale;
+  /// Text size in sp (18–48).
+  final double textSize;
+
+  /// Text color id (see `TextColors`); null = the theme's default.
+  final String? textColor;
 
   /// Font family.
   final AppFont font;
 
   /// Color theme.
-  final PaletteId palette;
+  final ThemeId themeId;
 
   /// Vibration cues on/off.
   final bool haptics;
@@ -84,39 +90,71 @@ class AppSettings {
   /// Camera takes the photo by itself when the text is clear.
   final bool autoCapture;
 
+  /// Start reading as soon as a new document's text is ready.
+  final bool autoRead;
+
+  /// Keep the session between launches.
+  final bool stayLoggedIn;
+
   /// The theme-related part.
-  ThemeSettings get theme =>
-      ThemeSettings(palette: palette, font: font, textScale: textScale);
+  ThemeSettings get theme => ThemeSettings(
+    theme: themeId,
+    font: font,
+    textSize: textSize,
+    textColor: textColor,
+  );
+
+  /// The text color actually shown (the theme default if none is chosen).
+  TextColorOption get resolvedTextColor =>
+      TextColors.resolve(themeId, textColor);
+
+  /// Switches to [theme]. If the chosen text color isn't offered by it, the
+  /// text color goes back to the theme default; `textColorReset` says so
+  /// (the app then announces it).
+  ({AppSettings settings, bool textColorReset}) withTheme(ThemeId theme) {
+    final reset = textColor != null && !TextColors.offers(theme, textColor);
+    return (
+      settings: copyWith(themeId: theme, textColor: reset ? null : textColor),
+      textColorReset: reset,
+    );
+  }
 
   static const Object _keep = Object();
 
-  /// Returns a copy with the given fields replaced.
+  /// Returns a copy with the given fields replaced. [navMode] and
+  /// [textColor] can be set to null explicitly.
   AppSettings copyWith({
     Object? navMode = _keep,
     double? readingRate,
     double? pitch,
     Locale? locale,
     DocumentVoice? documentVoice,
-    double? textScale,
+    double? textSize,
+    Object? textColor = _keep,
     AppFont? font,
-    PaletteId? palette,
+    ThemeId? themeId,
     bool? haptics,
     Verbosity? verbosity,
     bool? autoCapture,
+    bool? autoRead,
+    bool? stayLoggedIn,
   }) => AppSettings(
     navMode: identical(navMode, _keep) ? this.navMode : navMode as NavMode?,
     readingRate: ReadingRate.normalize(readingRate ?? this.readingRate),
     pitch: ReadingRate.normalize(pitch ?? this.pitch),
     locale: locale ?? this.locale,
     documentVoice: documentVoice ?? this.documentVoice,
-    textScale: (textScale ?? this.textScale)
-        .clamp(ThemeSettings.minTextScale, ThemeSettings.maxTextScale)
-        .toDouble(),
+    textSize: TextSize.normalize(textSize ?? this.textSize),
+    textColor: identical(textColor, _keep)
+        ? this.textColor
+        : textColor as String?,
     font: font ?? this.font,
-    palette: palette ?? this.palette,
+    themeId: themeId ?? this.themeId,
     haptics: haptics ?? this.haptics,
     verbosity: verbosity ?? this.verbosity,
     autoCapture: autoCapture ?? this.autoCapture,
+    autoRead: autoRead ?? this.autoRead,
+    stayLoggedIn: stayLoggedIn ?? this.stayLoggedIn,
   );
 
   /// Preference key → JSON value.
@@ -126,16 +164,20 @@ class AppSettings {
     PrefKeys.pitch: pitch,
     PrefKeys.locale: locale.languageCode,
     PrefKeys.documentVoice: documentVoice.name,
-    PrefKeys.textScale: textScale,
+    PrefKeys.textSize: textSize,
+    PrefKeys.textColor: textColor,
     PrefKeys.font: font.name,
-    PrefKeys.palette: palette.name,
+    PrefKeys.palette: themeId.name,
     PrefKeys.haptics: haptics,
     PrefKeys.verbosity: verbosity.name,
     PrefKeys.autoCapture: autoCapture,
+    PrefKeys.autoRead: autoRead,
+    PrefKeys.stayLoggedIn: stayLoggedIn,
   };
 
   /// Reads settings from stored preferences; anything missing or invalid
-  /// keeps its default.
+  /// keeps its default. Pre-6B values (text scale %, four palettes) are
+  /// converted.
   static AppSettings fromPrefs(Map<String, Object?> p) {
     T? byName<T extends Enum>(List<T> values, Object? name) {
       for (final v in values) {
@@ -147,6 +189,10 @@ class AppSettings {
     double? num_(Object? v) => v is num ? v.toDouble() : null;
     bool? bool_(Object? v) => v is bool ? v : null;
 
+    final legacyScale = num_(p[PrefKeys.textScale]);
+    final themeId = ThemeId.tryParse(p[PrefKeys.palette]) ?? ThemeId.creamNavy;
+    final color = p[PrefKeys.textColor];
+
     const d = AppSettings();
     return d.copyWith(
       navMode: NavMode.tryParse(p[PrefKeys.navigationMode]),
@@ -154,12 +200,19 @@ class AppSettings {
       pitch: num_(p[PrefKeys.pitch]),
       locale: p[PrefKeys.locale] == 'en' ? AppLocales.english : null,
       documentVoice: byName(DocumentVoice.values, p[PrefKeys.documentVoice]),
-      textScale: num_(p[PrefKeys.textScale]),
+      textSize:
+          num_(p[PrefKeys.textSize]) ??
+          (legacyScale == null ? null : TextSize.fromLegacyScale(legacyScale)),
+      textColor: color is String && TextColors.offers(themeId, color)
+          ? color
+          : null,
       font: byName(AppFont.values, p[PrefKeys.font]),
-      palette: byName(PaletteId.values, p[PrefKeys.palette]),
+      themeId: themeId,
       haptics: bool_(p[PrefKeys.haptics]),
       verbosity: byName(Verbosity.values, p[PrefKeys.verbosity]),
       autoCapture: bool_(p[PrefKeys.autoCapture]),
+      autoRead: bool_(p[PrefKeys.autoRead]),
+      stayLoggedIn: bool_(p[PrefKeys.stayLoggedIn]),
     );
   }
 
@@ -171,12 +224,15 @@ class AppSettings {
       other.pitch == pitch &&
       other.locale == locale &&
       other.documentVoice == documentVoice &&
-      other.textScale == textScale &&
+      other.textSize == textSize &&
+      other.textColor == textColor &&
       other.font == font &&
-      other.palette == palette &&
+      other.themeId == themeId &&
       other.haptics == haptics &&
       other.verbosity == verbosity &&
-      other.autoCapture == autoCapture;
+      other.autoCapture == autoCapture &&
+      other.autoRead == autoRead &&
+      other.stayLoggedIn == stayLoggedIn;
 
   @override
   int get hashCode => Object.hash(
@@ -185,11 +241,14 @@ class AppSettings {
     pitch,
     locale,
     documentVoice,
-    textScale,
+    textSize,
+    textColor,
     font,
-    palette,
+    themeId,
     haptics,
     verbosity,
     autoCapture,
+    autoRead,
+    stayLoggedIn,
   );
 }

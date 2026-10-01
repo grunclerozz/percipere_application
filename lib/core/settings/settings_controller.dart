@@ -54,12 +54,14 @@ class SettingsController extends Notifier<AppSettings> {
   /// Switches to another profile's settings (or the device's).
   ///
   /// A profile with no saved settings yet starts from the current ones (so
-  /// creating an account keeps what the user already set up).
-  Future<void> switchScope(String scope) async {
+  /// creating an account keeps what the user already set up). With
+  /// [keepCurrent], [scope] takes the current settings regardless (logging
+  /// out keeps the look and voice the user is used to).
+  Future<void> switchScope(String scope, {bool keepCurrent = false}) async {
     final dao = _dao;
     final stored = await dao.getAll(userId: scope);
     final AppSettings next;
-    if (stored.isEmpty) {
+    if (stored.isEmpty || keepCurrent) {
       next = state;
       for (final MapEntry(:key, :value) in next.toPrefs().entries) {
         await dao.set(key, value, userId: scope);
@@ -68,6 +70,16 @@ class SettingsController extends Notifier<AppSettings> {
       next = AppSettings.fromPrefs(stored);
     }
     _scope = scope;
+    if (next.pitch != state.pitch) {
+      await ref.read(ttsServiceProvider).setPitch(next.pitch);
+    }
+    state = next;
+  }
+
+  /// Re-reads the current scope from the database (after another component
+  /// rewrote it, e.g. guest → account migration).
+  Future<void> reload() async {
+    final next = AppSettings.fromPrefs(await _dao.getAll(userId: _scope));
     if (next.pitch != state.pitch) {
       await ref.read(ttsServiceProvider).setPitch(next.pitch);
     }

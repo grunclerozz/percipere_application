@@ -11,6 +11,10 @@ enum PillVariant {
 
   /// Beige fill, navy text.
   secondary,
+
+  /// Smaller white button ("Subukan muna (Try first)" on Welcome); on the
+  /// dark themes, the dark secondary fill with an outline.
+  tertiary,
 }
 
 /// Full-width, pill-shaped button from the design (min 56dp tall, bold label,
@@ -49,9 +53,17 @@ class PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final isPrimary = variant == PillVariant.primary;
-    final fill = isPrimary ? p.primary : p.secondary;
+    final isTertiary = variant == PillVariant.tertiary;
+    final fill = isPrimary
+        ? p.primary
+        : isTertiary
+        ? p.tertiary
+        : p.secondary;
     final ink = isPrimary ? p.onPrimary : p.onSecondary;
     final outline = isPrimary ? Colors.transparent : p.secondaryOutline;
+    final labelStyle = isTertiary
+        ? Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: 15)
+        : Theme.of(context).textTheme.labelLarge;
     const radius = BorderRadius.all(Radius.circular(AppDimens.pillRadius));
 
     // Claim pointers so a surrounding gesture surface doesn't also treat
@@ -113,8 +125,7 @@ class PillButton extends StatelessWidget {
                       child: Text(
                         label,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelLarge
-                            ?.copyWith(color: ink),
+                        style: labelStyle?.copyWith(color: ink),
                       ),
                     ),
                   ),

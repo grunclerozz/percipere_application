@@ -134,8 +134,10 @@ class GestureClassifier {
         swipe = delta.dx > 0
             ? GestureType.twoFingerSwipeRight
             : GestureType.twoFingerSwipeLeft;
-      } else if (fingers == 2 && delta.dy > 0) {
-        swipe = GestureType.twoFingerSwipeDown;
+      } else if (fingers == 2) {
+        swipe = delta.dy > 0
+            ? GestureType.twoFingerSwipeDown
+            : GestureType.twoFingerSwipeUp;
       } else {
         swipe = null;
       }

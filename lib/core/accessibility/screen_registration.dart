@@ -64,7 +64,16 @@ class ScreenRegistration {
     this.includeModeHint = true,
     this.autoListen = false,
     this.onUtterance,
+    this.hasUnsavedInput,
+    this.beforeBack,
   });
+
+  /// Whether leaving now would lose what the user entered. Back then asks
+  /// "May hindi pa naka-save. Sigurado ka bang babalik?" first.
+  final bool Function()? hasUnsavedInput;
+
+  /// Runs before back leaves the screen (Reader: stop and save position).
+  final Future<void> Function()? beforeBack;
 
   /// Stable screen id, e.g. `capture`.
   final String id;

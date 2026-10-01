@@ -28,7 +28,7 @@ class PercipereApp extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: router,
       builder: (context, child) => UserTextScale(
-        factor: settings.textScale,
+        factor: settings.uiScale,
         child: AccessibilityHost(child: child ?? const SizedBox.shrink()),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,80 +9,121 @@ import '../../app/router.dart';
 import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
+import '../../core/accessibility/action_registry.dart';
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/nav_intent.dart';
-import '../../core/accessibility/navigation_mode.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/session.dart';
+import '../../core/db/daos/preferences_dao.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/platform/system_settings.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/voice/voice_controller.dart';
+import '../../core/widgets/eye_logo.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 
-/// Screen A — Welcome / navigation mode selection.
+/// Screen A — Welcome: Login, Register, or "Subukan muna (Try first)".
 ///
-/// No Gesture Pad here: the whole screen is the gesture surface. Double-tap
-/// chooses voice, swipe right chooses gestures, tap repeats. When no Filipino
-/// voice is installed, swipe up opens Android's TTS settings.
-class WelcomeScreen extends ConsumerWidget {
+/// No Gesture Pad here: the whole screen is the gesture surface. The
+/// navigation mode isn't chosen yet, so voice and gestures both work:
+/// swipe right/left moves between the buttons, double-tap presses the
+/// focused one, tap repeats; or say "login", "register" or "subukan". On
+/// first launch the microphone is requested right after the introduction.
+/// When no Filipino voice is installed, swipe up opens Android's TTS
+/// settings.
+class WelcomeScreen extends ConsumerStatefulWidget {
   /// Creates the Welcome screen.
   const WelcomeScreen({super.key});
 
   /// Screen id.
   static const String screenId = Ids.welcome;
 
-  /// Action: choose voice navigation.
-  static const String voiceAction = Ids.welcomeVoice;
+  @override
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
+}
 
-  /// Action: choose gesture navigation.
-  static const String gesturesAction = Ids.welcomeGestures;
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(activeScreenProvider, (previous, next) {
+      if (next?.id == WelcomeScreen.screenId &&
+          previous?.id != WelcomeScreen.screenId) {
+        unawaited(_askMicOnce());
+      }
+    });
+  }
+
+  /// First launch: once the introduction has been spoken, explain and ask
+  /// for the microphone so "login" / "register" can be said right away.
+  Future<void> _askMicOnce() async {
+    final voice = ref.read(voiceControllerProvider.notifier);
+    if (voice.micGranted) return;
+    final prefs = ref.read(userPrefsProvider);
+    if (await prefs.get(PrefKeys.micAsked) == true) return;
+    await ref.read(announcerProvider.notifier).idle();
+    if (!mounted || ref.read(activeScreenProvider)?.id != Ids.welcome) return;
+    await prefs.set(PrefKeys.micAsked, true);
+    if (await voice.ensureReady(requestPermission: true) && mounted) {
+      final bus = ref.read(commandBusProvider);
+      await bus.say(bus.strings.welcomeVoiceReady);
+    }
+  }
 
   static ScreenRegistration _registration(WidgetRef ref) {
     final voice = ref.read(voiceControllerProvider.notifier);
 
-    Future<void> choose(NavMode mode) async {
-      await ref.read(navigationModeProvider.notifier).set(mode);
-      // Choosing voice is when we ask for the microphone (with a spoken
-      // explanation first), so the Android dialog never comes unannounced.
-      if (mode == NavMode.voice) {
-        await voice.ensureReady(requestPermission: true);
-      }
-      ref.read(routerProvider).go(AppRoutes.capture);
+    Future<void> guest(CommandBus bus) async {
+      final account = await ref
+          .read(currentAccountProvider.notifier)
+          .startGuest(bus.strings.guestName);
+      ref.read(routerProvider).go(AppRoutes.home(account));
     }
 
     return ScreenRegistration(
-      id: screenId,
-      // "Say boses/galaw" is only offered once the mic is already allowed.
-      prompt: (l) => voice.micGranted
-          ? '${l.welcomeIntro} ${l.welcomeSayHint}'
-          : l.welcomeIntro,
+      id: WelcomeScreen.screenId,
+      title: (l) => l.screenWelcome,
+      // "Say login/register" is only offered once the mic is allowed.
+      prompt: (l) =>
+          '${l.welcomeAccountPrompt} '
+          '${voice.micGranted ? l.welcomeHintVoice : l.welcomeHintGestures}',
       autoListen: true,
       listOptions: false,
       includeModeHint: false,
       help: (l) => l.helpWelcome,
       actions: [
         A11yAction(
-          id: voiceAction,
-          label: (l) => l.navModeVoice,
-          voiceSynonyms: const ['boses', 'pa-boses', 'voice'],
-          confirmation: (l) => l.modeChosenVoice,
-          onActivate: (_) => choose(NavMode.voice),
+          id: Ids.welcomeLogin,
+          label: (l) => l.actionLogin,
+          voiceSynonyms: const ['login', 'log in', 'mag-login', 'pumasok'],
+          onActivate: (_) =>
+              unawaited(ref.read(routerProvider).push(AppRoutes.login)),
         ),
         A11yAction(
-          id: gesturesAction,
-          label: (l) => l.navModeGestures,
-          voiceSynonyms: const ['galaw', 'pa-galaw', 'gestures', 'gesture'],
-          confirmation: (l) => l.modeChosenGestures,
-          onActivate: (_) => choose(NavMode.gestures),
+          id: Ids.welcomeRegister,
+          label: (l) => l.actionRegister,
+          voiceSynonyms: const ['register', 'mag-register', 'magparehistro'],
+          onActivate: (_) =>
+              unawaited(ref.read(routerProvider).push(AppRoutes.register)),
+        ),
+        A11yAction(
+          id: Ids.welcomeGuest,
+          label: (l) => l.actionTryFirst,
+          voiceSynonyms: const [
+            'subukan',
+            'subukan muna',
+            'try first',
+            'try',
+            'guest',
+          ],
+          onActivate: guest,
         ),
       ],
       intentHandlers: {
-        NavIntent.activate: (bus) => bus.activate(voiceAction),
-        NavIntent.next: (bus) => bus.activate(gesturesAction),
         NavIntent.faster: (bus) => _openTtsSettings(ref, bus),
       },
     );
@@ -99,7 +142,7 @@ class WelcomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
     final focused = ref.watch(focusControllerProvider);
@@ -122,7 +165,8 @@ class WelcomeScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Spacer(flex: 3),
+                        const EyeLogo(),
+                        const Spacer(flex: 2),
                         Semantics(
                           header: true,
                           child: Text.rich(
@@ -148,24 +192,31 @@ class WelcomeScreen extends ConsumerWidget {
                         const Spacer(flex: 2),
                         const SizedBox(height: 24),
                         LiveSpeakingZone(
-                          screenId: screenId,
-                          fallback: l10n.welcomePrompt,
+                          screenId: WelcomeScreen.screenId,
+                          fallback: l10n.welcomeHasAccount,
                         ),
                         const SizedBox(height: 24),
-                        const Spacer(flex: 2),
+                        const Spacer(),
                         PillButton(
-                          label: l10n.navModeVoice,
-                          focused: focused == voiceAction,
-                          onPressed: () => bus.activate(voiceAction),
+                          label: l10n.actionLogin,
+                          focused: focused == Ids.welcomeLogin,
+                          onPressed: () => bus.activate(Ids.welcomeLogin),
                         ),
                         const SizedBox(height: AppDimens.buttonGap),
                         PillButton(
-                          label: l10n.navModeGestures,
+                          label: l10n.actionRegister,
                           variant: PillVariant.secondary,
-                          focused: focused == gesturesAction,
-                          onPressed: () => bus.activate(gesturesAction),
+                          focused: focused == Ids.welcomeRegister,
+                          onPressed: () => bus.activate(Ids.welcomeRegister),
                         ),
-                        const Spacer(flex: 4),
+                        const SizedBox(height: AppDimens.buttonGap),
+                        PillButton(
+                          label: l10n.actionTryFirst,
+                          variant: PillVariant.tertiary,
+                          focused: focused == Ids.welcomeGuest,
+                          onPressed: () => bus.activate(Ids.welcomeGuest),
+                        ),
+                        const Spacer(flex: 3),
                       ],
                     ),
                   ),

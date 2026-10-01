@@ -102,9 +102,18 @@ class VoiceController extends Notifier<VoiceState> {
           unawaited(stopListening());
         }
       })
-      ..listen(activeScreenProvider, (_, _) => noteActivity());
+      ..listen(activeScreenProvider, (previous, next) {
+        // A new screen never starts in password privacy.
+        if (previous?.id != next?.id) sensitive = false;
+        noteActivity();
+      });
     return const VoiceState();
   }
+
+  /// While true (a password field is being filled), recognized words are
+  /// never shown in the Speaking Zone: partial results show as dots and the
+  /// "Narinig" line stays empty.
+  bool sensitive = false;
 
   /// Whether the microphone is allowed (as last checked).
   bool get micGranted => _micGranted;
@@ -318,7 +327,7 @@ class VoiceController extends Notifier<VoiceState> {
     if (!isFinal) {
       state = VoiceState(
         status: ListenStatus.listening,
-        partial: words,
+        partial: sensitive ? '•' * words.length : words,
         heard: state.heard,
       );
       return;
@@ -335,11 +344,11 @@ class VoiceController extends Notifier<VoiceState> {
     if (dictation != null) {
       // Free speech for a form field: hand it back, don't run it.
       _dictation = null;
-      state = VoiceState(heard: text);
+      state = VoiceState(heard: sensitive ? null : text);
       dictation.complete(text);
       return;
     }
-    state = VoiceState(heard: text);
+    state = VoiceState(heard: sensitive ? null : text);
     _heardTimer?.cancel();
     _heardTimer = Timer(AppDurations.heardVisible, () {
       if (ref.mounted && state.heard == text) {

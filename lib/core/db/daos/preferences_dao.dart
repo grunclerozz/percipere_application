@@ -22,8 +22,38 @@ abstract final class PrefKeys {
   /// `'auto'`, `'filipino'` or `'english'`.
   static const String documentVoice = 'doc.voice';
 
-  /// In-app text size multiplier.
+  /// Pre-6B text size multiplier (read only, converted to [textSize]).
   static const String textScale = 'ui.textScale';
+
+  /// Text size in sp.
+  static const String textSize = 'ui.textSize';
+
+  /// Text color id (`TextColors`), or null for the theme default.
+  static const String textColor = 'ui.textColor';
+
+  /// Start reading new documents automatically.
+  static const String autoRead = 'reader.autoRead';
+
+  /// Keep the session between launches.
+  static const String stayLoggedIn = 'account.stayLoggedIn';
+
+  /// Profiling steps finished (JSON list of step names).
+  static const String setupDone = 'setup.done';
+
+  /// Profiling step to resume at (step name).
+  static const String setupStep = 'setup.step';
+
+  /// Answer to "can you see some text?" (profiling).
+  static const String setupSeesText = 'setup.seesText';
+
+  /// Guest reminder given after the first save to history.
+  static const String guestReminderHistory = 'guest.reminder.history';
+
+  /// Guest reminder given in Settings.
+  static const String guestReminderSettings = 'guest.reminder.settings';
+
+  /// Device scope: the microphone was already requested on Welcome.
+  static const String micAsked = 'mic.askedOnWelcome';
 
   /// Font family name.
   static const String font = 'ui.font';
@@ -40,7 +70,8 @@ abstract final class PrefKeys {
   /// Camera auto-capture on/off.
   static const String autoCapture = 'camera.autoCapture';
 
-  /// Device scope: id of the logged-in profile, or null.
+  /// Device scope, pre-6B only: id of the logged-in PIN profile. The
+  /// session now lives in secure storage; read once to migrate it.
   static const String currentUser = 'account.currentUser';
 }
 

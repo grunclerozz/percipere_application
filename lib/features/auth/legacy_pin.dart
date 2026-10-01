@@ -43,14 +43,9 @@ List<int> parseDigits(String spoken) {
   return digits;
 }
 
-/// A dictated email made usable: "juan dela cruz at gmail dot com" →
-/// "juandelacruz@gmail.com".
-String normalizeSpokenEmail(String spoken) => spoken
-    .toLowerCase()
-    .replaceAll(RegExp(r'\s+(at|sa)\s+'), '@')
-    .replaceAll(RegExp(r'\s+(dot|tuldok|punto)\s+'), '.')
-    .replaceAll(RegExp(r'\s+'), '');
-
+/// Legacy (pre-6B) PIN entry, used only to claim an old name + PIN account
+/// once before it sets an email and password.
+///
 /// State of a four-digit PIN being entered by gestures, keypad or voice.
 ///
 /// Gestures (through the screen's intents): swipe up/down picks the digit on

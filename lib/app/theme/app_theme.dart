@@ -4,10 +4,36 @@ import 'package:flutter/services.dart';
 import 'app_palette.dart';
 import 'theme_settings.dart';
 
+/// Text measurements that depend on the user's text size, as a
+/// [ThemeExtension].
+@immutable
+class AppTextMetrics extends ThemeExtension<AppTextMetrics> {
+  /// Creates the metrics.
+  const AppTextMetrics({required this.textSize, required this.uiScale});
+
+  /// The user's text size in sp.
+  final double textSize;
+
+  /// The factor UI text is scaled by (see [TextSize.uiScale]).
+  final double uiScale;
+
+  @override
+  AppTextMetrics copyWith({double? textSize, double? uiScale}) =>
+      AppTextMetrics(
+        textSize: textSize ?? this.textSize,
+        uiScale: uiScale ?? this.uiScale,
+      );
+
+  @override
+  AppTextMetrics lerp(AppTextMetrics? other, double t) =>
+      other == null || t < 0.5 ? this : other;
+}
+
 /// Builds the app [ThemeData] from the user's [ThemeSettings].
 ///
 /// Text roles used across the app:
 /// - `headlineLarge` — screen titles ("Welcome to" / "Percipere")
+/// - `titleLarge`    — form/step titles ("Register")
 /// - `titleMedium`   — screen subtitles ("An app built on your behalf")
 /// - `bodyLarge`     — Speaking Zone subtitle
 /// - `bodyMedium`    — secondary lines (the "Narinig" line, captions)
@@ -17,7 +43,7 @@ import 'theme_settings.dart';
 abstract final class AppTheme {
   /// Returns the theme for [settings].
   static ThemeData build(ThemeSettings settings) {
-    final p = AppPalette.of(settings.palette);
+    final p = AppPalette.withTextColor(settings.theme, settings.textColor);
     final scheme = ColorScheme(
       brightness: p.brightness,
       primary: p.primary,
@@ -74,7 +100,10 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: p.background,
       fontFamily: settings.font.family,
       textTheme: textTheme,
-      extensions: [p],
+      extensions: [
+        p,
+        AppTextMetrics(textSize: settings.textSize, uiScale: settings.uiScale),
+      ],
       materialTapTargetSize: MaterialTapTargetSize.padded,
       appBarTheme: AppBarTheme(
         backgroundColor: p.background,
@@ -83,6 +112,15 @@ abstract final class AppTheme {
         systemOverlayStyle: p.brightness == Brightness.light
             ? SystemUiOverlayStyle.dark
             : SystemUiOverlayStyle.light,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        floatingLabelBehavior: FloatingLabelBehavior.never,
+        labelStyle: TextStyle(color: p.body),
+        hintStyle: TextStyle(color: p.muted),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: p.body,
+        selectionHandleColor: p.primary,
       ),
       scrollbarTheme: ScrollbarThemeData(
         thumbVisibility: const WidgetStatePropertyAll(true),
@@ -94,11 +132,14 @@ abstract final class AppTheme {
     );
   }
 
-  /// Style for document text in the Document Box: bold and slightly larger
-  /// than body text for low-vision readers.
+  /// Style for document text in the Document Box: bold, in the user's text
+  /// color, at exactly the user's text size (the UI text scaler is undone).
   static TextStyle documentText(BuildContext context) {
+    final m =
+        Theme.of(context).extension<AppTextMetrics>() ??
+        const AppTextMetrics(textSize: TextSize.standard, uiScale: 1);
     return TextStyle(
-      fontSize: 16,
+      fontSize: m.textSize / m.uiScale,
       height: 1.25,
       fontWeight: FontWeight.w700,
       color: context.palette.body,

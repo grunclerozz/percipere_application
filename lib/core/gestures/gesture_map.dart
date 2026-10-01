@@ -26,6 +26,9 @@ enum GestureType {
   /// Two fingers moving down together.
   twoFingerSwipeDown,
 
+  /// Two fingers moving up together.
+  twoFingerSwipeUp,
+
   /// Two fingers moving right together.
   twoFingerSwipeRight,
 
@@ -42,8 +45,9 @@ enum GestureType {
 /// THE gesture → intent table. Change bindings here only.
 ///
 /// Screens decide what an intent means for them (e.g. on the Reader,
-/// [NavIntent.next] is "next sentence" and [NavIntent.repeat] is
-/// play/pause) via `ScreenRegistration.intentHandlers`.
+/// [NavIntent.next] is "next sentence" and [NavIntent.activate] is
+/// read/pause) via `ScreenRegistration.intentHandlers`. Two-finger swipe
+/// left is deliberately unassigned.
 const Map<GestureType, NavIntent> gestureMap = {
   GestureType.swipeRight: NavIntent.next,
   GestureType.swipeLeft: NavIntent.previous,
@@ -51,9 +55,10 @@ const Map<GestureType, NavIntent> gestureMap = {
   GestureType.singleTap: NavIntent.repeat,
   GestureType.swipeUp: NavIntent.faster,
   GestureType.swipeDown: NavIntent.slower,
-  GestureType.twoFingerSwipeDown: NavIntent.back,
-  GestureType.twoFingerSwipeRight: NavIntent.nextParagraph,
-  GestureType.twoFingerSwipeLeft: NavIntent.previousParagraph,
+  // Reserved for back on every screen (Phase 6B).
+  GestureType.twoFingerSwipeRight: NavIntent.back,
+  GestureType.twoFingerSwipeDown: NavIntent.nextParagraph,
+  GestureType.twoFingerSwipeUp: NavIntent.previousParagraph,
   GestureType.longPress: NavIntent.listen,
   GestureType.twoFingerDoubleTap: NavIntent.stopSpeech,
   GestureType.threeFingerTap: NavIntent.help,

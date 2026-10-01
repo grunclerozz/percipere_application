@@ -16,6 +16,7 @@ import '../../core/gestures/gesture_surface.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/pill_button.dart';
+import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 import '../reader/reader_controller.dart';
 import '../upload/document_picker.dart';
@@ -135,14 +136,14 @@ class CaptureScreen extends ConsumerWidget {
                   // choices from the design.
                   // Stacked, not side by side: labels like "Kasaysayan" must
                   // never wrap mid-word, at any text size.
-                  _SmallLink(
+                  SmallLink(
                     label: l10n.captureHistory,
                     icon: Icons.history,
                     focused: focused == Ids.captureHistory,
                     onPressed: () => bus.activate(Ids.captureHistory),
                   ),
                   const SizedBox(height: AppDimens.buttonGap),
-                  _SmallLink(
+                  SmallLink(
                     label: l10n.captureSettings,
                     icon: Icons.tune,
                     focused: focused == Ids.captureSettings,
@@ -159,48 +160,3 @@ class CaptureScreen extends ConsumerWidget {
   }
 }
 
-/// A compact outlined link to a secondary screen (History, Settings).
-class _SmallLink extends StatelessWidget {
-  const _SmallLink({
-    required this.label,
-    required this.icon,
-    required this.focused,
-    required this.onPressed,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool focused;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Listener(
-      onPointerDown: (e) => GestureSurface.claimPointer(context, e.pointer),
-      child: Semantics(
-        button: true,
-        label: label,
-        excludeSemantics: true,
-        onTap: onPressed,
-        child: OutlinedButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon, color: p.primary),
-          label: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(color: p.primary, fontWeight: FontWeight.w700),
-          ),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(AppDimens.minTouchTarget),
-            shape: const StadiumBorder(),
-            side: BorderSide(
-              color: focused ? p.focusRing : p.border,
-              width: focused ? 3 : 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

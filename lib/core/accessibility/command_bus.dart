@@ -8,6 +8,7 @@ import '../../app/router.dart';
 import '../../config/constants.dart';
 import '../../l10n/app_localizations.dart';
 import '../gestures/gesture_map.dart';
+import '../platform/app_closer.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_controller.dart';
 import '../tts/speech_language.dart';
@@ -313,16 +314,18 @@ class CommandBus {
     ScreenRegistration screen, {
     bool interrupt = true,
   }) => _announcer.say(
-    entryAnnouncement(screen),
+    entryAnnouncement(screen, returning: _consumeReturning()),
     screenId: screen.id,
     interrupt: interrupt,
   );
 
   /// Builds "Title. Prompt. Options: A or B. Mode hint."
-  String entryAnnouncement(ScreenRegistration screen) {
+  String entryAnnouncement(ScreenRegistration screen, {bool returning = false}) {
     final l = _l10n;
+    final title = screen.title;
     final parts = <String>[
-      if (screen.title != null) _asSentence(screen.title!(l)),
+      if (title != null)
+        returning ? l.backReturnedTo(title(l)) : _asSentence(title(l)),
       screen.prompt(l),
     ];
     final items = screen.focusables;
@@ -349,16 +352,45 @@ class CommandBus {
         : l.modeHintGestures;
   }
 
-  /// Goes back one screen, or says there is nowhere to go.
+  /// Goes back one screen (gesture, voice and Android back all land here).
+  ///
+  /// Unsaved input is confirmed first; the screen's `beforeBack` runs (the
+  /// Reader stops and saves); the destination is announced as "Bumalik sa
+  /// …". With nowhere to go back to, offers to close the app.
   Future<void> back() async {
+    final screen = activeScreen;
+    if (screen?.hasUnsavedInput?.call() ?? false) {
+      unawaited(_haptics.error());
+      return offer(_l10n.backUnsavedConfirm, () => _leave(screen));
+    }
+    return _leave(screen);
+  }
+
+  Future<void> _leave(ScreenRegistration? screen) async {
+    await screen?.beforeBack?.call();
     final router = _ref.read(routerProvider);
     if (router.canPop()) {
       unawaited(_haptics.confirm());
+      _returningAt = DateTime.now();
       router.pop();
     } else {
       unawaited(_haptics.error());
-      await say(_l10n.alreadyAtStart);
+      await offer(
+        '${_l10n.alreadyAtStart} ${_l10n.closeAppQuestion}',
+        () => _ref.read(appCloserProvider)(),
+      );
     }
+  }
+
+  /// Set when back pops a screen, so the next entry announcement says
+  /// "Bumalik sa …" instead of just the screen name.
+  DateTime? _returningAt;
+
+  bool _consumeReturning() {
+    final at = _returningAt;
+    _returningAt = null;
+    return at != null &&
+        DateTime.now().difference(at) < const Duration(seconds: 3);
   }
 
   /// Silences all speech.

@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// The user-selectable color themes (Accessibility Settings → Color theme).
-enum PaletteId {
-  /// Cream background with navy accents — the design from the screenshots.
-  defaultCream,
+import '../../config/palette.dart';
 
-  /// White on black.
-  highContrast,
-
-  /// Yellow on black.
-  yellowOnBlack,
-
-  /// Black on white.
-  blackOnWhite,
-}
+export '../../config/palette.dart' show ThemeId;
 
 /// Every color the UI uses, as a [ThemeExtension] so widgets can read it with
 /// `context.palette`.
 ///
 /// Widgets must take colors from here (or from the derived [ThemeData]), never
-/// hard-code them, so that palette changes in Settings apply everywhere.
+/// hard-code them, so that theme and text color changes apply everywhere.
 @immutable
 class AppPalette extends ThemeExtension<AppPalette> {
   /// Creates a palette. Prefer the presets via [AppPalette.of].
@@ -32,6 +21,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.secondary,
     required this.onSecondary,
     required this.secondaryOutline,
+    required this.tertiary,
     required this.heading,
     required this.body,
     required this.muted,
@@ -43,8 +33,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.shadow,
   });
 
-  /// Which preset this is.
-  final PaletteId id;
+  /// Which theme this is.
+  final ThemeId id;
 
   /// Overall light/dark brightness, used for system chrome and Material defaults.
   final Brightness brightness;
@@ -68,10 +58,13 @@ class AppPalette extends ThemeExtension<AppPalette> {
   /// separates it from the background).
   final Color secondaryOutline;
 
+  /// Fill of the small third button ("Subukan muna"): white on cream.
+  final Color tertiary;
+
   /// Headings (e.g. "Welcome to").
   final Color heading;
 
-  /// Body text, subtitles, document text.
+  /// Body text, subtitles, document text — the user's text color.
   final Color body;
 
   /// Faint text such as the Gesture Pad hint and the "Narinig" line.
@@ -95,9 +88,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
   /// Drop shadow under pill buttons.
   final Color shadow;
 
-  /// Cream/navy design from the screenshots.
-  static const AppPalette defaultCream = AppPalette(
-    id: PaletteId.defaultCream,
+  /// Cream & Navy: the design from the mockups (default).
+  static const AppPalette creamNavy = AppPalette(
+    id: ThemeId.creamNavy,
     brightness: Brightness.light,
     background: Color(0xFFF8F4EC),
     primary: Color(0xFF0B2A45),
@@ -105,6 +98,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     secondary: Color(0xFFEDE3D6),
     onSecondary: Color(0xFF0B2A45),
     secondaryOutline: Color(0x00000000),
+    tertiary: Color(0xFFFFFFFF),
     heading: Color(0xFF111111),
     body: Color(0xFF0B2A45),
     muted: Color(0x800B2A45),
@@ -116,16 +110,39 @@ class AppPalette extends ThemeExtension<AppPalette> {
     shadow: Color(0x40000000),
   );
 
-  /// White on black.
-  static const AppPalette highContrast = AppPalette(
-    id: PaletteId.highContrast,
+  /// Dark mode with yellow text: high contrast, color-blind friendly.
+  static const AppPalette darkYellow = AppPalette(
+    id: ThemeId.darkYellow,
+    brightness: Brightness.dark,
+    background: Color(0xFF000000),
+    primary: Color(0xFFFFEB3B),
+    onPrimary: Color(0xFF000000),
+    secondary: Color(0xFF121212),
+    onSecondary: Color(0xFFFFEB3B),
+    secondaryOutline: Color(0xFFFFEB3B),
+    tertiary: Color(0xFF121212),
+    heading: Color(0xFFFFEB3B),
+    body: Color(0xFFFFEB3B),
+    muted: Color(0xB3FFEB3B),
+    border: Color(0xFFFFEB3B),
+    waveform: Color(0xFFFFEB3B),
+    highlight: Color(0xFFFFEB3B),
+    onHighlight: Color(0xFF000000),
+    focusRing: Color(0xFFFFFFFF),
+    shadow: Color(0x00000000),
+  );
+
+  /// Dark mode with white text.
+  static const AppPalette darkWhite = AppPalette(
+    id: ThemeId.darkWhite,
     brightness: Brightness.dark,
     background: Color(0xFF000000),
     primary: Color(0xFFFFFFFF),
     onPrimary: Color(0xFF000000),
-    secondary: Color(0xFF1A1A1A),
+    secondary: Color(0xFF121212),
     onSecondary: Color(0xFFFFFFFF),
     secondaryOutline: Color(0xFFFFFFFF),
+    tertiary: Color(0xFF121212),
     heading: Color(0xFFFFFFFF),
     body: Color(0xFFFFFFFF),
     muted: Color(0xB3FFFFFF),
@@ -133,62 +150,32 @@ class AppPalette extends ThemeExtension<AppPalette> {
     waveform: Color(0xFFFFFFFF),
     highlight: Color(0xFFFFFFFF),
     onHighlight: Color(0xFF000000),
-    focusRing: Color(0xFFFFFFFF),
+    focusRing: Color(0xFFFFEB3B),
     shadow: Color(0x00000000),
   );
 
-  /// Yellow on black.
-  static const AppPalette yellowOnBlack = AppPalette(
-    id: PaletteId.yellowOnBlack,
-    brightness: Brightness.dark,
-    background: Color(0xFF000000),
-    primary: Color(0xFFFFE600),
-    onPrimary: Color(0xFF000000),
-    secondary: Color(0xFF1A1A1A),
-    onSecondary: Color(0xFFFFE600),
-    secondaryOutline: Color(0xFFFFE600),
-    heading: Color(0xFFFFE600),
-    body: Color(0xFFFFE600),
-    muted: Color(0xB3FFE600),
-    border: Color(0xFFFFE600),
-    waveform: Color(0xFFFFE600),
-    highlight: Color(0xFFFFE600),
-    onHighlight: Color(0xFF000000),
-    focusRing: Color(0xFFFFE600),
-    shadow: Color(0x00000000),
-  );
-
-  /// Black on white.
-  static const AppPalette blackOnWhite = AppPalette(
-    id: PaletteId.blackOnWhite,
-    brightness: Brightness.light,
-    background: Color(0xFFFFFFFF),
-    primary: Color(0xFF000000),
-    onPrimary: Color(0xFFFFFFFF),
-    secondary: Color(0xFFEBEBEB),
-    onSecondary: Color(0xFF000000),
-    secondaryOutline: Color(0xFF000000),
-    heading: Color(0xFF000000),
-    body: Color(0xFF000000),
-    muted: Color(0x99000000),
-    border: Color(0xFF000000),
-    waveform: Color(0xFF000000),
-    highlight: Color(0xFFFFE600),
-    onHighlight: Color(0xFF000000),
-    focusRing: Color(0xFF000000),
-    shadow: Color(0x33000000),
-  );
-
-  /// All presets, in the order they are offered in Settings.
-  static const List<AppPalette> presets = [
-    defaultCream,
-    highContrast,
-    yellowOnBlack,
-    blackOnWhite,
-  ];
+  /// All presets, in the order they are offered.
+  static const List<AppPalette> presets = [creamNavy, darkYellow, darkWhite];
 
   /// Looks up the preset for [id].
-  static AppPalette of(PaletteId id) => presets.firstWhere((p) => p.id == id);
+  static AppPalette of(ThemeId id) => presets.firstWhere((p) => p.id == id);
+
+  /// The preset for [theme] with the user's text color [textColorId]
+  /// (an id from `TextColors`; unknown ids fall back to the theme default).
+  /// The theme default keeps the preset's own heading color.
+  static AppPalette withTextColor(ThemeId theme, String? textColorId) {
+    final base = of(theme);
+    if (!TextColors.offers(theme, textColorId) ||
+        textColorId == TextColors.defaultFor(theme).id) {
+      return base;
+    }
+    final c = TextColors.resolve(theme, textColorId).color;
+    return base.copyWith(
+      heading: c,
+      body: c,
+      muted: c.withValues(alpha: 0.7),
+    );
+  }
 
   @override
   AppPalette copyWith({
@@ -198,6 +185,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? secondary,
     Color? onSecondary,
     Color? secondaryOutline,
+    Color? tertiary,
     Color? heading,
     Color? body,
     Color? muted,
@@ -217,6 +205,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       secondary: secondary ?? this.secondary,
       onSecondary: onSecondary ?? this.onSecondary,
       secondaryOutline: secondaryOutline ?? this.secondaryOutline,
+      tertiary: tertiary ?? this.tertiary,
       heading: heading ?? this.heading,
       body: body ?? this.body,
       muted: muted ?? this.muted,
@@ -238,8 +227,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
 /// Shorthand for reading the active [AppPalette].
 extension AppPaletteContext on BuildContext {
-  /// The active palette. Falls back to [AppPalette.defaultCream] outside an
+  /// The active palette. Falls back to [AppPalette.creamNavy] outside an
   /// app theme (e.g. in isolated widget tests).
   AppPalette get palette =>
-      Theme.of(this).extension<AppPalette>() ?? AppPalette.defaultCream;
+      Theme.of(this).extension<AppPalette>() ?? AppPalette.creamNavy;
 }

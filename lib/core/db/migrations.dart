@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1];
+  static const List<Migration> all = [_v1, _v2];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -155,4 +155,50 @@ const Migration _v1 = Migration(1, 'Initial schema', [
   )
   ''',
   'CREATE INDEX idx_wer_results_session ON wer_results (session_id)',
+]);
+
+const Migration _v2 = Migration(2, 'Email + password accounts (Phase 6B)', [
+  // Names, profile flags and sync bookkeeping. `secret_hash`/`secret_salt`
+  // now hold the password hash; `secret_kind` says how it was made:
+  // 'pin' (legacy 4-digit PIN, SHA-256 x 10 000), 'pbkdf2-sha256:<n>'
+  // (password, PBKDF2 with n iterations) or 'none' (guest).
+  'ALTER TABLE users ADD COLUMN first_name TEXT',
+  'ALTER TABLE users ADD COLUMN last_name TEXT',
+  "ALTER TABLE users ADD COLUMN secret_kind TEXT NOT NULL DEFAULT 'pin'",
+  // Security question id + hashed, normalized answer (forgot password).
+  'ALTER TABLE users ADD COLUMN security_question TEXT',
+  'ALTER TABLE users ADD COLUMN security_answer_hash TEXT',
+  'ALTER TABLE users ADD COLUMN security_answer_salt TEXT',
+  'ALTER TABLE users ADD COLUMN is_guest INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN profiling_completed INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN fingerprint_enabled INTEGER NOT NULL DEFAULT 0',
+  // Web app sync (Phase 7): synced = 1 once the server has this version.
+  'ALTER TABLE users ADD COLUMN synced INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN server_id TEXT',
+  'UPDATE users SET first_name = display_name, server_id = remote_id',
+  // Legacy PIN accounts set a (verified-unique) email when they upgrade.
+  "UPDATE users SET email = NULL WHERE secret_kind = 'pin'",
+  // The email is the username: unique, case-insensitive.
+  'CREATE UNIQUE INDEX idx_users_email ON users (email COLLATE NOCASE) '
+      'WHERE email IS NOT NULL',
+
+  // Failed logins per email (lockout survives restarts). `key` is the
+  // lowercased email, prefixed with the kind of check ('login:', 'reset:').
+  '''
+  CREATE TABLE login_attempts (
+    key          TEXT PRIMARY KEY,
+    failures     INTEGER NOT NULL DEFAULT 0,
+    locked_until INTEGER,
+    updated_at   INTEGER NOT NULL
+  )
+  ''',
+
+  // Reading history becomes per user: documents read so far belong to the
+  // profile that was logged in (if any).
+  '''
+  UPDATE documents SET user_id = (
+    SELECT u.id FROM preferences p JOIN users u ON u.id = trim(p.value, '"')
+    WHERE p.user_id = 'device' AND p.key = 'account.currentUser'
+  ) WHERE user_id IS NULL
+  ''',
 ]);

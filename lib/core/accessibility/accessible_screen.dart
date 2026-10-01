@@ -5,11 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'action_registry.dart';
+import 'command_bus.dart';
+import 'nav_intent.dart';
 import 'screen_registration.dart';
 
 /// Registers a screen's [ScreenRegistration] with the [ActionRegistry] while
 /// the screen is mounted. Becoming the active screen triggers its entry
-/// announcement (see `AccessibilityHost`).
+/// announcement (see `AccessibilityHost`). Android's back is routed through
+/// [NavIntent.back] with a [PopScope].
 class AccessibleScreen extends ConsumerStatefulWidget {
   /// Wraps [child] and registers the result of [registration].
   const AccessibleScreen({
@@ -70,5 +73,16 @@ class _AccessibleScreenState extends ConsumerState<AccessibleScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) => PopScope(
+    // Android back (button or edge swipe) is the same action as the
+    // two-finger swipe right and "bumalik": confirm unsaved input, announce
+    // the destination, offer to close the app on the first screen.
+    canPop: false,
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop) {
+        unawaited(ref.read(commandBusProvider).dispatch(NavIntent.back));
+      }
+    },
+    child: widget.child,
+  );
 }

@@ -1,5 +1,6 @@
 package ph.bataan.percipere
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// FragmentActivity: required by local_auth for the fingerprint dialog.
+class MainActivity : FlutterFragmentActivity()

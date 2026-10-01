@@ -1,0 +1,282 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../app/ids.dart';
+import '../../app/router.dart';
+import '../../app/theme/app_palette.dart';
+import '../../config/constants.dart';
+import '../../core/accessibility/accessible_screen.dart';
+import '../../core/accessibility/announcer.dart';
+import '../../core/accessibility/command_bus.dart';
+import '../../core/accessibility/haptics.dart';
+import '../../core/accessibility/nav_intent.dart';
+import '../../core/accessibility/screen_registration.dart';
+import '../../core/extraction/document_extractor.dart';
+import '../../core/gestures/gesture_surface.dart';
+import '../../core/ocr/ocr_service.dart';
+import '../../core/platform/permissions.dart';
+import '../../core/settings/settings_controller.dart';
+import '../../core/tts/speech_language.dart';
+import '../../core/widgets/live_speaking_zone.dart';
+import '../../core/widgets/pill_button.dart';
+import '../../l10n/app_localizations.dart';
+import '../reader/reader_controller.dart';
+import '../upload/document_picker.dart';
+import 'camera_guidance.dart';
+import 'camera_session.dart';
+
+/// Camera capture with audio guidance.
+///
+/// Full-screen preview; the whole screen is the gesture surface. Preview
+/// frames are read by ML Kit and turned into calm spoken hints ("Ilapit
+/// pa", "Handa na, hawakan nang maayos"). Capture by double-tap, the button,
+/// saying "kunan", or automatically once the text has been clear for a
+/// moment. If the in-app camera fails, offers the phone's camera app.
+class CameraScreen extends ConsumerStatefulWidget {
+  /// Creates the camera screen.
+  const CameraScreen({super.key, this.autoCapture = true});
+
+  /// Screen id.
+  static const String screenId = Ids.camera;
+
+  /// Take the photo automatically when the text is steady and clear.
+  /// (Becomes a user setting in Phase 6.)
+  final bool autoCapture;
+
+  @override
+  ConsumerState<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends ConsumerState<CameraScreen>
+    with WidgetsBindingObserver {
+  CameraSession? _session;
+  bool _live = false;
+  bool _capturing = false;
+  bool _starting = false;
+  final GuidanceTracker _tracker = GuidanceTracker();
+
+  AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
+  CommandBus get _bus => ref.read(commandBusProvider);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_start());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_session?.dispose());
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // The camera must be released in the background and reopened after.
+    if (state == AppLifecycleState.paused) {
+      unawaited(_stop());
+    } else if (state == AppLifecycleState.resumed && !_live && !_capturing) {
+      unawaited(_start());
+    }
+  }
+
+  Future<void> _stop() async {
+    final s = _session;
+    _session = null;
+    if (mounted) setState(() => _live = false);
+    await s?.dispose();
+  }
+
+  Future<void> _start() async {
+    if (_starting) return;
+    _starting = true;
+    try {
+      if (!await _ensurePermission() || !mounted) return;
+      final session = ref.read(cameraSessionFactoryProvider)();
+      _session = session;
+      _tracker.reset();
+      await session.start(_onFrame);
+      if (mounted) setState(() => _live = true);
+    } on Object catch (e) {
+      debugPrint('Camera failed: $e');
+      await _session?.dispose();
+      _session = null;
+      if (mounted) {
+        await _bus.offer(_l.cameraUnavailable, _useSystemCamera);
+      }
+    } finally {
+      _starting = false;
+    }
+  }
+
+  Future<bool> _ensurePermission() async {
+    final permissions = ref.read(permissionServiceProvider);
+    var access = await permissions.status(AppPermission.camera);
+    if (access == PermissionAccess.denied) {
+      await ref
+          .read(announcerProvider.notifier)
+          .say(_l.cameraPermissionExplain, interrupt: false);
+      access = await permissions.request(AppPermission.camera);
+    }
+    if (access == PermissionAccess.granted) return true;
+    if (!mounted) return false;
+    if (access == PermissionAccess.permanentlyDenied) {
+      await _bus.offer(_l.cameraDeniedPermanent, permissions.openAppSettings);
+    } else {
+      await _bus.say(_l.cameraDenied);
+    }
+    return false;
+  }
+
+  void _onFrame(FrameStats stats) {
+    if (!mounted || _capturing) return;
+    final now = DateTime.now();
+    final step = _tracker.update(Guidance.of(stats), now);
+    final speak = step.speak;
+    // Don't talk over the intro or a confirmation; the hint repeats later.
+    if (speak != null && !ref.read(announcerProvider).speaking) {
+      _tracker.markSpoken(speak, now);
+      unawaited(
+        ref
+            .read(announcerProvider.notifier)
+            .say(speak.text(_l), screenId: CameraScreen.screenId),
+      );
+    }
+    if (step.autoCapture &&
+        widget.autoCapture &&
+        ref.read(settingsProvider).autoCapture) {
+      unawaited(_capture());
+    }
+  }
+
+  Future<void> _capture() async {
+    final session = _session;
+    if (_capturing || session == null || !_live) {
+      if (!_live && !_capturing) await _bus.notAvailable();
+      return;
+    }
+    setState(() => _capturing = true);
+    unawaited(ref.read(hapticsProvider).confirm());
+    unawaited(_bus.say(_l.cameraCapturing, protect: true));
+    try {
+      final path = await session.takePicture();
+      if (!mounted) return;
+      _openReader(
+        DocumentFile(path: path, kind: DocumentKind.image, fromCamera: true),
+      );
+    } on Object catch (e) {
+      debugPrint('Capture failed: $e');
+      if (!mounted) return;
+      setState(() => _capturing = false);
+      unawaited(ref.read(hapticsProvider).error());
+      await _bus.say(_l.cameraCaptureFailed);
+      await _stop();
+      await _start();
+    }
+  }
+
+  Future<void> _useSystemCamera() async {
+    final result = await ref
+        .read(documentPickerProvider)
+        .takePhotoWithSystemCamera();
+    if (result is Picked && mounted) _openReader(result.file);
+  }
+
+  void _openReader(DocumentFile file) {
+    // Replace the camera: "back" from the Reader returns to Capture.
+    ref
+        .read(routerProvider)
+        .pushReplacement(AppRoutes.reader, extra: FileSource(file));
+  }
+
+  ScreenRegistration _registration(WidgetRef ref) => ScreenRegistration(
+    id: CameraScreen.screenId,
+    title: (l) => l.screenCamera,
+    prompt: (l) => l.cameraIntro,
+    listOptions: false,
+    includeModeHint: false,
+    help: (l) => l.helpCamera,
+    actions: [
+      A11yAction(
+        id: Ids.cameraCapture,
+        label: (l) => l.cameraCaptureButton,
+        voiceSynonyms: const ['kunan', 'capture', 'litrato', 'picture'],
+        // The capture itself says "Kinukunan na."
+        confirmation: (_) => '',
+        onActivate: (_) => _capture(),
+      ),
+    ],
+    intentHandlers: {
+      NavIntent.activate: (bus) => bus.activate(Ids.cameraCapture),
+      NavIntent.capture: (bus) => bus.activate(Ids.cameraCapture),
+      NavIntent.camera: (bus) => bus.activate(Ids.cameraCapture),
+    },
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = context.palette;
+    final session = _session;
+
+    return AccessibleScreen(
+      registration: _registration,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: GestureSurface(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ExcludeSemantics(
+                child: _live && session != null
+                    ? Center(child: session.preview())
+                    : const SizedBox.expand(),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: p.background.withValues(alpha: 0.9),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(AppDimens.panelRadius),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: LiveSpeakingZone(
+                            screenId: CameraScreen.screenId,
+                            fallback: l10n.screenCamera,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      PillButton(
+                        label: l10n.cameraCaptureButton,
+                        onPressed: _capturing
+                            ? null
+                            : () => ref
+                                  .read(commandBusProvider)
+                                  .activate(Ids.cameraCapture),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

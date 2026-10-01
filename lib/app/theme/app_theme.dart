@@ -27,6 +27,15 @@ class AppTextMetrics extends ThemeExtension<AppTextMetrics> {
   @override
   AppTextMetrics lerp(AppTextMetrics? other, double t) =>
       other == null || t < 0.5 ? this : other;
+
+  @override
+  bool operator ==(Object other) =>
+      other is AppTextMetrics &&
+      other.textSize == textSize &&
+      other.uiScale == uiScale;
+
+  @override
+  int get hashCode => Object.hash(textSize, uiScale);
 }
 
 /// Builds the app [ThemeData] from the user's [ThemeSettings].

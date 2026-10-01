@@ -201,13 +201,12 @@ class AccountRepository {
     where: "synced = 0 AND is_guest = 0 AND secret_kind != 'pin'",
   )).map(_from).toList();
 
-  Future<void> _change(String id, Map<String, Object?> values) =>
-      _db.update(
-        'users',
-        {...values, 'updated_at': _now, 'synced': 0},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+  Future<void> _change(String id, Map<String, Object?> values) => _db.update(
+    'users',
+    {...values, 'updated_at': _now, 'synced': 0},
+    where: 'id = ?',
+    whereArgs: [id],
+  );
 
   // ── Guest ─────────────────────────────────────────────────────────────────
 
@@ -235,30 +234,28 @@ class AccountRepository {
   /// Moves the guest's preferences and reading history to [accountId], then
   /// deletes the guest profile. The account's own preferences are replaced
   /// by the guest's (it was just created from them anyway).
-  Future<void> migrateGuest(String guestId, String accountId) =>
-      _db.transaction((txn) async {
-        await txn.update(
-          'documents',
-          {'user_id': accountId},
-          where: 'user_id = ?',
-          whereArgs: [guestId],
-        );
-        await txn.rawInsert(
-          'INSERT OR REPLACE INTO preferences (user_id, key, value, updated_at) '
-          'SELECT ?, key, value, updated_at FROM preferences WHERE user_id = ?',
-          [accountId, guestId],
-        );
-        await txn.delete(
-          'preferences',
-          where: 'user_id = ?',
-          whereArgs: [guestId],
-        );
-        await txn.delete(
-          'users',
-          where: 'id = ? AND is_guest = 1',
-          whereArgs: [guestId],
-        );
-      });
+  Future<void> migrateGuest(
+    String guestId,
+    String accountId,
+  ) => _db.transaction((txn) async {
+    await txn.update(
+      'documents',
+      {'user_id': accountId},
+      where: 'user_id = ?',
+      whereArgs: [guestId],
+    );
+    await txn.rawInsert(
+      'INSERT OR REPLACE INTO preferences (user_id, key, value, updated_at) '
+      'SELECT ?, key, value, updated_at FROM preferences WHERE user_id = ?',
+      [accountId, guestId],
+    );
+    await txn.delete('preferences', where: 'user_id = ?', whereArgs: [guestId]);
+    await txn.delete(
+      'users',
+      where: 'id = ? AND is_guest = 1',
+      whereArgs: [guestId],
+    );
+  });
 
   // ── Legacy PIN accounts (migration only) ──────────────────────────────────
 

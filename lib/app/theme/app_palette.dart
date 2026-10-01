@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/palette.dart';
@@ -170,11 +171,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       return base;
     }
     final c = TextColors.resolve(theme, textColorId).color;
-    return base.copyWith(
-      heading: c,
-      body: c,
-      muted: c.withValues(alpha: 0.7),
-    );
+    return base.copyWith(heading: c, body: c, muted: c.withValues(alpha: 0.7));
   }
 
   @override
@@ -223,6 +220,36 @@ class AppPalette extends ThemeExtension<AppPalette> {
   @override
   AppPalette lerp(AppPalette? other, double t) =>
       other == null || t < 0.5 ? this : other;
+
+  List<Object> get _fields => [
+    id,
+    brightness,
+    background,
+    primary,
+    onPrimary,
+    secondary,
+    onSecondary,
+    secondaryOutline,
+    tertiary,
+    heading,
+    body,
+    muted,
+    border,
+    waveform,
+    highlight,
+    onHighlight,
+    focusRing,
+    shadow,
+  ];
+
+  // Value equality: an unchanged palette must not restart the theme
+  // animation on every rebuild.
+  @override
+  bool operator ==(Object other) =>
+      other is AppPalette && listEquals(other._fields, _fields);
+
+  @override
+  int get hashCode => Object.hashAll(_fields);
 }
 
 /// Shorthand for reading the active [AppPalette].

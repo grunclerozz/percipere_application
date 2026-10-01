@@ -104,7 +104,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final l = bus.strings;
     final field = _form.fields.single;
     if (field.isEmpty) {
-      return reportInvalid(_form, field, l.formMissing(field.label(l)), bus, ref);
+      return reportInvalid(
+        _form,
+        field,
+        l.formMissing(field.label(l)),
+        bus,
+        ref,
+      );
     }
     setState(() => _busy = true);
     try {
@@ -207,7 +213,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       id: _screenId,
       title: (l) => l.screenForgotPassword,
       prompt: (l) => switch (_stage) {
-        _Stage.email => '${l.forgotIntro} ${l.forgotAdmin} ${form.focusStart(l)}',
+        _Stage.email =>
+          '${l.forgotIntro} ${l.forgotAdmin} ${form.focusStart(l)}',
         _ => form.focusStart(l),
       },
       autoListen: true,

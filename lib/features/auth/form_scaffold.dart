@@ -51,9 +51,8 @@ class FormScaffold extends StatelessWidget {
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: context.palette.primary),
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(color: context.palette.primary),
               ),
             ),
             const SizedBox(height: 10),

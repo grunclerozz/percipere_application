@@ -1,5 +1,3 @@
-/// Stable screen and action ids, shared by screens, the command bus and
-/// (later) usage logs. Never rename a shipped id: logs are keyed on them.
 abstract final class Ids {
   /// Welcome screen.
   static const String welcome = 'welcome';
@@ -72,7 +70,6 @@ abstract final class Ids {
 
   /// Setting row.
   static const String settingAutoCapture = 'settings.autoCapture';
-
 
   /// Setting row.
   static const String settingTtsVoices = 'settings.ttsVoices';

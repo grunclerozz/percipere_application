@@ -31,6 +31,7 @@ Mockups: `docs/ui/welcome screen.png`, `registration_form.png`, `register_confir
 - Per field: speak the field name → listen (or wait for typing) → read back what was heard
   for confirmation. **Password: only the number of characters is confirmed, never the text.**
 - Spelled emails by voice: "at" → `@`, "dot" → `.` (also "tuldok").
+- Dictated passwords are lowercased with spaces removed; typed ones are kept exactly.
 - Submit: **double-tap the Gesture Pad** or say **"submit" / "tapos na"** — shown as the
   hint "Pindutin ng dalawang beses ang gesture area o sabihin ang salitang submit or tapos
   na" (mockup), used on every form screen.
@@ -60,7 +61,8 @@ Mockups: `docs/ui/welcome screen.png`, `registration_form.png`, `register_confir
 
 ## Lockout
 - After **5** failed attempts: **30 s** wait, **doubling** on each further failure, with a
-  spoken countdown. Stored per email so it survives an app restart.
+  spoken countdown. Stored per email so it survives an app restart. Security-answer
+  guesses lock the same way (own counter).
 
 ## After auth
 - After **registering** → profiling.

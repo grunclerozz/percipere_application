@@ -93,13 +93,16 @@ class DocumentsDao {
     return rows.isEmpty ? null : DocumentRecord._from(rows.single);
   }
 
-  /// Newest first; [query] filters by title or text.
-  Future<List<DocumentRecord>> list({String? query}) async {
+  /// [userId]'s documents, newest first; [query] filters by title or text.
+  Future<List<DocumentRecord>> list({String? userId, String? query}) async {
     final q = query?.trim();
+    final search = q != null && q.isNotEmpty;
     final rows = await _db.query(
       'documents',
-      where: q == null || q.isEmpty ? null : 'title LIKE ? OR full_text LIKE ?',
-      whereArgs: q == null || q.isEmpty ? null : ['%$q%', '%$q%'],
+      where: search
+          ? 'user_id IS ? AND (title LIKE ? OR full_text LIKE ?)'
+          : 'user_id IS ?',
+      whereArgs: search ? [userId, '%$q%', '%$q%'] : [userId],
       orderBy: 'COALESCE(last_opened_at, created_at) DESC, id DESC',
     );
     return rows.map(DocumentRecord._from).toList();

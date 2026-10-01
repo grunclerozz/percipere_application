@@ -39,6 +39,7 @@ void main() {
       'outbox',
       'sus_responses',
       'wer_results',
+      'login_attempts',
     });
   });
 
@@ -117,5 +118,77 @@ void main() {
     )).single;
     expect(row['status'], 'pending');
     expect(row['attempts'], 0);
+  });
+
+  test('v1 → v2: PIN accounts become legacy, history follows the logged-in '
+      'profile, emails are unique', () async {
+    final db = await databaseFactoryFfi.openDatabase(
+      inMemoryDatabasePath,
+      options: OpenDatabaseOptions(
+        version: 1,
+        singleInstance: false,
+        onCreate: (db, _) => Migrations.migrate(db, 0, 1),
+      ),
+    );
+    addTearDown(db.close);
+    const now = 1700000000000;
+    for (final id in ['u1', 'u2']) {
+      await db.insert('users', {
+        'id': id,
+        'display_name': id == 'u1' ? 'Ana' : 'Ben',
+        'email': 'same@example.com',
+        'secret_hash': 'h',
+        'secret_salt': 's',
+        'remote_id': id == 'u1' ? 'r1' : null,
+        'created_at': now,
+        'updated_at': now,
+      });
+    }
+    await db.insert('preferences', {
+      'user_id': 'device',
+      'key': 'account.currentUser',
+      'value': '"u1"',
+      'updated_at': now,
+    });
+    await db.insert('documents', {
+      'title': 'Liham',
+      'full_text': 'Magandang araw.',
+      'source_type': 'camera',
+      'created_at': now,
+      'updated_at': now,
+    });
+
+    await db.transaction((txn) => Migrations.migrate(txn, 1, 2));
+
+    final ana = (await db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: ['u1'],
+    )).single;
+    expect(ana['secret_kind'], 'pin');
+    expect(ana['first_name'], 'Ana');
+    expect(ana['server_id'], 'r1');
+    expect(ana['email'], isNull, reason: 'set again when upgrading');
+    expect(ana['synced'], 0);
+    expect(ana['is_guest'], 0);
+    expect(ana['profiling_completed'], 0);
+    expect((await db.query('documents')).single['user_id'], 'u1');
+
+    // The email is now a unique username (case-insensitive).
+    await db.update(
+      'users',
+      {'email': 'ana@example.com'},
+      where: 'id = ?',
+      whereArgs: ['u1'],
+    );
+    await expectLater(
+      db.update(
+        'users',
+        {'email': 'ANA@example.com'},
+        where: 'id = ?',
+        whereArgs: ['u2'],
+      ),
+      throwsA(isA<DatabaseException>()),
+    );
   });
 }

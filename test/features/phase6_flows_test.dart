@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,18 +5,18 @@ import 'package:percipere_app/app/router.dart';
 import 'package:percipere_app/app/theme/app_palette.dart';
 import 'package:percipere_app/core/accessibility/command_bus.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
+import 'package:percipere_app/core/auth/session.dart';
 import 'package:percipere_app/core/db/daos/documents_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
-import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/widgets/gesture_pad.dart';
-import 'package:percipere_app/features/account/account_repository.dart';
-import 'package:percipere_app/features/account/account_screen.dart';
+import 'package:percipere_app/features/auth/auth_choice_screen.dart';
 import 'package:percipere_app/features/capture/capture_screen.dart';
 import 'package:percipere_app/features/history/history_screen.dart';
 import 'package:percipere_app/features/reader/reader_screen.dart';
 import 'package:percipere_app/features/settings/settings_screen.dart';
+import 'package:percipere_app/features/setup/profiling_screen.dart';
 
 import '../helpers/fakes.dart';
 import '../helpers/pump_app.dart';
@@ -51,13 +49,13 @@ extension on WidgetTester {
   Future<void> swipeRight() => swipe(const Offset(150, 0));
   Future<void> swipeUp() => swipe(const Offset(0, -150));
 
-  Future<void> twoFingerSwipeDown() async {
+  Future<void> twoFingerSwipeRight() async {
     final a = await startGesture(pad, pointer: 41);
-    final b = await startGesture(pad + const Offset(40, 0), pointer: 42);
+    final b = await startGesture(pad + const Offset(0, 40), pointer: 42);
     for (var i = 1; i <= 5; i++) {
       await pump(const Duration(milliseconds: 20));
-      await a.moveTo(pad + Offset(0, 30.0 * i));
-      await b.moveTo(pad + Offset(40, 30.0 * i));
+      await a.moveTo(pad + Offset(30.0 * i, 0));
+      await b.moveTo(pad + Offset(30.0 * i, 40));
     }
     await a.up();
     await b.up();
@@ -92,15 +90,16 @@ void main() {
       expect(env.tts.transcript, contains('Mga Setting.'));
 
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 13.');
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 18.');
 
       await tester.swipeUp();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.1x');
-      expect(env.tts.rates.last, 1.1, reason: 'demonstrated at the new speed');
-      expect(find.text('1.1x'), findsOneWidget);
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.25x');
+      expect(env.tts.rates.last, 1.25, reason: 'demonstrated at the new speed');
+      expect(find.text('1.25x'), findsOneWidget);
       expect(
-        await PreferencesDao(env.database.db).get(PrefKeys.readingRate),
-        1.1,
+        await PreferencesDao(env.database.db)
+            .get(PrefKeys.readingRate, userId: env.account!.id),
+        1.25,
       );
     });
 
@@ -110,19 +109,19 @@ void main() {
       final env = await _start(tester);
       await tester.tap(find.text('Mga Setting'));
       await tester.pumpAndSettle();
-      for (var i = 0; i < 7; i++) {
-        await tester.swipeRight(); // … to "Kulay"
+      for (var i = 0; i < 6; i++) {
+        await tester.swipeRight(); // … to "Tema"
       }
-      expect(env.tts.spoken.last, startsWith('Kulay: Karaniwan'));
+      expect(env.tts.spoken.last, startsWith('Tema: Cream at Navy'));
       await tester.doubleTapPad();
-      expect(env.tts.spoken.last, 'Kulay: Puti sa itim');
+      expect(env.tts.spoken.last, 'Tema: Dark mode na dilaw ang teksto');
       final bg = tester
           .widget<Scaffold>(find.byType(Scaffold).first)
           .backgroundColor;
       final theme = Theme.of(tester.element(find.byType(SettingsScreen)));
       expect(
         bg ?? theme.scaffoldBackgroundColor,
-        AppPalette.highContrast.background,
+        AppPalette.darkYellow.background,
       );
     });
 
@@ -165,6 +164,7 @@ void main() {
           fullText: sampleText,
           sourceType: 'docx',
           language: 'fil',
+          userId: env.account!.id,
         ),
       ))!;
       await tester.runAsync(
@@ -176,6 +176,7 @@ void main() {
           fullText: 'Bigas 250.00',
           sourceType: 'camera',
           language: 'fil',
+          userId: env.account!.id,
         ),
       ))!;
       await tester.tap(find.text('Kasaysayan'));
@@ -199,14 +200,19 @@ void main() {
       expect(find.byType(ReaderScreen), findsOneWidget);
 
       // Back to History: it reloads (Liham was just reopened → first).
-      await tester.twoFingerSwipeDown();
+      await tester.twoFingerSwipeRight();
       expect(find.byType(HistoryScreen), findsOneWidget);
       final titles = tester
           .widgetList<Text>(find.textContaining('Liham kay Nanay'))
           .toList();
       expect(titles, isNotEmpty);
       final dao = DocumentsDao(env.database.db);
-      expect((await tester.runAsync(() => dao.list()))!.first.id, a);
+      expect(
+        (await tester.runAsync(() => dao.list(userId: env.account!.id)))!
+            .first
+            .id,
+        a,
+      );
     });
 
     testWidgets('swipe up → options → rename by dictation', (tester) async {
@@ -279,93 +285,77 @@ void main() {
     });
   });
 
-  group('Account', () {
-    testWidgets('create a profile by dictation and gestures; it keeps the '
-        'current settings and logs in', (tester) async {
-      final env = await _start(tester, mic: true);
-      final container = tester.scope;
-      await tester.runAsync(
-        () => container
-            .read(settingsProvider.notifier)
-            .update((s) => s.copyWith(textScale: 1.3)),
-      );
-      unawaited(container.read(routerProvider).push(AppRoutes.account));
-      await tester.pumpAndSettle();
-      expect(find.byType(AccountScreen), findsOneWidget);
-      expect(env.tts.transcript, contains('walang account'));
-
-      await tester.swipeRight(); // Gumawa ng profile
-      await tester.doubleTapPad();
-      expect(env.tts.transcript, contains('Ano ang iyong pangalan?'));
-
-      // Long-press to dictate the name.
-      final g = await tester.startGesture(tester.pad);
-      await tester.pump(const Duration(milliseconds: 700));
-      await g.up();
-      await tester.pumpAndSettle();
-      env.speech.hear('Juan');
-      await tester.pumpAndSettle();
-      expect(env.tts.transcript, contains('Pangalan: Juan.'));
-
-      await tester.doubleTapPad(); // continue → email
-      expect(env.tts.transcript, contains('Email, kung mayroon.'));
-      await tester.swipeRight(); // skip → PIN
-      expect(env.tts.transcript, contains('Gumawa ng apat na numerong PIN.'));
-
-      // PIN 1234 with the dial: up = +1, double-tap = enter.
-      Future<void> enterPin() async {
-        for (var digit = 1; digit <= 4; digit++) {
-          for (var i = 0; i < digit; i++) {
-            await tester.swipeUp();
-          }
-          await tester.doubleTapPad();
-        }
-      }
-
-      await enterPin();
-      expect(env.tts.transcript, contains('Ilagay ulit ang PIN'));
-      await enterPin();
-      await tester.pumpAndSettle();
-
-      expect(env.tts.transcript, contains('Nagawa ang profile ni Juan'));
-      final account = container.read(currentAccountProvider);
-      expect(account?.name, 'Juan');
-      expect(container.read(settingsProvider.notifier).scope, account!.id);
-      expect(container.read(settingsProvider).textScale, 1.3);
-      expect(
-        await tester.runAsync(
-          () => AccountRepository(env.database.db).verify(account.id, '1234'),
-        ),
-        isTrue,
-      );
-      expect(find.byType(AccountScreen), findsOneWidget);
-    });
-
-    testWidgets('log in: wrong PIN, then the right one by voice', (
+  group('Settings (6B)', () {
+    testWidgets('Logout asks first, then "Nais mo bang mag login?"', (
       tester,
     ) async {
-      final env = await _start(tester, mic: true);
-      final repo = AccountRepository(env.database.db);
-      await tester.runAsync(() => repo.create(name: 'Ana', pin: '2468'));
-      final container = tester.scope;
-      unawaited(container.read(routerProvider).push(AppRoutes.login));
+      final env = await _start(tester);
+      await tester.tap(find.text('Mga Setting'));
       await tester.pumpAndSettle();
-      expect(env.tts.transcript, contains('Pumili ng profile.'));
+      final bus = tester.scope.read(commandBusProvider);
+      await bus.handleUtterance('logout');
+      await tester.pumpAndSettle();
+      expect(
+        env.tts.transcript,
+        contains('Sigurado ka bang gusto mong mag-logout?'),
+      );
+      expect(env.sessions.userId, isNotNull, reason: 'not yet');
 
-      await tester.swipeRight(); // Ana
       await tester.doubleTapPad();
-      expect(env.tts.spoken.last, 'Ilagay ang PIN ni Ana.');
+      expect(env.tts.transcript, contains('Naka-logout ka na.'));
+      expect(env.sessions.userId, isNull);
+      expect(find.byType(AuthChoiceScreen), findsOneWidget);
+      expect(
+        env.tts.transcript,
+        contains('Nais mo bang mag login sa iyong account?'),
+      );
+    });
 
-      final cb = container.read(commandBusProvider);
-      await cb.handleUtterance('isa dalawa tatlo apat');
+    testWidgets('"Ulitin ang setup" opens the full setup', (tester) async {
+      final env = await _start(tester);
+      await tester.tap(find.text('Mga Setting'));
       await tester.pumpAndSettle();
-      expect(env.tts.transcript, contains('Mali ang PIN. Subukan ulit.'));
-      expect(container.read(currentAccountProvider), isNull);
+      await tester.scope
+          .read(commandBusProvider)
+          .handleUtterance('ulitin ang setup');
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfilingScreen), findsOneWidget);
+      expect(env.tts.transcript, contains('Hakbang 1 ng 10.'));
+    });
 
-      await cb.handleUtterance('dalawa apat anim walo');
+    testWidgets('guests hear the registration reminder once in Settings', (
+      tester,
+    ) async {
+      final env = await createEnv(
+        tester,
+        permissions: FakePermissions(micOnRequest: PermissionAccess.denied),
+      );
+      await pumpApp(tester, env);
+      final container = tester.scope;
+      await container
+          .read(currentAccountProvider.notifier)
+          .startGuest('Bisita');
+      container.read(routerProvider).go(AppRoutes.capture);
       await tester.pumpAndSettle();
-      expect(env.tts.transcript, contains('Maligayang pagbabalik, Ana.'));
-      expect(container.read(currentAccountProvider)?.name, 'Ana');
+
+      Future<void> openSettings() async {
+        await tester.tap(find.text('Mga Setting'));
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
+      }
+
+      const reminder =
+          'Naka-save ito sa phone na ito lamang. Mag-register para hindi ito '
+          'mawala.';
+      await openSettings();
+      expect(env.tts.transcript, contains(reminder));
+
+      await tester.scope.read(commandBusProvider).handleUtterance('bumalik');
+      await tester.pumpAndSettle();
+      env.tts.spoken.clear();
+      await openSettings();
+      expect(env.tts.transcript, isNot(contains('Mag-register para')));
     });
   });
 }

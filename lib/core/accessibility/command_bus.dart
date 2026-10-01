@@ -320,7 +320,10 @@ class CommandBus {
   );
 
   /// Builds "Title. Prompt. Options: A or B. Mode hint."
-  String entryAnnouncement(ScreenRegistration screen, {bool returning = false}) {
+  String entryAnnouncement(
+    ScreenRegistration screen, {
+    bool returning = false,
+  }) {
     final l = _l10n;
     final title = screen.title;
     final parts = <String>[

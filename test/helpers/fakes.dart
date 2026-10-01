@@ -4,11 +4,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:percipere_app/core/accessibility/haptics.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
+import 'package:percipere_app/core/auth/account.dart';
+import 'package:percipere_app/core/auth/account_repository.dart';
+import 'package:percipere_app/core/auth/biometrics.dart';
+import 'package:percipere_app/core/auth/login_throttle.dart';
+import 'package:percipere_app/core/auth/password_hasher.dart';
+import 'package:percipere_app/core/auth/session.dart';
+import 'package:percipere_app/core/auth/session_store.dart';
 import 'package:percipere_app/core/db/app_database.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/core/extraction/extraction_exception.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
+import 'package:percipere_app/core/platform/app_closer.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/platform/system_settings.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
@@ -263,41 +271,31 @@ class FakePermissions implements PermissionService {
   }
 }
 
-AppDatabase? _shared;
+// Kept reachable for the whole run, so no connection is ever finalized
+// mid-run.
+final List<AppDatabase> _databases = [];
 
 /// An empty in-memory database. Uses the no-isolate FFI factory so it works
-/// inside `testWidgets`' fake-async zone.
-///
-/// One connection per test process, never closed, wiped before each test:
-/// opening and closing a connection per test made the native SQLite library
-/// crash the test process (access violation) now and then under parallel
-/// runs — statements finalized after their connection was gone.
+/// inside `testWidgets`' fake-async zone. A new one per test (isolated from
+/// work a previous test's widgets left running), never closed; in-memory
+/// databases are freed when the test process exits.
 Future<AppDatabase> openTestDatabase() async {
   sqfliteFfiInit();
-  final db = _shared ??= await AppDatabase.open(
+  final db = await AppDatabase.open(
     factory: databaseFactoryFfiNoIsolate,
-    path: inMemoryDatabasePath,
+    path: 'file:percipere_test_${_databases.length}?mode=memory',
+    singleInstance: false,
   );
-  final batch = db.db.batch();
-  for (final table in const [
-    'documents',
-    'preferences',
-    'usage_logs',
-    'outbox',
-    'sus_responses',
-    'wer_results',
-    'users',
-  ]) {
-    batch.delete(table);
-  }
-  await batch.commit(noResult: true);
+  _databases.add(db);
   return db;
 }
 
 /// Test doubles for everything `bootstrap()` normally provides.
 ///
-/// Defaults to a fresh install: no saved mode, Filipino voice installed,
-/// microphone not yet allowed.
+/// Defaults to a fresh install: nobody logged in, Filipino voice installed,
+/// microphone not yet allowed. With [TestEnv.create]'s `loggedIn` (the
+/// default whenever a navigation mode is given) a registered account that
+/// finished the setup is logged in, so the app starts on Capture.
 class TestEnv {
   /// Creates a test environment.
   TestEnv({
@@ -307,6 +305,7 @@ class TestEnv {
     FakePermissions? permissions,
     this.mode,
     this.appSettings,
+    this.account,
   }) : tts = tts ?? FakeTts(),
        speech = speech ?? FakeSpeechInput(),
        permissions = permissions ?? FakePermissions();
@@ -318,8 +317,22 @@ class TestEnv {
     FakePermissions? permissions,
     NavMode? mode,
     AppSettings? appSettings,
+    bool? loggedIn,
+    bool setupDone = true,
   }) async {
     final database = await openTestDatabase();
+    Account? account;
+    if (loggedIn ?? mode != null) {
+      final repo = AccountRepository(database.db, testHasher);
+      final a = await repo.register(
+        firstName: 'Ana',
+        lastName: 'Cruz',
+        email: testEmail,
+        password: testPassword,
+      );
+      await repo.setProfilingCompleted(a.id, setupDone);
+      account = await repo.get(a.id);
+    }
     return TestEnv(
       database: database,
       tts: tts,
@@ -327,8 +340,38 @@ class TestEnv {
       permissions: permissions,
       mode: mode,
       appSettings: appSettings,
+      account: account,
     );
   }
+
+  /// Email of the test account (test value only).
+  static const String testEmail = 'ana@example.com';
+
+  /// Password of the test account (test value only).
+  static const String testPassword = 'test-pass-123';
+
+  /// Fast hashing for tests (same algorithm, few iterations, no isolate).
+  static const PasswordHasher testHasher = PasswordHasher(
+    iterations: 1000,
+    useIsolate: false,
+  );
+
+  /// The logged-in account at "launch", if any.
+  final Account? account;
+
+  /// Saved session (secure storage stand-in).
+  late final MemorySessionStore sessions = MemorySessionStore(
+    userId: account?.id,
+  );
+
+  /// Scripted fingerprint sensor.
+  final FakeBiometrics biometrics = FakeBiometrics();
+
+  /// The clock the login lockout reads (advance it to let a lockout end).
+  DateTime now = DateTime(2026, 10, 1, 9);
+
+  /// Times "close the app" ran.
+  int appClosed = 0;
 
   /// In-memory database.
   final AppDatabase database;
@@ -370,6 +413,17 @@ class TestEnv {
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(tts.voices)),
     initialSettingsProvider.overrideWithValue(
       (appSettings ?? const AppSettings()).copyWith(navMode: mode),
+    ),
+    if (account != null) ...[
+      initialAccountProvider.overrideWithValue(account),
+      initialSettingsScopeProvider.overrideWithValue(account!.id),
+    ],
+    passwordHasherProvider.overrideWithValue(testHasher),
+    sessionStoreProvider.overrideWithValue(sessions),
+    biometricsProvider.overrideWithValue(biometrics),
+    appCloserProvider.overrideWithValue(() => appClosed++),
+    loginThrottleProvider.overrideWith(
+      (ref) => LoginThrottle(database.db, clock: () => now),
     ),
     initialMicGrantedProvider.overrideWithValue(
       permissions.access[AppPermission.microphone] == PermissionAccess.granted,
@@ -559,4 +613,25 @@ abstract final class Frames {
     touchesEdge: false,
     meanLuma: 20,
   );
+}
+
+/// Scripted fingerprint sensor.
+class FakeBiometrics implements Biometrics {
+  /// Whether a fingerprint is enrolled.
+  bool enrolled = false;
+
+  /// What the next check returns.
+  BiometricResult next = BiometricResult.success;
+
+  /// Checks shown.
+  int prompts = 0;
+
+  @override
+  Future<bool> available() async => enrolled;
+
+  @override
+  Future<BiometricResult> authenticate(String reason) async {
+    prompts++;
+    return next;
+  }
 }

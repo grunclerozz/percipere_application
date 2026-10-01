@@ -164,10 +164,10 @@ abstract class AppLocalizations {
   /// **'Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal para magsalita.'**
   String get gestureAreaHintMenu;
 
-  /// Screen-reader hint of the Gesture Pad on the Reader screen.
+  /// Gesture Pad hint on the Reader.
   ///
   /// In fil, this message translates to:
-  /// **'I-tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.'**
+  /// **'I-double tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.'**
   String get gestureAreaHintReader;
 
   /// Speaking Zone line showing what the speech recognizer heard.
@@ -206,16 +206,10 @@ abstract class AppLocalizations {
   /// **'Pagbasa'**
   String get screenReader;
 
-  /// Spoken on entering the Welcome screen.
+  /// Spoken help on Welcome.
   ///
   /// In fil, this message translates to:
-  /// **'Maligayang pagdating sa Percipere, isang app na ginawa para sa iyo. Paano mo gustong mag-navigate sa app? I-double tap kahit saan sa screen para sa pa-boses. Mag-swipe pakanan para sa pa-galaw. I-tap para marinig ulit ito.'**
-  String get welcomeIntro;
-
-  /// Spoken help on the Welcome screen.
-  ///
-  /// In fil, this message translates to:
-  /// **'I-double tap: pa-boses. Mag-swipe pakanan: pa-galaw. I-tap: ulitin ang tanong.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpWelcome;
 
   /// Confirmation after choosing voice navigation.
@@ -229,12 +223,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Napili mo ang pa-galaw.'**
   String get modeChosenGestures;
-
-  /// Spoken on entering the Reader with a document.
-  ///
-  /// In fil, this message translates to:
-  /// **'Handa na ang dokumento.'**
-  String get readerReady;
 
   /// Lists a screen's options in its entry announcement.
   ///
@@ -284,10 +272,10 @@ abstract class AppLocalizations {
   /// **'Hindi magagamit ang utos na iyan dito.'**
   String get commandNotAvailable;
 
-  /// Back gesture with no previous screen.
+  /// Back with no previous screen.
   ///
   /// In fil, this message translates to:
-  /// **'Nasa unang screen ka na.'**
+  /// **'Nasa simula ka na.'**
   String get alreadyAtStart;
 
   /// Start of the spoken help.
@@ -296,10 +284,10 @@ abstract class AppLocalizations {
   /// **'Tulong para sa {screen}.'**
   String helpTitle(String screen);
 
-  /// Spoken help listing the menu gestures.
+  /// Default spoken help.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.'**
   String get helpGesturesMenu;
 
   /// Spoken once per launch when TalkBack is on.
@@ -331,12 +319,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Handa na ang boses na Filipino.'**
   String get filipinoVoiceReady;
-
-  /// Added to the Welcome prompt when the microphone is already allowed.
-  ///
-  /// In fil, this message translates to:
-  /// **'Maaari mo ring sabihin ang “boses” o “galaw”.'**
-  String get welcomeSayHint;
 
   /// Speaking Zone subtitle while listening for a command.
   ///
@@ -518,10 +500,10 @@ abstract class AppLocalizations {
   /// **'Hindi mabuksan ang camera. Maaari kong buksan ang camera app ng telepono.'**
   String get cameraUnavailable;
 
-  /// Spoken help on the camera screen.
+  /// Spoken help on the camera.
   ///
   /// In fil, this message translates to:
-  /// **'I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pababa gamit ang dalawang daliri: bumalik.'**
+  /// **'I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpCamera;
 
   /// Spoken as the system file picker opens.
@@ -590,10 +572,10 @@ abstract class AppLocalizations {
   /// **'May password ang PDF na ito, kaya hindi ko ito mabasa.'**
   String get readerPasswordProtected;
 
-  /// Ends the Reader's ready announcement.
+  /// Auto-read off: how to start.
   ///
   /// In fil, this message translates to:
-  /// **'I-tap, o sabihin ang “basahin”, para magsimula.'**
+  /// **'Mag-double-tap para simulan ang pagbasa, o sabihin ang “basahin”.'**
   String get readerStartHint;
 
   /// Reopened from history at a saved position.
@@ -653,7 +635,7 @@ abstract class AppLocalizations {
   /// Spoken help on the Reader.
   ///
   /// In fil, this message translates to:
-  /// **'I-tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pakanan o pakaliwa gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-double tap: ulitin ang pangungusap. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.'**
+  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.'**
   String get helpReader;
 
   /// Capture screen: open Reading History.
@@ -680,10 +662,10 @@ abstract class AppLocalizations {
   /// **'Mag-swipe pakanan o pakaliwa para pumili ng setting, at pataas o pababa para baguhin ito.'**
   String get settingsIntro;
 
-  /// Spoken help on Settings.
+  /// Spoken help in Settings.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pababa gamit ang dalawang daliri: bumalik.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpSettings;
 
   /// A setting and its value, e.g. "Bilis ng pagbasa: 1.2x".
@@ -728,12 +710,6 @@ abstract class AppLocalizations {
   /// **'Font'**
   String get setFont;
 
-  /// Setting: color theme.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kulay'**
-  String get setColors;
-
   /// Setting: voice or gestures.
   ///
   /// In fil, this message translates to:
@@ -757,12 +733,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Kusang pagkuha ng litrato'**
   String get setAutoCapture;
-
-  /// Setting row: open Account.
-  ///
-  /// In fil, this message translates to:
-  /// **'Account'**
-  String get setAccount;
 
   /// Setting row: open Android TTS settings.
   ///
@@ -799,30 +769,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Ingles'**
   String get langEnglish;
-
-  /// Color theme.
-  ///
-  /// In fil, this message translates to:
-  /// **'Karaniwan: cream at navy'**
-  String get paletteDefault;
-
-  /// Color theme.
-  ///
-  /// In fil, this message translates to:
-  /// **'Puti sa itim'**
-  String get paletteHighContrast;
-
-  /// Color theme.
-  ///
-  /// In fil, this message translates to:
-  /// **'Dilaw sa itim'**
-  String get paletteYellow;
-
-  /// Color theme.
-  ///
-  /// In fil, this message translates to:
-  /// **'Itim sa puti'**
-  String get paletteBlackOnWhite;
 
   /// Verbosity level.
   ///
@@ -1022,130 +968,16 @@ abstract class AppLocalizations {
   /// **'Hanapin'**
   String get historySearch;
 
-  /// Spoken help on History.
+  /// Spoken help in History.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pababa gamit ang dalawang daliri: bumalik.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpHistory;
 
-  /// Spoken name of the Account screen.
+  /// Field (mockup).
   ///
   /// In fil, this message translates to:
-  /// **'Account'**
-  String get screenAccount;
-
-  /// Account prompt when logged out.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ginagamit ang Percipere nang walang account. Gumawa ng profile para mai-save ang iyong mga setting.'**
-  String get accountIntroGuest;
-
-  /// Account prompt when logged in.
-  ///
-  /// In fil, this message translates to:
-  /// **'Naka-login si {name}.'**
-  String accountIntroUser(String name);
-
-  /// Account action.
-  ///
-  /// In fil, this message translates to:
-  /// **'Gumawa ng profile'**
-  String get accountCreate;
-
-  /// Account action.
-  ///
-  /// In fil, this message translates to:
-  /// **'Mag-login'**
-  String get accountLogin;
-
-  /// Account action.
-  ///
-  /// In fil, this message translates to:
-  /// **'Mag-logout'**
-  String get accountLogout;
-
-  /// After logout.
-  ///
-  /// In fil, this message translates to:
-  /// **'Naka-logout na. Ginagamit ang mga setting ng teleponong ito.'**
-  String get accountLoggedOut;
-
-  /// After login.
-  ///
-  /// In fil, this message translates to:
-  /// **'Maligayang pagbabalik, {name}.'**
-  String accountLoggedIn(String name);
-
-  /// After creating a profile.
-  ///
-  /// In fil, this message translates to:
-  /// **'Nagawa ang profile ni {name}, at naka-login na.'**
-  String accountCreated(String name);
-
-  /// Spoken name of the create-profile screen.
-  ///
-  /// In fil, this message translates to:
-  /// **'Bagong profile'**
-  String get screenCreateProfile;
-
-  /// Create profile step 1.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ano ang iyong pangalan? Pindutin nang matagal ang lugar ng galaw at sabihin ito, o i-type.'**
-  String get profileAskName;
-
-  /// Name captured.
-  ///
-  /// In fil, this message translates to:
-  /// **'Pangalan: {name}. I-double tap para ituloy, o pindutin nang matagal para ulitin.'**
-  String profileNameIs(String name);
-
-  /// Create profile step 2 (optional).
-  ///
-  /// In fil, this message translates to:
-  /// **'Email, kung mayroon. Pindutin nang matagal para sabihin ito, o i-type. Mag-swipe pakanan para laktawan.'**
-  String get profileAskEmail;
-
-  /// Email captured.
-  ///
-  /// In fil, this message translates to:
-  /// **'Email: {email}. I-double tap para ituloy.'**
-  String profileEmailIs(String email);
-
-  /// Create profile step 3.
-  ///
-  /// In fil, this message translates to:
-  /// **'Gumawa ng apat na numerong PIN. Mag-swipe pataas o pababa para pumili ng numero at i-double tap para ilagay ito. Maaari mo ring pindutin nang matagal at sabihin ang apat na numero.'**
-  String get profileAskPin;
-
-  /// Create profile step 4.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ilagay ulit ang PIN para makumpirma.'**
-  String get profileConfirmPin;
-
-  /// Confirmation PIN differs.
-  ///
-  /// In fil, this message translates to:
-  /// **'Hindi magkapareho ang PIN. Subukan ulit.'**
-  String get profilePinMismatch;
-
-  /// Continue without a name.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kailangan muna ng pangalan.'**
-  String get profileNameMissing;
-
-  /// Form field label.
-  ///
-  /// In fil, this message translates to:
-  /// **'Pangalan'**
-  String get fieldName;
-
-  /// Form field label.
-  ///
-  /// In fil, this message translates to:
-  /// **'Email (opsyonal)'**
+  /// **'Email Address'**
   String get fieldEmail;
 
   /// Form field label.
@@ -1157,26 +989,14 @@ abstract class AppLocalizations {
   /// Wizard action.
   ///
   /// In fil, this message translates to:
-  /// **'Ituloy'**
-  String get actionContinue;
-
-  /// Wizard action.
-  ///
-  /// In fil, this message translates to:
   /// **'Laktawan'**
   String get actionSkip;
 
-  /// Spoken name of the login screen.
+  /// Screen name (mockup).
   ///
   /// In fil, this message translates to:
-  /// **'Mag-login'**
+  /// **'Login'**
   String get screenLogin;
-
-  /// Login step 1.
-  ///
-  /// In fil, this message translates to:
-  /// **'Pumili ng profile.'**
-  String get loginChooseProfile;
 
   /// Login step 2.
   ///
@@ -1189,12 +1009,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Mali ang PIN. Subukan ulit.'**
   String get loginWrongPin;
-
-  /// No profiles to log into.
-  ///
-  /// In fil, this message translates to:
-  /// **'Wala pang profile sa teleponong ito.'**
-  String get loginNoProfiles;
 
   /// A PIN digit was entered (the digit itself isn't repeated).
   ///
@@ -1225,6 +1039,948 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Mag-swipe pataas o pababa: pumili ng numero. I-double tap: ilagay ang numero. Mag-swipe pakaliwa: burahin ang huling numero. Pindutin nang matagal: sabihin ang apat na numero.'**
   String get helpPin;
+
+  /// Spoken name of the Welcome screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Welcome'**
+  String get screenWelcome;
+
+  /// Welcome Speaking Zone before speech (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Meron ka na bang account?'**
+  String get welcomeHasAccount;
+
+  /// Welcome question (spoken).
+  ///
+  /// In fil, this message translates to:
+  /// **'Meron ka na bang account? Kung wala pa, mag-register ka.'**
+  String get welcomeAccountPrompt;
+
+  /// Welcome: how to answer, microphone allowed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang “login”, “register”, o “subukan”, o mag-swipe para pumili at mag-double-tap para pindutin.'**
+  String get welcomeHintVoice;
+
+  /// Welcome: how to answer, no microphone.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan para pumili, at mag-double-tap para pindutin. I-tap para marinig ulit ito.'**
+  String get welcomeHintGestures;
+
+  /// After the microphone is allowed on Welcome.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maaari mo nang sabihin ang “login”, “register”, o “subukan”.'**
+  String get welcomeVoiceReady;
+
+  /// Button (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Login'**
+  String get actionLogin;
+
+  /// Button (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Register'**
+  String get actionRegister;
+
+  /// Guest button (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Subukan muna (Try first)'**
+  String get actionTryFirst;
+
+  /// Form button (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Submit'**
+  String get actionSubmit;
+
+  /// Clears the focused form field (voice only).
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin'**
+  String get actionClear;
+
+  /// Confirms a setup step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Okay'**
+  String get actionOkay;
+
+  /// Summary: confirm everything.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tama, tapusin'**
+  String get actionFinishSetup;
+
+  /// Login link.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakalimutan ang password'**
+  String get actionForgotPassword;
+
+  /// Login link.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gamitin ang fingerprint'**
+  String get actionUseFingerprint;
+
+  /// Login link to claim a pre-6B PIN account.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lumang account (PIN)'**
+  String get actionLegacyAccount;
+
+  /// Yes option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Oo'**
+  String get answerYes;
+
+  /// No option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi'**
+  String get answerNo;
+
+  /// Name of the guest profile.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bisita'**
+  String get guestName;
+
+  /// Settings value for guests.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bisita: naka-save lamang sa phone na ito'**
+  String get guestValue;
+
+  /// Guest registration reminder (said at most once per moment).
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-save ito sa phone na ito lamang. Mag-register para hindi ito mawala.'**
+  String get guestReminder;
+
+  /// Back with unsaved input.
+  ///
+  /// In fil, this message translates to:
+  /// **'May hindi pa naka-save. Sigurado ka bang babalik?'**
+  String get backUnsavedConfirm;
+
+  /// Back on the first screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang isara ang app?'**
+  String get closeAppQuestion;
+
+  /// Announces the destination after back.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bumalik sa {screen}.'**
+  String backReturnedTo(String screen);
+
+  /// Start of a form.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sagutin ang bawat tanong sa boses, o i-type ito.'**
+  String get formIntro;
+
+  /// Form submit hint (mockup wording).
+  ///
+  /// In fil, this message translates to:
+  /// **'Pindutin ng dalawang beses ang gesture area o sabihin ang salitang submit or tapos na'**
+  String get formSubmitHint;
+
+  /// Focused empty field.
+  ///
+  /// In fil, this message translates to:
+  /// **'{field}, walang laman'**
+  String formFieldEmpty(String field);
+
+  /// Focused field with its value.
+  ///
+  /// In fil, this message translates to:
+  /// **'{field}: {value}'**
+  String formFieldValue(String field, String value);
+
+  /// Password read back by length only. No plural in Filipino.
+  ///
+  /// In fil, this message translates to:
+  /// **'{count} titik'**
+  String formPasswordLength(int count);
+
+  /// Read-back after a field is filled.
+  ///
+  /// In fil, this message translates to:
+  /// **'{field}: {value}.'**
+  String formHeard(String field, String value);
+
+  /// All fields filled.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kumpleto na. {hint}'**
+  String formComplete(String hint);
+
+  /// Focused field that has a value.
+  ///
+  /// In fil, this message translates to:
+  /// **'{field}. Magsalita o mag-type para palitan.'**
+  String formChange(String field);
+
+  /// Field cleared.
+  ///
+  /// In fil, this message translates to:
+  /// **'Binura ang {field}. {prompt}'**
+  String formCleared(String field, String prompt);
+
+  /// Submit with empty fields.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kulang pa: {fields}.'**
+  String formMissing(String fields);
+
+  /// Spoken help on form screens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  String get helpForm;
+
+  /// Field (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'First Name'**
+  String get fieldFirstName;
+
+  /// Field (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Last Name'**
+  String get fieldLastName;
+
+  /// Field (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Password'**
+  String get fieldPassword;
+
+  /// Field.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bagong password'**
+  String get fieldNewPassword;
+
+  /// Security answer field.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sagot'**
+  String get fieldAnswer;
+
+  /// Register prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang iyong pangalan (first name)?'**
+  String get askFirstName;
+
+  /// Register prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang iyong apelyido (last name)?'**
+  String get askLastName;
+
+  /// Prompt. Spell it: “at” for @, “dot” for a period.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang iyong email address?'**
+  String get askEmail;
+
+  /// New password prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gumawa ng password na hindi bababa sa 8 titik.'**
+  String get askNewPassword;
+
+  /// Login prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang iyong password?'**
+  String get askPassword;
+
+  /// Security answer prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'{question} Sabihin o i-type ang sagot.'**
+  String askAnswer(String question);
+
+  /// Invalid email.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang mali ang email address. Halimbawa: juan@gmail.com. Sa boses, sabihin ang “at” para sa @ at “dot” para sa tuldok.'**
+  String get emailInvalid;
+
+  /// Duplicate email.
+  ///
+  /// In fil, this message translates to:
+  /// **'May account na sa phone na ito ang email na iyan. Mag-login ka, o gumamit ng ibang email.'**
+  String get emailTaken;
+
+  /// Password too short. No plural in Filipino.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang password ay dapat hindi bababa sa 8 titik. {count} pa lang ang nailagay.'**
+  String passwordTooShort(int count);
+
+  /// Screen name (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Register'**
+  String get screenRegister;
+
+  /// While hashing the password.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ginagawa ang iyong account…'**
+  String get registerWorking;
+
+  /// After registering.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagawa na ang iyong account, {name}.'**
+  String registerDone(String name);
+
+  /// Spoken help on Login.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magsalita o mag-type para sagutin ang email at password. I-double tap, o sabihin ang “submit” o “tapos na”: mag-login. Sabihin ang “nakalimutan”: i-reset ang password. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  String get helpLogin;
+
+  /// Login with fingerprint enabled.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ilagay ang iyong daliri sa fingerprint sensor para mag-login, o gamitin ang iyong password.'**
+  String get loginFingerprintIntro;
+
+  /// Failed login.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mali ang email o password.'**
+  String get loginWrong;
+
+  /// Failed login, before lockout. No plural in Filipino.
+  ///
+  /// In fil, this message translates to:
+  /// **'{count} pang subok bago maghintay.'**
+  String loginAttemptsLeft(int count);
+
+  /// After login.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maligayang pagbabalik, {name}.'**
+  String loginWelcomeBack(String name);
+
+  /// Lockout begins.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong maraming maling subok. Maghintay ng {seconds} segundo bago sumubok muli.'**
+  String lockoutStarted(int seconds);
+
+  /// Lockout countdown.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maghintay ng {seconds} segundo.'**
+  String lockoutWait(int seconds);
+
+  /// Lockout ended.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maaari ka nang sumubok muli.'**
+  String get lockoutOver;
+
+  /// Android fingerprint dialog text.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gamitin ang fingerprint para mag-login sa Percipere'**
+  String get fingerprintReason;
+
+  /// Fingerprint failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi nakilala ang fingerprint. Gamitin ang iyong password. {prompt}'**
+  String fingerprintFailed(String prompt);
+
+  /// Fingerprint unavailable.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi magamit ang fingerprint ngayon. Gamitin ang iyong password. {prompt}'**
+  String fingerprintUnavailable(String prompt);
+
+  /// After logout (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Nais mo bang mag login sa iyong account?'**
+  String get authChoiceQuestion;
+
+  /// Launch with stay-logged-in off.
+  ///
+  /// In fil, this message translates to:
+  /// **'Natapos na ang iyong session.'**
+  String get sessionExpired;
+
+  /// Help on list/choice screens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. Maaari mo ring sabihin ang pagpipilian. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  String get helpChooseList;
+
+  /// Screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tanong pangseguridad'**
+  String get screenSecurityQuestion;
+
+  /// Choose a question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pumili ng tanong pangseguridad. Gagamitin ito kapag nakalimutan mo ang iyong password.'**
+  String get securityChoose;
+
+  /// Security question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang pangalan ng una mong alagang hayop?'**
+  String get securityQFirstPet;
+
+  /// Security question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Saang bayan ka ipinanganak?'**
+  String get securityQBirthTown;
+
+  /// Security question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang apelyido ng iyong nanay noong dalaga pa siya?'**
+  String get securityQMotherMaiden;
+
+  /// Security question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang pangalan ng una mong paaralan?'**
+  String get securityQFirstSchool;
+
+  /// Security question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang paborito mong pagkain?'**
+  String get securityQFavoriteFood;
+
+  /// Saved.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-save ang iyong tanong pangseguridad.'**
+  String get securitySaved;
+
+  /// Back on the choose step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ang tanong pangseguridad para ma-reset ang password. Pumili ng isa.'**
+  String get securityRequired;
+
+  /// Screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Fingerprint'**
+  String get screenFingerprint;
+
+  /// Offer after registering.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang gamitin ang iyong fingerprint sa pag-login?'**
+  String get fingerprintOffer;
+
+  /// Enabled.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-on na ang fingerprint login.'**
+  String get fingerprintOn;
+
+  /// Enabling failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi na-on ang fingerprint login. Maaari mo itong i-on mamaya sa Mga Setting.'**
+  String get fingerprintNotSet;
+
+  /// Offer declined.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige, password na lang.'**
+  String get fingerprintSkipped;
+
+  /// No biometrics.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang naka-set na fingerprint sa phone na ito.'**
+  String get fingerprintNoSensor;
+
+  /// Screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakalimutan ang password'**
+  String get screenForgotPassword;
+
+  /// Forgot password start.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sasagutin mo ang iyong tanong pangseguridad para makagawa ng bagong password.'**
+  String get forgotIntro;
+
+  /// Always mentioned.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maaari ring i-reset ng administrator ang iyong account.'**
+  String get forgotAdmin;
+
+  /// No account/question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang account na may tanong pangseguridad para sa email na ito sa phone na ito.'**
+  String get forgotNoQuestion;
+
+  /// Wrong answer.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mali ang sagot.'**
+  String get forgotWrongAnswer;
+
+  /// Reset done.
+  ///
+  /// In fil, this message translates to:
+  /// **'Napalitan na ang password. Mag-login ka na.'**
+  String get forgotDone;
+
+  /// Screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lumang account'**
+  String get screenLegacyAccount;
+
+  /// Choose an old account.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pumili ng iyong lumang account na may PIN.'**
+  String get legacyChoose;
+
+  /// None.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang lumang account sa phone na ito.'**
+  String get legacyNone;
+
+  /// Old PIN verified.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tama ang PIN, {name}. Ngayon, maglagay ng email at password.'**
+  String legacyClaimed(String name);
+
+  /// Screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-update ang account'**
+  String get screenUpgradeAccount;
+
+  /// Upgrade intro.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi na ginagamit ang PIN. Maglagay ng email at password; mananatili ang iyong mga setting at kasaysayan.'**
+  String get upgradeIntro;
+
+  /// Upgrade done.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-update na ang iyong account.'**
+  String get upgradeDone;
+
+  /// Back on the upgrade screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kung babalik ka, lalabas ka sa account na ito. Sigurado ka ba?'**
+  String get upgradeLeave;
+
+  /// Setup progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hakbang {step} ng {total}.'**
+  String setupProgress(int step, int total);
+
+  /// Summary step title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Buod.'**
+  String get setupSummaryTitle;
+
+  /// How to answer a choice step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang iyong sagot, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.'**
+  String get setupChoiceHow;
+
+  /// Step 1 how to answer.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang “boses” o “galaw”, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.'**
+  String get setupNavHowVoice;
+
+  /// Sight question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakakakita ka ba ng kahit kaunting teksto sa screen?'**
+  String get setupSeesQuestion;
+
+  /// Step 2 (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Nababasa mo ba ng maayos ang texto?'**
+  String get setupSizeQuestion;
+
+  /// Step 2 how.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pataas o sabihin ang “palakihin” para lumaki; mag-swipe pababa o sabihin ang “paliitin” para lumiit. I-double tap o sabihin ang “okay” kapag tama na.'**
+  String get setupSizeHow;
+
+  /// Step 2 value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Laki ng teksto: {size}.'**
+  String setupSizeValue(int size);
+
+  /// Step 3 (mockup).
+  ///
+  /// In fil, this message translates to:
+  /// **'Anong kulay ang nais mo sa texto?'**
+  String get setupColorQuestion;
+
+  /// Steps 3 and 7 how.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa, o sabihin ang “susunod” o “nakaraan”, para palitan. I-double tap o sabihin ang “okay” kapag tama na.'**
+  String get setupCycleHow;
+
+  /// Step 3 value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kulay: {color}.'**
+  String setupColorValue(String color);
+
+  /// Step 4.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo ba ang boses sa Ingles o sa Tagalog?'**
+  String get setupLanguageQuestion;
+
+  /// Step 4 how.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan para marinig ang bawat isa, at mag-double-tap para pumili. O sabihin ang “Tagalog” o “Ingles”.'**
+  String get setupLanguageHow;
+
+  /// Voice sample, spoken in each voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ito ang boses sa Tagalog.'**
+  String get setupVoiceSample;
+
+  /// Step 4 without a Filipino voice (spoken in English).
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang boses na Filipino sa phone na ito. Gusto mo bang buksan ang text-to-speech settings para i-install ito?'**
+  String get setupFilipinoMissing;
+
+  /// Step 4 chosen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Napili: {language}.'**
+  String setupLanguageChosen(String language);
+
+  /// Step 5.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang bilisan ang boses?'**
+  String get setupSpeedQuestion;
+
+  /// Step 5 how.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.'**
+  String get setupSpeedHow;
+
+  /// Step 5 value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilis: {rate}x.'**
+  String setupSpeedValue(String rate);
+
+  /// Step 6.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang palitan ang tono ng boses?'**
+  String get setupPitchQuestion;
+
+  /// Step 6 how.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pataas o sabihin ang “taasan”; mag-swipe pababa o sabihin ang “babaan”. I-double tap o sabihin ang “okay” kapag tama na.'**
+  String get setupPitchHow;
+
+  /// Step 6 value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tono: {pitch}.'**
+  String setupPitchValue(String pitch);
+
+  /// Step 7.
+  ///
+  /// In fil, this message translates to:
+  /// **'Anong tema ang gusto mong simulan?'**
+  String get setupThemeQuestion;
+
+  /// Step 7 value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tema: {theme}.'**
+  String setupThemeValue(String theme);
+
+  /// Theme name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Cream at Navy'**
+  String get themeCreamNavy;
+
+  /// Theme name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Dark mode na dilaw ang teksto'**
+  String get themeDarkYellow;
+
+  /// Theme name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Dark mode na puti ang teksto'**
+  String get themeDarkWhite;
+
+  /// Theme change reset the text color.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinalitan ang kulay ng teksto para mas mabasa.'**
+  String get textColorReset;
+
+  /// Step 8.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang mag-vibrate ang phone kapag may ginagawa ka?'**
+  String get setupVibrationQuestion;
+
+  /// Step 9.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang awtomatikong basahin ang dokumento pagkatapos itong i-upload o i-scan?'**
+  String get setupAutoReadQuestion;
+
+  /// Step 10 question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tama ba ang lahat?'**
+  String get setupSummaryQuestion;
+
+  /// Step 10.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ito ang iyong mga napili: {items}. Tama ba ang lahat? I-double tap o sabihin ang “oo” para tapusin. Para baguhin ang isa, sabihin halimbawa ang “bumalik sa bilis”, o mag-swipe at mag-double-tap.'**
+  String setupSummaryPrompt(String items);
+
+  /// Summary line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paraan: {value}'**
+  String summaryNavMode(String value);
+
+  /// Summary line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wika ng boses: {value}'**
+  String summaryLanguage(String value);
+
+  /// Summary line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Vibrate: {value}'**
+  String summaryVibration(String value);
+
+  /// Summary line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Awtomatikong pagbasa: {value}'**
+  String summaryAutoRead(String value);
+
+  /// Value at its limit.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hanggang dito na lang. {value}'**
+  String setupAtLimit(String value);
+
+  /// Step skipped.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nilaktawan. Ginamit ang karaniwang setting.'**
+  String get setupSkipped;
+
+  /// Back on the first setup step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ito ang unang hakbang. Gusto mo bang bumalik sa Welcome? Lalabas ka sa account.'**
+  String get setupLeave;
+
+  /// Setup completed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na ang setup. Maaari mo itong baguhin anumang oras sa Mga Setting.'**
+  String get setupFinished;
+
+  /// Preview paragraph.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang Percipere ay tumutulong sa iyo na mabasa ang mga liham, resibo, at aklat. Ganito ang magiging hitsura ng teksto.'**
+  String get setupSample;
+
+  /// Screen-reader label of the preview.
+  ///
+  /// In fil, this message translates to:
+  /// **'Halimbawang teksto'**
+  String get setupPreviewLabel;
+
+  /// Help on choice steps.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng sagot. I-double tap: piliin. O sabihin ang sagot.'**
+  String get helpSetupChoice;
+
+  /// Help on up/down steps.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pataas o pababa: baguhin. I-double tap o sabihin ang “okay”: tama na.'**
+  String get helpSetupVertical;
+
+  /// Help on left/right steps.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa: baguhin. I-double tap o sabihin ang “okay”: tama na.'**
+  String get helpSetupHorizontal;
+
+  /// Help common to setup steps.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-tap o sabihin ang “ulitin”: ulitin ang tanong. Sabihin ang “laktawan”: laktawan at gamitin ang karaniwan. Mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “bumalik”: nakaraang hakbang.'**
+  String get helpSetupCommon;
+
+  /// Help on the summary.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-double tap o sabihin ang “oo”: tapusin. Mag-swipe pakanan o pakaliwa: lumipat sa mga napili, at i-double tap para baguhin. O sabihin ang “bumalik sa” at ang pangalan, halimbawa “bumalik sa bilis”.'**
+  String get helpSetupSummary;
+
+  /// Voice language option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tagalog'**
+  String get langTagalog;
+
+  /// Voice language option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ingles (English)'**
+  String get langEnglishBoth;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tema'**
+  String get setTheme;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kulay ng teksto'**
+  String get setTextColor;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Awtomatikong pagbasa'**
+  String get setAutoRead;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Manatiling naka-login'**
+  String get setStayLoggedIn;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Fingerprint login'**
+  String get setFingerprint;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ulitin ang setup'**
+  String get setRedoSetup;
+
+  /// Setting value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sagutin ulit ang mga tanong'**
+  String get setRedoSetupValue;
+
+  /// Setting name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Logout'**
+  String get setLogout;
+
+  /// Logout confirmation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sigurado ka bang gusto mong mag-logout?'**
+  String get logoutConfirm;
+
+  /// Guest logout confirmation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lalabas ka sa bisitang profile. Mananatili ito sa phone na ito. Sigurado ka ba?'**
+  String get logoutGuestConfirm;
+
+  /// After logout.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-logout ka na.'**
+  String get loggedOut;
+
+  /// Spoken at the new speed after a change.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ganito kabilis ang boses.'**
+  String get setupSpeedSample;
+
+  /// Spoken after a tone change.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ganito ang tono ng boses.'**
+  String get setupPitchSample;
 }
 
 class _AppLocalizationsDelegate

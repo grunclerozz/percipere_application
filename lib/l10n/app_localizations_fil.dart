@@ -46,7 +46,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get gestureAreaHintReader =>
-      'I-tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.';
+      'I-double tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.';
 
   @override
   String heardLabel(String text) {
@@ -69,21 +69,14 @@ class AppLocalizationsFil extends AppLocalizations {
   String get screenReader => 'Pagbasa';
 
   @override
-  String get welcomeIntro =>
-      'Maligayang pagdating sa Percipere, isang app na ginawa para sa iyo. Paano mo gustong mag-navigate sa app? I-double tap kahit saan sa screen para sa pa-boses. Mag-swipe pakanan para sa pa-galaw. I-tap para marinig ulit ito.';
-
-  @override
   String get helpWelcome =>
-      'I-double tap: pa-boses. Mag-swipe pakanan: pa-galaw. I-tap: ulitin ang tanong.';
+      'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String get modeChosenVoice => 'Napili mo ang pa-boses.';
 
   @override
   String get modeChosenGestures => 'Napili mo ang pa-galaw.';
-
-  @override
-  String get readerReady => 'Handa na ang dokumento.';
 
   @override
   String optionsList(String items) {
@@ -118,7 +111,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get commandNotAvailable => 'Hindi magagamit ang utos na iyan dito.';
 
   @override
-  String get alreadyAtStart => 'Nasa unang screen ka na.';
+  String get alreadyAtStart => 'Nasa simula ka na.';
 
   @override
   String helpTitle(String screen) {
@@ -127,7 +120,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpGesturesMenu =>
-      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.';
+      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.';
 
   @override
   String get talkBackNotice =>
@@ -146,9 +139,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get filipinoVoiceReady => 'Handa na ang boses na Filipino.';
-
-  @override
-  String get welcomeSayHint => 'Maaari mo ring sabihin ang “boses” o “galaw”.';
 
   @override
   String get listening => 'Nakikinig…';
@@ -262,7 +252,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpCamera =>
-      'I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pababa gamit ang dalawang daliri: bumalik.';
+      'I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String get uploadOpening => 'Pumili ng larawan, PDF, o Word na file.';
@@ -308,7 +298,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get readerStartHint =>
-      'I-tap, o sabihin ang “basahin”, para magsimula.';
+      'Mag-double-tap para simulan ang pagbasa, o sabihin ang “basahin”.';
 
   @override
   String readerResumeAt(int position, int total) {
@@ -344,7 +334,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'I-tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pakanan o pakaliwa gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-double tap: ulitin ang pangungusap. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.';
+      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.';
 
   @override
   String get captureHistory => 'Kasaysayan';
@@ -361,7 +351,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpSettings =>
-      'Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pababa gamit ang dalawang daliri: bumalik.';
+      'Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String settingValue(String label, String value) {
@@ -387,9 +377,6 @@ class AppLocalizationsFil extends AppLocalizations {
   String get setFont => 'Font';
 
   @override
-  String get setColors => 'Kulay';
-
-  @override
   String get setNavMode => 'Paraan ng pag-navigate';
 
   @override
@@ -400,9 +387,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get setAutoCapture => 'Kusang pagkuha ng litrato';
-
-  @override
-  String get setAccount => 'Account';
 
   @override
   String get setTtsVoices => 'Mga boses ng pagbasa';
@@ -421,18 +405,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get langEnglish => 'Ingles';
-
-  @override
-  String get paletteDefault => 'Karaniwan: cream at navy';
-
-  @override
-  String get paletteHighContrast => 'Puti sa itim';
-
-  @override
-  String get paletteYellow => 'Dilaw sa itim';
-
-  @override
-  String get paletteBlackOnWhite => 'Itim sa puti';
 
   @override
   String get verbosityBrief => 'Maikli';
@@ -556,97 +528,19 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpHistory =>
-      'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pababa gamit ang dalawang daliri: bumalik.';
+      'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
-  String get screenAccount => 'Account';
-
-  @override
-  String get accountIntroGuest =>
-      'Ginagamit ang Percipere nang walang account. Gumawa ng profile para mai-save ang iyong mga setting.';
-
-  @override
-  String accountIntroUser(String name) {
-    return 'Naka-login si $name.';
-  }
-
-  @override
-  String get accountCreate => 'Gumawa ng profile';
-
-  @override
-  String get accountLogin => 'Mag-login';
-
-  @override
-  String get accountLogout => 'Mag-logout';
-
-  @override
-  String get accountLoggedOut =>
-      'Naka-logout na. Ginagamit ang mga setting ng teleponong ito.';
-
-  @override
-  String accountLoggedIn(String name) {
-    return 'Maligayang pagbabalik, $name.';
-  }
-
-  @override
-  String accountCreated(String name) {
-    return 'Nagawa ang profile ni $name, at naka-login na.';
-  }
-
-  @override
-  String get screenCreateProfile => 'Bagong profile';
-
-  @override
-  String get profileAskName =>
-      'Ano ang iyong pangalan? Pindutin nang matagal ang lugar ng galaw at sabihin ito, o i-type.';
-
-  @override
-  String profileNameIs(String name) {
-    return 'Pangalan: $name. I-double tap para ituloy, o pindutin nang matagal para ulitin.';
-  }
-
-  @override
-  String get profileAskEmail =>
-      'Email, kung mayroon. Pindutin nang matagal para sabihin ito, o i-type. Mag-swipe pakanan para laktawan.';
-
-  @override
-  String profileEmailIs(String email) {
-    return 'Email: $email. I-double tap para ituloy.';
-  }
-
-  @override
-  String get profileAskPin =>
-      'Gumawa ng apat na numerong PIN. Mag-swipe pataas o pababa para pumili ng numero at i-double tap para ilagay ito. Maaari mo ring pindutin nang matagal at sabihin ang apat na numero.';
-
-  @override
-  String get profileConfirmPin => 'Ilagay ulit ang PIN para makumpirma.';
-
-  @override
-  String get profilePinMismatch => 'Hindi magkapareho ang PIN. Subukan ulit.';
-
-  @override
-  String get profileNameMissing => 'Kailangan muna ng pangalan.';
-
-  @override
-  String get fieldName => 'Pangalan';
-
-  @override
-  String get fieldEmail => 'Email (opsyonal)';
+  String get fieldEmail => 'Email Address';
 
   @override
   String get fieldPin => 'PIN';
 
   @override
-  String get actionContinue => 'Ituloy';
-
-  @override
   String get actionSkip => 'Laktawan';
 
   @override
-  String get screenLogin => 'Mag-login';
-
-  @override
-  String get loginChooseProfile => 'Pumili ng profile.';
+  String get screenLogin => 'Login';
 
   @override
   String loginAskPin(String name) {
@@ -655,9 +549,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get loginWrongPin => 'Mali ang PIN. Subukan ulit.';
-
-  @override
-  String get loginNoProfiles => 'Wala pang profile sa teleponong ito.';
 
   @override
   String pinDigitEntered(int count, int total) {
@@ -677,4 +568,585 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get helpPin =>
       'Mag-swipe pataas o pababa: pumili ng numero. I-double tap: ilagay ang numero. Mag-swipe pakaliwa: burahin ang huling numero. Pindutin nang matagal: sabihin ang apat na numero.';
+
+  @override
+  String get screenWelcome => 'Welcome';
+
+  @override
+  String get welcomeHasAccount => 'Meron ka na bang account?';
+
+  @override
+  String get welcomeAccountPrompt =>
+      'Meron ka na bang account? Kung wala pa, mag-register ka.';
+
+  @override
+  String get welcomeHintVoice =>
+      'Sabihin ang “login”, “register”, o “subukan”, o mag-swipe para pumili at mag-double-tap para pindutin.';
+
+  @override
+  String get welcomeHintGestures =>
+      'Mag-swipe pakanan para pumili, at mag-double-tap para pindutin. I-tap para marinig ulit ito.';
+
+  @override
+  String get welcomeVoiceReady =>
+      'Maaari mo nang sabihin ang “login”, “register”, o “subukan”.';
+
+  @override
+  String get actionLogin => 'Login';
+
+  @override
+  String get actionRegister => 'Register';
+
+  @override
+  String get actionTryFirst => 'Subukan muna (Try first)';
+
+  @override
+  String get actionSubmit => 'Submit';
+
+  @override
+  String get actionClear => 'Burahin';
+
+  @override
+  String get actionOkay => 'Okay';
+
+  @override
+  String get actionFinishSetup => 'Tama, tapusin';
+
+  @override
+  String get actionForgotPassword => 'Nakalimutan ang password';
+
+  @override
+  String get actionUseFingerprint => 'Gamitin ang fingerprint';
+
+  @override
+  String get actionLegacyAccount => 'Lumang account (PIN)';
+
+  @override
+  String get answerYes => 'Oo';
+
+  @override
+  String get answerNo => 'Hindi';
+
+  @override
+  String get guestName => 'Bisita';
+
+  @override
+  String get guestValue => 'Bisita: naka-save lamang sa phone na ito';
+
+  @override
+  String get guestReminder =>
+      'Naka-save ito sa phone na ito lamang. Mag-register para hindi ito mawala.';
+
+  @override
+  String get backUnsavedConfirm =>
+      'May hindi pa naka-save. Sigurado ka bang babalik?';
+
+  @override
+  String get closeAppQuestion => 'Gusto mo bang isara ang app?';
+
+  @override
+  String backReturnedTo(String screen) {
+    return 'Bumalik sa $screen.';
+  }
+
+  @override
+  String get formIntro => 'Sagutin ang bawat tanong sa boses, o i-type ito.';
+
+  @override
+  String get formSubmitHint =>
+      'Pindutin ng dalawang beses ang gesture area o sabihin ang salitang submit or tapos na';
+
+  @override
+  String formFieldEmpty(String field) {
+    return '$field, walang laman';
+  }
+
+  @override
+  String formFieldValue(String field, String value) {
+    return '$field: $value';
+  }
+
+  @override
+  String formPasswordLength(int count) {
+    return '$count titik';
+  }
+
+  @override
+  String formHeard(String field, String value) {
+    return '$field: $value.';
+  }
+
+  @override
+  String formComplete(String hint) {
+    return 'Kumpleto na. $hint';
+  }
+
+  @override
+  String formChange(String field) {
+    return '$field. Magsalita o mag-type para palitan.';
+  }
+
+  @override
+  String formCleared(String field, String prompt) {
+    return 'Binura ang $field. $prompt';
+  }
+
+  @override
+  String formMissing(String fields) {
+    return 'Kulang pa: $fields.';
+  }
+
+  @override
+  String get helpForm =>
+      'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+
+  @override
+  String get fieldFirstName => 'First Name';
+
+  @override
+  String get fieldLastName => 'Last Name';
+
+  @override
+  String get fieldPassword => 'Password';
+
+  @override
+  String get fieldNewPassword => 'Bagong password';
+
+  @override
+  String get fieldAnswer => 'Sagot';
+
+  @override
+  String get askFirstName => 'Ano ang iyong pangalan (first name)?';
+
+  @override
+  String get askLastName => 'Ano ang iyong apelyido (last name)?';
+
+  @override
+  String get askEmail => 'Ano ang iyong email address?';
+
+  @override
+  String get askNewPassword => 'Gumawa ng password na hindi bababa sa 8 titik.';
+
+  @override
+  String get askPassword => 'Ano ang iyong password?';
+
+  @override
+  String askAnswer(String question) {
+    return '$question Sabihin o i-type ang sagot.';
+  }
+
+  @override
+  String get emailInvalid =>
+      'Mukhang mali ang email address. Halimbawa: juan@gmail.com. Sa boses, sabihin ang “at” para sa @ at “dot” para sa tuldok.';
+
+  @override
+  String get emailTaken =>
+      'May account na sa phone na ito ang email na iyan. Mag-login ka, o gumamit ng ibang email.';
+
+  @override
+  String passwordTooShort(int count) {
+    return 'Ang password ay dapat hindi bababa sa 8 titik. $count pa lang ang nailagay.';
+  }
+
+  @override
+  String get screenRegister => 'Register';
+
+  @override
+  String get registerWorking => 'Ginagawa ang iyong account…';
+
+  @override
+  String registerDone(String name) {
+    return 'Nagawa na ang iyong account, $name.';
+  }
+
+  @override
+  String get helpLogin =>
+      'Magsalita o mag-type para sagutin ang email at password. I-double tap, o sabihin ang “submit” o “tapos na”: mag-login. Sabihin ang “nakalimutan”: i-reset ang password. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+
+  @override
+  String get loginFingerprintIntro =>
+      'Ilagay ang iyong daliri sa fingerprint sensor para mag-login, o gamitin ang iyong password.';
+
+  @override
+  String get loginWrong => 'Mali ang email o password.';
+
+  @override
+  String loginAttemptsLeft(int count) {
+    return '$count pang subok bago maghintay.';
+  }
+
+  @override
+  String loginWelcomeBack(String name) {
+    return 'Maligayang pagbabalik, $name.';
+  }
+
+  @override
+  String lockoutStarted(int seconds) {
+    return 'Masyadong maraming maling subok. Maghintay ng $seconds segundo bago sumubok muli.';
+  }
+
+  @override
+  String lockoutWait(int seconds) {
+    return 'Maghintay ng $seconds segundo.';
+  }
+
+  @override
+  String get lockoutOver => 'Maaari ka nang sumubok muli.';
+
+  @override
+  String get fingerprintReason =>
+      'Gamitin ang fingerprint para mag-login sa Percipere';
+
+  @override
+  String fingerprintFailed(String prompt) {
+    return 'Hindi nakilala ang fingerprint. Gamitin ang iyong password. $prompt';
+  }
+
+  @override
+  String fingerprintUnavailable(String prompt) {
+    return 'Hindi magamit ang fingerprint ngayon. Gamitin ang iyong password. $prompt';
+  }
+
+  @override
+  String get authChoiceQuestion => 'Nais mo bang mag login sa iyong account?';
+
+  @override
+  String get sessionExpired => 'Natapos na ang iyong session.';
+
+  @override
+  String get helpChooseList =>
+      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. Maaari mo ring sabihin ang pagpipilian. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+
+  @override
+  String get screenSecurityQuestion => 'Tanong pangseguridad';
+
+  @override
+  String get securityChoose =>
+      'Pumili ng tanong pangseguridad. Gagamitin ito kapag nakalimutan mo ang iyong password.';
+
+  @override
+  String get securityQFirstPet => 'Ano ang pangalan ng una mong alagang hayop?';
+
+  @override
+  String get securityQBirthTown => 'Saang bayan ka ipinanganak?';
+
+  @override
+  String get securityQMotherMaiden =>
+      'Ano ang apelyido ng iyong nanay noong dalaga pa siya?';
+
+  @override
+  String get securityQFirstSchool => 'Ano ang pangalan ng una mong paaralan?';
+
+  @override
+  String get securityQFavoriteFood => 'Ano ang paborito mong pagkain?';
+
+  @override
+  String get securitySaved => 'Na-save ang iyong tanong pangseguridad.';
+
+  @override
+  String get securityRequired =>
+      'Kailangan ang tanong pangseguridad para ma-reset ang password. Pumili ng isa.';
+
+  @override
+  String get screenFingerprint => 'Fingerprint';
+
+  @override
+  String get fingerprintOffer =>
+      'Gusto mo bang gamitin ang iyong fingerprint sa pag-login?';
+
+  @override
+  String get fingerprintOn => 'Naka-on na ang fingerprint login.';
+
+  @override
+  String get fingerprintNotSet =>
+      'Hindi na-on ang fingerprint login. Maaari mo itong i-on mamaya sa Mga Setting.';
+
+  @override
+  String get fingerprintSkipped => 'Sige, password na lang.';
+
+  @override
+  String get fingerprintNoSensor =>
+      'Walang naka-set na fingerprint sa phone na ito.';
+
+  @override
+  String get screenForgotPassword => 'Nakalimutan ang password';
+
+  @override
+  String get forgotIntro =>
+      'Sasagutin mo ang iyong tanong pangseguridad para makagawa ng bagong password.';
+
+  @override
+  String get forgotAdmin =>
+      'Maaari ring i-reset ng administrator ang iyong account.';
+
+  @override
+  String get forgotNoQuestion =>
+      'Walang account na may tanong pangseguridad para sa email na ito sa phone na ito.';
+
+  @override
+  String get forgotWrongAnswer => 'Mali ang sagot.';
+
+  @override
+  String get forgotDone => 'Napalitan na ang password. Mag-login ka na.';
+
+  @override
+  String get screenLegacyAccount => 'Lumang account';
+
+  @override
+  String get legacyChoose => 'Pumili ng iyong lumang account na may PIN.';
+
+  @override
+  String get legacyNone => 'Walang lumang account sa phone na ito.';
+
+  @override
+  String legacyClaimed(String name) {
+    return 'Tama ang PIN, $name. Ngayon, maglagay ng email at password.';
+  }
+
+  @override
+  String get screenUpgradeAccount => 'I-update ang account';
+
+  @override
+  String get upgradeIntro =>
+      'Hindi na ginagamit ang PIN. Maglagay ng email at password; mananatili ang iyong mga setting at kasaysayan.';
+
+  @override
+  String get upgradeDone => 'Na-update na ang iyong account.';
+
+  @override
+  String get upgradeLeave =>
+      'Kung babalik ka, lalabas ka sa account na ito. Sigurado ka ba?';
+
+  @override
+  String setupProgress(int step, int total) {
+    return 'Hakbang $step ng $total.';
+  }
+
+  @override
+  String get setupSummaryTitle => 'Buod.';
+
+  @override
+  String get setupChoiceHow =>
+      'Sabihin ang iyong sagot, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.';
+
+  @override
+  String get setupNavHowVoice =>
+      'Sabihin ang “boses” o “galaw”, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.';
+
+  @override
+  String get setupSeesQuestion =>
+      'Nakakakita ka ba ng kahit kaunting teksto sa screen?';
+
+  @override
+  String get setupSizeQuestion => 'Nababasa mo ba ng maayos ang texto?';
+
+  @override
+  String get setupSizeHow =>
+      'Mag-swipe pataas o sabihin ang “palakihin” para lumaki; mag-swipe pababa o sabihin ang “paliitin” para lumiit. I-double tap o sabihin ang “okay” kapag tama na.';
+
+  @override
+  String setupSizeValue(int size) {
+    return 'Laki ng teksto: $size.';
+  }
+
+  @override
+  String get setupColorQuestion => 'Anong kulay ang nais mo sa texto?';
+
+  @override
+  String get setupCycleHow =>
+      'Mag-swipe pakanan o pakaliwa, o sabihin ang “susunod” o “nakaraan”, para palitan. I-double tap o sabihin ang “okay” kapag tama na.';
+
+  @override
+  String setupColorValue(String color) {
+    return 'Kulay: $color.';
+  }
+
+  @override
+  String get setupLanguageQuestion =>
+      'Gusto mo ba ang boses sa Ingles o sa Tagalog?';
+
+  @override
+  String get setupLanguageHow =>
+      'Mag-swipe pakanan para marinig ang bawat isa, at mag-double-tap para pumili. O sabihin ang “Tagalog” o “Ingles”.';
+
+  @override
+  String get setupVoiceSample => 'Ito ang boses sa Tagalog.';
+
+  @override
+  String get setupFilipinoMissing =>
+      'Walang boses na Filipino sa phone na ito. Gusto mo bang buksan ang text-to-speech settings para i-install ito?';
+
+  @override
+  String setupLanguageChosen(String language) {
+    return 'Napili: $language.';
+  }
+
+  @override
+  String get setupSpeedQuestion => 'Gusto mo bang bilisan ang boses?';
+
+  @override
+  String get setupSpeedHow =>
+      'Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.';
+
+  @override
+  String setupSpeedValue(String rate) {
+    return 'Bilis: ${rate}x.';
+  }
+
+  @override
+  String get setupPitchQuestion => 'Gusto mo bang palitan ang tono ng boses?';
+
+  @override
+  String get setupPitchHow =>
+      'Mag-swipe pataas o sabihin ang “taasan”; mag-swipe pababa o sabihin ang “babaan”. I-double tap o sabihin ang “okay” kapag tama na.';
+
+  @override
+  String setupPitchValue(String pitch) {
+    return 'Tono: $pitch.';
+  }
+
+  @override
+  String get setupThemeQuestion => 'Anong tema ang gusto mong simulan?';
+
+  @override
+  String setupThemeValue(String theme) {
+    return 'Tema: $theme.';
+  }
+
+  @override
+  String get themeCreamNavy => 'Cream at Navy';
+
+  @override
+  String get themeDarkYellow => 'Dark mode na dilaw ang teksto';
+
+  @override
+  String get themeDarkWhite => 'Dark mode na puti ang teksto';
+
+  @override
+  String get textColorReset => 'Pinalitan ang kulay ng teksto para mas mabasa.';
+
+  @override
+  String get setupVibrationQuestion =>
+      'Gusto mo bang mag-vibrate ang phone kapag may ginagawa ka?';
+
+  @override
+  String get setupAutoReadQuestion =>
+      'Gusto mo bang awtomatikong basahin ang dokumento pagkatapos itong i-upload o i-scan?';
+
+  @override
+  String get setupSummaryQuestion => 'Tama ba ang lahat?';
+
+  @override
+  String setupSummaryPrompt(String items) {
+    return 'Ito ang iyong mga napili: $items. Tama ba ang lahat? I-double tap o sabihin ang “oo” para tapusin. Para baguhin ang isa, sabihin halimbawa ang “bumalik sa bilis”, o mag-swipe at mag-double-tap.';
+  }
+
+  @override
+  String summaryNavMode(String value) {
+    return 'Paraan: $value';
+  }
+
+  @override
+  String summaryLanguage(String value) {
+    return 'Wika ng boses: $value';
+  }
+
+  @override
+  String summaryVibration(String value) {
+    return 'Vibrate: $value';
+  }
+
+  @override
+  String summaryAutoRead(String value) {
+    return 'Awtomatikong pagbasa: $value';
+  }
+
+  @override
+  String setupAtLimit(String value) {
+    return 'Hanggang dito na lang. $value';
+  }
+
+  @override
+  String get setupSkipped => 'Nilaktawan. Ginamit ang karaniwang setting.';
+
+  @override
+  String get setupLeave =>
+      'Ito ang unang hakbang. Gusto mo bang bumalik sa Welcome? Lalabas ka sa account.';
+
+  @override
+  String get setupFinished =>
+      'Tapos na ang setup. Maaari mo itong baguhin anumang oras sa Mga Setting.';
+
+  @override
+  String get setupSample =>
+      'Ang Percipere ay tumutulong sa iyo na mabasa ang mga liham, resibo, at aklat. Ganito ang magiging hitsura ng teksto.';
+
+  @override
+  String get setupPreviewLabel => 'Halimbawang teksto';
+
+  @override
+  String get helpSetupChoice =>
+      'Mag-swipe pakanan o pakaliwa: lumipat ng sagot. I-double tap: piliin. O sabihin ang sagot.';
+
+  @override
+  String get helpSetupVertical =>
+      'Mag-swipe pataas o pababa: baguhin. I-double tap o sabihin ang “okay”: tama na.';
+
+  @override
+  String get helpSetupHorizontal =>
+      'Mag-swipe pakanan o pakaliwa: baguhin. I-double tap o sabihin ang “okay”: tama na.';
+
+  @override
+  String get helpSetupCommon =>
+      'I-tap o sabihin ang “ulitin”: ulitin ang tanong. Sabihin ang “laktawan”: laktawan at gamitin ang karaniwan. Mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “bumalik”: nakaraang hakbang.';
+
+  @override
+  String get helpSetupSummary =>
+      'I-double tap o sabihin ang “oo”: tapusin. Mag-swipe pakanan o pakaliwa: lumipat sa mga napili, at i-double tap para baguhin. O sabihin ang “bumalik sa” at ang pangalan, halimbawa “bumalik sa bilis”.';
+
+  @override
+  String get langTagalog => 'Tagalog';
+
+  @override
+  String get langEnglishBoth => 'Ingles (English)';
+
+  @override
+  String get setTheme => 'Tema';
+
+  @override
+  String get setTextColor => 'Kulay ng teksto';
+
+  @override
+  String get setAutoRead => 'Awtomatikong pagbasa';
+
+  @override
+  String get setStayLoggedIn => 'Manatiling naka-login';
+
+  @override
+  String get setFingerprint => 'Fingerprint login';
+
+  @override
+  String get setRedoSetup => 'Ulitin ang setup';
+
+  @override
+  String get setRedoSetupValue => 'Sagutin ulit ang mga tanong';
+
+  @override
+  String get setLogout => 'Logout';
+
+  @override
+  String get logoutConfirm => 'Sigurado ka bang gusto mong mag-logout?';
+
+  @override
+  String get logoutGuestConfirm =>
+      'Lalabas ka sa bisitang profile. Mananatili ito sa phone na ito. Sigurado ka ba?';
+
+  @override
+  String get loggedOut => 'Naka-logout ka na.';
+
+  @override
+  String get setupSpeedSample => 'Ganito kabilis ang boses.';
+
+  @override
+  String get setupPitchSample => 'Ganito ang tono ng boses.';
 }

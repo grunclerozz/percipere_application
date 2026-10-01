@@ -5,15 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
 import '../../app/router.dart';
-import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
-import '../../core/gestures/gesture_surface.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
+import '../../core/widgets/guest_reminder_on_entry.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../core/widgets/small_link.dart';
@@ -103,60 +102,63 @@ class CaptureScreen extends ConsumerWidget {
 
     return AccessibleScreen(
       registration: _registration,
-      child: GesturePadLayout(
-        padHint: l10n.gestureAreaHintMenu,
-        content: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Spacer(),
-                  LiveSpeakingZone(
-                    screenId: screenId,
-                    fallback: l10n.capturePrompt,
-                  ),
-                  const SizedBox(height: 32),
-                  const Spacer(flex: 2),
-                  PillButton(
-                    label: l10n.captureUpload,
-                    focused: focused == uploadAction,
-                    onPressed: () => bus.activate(uploadAction),
-                  ),
-                  const SizedBox(height: AppDimens.buttonGap),
-                  PillButton(
-                    label: l10n.captureCamera,
-                    variant: PillVariant.secondary,
-                    focused: focused == cameraAction,
-                    onPressed: () => bus.activate(cameraAction),
-                  ),
-                  const SizedBox(height: AppDimens.buttonGap),
-                  // Secondary destinations, smaller than the two main
-                  // choices from the design.
-                  // Stacked, not side by side: labels like "Kasaysayan" must
-                  // never wrap mid-word, at any text size.
-                  SmallLink(
-                    label: l10n.captureHistory,
-                    icon: Icons.history,
-                    focused: focused == Ids.captureHistory,
-                    onPressed: () => bus.activate(Ids.captureHistory),
-                  ),
-                  const SizedBox(height: AppDimens.buttonGap),
-                  SmallLink(
-                    label: l10n.captureSettings,
-                    icon: Icons.tune,
-                    focused: focused == Ids.captureSettings,
-                    onPressed: () => bus.activate(Ids.captureSettings),
-                  ),
-                  const Spacer(),
-                ],
+      child: GuestReminderOnEntry(
+        screenId: screenId,
+        moment: GuestReminderMoment.history,
+        child: GesturePadLayout(
+          padHint: l10n.gestureAreaHintMenu,
+          content: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(),
+                    LiveSpeakingZone(
+                      screenId: screenId,
+                      fallback: l10n.capturePrompt,
+                    ),
+                    const SizedBox(height: 32),
+                    const Spacer(flex: 2),
+                    PillButton(
+                      label: l10n.captureUpload,
+                      focused: focused == uploadAction,
+                      onPressed: () => bus.activate(uploadAction),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    PillButton(
+                      label: l10n.captureCamera,
+                      variant: PillVariant.secondary,
+                      focused: focused == cameraAction,
+                      onPressed: () => bus.activate(cameraAction),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    // Secondary destinations, smaller than the two main
+                    // choices from the design.
+                    // Stacked, not side by side: labels like "Kasaysayan" must
+                    // never wrap mid-word, at any text size.
+                    SmallLink(
+                      label: l10n.captureHistory,
+                      icon: Icons.history,
+                      focused: focused == Ids.captureHistory,
+                      onPressed: () => bus.activate(Ids.captureHistory),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    SmallLink(
+                      label: l10n.captureSettings,
+                      icon: Icons.tune,
+                      focused: focused == Ids.captureSettings,
+                      onPressed: () => bus.activate(Ids.captureSettings),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-

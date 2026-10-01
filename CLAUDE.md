@@ -9,7 +9,12 @@ syncing with a separate web admin app (later).
 
 ## Current status
 - Phases 1–6: ✅ done and approved.
-- **Current phase: 6B — Registration, Login, Profiling** (plan approved 2026-10-01, in progress).
+- **Phase 6B — Registration, Login, Profiling: ✅ built 2026-10-01, awaiting review.**
+  Email + password accounts (PBKDF2, lockout, security question, fingerprint,
+  secure-storage session), PIN accounts migrated, 10-step guided setup, guest mode,
+  app-wide back (gesture / voice / Android back), 3 themes + text colors, text size in
+  sp, auto-read. 273 tests pass (`bash tool/test_each.sh`). Manual checklist:
+  `docs/testing/phase-6b-checklist.md`.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
 
 ## Where things are written
@@ -48,6 +53,7 @@ gestures, voice, tts, ocr, extraction, db, settings, platform, widgets}` ·
   Keep Gradle heap at 4 GB.
 - If Gradle says `Unable to establish loopback connection`:
   `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=D:\tmp\jdk`.
-- `flutter_tester` crashes randomly on this PC ("did not complete", 0xC0000005): rerun.
+- `flutter_tester` crashes randomly on this PC ("did not complete", 0xC0000005): run
+  `bash tool/test_each.sh` (each file alone, crashes retried).
 - `percipere/` subfolder = stray old project (excluded). Old prototype backup:
   `..\percipere_app_prototype_backup\`.

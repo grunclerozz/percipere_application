@@ -3,7 +3,6 @@ import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/features/camera/camera_screen.dart';
 import 'package:percipere_app/features/capture/capture_screen.dart';
-import 'package:percipere_app/features/welcome/welcome_screen.dart';
 
 import '../helpers/fakes.dart';
 import '../helpers/pump_app.dart';
@@ -45,42 +44,5 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CameraScreen), findsOneWidget);
     expect(env.tts.transcript, contains('Gamit ang Camera'));
-  });
-
-  testWidgets('Welcome with the mic already allowed: says "boses/galaw" and '
-      'listens for it', (tester) async {
-    final env = await createEnv(
-      tester,
-      permissions: FakePermissions(mic: PermissionAccess.granted),
-    );
-    await pumpApp(tester, env);
-    expect(env.tts.transcript, contains('sabihin ang “boses” o “galaw”'));
-
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(env.speech.listening, isTrue);
-    env.speech.hear('galaw');
-    await tester.pumpAndSettle();
-
-    expect(find.byType(CaptureScreen), findsOneWidget);
-    expect(env.tts.transcript, contains('Napili mo ang pa-galaw.'));
-  });
-
-  testWidgets('fresh install: Welcome does not listen or mention speaking; '
-      'choosing voice explains then asks for the mic', (tester) async {
-    final env = await createEnv(tester);
-    await pumpApp(tester, env);
-    expect(find.byType(WelcomeScreen), findsOneWidget);
-    expect(env.tts.transcript, isNot(contains('boses” o')));
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(env.speech.sessions, isEmpty);
-
-    await tester.tap(find.text('Pa-boses (Voice)'));
-    await tester.pumpAndSettle();
-    expect(env.permissions.micRequests, 1);
-    expect(env.tts.transcript, contains('Habang ginagamit ang app'));
-    expect(find.byType(CaptureScreen), findsOneWidget);
-
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(env.speech.listening, isTrue, reason: 'voice mode now listens');
   });
 }

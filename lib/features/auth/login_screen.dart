@@ -24,8 +24,8 @@ import '../../core/widgets/pill_button.dart';
 import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
-import 'voice_form.dart';
 import 'lockout_countdown.dart';
+import 'voice_form.dart';
 
 /// Login: Email Address and Password, then Submit (double-tap the Gesture
 /// Pad, or "submit" / "tapos na").
@@ -82,7 +82,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listenManual(activeScreenProvider, (previous, next) {
       if (next?.id == Ids.login && previous?.id != Ids.login) {
         scheduleMicrotask(() => _form.focusStart(_bus.strings));
-        if (_fingerprintAccount != null) unawaited(_tryFingerprint());
+        if (_fingerprintAccount != null) {
+          unawaited(_tryFingerprint(afterIntro: true));
+        }
       }
     });
   }
@@ -114,11 +116,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _tryFingerprint() async {
+  Future<void> _tryFingerprint({bool afterIntro = false}) async {
     final account = _fingerprintAccount;
     if (account == null) return;
-    // Let the screen introduction finish before the system dialog.
-    await ref.read(announcerProvider.notifier).idle();
+    // On entry, let the screen introduction finish before the dialog.
+    if (afterIntro) await ref.read(announcerProvider.notifier).idle();
     if (!mounted) return;
     final l = _bus.strings;
     final result = await ref
@@ -139,8 +141,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _loggedIn(Account account) async {
     await ref.read(currentAccountProvider.notifier).login(account);
     unawaited(ref.read(hapticsProvider).confirm());
-    await _bus.say(_bus.strings.loginWelcomeBack(account.firstName),
-        protect: true);
+    await _bus.say(
+      _bus.strings.loginWelcomeBack(account.firstName),
+      protect: true,
+    );
     if (mounted) ref.read(routerProvider).go(AppRoutes.home(account));
   }
 
@@ -167,9 +171,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final email = _email.value;
     final wait = await throttle.remaining(ThrottleKind.login, email);
     if (wait > Duration.zero) {
-      unawaited(ref.read(hapticsProvider).error());
+      // Still locked: the password is asked again once the time is up.
+      _password.controller.clear();
       _countdown.start(wait, announce: false);
-      return bus.say(l.lockoutWait(_countdown.seconds));
+      return reportInvalid(
+        _form,
+        _password,
+        l.lockoutWait(_countdown.seconds),
+        bus,
+        ref,
+      );
     }
 
     setState(() => _busy = true);
@@ -185,7 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         unawaited(ref.read(hapticsProvider).error());
         if (delay > Duration.zero) {
           _countdown.start(delay, announce: false);
-          return reportInvalid(
+          return await reportInvalid(
             _form,
             _password,
             l.lockoutStarted(_countdown.seconds),
@@ -194,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
         }
         final left = LoginThrottle.freeAttempts - failures;
-        return reportInvalid(
+        return await reportInvalid(
           _form,
           _password,
           '${l.loginWrong} ${l.loginAttemptsLeft(left)}',

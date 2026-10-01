@@ -1,5 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/gestures/gesture_classifier.dart';
 import 'package:percipere_app/core/gestures/gesture_map.dart';
 
@@ -130,10 +131,16 @@ void main() {
     });
   });
 
-  test('two-finger swipe down is back', () {
+  test('two-finger swipes: down, up and right are recognized', () {
     run((d) {
       d.session(fingers: 2, delta: const Offset(0, 150));
-      expect(d.gestures, [GestureType.twoFingerSwipeDown]);
+      d.session(fingers: 2, delta: const Offset(0, -150));
+      d.session(fingers: 2, delta: const Offset(150, 0));
+      expect(d.gestures, [
+        GestureType.twoFingerSwipeDown,
+        GestureType.twoFingerSwipeUp,
+        GestureType.twoFingerSwipeRight,
+      ]);
     });
   });
 
@@ -181,7 +188,17 @@ void main() {
     });
   });
 
-  test('every gesture has an intent in the gesture map', () {
-    expect(gestureMap.keys.toSet(), GestureType.values.toSet());
+  test('every gesture but two-finger swipe left has an intent', () {
+    expect(
+      gestureMap.keys.toSet(),
+      GestureType.values.toSet()..remove(GestureType.twoFingerSwipeLeft),
+    );
+    // Phase 6B: two-finger swipe right is back everywhere.
+    expect(gestureMap[GestureType.twoFingerSwipeRight], NavIntent.back);
+    expect(gestureMap[GestureType.twoFingerSwipeDown], NavIntent.nextParagraph);
+    expect(
+      gestureMap[GestureType.twoFingerSwipeUp],
+      NavIntent.previousParagraph,
+    );
   });
 }

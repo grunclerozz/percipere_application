@@ -6,12 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/ids.dart';
 import '../../app/router.dart';
 import '../../core/accessibility/accessible_screen.dart';
+import '../../core/accessibility/action_registry.dart';
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/extraction/extraction_exception.dart';
 import '../../core/ocr/text_cleanup.dart';
+import '../../core/settings/settings_controller.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/widgets/document_box.dart';
@@ -22,10 +24,12 @@ import 'reader_controller.dart';
 /// Screen C — Reader: the Document Box replaces the Speaking Zone, and the
 /// Gesture Pad carries all reading controls.
 ///
-/// Gestures (via intents): tap = read/pause, swipe right/left = next/previous
-/// sentence, two-finger swipe right/left = next/previous paragraph, swipe
-/// up/down = faster/slower, double-tap = repeat sentence, two-finger
-/// double-tap = stop (pause). Voice adds "basahin", "i-pause", "ituloy",
+/// Gestures (via intents): double-tap = read/pause, swipe right/left =
+/// next/previous sentence, two-finger swipe down/up = next/previous
+/// paragraph, swipe up/down = faster/slower, tap = repeat sentence,
+/// two-finger double-tap = stop (pause), two-finger swipe right = back
+/// (reading stops and the position is saved first). With auto-read on,
+/// a new document starts reading as soon as its text is ready. Voice adds "basahin", "i-pause", "ituloy",
 /// "mula sa simula" and "i-save". The sentence being read is highlighted and
 /// kept in view; system messages appear as a caption strip.
 class ReaderScreen extends ConsumerStatefulWidget {
@@ -75,10 +79,32 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       final text = _outcome(next, _l);
       if (_offersRetake(next)) {
         unawaited(_bus.offer('$text ${_l.readerRetakeOffer}', _retake));
+      } else if (_autoReads(next)) {
+        unawaited(_announceThenRead(text));
       } else {
         unawaited(_bus.say(text));
       }
     }
+  }
+
+  /// New documents (camera or upload) start reading by themselves when
+  /// auto-read is on and the text is usable.
+  bool _autoReads(ReaderState s) =>
+      widget.source is FileSource &&
+      s.canRead &&
+      !_offersRetake(s) &&
+      ref.read(settingsProvider).autoRead;
+
+  Future<void> _announceThenRead(String text) async {
+    await _bus.say(text);
+    if (!mounted) return;
+    final s = ref.read(_provider);
+    // Not if the user already started, paused or left meanwhile.
+    if (s.playing ||
+        ref.read(activeScreenProvider)?.id != ReaderScreen.screenId) {
+      return;
+    }
+    await _controller.play();
   }
 
   static bool _offersRetake(ReaderState s) =>
@@ -108,7 +134,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       if (_controller.filipinoWithoutVoice) l.readerFilipinoNoVoice,
       if (s.resumedFrom != null)
         l.readerResumeAt(s.resumedFrom! + 1, s.sentences.length),
-      if (!_offersRetake(s)) l.readerStartHint,
+      if (!_offersRetake(s) && !_autoReads(s)) l.readerStartHint,
     ].join(' ');
   }
 
@@ -137,8 +163,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     },
     includeModeHint: false,
     help: (l) => l.helpReader,
+    // Stop reading and save the position before leaving.
+    beforeBack: () => _controller.pause(quiet: true),
     intentHandlers: {
-      NavIntent.repeat: _reading((c) => c.togglePlay()),
+      NavIntent.activate: _reading((c) => c.togglePlay()),
       NavIntent.read: _reading((c) => c.play()),
       NavIntent.resume: _reading((c) => c.play()),
       NavIntent.pause: _reading((c) => c.pause()),
@@ -147,7 +175,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       NavIntent.previous: _reading((c) => c.skipSentence(-1)),
       NavIntent.nextParagraph: _reading((c) => c.skipParagraph(1)),
       NavIntent.previousParagraph: _reading((c) => c.skipParagraph(-1)),
-      NavIntent.activate: _reading((c) => c.repeatSentence()),
+      NavIntent.repeat: _reading((c) => c.repeatSentence()),
       NavIntent.faster: _reading((c) => c.changeRate(ReadingRate.step)),
       NavIntent.slower: _reading((c) => c.changeRate(-ReadingRate.step)),
       NavIntent.readFromStart: _reading((c) => c.readFromStart()),

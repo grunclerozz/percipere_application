@@ -78,10 +78,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     final voice = ref.read(voiceControllerProvider.notifier);
 
     Future<void> guest(CommandBus bus) async {
-      final account = await ref
-          .read(currentAccountProvider.notifier)
-          .startGuest(bus.strings.guestName);
-      ref.read(routerProvider).go(AppRoutes.home(account));
+      // Read before awaiting: the screen may be gone afterwards.
+      final router = ref.read(routerProvider);
+      final session = ref.read(currentAccountProvider.notifier);
+      final account = await session.startGuest(bus.strings.guestName);
+      router.go(AppRoutes.home(account));
     }
 
     return ScreenRegistration(
@@ -123,9 +124,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           onActivate: guest,
         ),
       ],
-      intentHandlers: {
-        NavIntent.faster: (bus) => _openTtsSettings(ref, bus),
-      },
+      intentHandlers: {NavIntent.faster: (bus) => _openTtsSettings(ref, bus)},
     );
   }
 

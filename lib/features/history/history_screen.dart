@@ -15,6 +15,7 @@ import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/session.dart';
 import '../../core/db/daos/documents_dao.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/tts/speech_language.dart';
@@ -79,7 +80,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   CommandBus get _bus => ref.read(commandBusProvider);
 
   Future<void> _load() async {
-    final docs = await _dao.list(query: _query);
+    final docs = await _dao.list(
+      userId: ref.read(currentAccountProvider)?.id,
+      query: _query,
+    );
     if (!mounted) return;
     setState(() {
       _docs = docs;

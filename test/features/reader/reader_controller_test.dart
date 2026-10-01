@@ -160,18 +160,18 @@ void main() {
   test('faster: caption, spoken, saved, and used for reading', () async {
     await setUpWith(tts: FakeTts());
     await reader().changeRate(ReadingRate.step);
-    expect(state().caption, 'Bilis: 1.1x');
-    expect(env.tts.spoken.last, 'Bilis: 1.1x');
-    expect(container.read(readingRateProvider), 1.1);
+    expect(state().caption, 'Bilis: 1.25x');
+    expect(env.tts.spoken.last, 'Bilis: 1.25x');
+    expect(container.read(readingRateProvider), 1.25);
     expect(
       await PreferencesDao(env.database.db).get(PrefKeys.readingRate),
-      1.1,
+      1.25,
     );
 
     env.tts.autoComplete = false;
     unawaited(reader().play());
     await pumpEventQueue();
-    expect(env.tts.rates.last, 1.1);
+    expect(env.tts.rates.last, 1.25);
   });
 
   test('speed is bounded', () async {
@@ -190,11 +190,11 @@ void main() {
     await pumpEventQueue();
     unawaited(reader().changeRate(-ReadingRate.step));
     await pumpEventQueue();
-    expect(env.tts.spoken.last, 'Bilis: 0.9x');
+    expect(env.tts.spoken.last, 'Bilis: 0.75x');
     await finish(); // caption done
     expect(state().playing, isTrue);
     expect(env.tts.spoken.last, s1, reason: 'the interrupted sentence again');
-    expect(env.tts.rates.last, 0.9);
+    expect(env.tts.rates.last, 0.75);
   });
 
   test('reaching the end announces it and restarts next time', () async {

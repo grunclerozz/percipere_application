@@ -22,7 +22,7 @@ Future<void> pumpThemed(
   WidgetTester tester,
   Widget child, {
   Locale locale = AppLocales.filipino,
-  PaletteId palette = PaletteId.defaultCream,
+  ThemeId theme = ThemeId.creamNavy,
   Size size = phoneSize,
   List<Override>? overrides,
 }) async {
@@ -32,7 +32,7 @@ Future<void> pumpThemed(
       overrides: overrides ?? (await createEnv(tester)).overrides,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(ThemeSettings(palette: palette)),
+        theme: AppTheme.build(ThemeSettings(theme: theme)),
         locale: locale,
         supportedLocales: AppLocales.supported,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -52,8 +52,12 @@ Future<TestEnv> createEnv(
   FakePermissions? permissions,
   NavMode? mode,
   AppSettings? appSettings,
+  bool? loggedIn,
+  bool setupDone = true,
 }) async => (await tester.runAsync(
   () => TestEnv.create(
+    loggedIn: loggedIn,
+    setupDone: setupDone,
     tts: tts,
     speech: speech,
     permissions: permissions,

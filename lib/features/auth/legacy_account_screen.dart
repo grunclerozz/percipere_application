@@ -121,7 +121,9 @@ class _LegacyAccountScreenState extends ConsumerState<LegacyAccountScreen> {
       registration: _registration,
       dependencies: [chosen?.id, accounts.length],
       child: FormScaffold(
-        screenId: chosen == null ? Ids.legacyAccount : '${Ids.legacyAccount}.pin',
+        screenId: chosen == null
+            ? Ids.legacyAccount
+            : '${Ids.legacyAccount}.pin',
         title: l10n.screenLegacyAccount,
         subtitle: chosen != null
             ? l10n.loginAskPin(chosen.firstName)

@@ -56,8 +56,12 @@ String stepValue(SetupStep step, AppSettings s, AppLocalizations l) =>
       SetupStep.summary => '',
     };
 
-/// One summary line: "Bilis: 1.25x".
+/// One summary line: "Bilis: 1.25x" (no final period; lines are joined
+/// into sentences).
 String summaryLine(SetupStep step, AppSettings s, AppLocalizations l) =>
+    _summaryLine(step, s, l).replaceFirst(RegExp(r'\.$'), '');
+
+String _summaryLine(SetupStep step, AppSettings s, AppLocalizations l) =>
     switch (step) {
       SetupStep.navMode => l.summaryNavMode(stepValue(step, s, l)),
       SetupStep.voiceLanguage => l.summaryLanguage(stepValue(step, s, l)),

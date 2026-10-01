@@ -1,6 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import '../core/auth/account.dart';
+import '../core/auth/account_repository.dart';
+import '../core/auth/password_hasher.dart';
+import '../core/auth/session.dart';
+import '../core/auth/session_store.dart';
 import '../core/db/app_database.dart';
 import '../core/db/daos/preferences_dao.dart';
 import '../core/platform/permissions.dart';
@@ -8,30 +13,19 @@ import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
 import '../core/tts/tts_service.dart';
 import '../core/voice/voice_controller.dart';
-import '../features/account/account_repository.dart';
 
 /// Startup work that must finish before the first frame: open the database,
-/// load the settings of the logged-in profile (or the device), start TTS and
-/// check which voices exist.
+/// restore the session, load that account's settings (or the device's),
+/// start TTS and check which voices exist.
 ///
 /// Returns provider overrides for the root `ProviderScope`.
 Future<List<Override>> bootstrap() async {
   final database = await AppDatabase.open();
   final prefs = PreferencesDao(database.db);
+  const sessions = SecureSessionStore();
 
-  // Settings live with the logged-in profile; otherwise with the device.
-  final device = await prefs.getAll();
-  final user = device[PrefKeys.currentUser];
-  final account = user is String
-      ? await AccountRepository(database.db).get(user)
-      : null;
-  // A deleted profile falls back to the phone's own settings.
-  final scope = account?.id ?? PreferencesDao.deviceScope;
-  final settings = AppSettings.fromPrefs(
-    scope == PreferencesDao.deviceScope
-        ? device
-        : await prefs.getAll(userId: scope),
-  );
+  final restored = await restoreSession(database, prefs, sessions);
+  final settings = restored.settings;
 
   final tts = await FlutterTtsService.create();
   await tts.setPitch(settings.pitch);
@@ -50,11 +44,63 @@ Future<List<Override>> bootstrap() async {
 
   return [
     appDatabaseProvider.overrideWithValue(database),
+    sessionStoreProvider.overrideWithValue(sessions),
     initialSettingsProvider.overrideWithValue(settings),
-    initialSettingsScopeProvider.overrideWithValue(scope),
-    initialAccountProvider.overrideWithValue(account),
+    initialSettingsScopeProvider.overrideWithValue(restored.scope),
+    initialAccountProvider.overrideWithValue(restored.account),
+    initialSessionExpiredProvider.overrideWithValue(restored.expired),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(voices)),
   ];
+}
+
+/// The session found at startup.
+typedef RestoredSession = ({
+  Account? account,
+  bool expired,
+  String scope,
+  AppSettings settings,
+});
+
+/// Finds who is logged in: the secure-storage session (or, once, the
+/// pre-6B PIN login kept in preferences). An account with "stay logged in"
+/// off starts logged out (`expired`). Settings come from the account, or
+/// from the device when no one is logged in.
+Future<RestoredSession> restoreSession(
+  AppDatabase database,
+  PreferencesDao prefs,
+  SessionStore sessions,
+) async {
+  final repo = AccountRepository(database.db, const PasswordHasher());
+  var userId = await sessions.readUserId();
+
+  // Phase 6 kept the logged-in PIN profile in preferences: move it.
+  final legacy = await prefs.get(PrefKeys.currentUser);
+  if (legacy is String) {
+    userId ??= legacy;
+    await sessions.writeUserId(legacy);
+    await prefs.remove(PrefKeys.currentUser);
+  }
+
+  var account = userId == null ? null : await repo.get(userId);
+  if (userId != null && account == null) await sessions.clearUserId();
+
+  var expired = false;
+  final userSettings = account == null
+      ? null
+      : AppSettings.fromPrefs(await prefs.getAll(userId: account.id));
+  if (account != null && !account.isGuest && !userSettings!.stayLoggedIn) {
+    await sessions.clearUserId();
+    expired = true;
+    account = null;
+    // Logged out, but the look and voice stay as the user had them.
+    for (final MapEntry(:key, :value) in userSettings.toPrefs().entries) {
+      await prefs.set(key, value);
+    }
+  }
+
+  final scope = account?.id ?? PreferencesDao.deviceScope;
+  final settings = userSettings ?? AppSettings.fromPrefs(await prefs.getAll());
+  return (account: account, expired: expired, scope: scope, settings: settings);
 }

@@ -29,23 +29,29 @@ class FingerprintOfferScreen extends ConsumerWidget {
   static const String _no = '${Ids.fingerprintOffer}.no';
 
   static Future<void> _enable(WidgetRef ref, CommandBus bus) async {
+    // Everything read up front: the screen may be gone after an await.
     final account = ref.read(currentAccountProvider);
+    final router = ref.read(routerProvider);
+    final haptics = ref.read(hapticsProvider);
+    final repo = ref.read(accountRepositoryProvider);
+    final sessions = ref.read(sessionStoreProvider);
+    final session = ref.read(currentAccountProvider.notifier);
     final l = bus.strings;
     if (account == null || account.isGuest) return _next(ref);
     final result = await ref
         .read(biometricsProvider)
         .authenticate(l.fingerprintReason);
     if (result == BiometricResult.success) {
-      await ref.read(accountRepositoryProvider).setFingerprint(account.id, true);
-      await ref.read(sessionStoreProvider).writeFingerprintUserId(account.id);
-      await ref.read(currentAccountProvider.notifier).refresh();
-      unawaited(ref.read(hapticsProvider).confirm());
+      await repo.setFingerprint(account.id, true);
+      await sessions.writeFingerprintUserId(account.id);
+      await session.refresh();
+      unawaited(haptics.confirm());
       await bus.say(l.fingerprintOn, protect: true);
     } else {
-      unawaited(ref.read(hapticsProvider).error());
+      unawaited(haptics.error());
       await bus.say(l.fingerprintNotSet, protect: true);
     }
-    _next(ref);
+    router.go(AppRoutes.setup);
   }
 
   static void _next(WidgetRef ref) =>

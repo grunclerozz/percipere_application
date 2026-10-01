@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
+import '../../app/locale_provider.dart';
 import '../../app/theme/app_palette.dart';
 import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
@@ -14,14 +15,14 @@ import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/navigation_mode.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/session.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
+import '../../core/widgets/guest_reminder_on_entry.dart';
 import '../../l10n/app_localizations.dart';
-import '../../core/auth/session.dart';
-import '../../core/db/daos/preferences_dao.dart';
 import 'setting_items.dart';
 
 /// Accessibility Settings.
@@ -40,8 +41,14 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  static final AppLocalizations _fil = lookupAppLocalizations(
+    AppLocales.filipino,
+  );
+  static final AppLocalizations _en = lookupAppLocalizations(
+    AppLocales.english,
+  );
+
   final Map<String, GlobalKey> _rowKeys = {};
-  bool _remindGuest = false;
 
   List<SettingItem> get _items =>
       settingItemsFor(ref.read(currentAccountProvider));
@@ -51,7 +58,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    unawaited(_loadGuestReminder());
     // Keep the focused row in view.
     ref.listenManual(focusControllerProvider, (_, id) {
       final ctx = _rowKeys[id]?.currentContext;
@@ -63,33 +69,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     });
-  }
-
-  /// Guests hear "Naka-save ito sa phone na ito lamang…" once, the first
-  /// time they open Settings.
-  Future<void> _loadGuestReminder() async {
-    final account = ref.read(currentAccountProvider);
-    if (account == null || !account.isGuest) return;
-    final prefs = ref.read(userPrefsProvider);
-    if (await prefs.get(PrefKeys.guestReminderSettings, userId: account.id) ==
-        true) {
-      return;
-    }
-    _remindGuest = true;
-  }
-
-  String _intro(AppLocalizations l) {
-    if (!_remindGuest) return l.settingsIntro;
-    _remindGuest = false;
-    final account = ref.read(currentAccountProvider);
-    if (account != null) {
-      unawaited(
-        ref
-            .read(userPrefsProvider)
-            .set(PrefKeys.guestReminderSettings, true, userId: account.id),
-      );
-    }
-    return '${l.settingsIntro} ${l.guestReminder}';
   }
 
   static SettingContext _shifted(SettingContext c, SettingItem item, int d) =>
@@ -158,7 +137,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   ScreenRegistration _registration(WidgetRef ref) => ScreenRegistration(
     id: Ids.settings,
     title: (l) => l.screenSettings,
-    prompt: _intro,
+    prompt: (l) => l.settingsIntro,
     listOptions: false,
     includeModeHint: false,
     help: (l) => l.helpSettings,
@@ -168,6 +147,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           id: item.id,
           // Spoken when focused: "Bilis ng pagbasa: 1.0x".
           label: (l) => l.settingValue(item.label(l), item.value(_context(l))),
+          // Rows that open something can be opened by name ("logout",
+          // "ulitin ang setup"); values are only changed deliberately.
+          voiceSynonyms: item.kind == SettingKind.link
+              ? {
+                  for (final l in [_fil, _en]) item.label(l).toLowerCase(),
+                }.toList()
+              : const [],
           // The change itself is spoken (with the new value).
           confirmation: (_) => '',
           onActivate: (bus) => _activate(item, bus),
@@ -192,59 +178,66 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return AccessibleScreen(
       registration: _registration,
       dependencies: [account?.id, account?.isGuest],
-      child: GesturePadLayout(
-        padHint: l10n.helpSettings,
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Semantics(
-              header: true,
-              child: Text(
-                l10n.screenSettings,
-                style: Theme.of(context).textTheme.titleLarge,
+      child: GuestReminderOnEntry(
+        screenId: Ids.settings,
+        moment: GuestReminderMoment.settings,
+        child: GesturePadLayout(
+          padHint: l10n.helpSettings,
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.screenSettings,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.separated(
-                itemCount: items.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, i) {
-                  final item = items[i];
-                  return _SettingRow(
-                    key: _keyFor(item.id),
-                    item: item,
-                    label: item.label(l10n),
-                    value: item.value(c),
-                    // What TalkBack says a swipe up/down would change it to.
-                    increasedValue: item.adjust == null
-                        ? null
-                        : item.value(_shifted(c, item, 1)),
-                    decreasedValue: item.adjust == null
-                        ? null
-                        : item.value(_shifted(c, item, -1)),
-                    focused: focused == item.id,
-                    onChange: (d) => _change(item, d),
-                    onOpen: () => _activate(item, ref.read(commandBusProvider)),
-                    onFocus: () {
-                      ref.read(focusControllerProvider.notifier).focus(item.id);
-                      final l = ref.read(speechLanguageProvider).strings;
-                      unawaited(
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, i) {
+                    final item = items[i];
+                    return _SettingRow(
+                      key: _keyFor(item.id),
+                      item: item,
+                      label: item.label(l10n),
+                      value: item.value(c),
+                      // What TalkBack says a swipe up/down would change it to.
+                      increasedValue: item.adjust == null
+                          ? null
+                          : item.value(_shifted(c, item, 1)),
+                      decreasedValue: item.adjust == null
+                          ? null
+                          : item.value(_shifted(c, item, -1)),
+                      focused: focused == item.id,
+                      onChange: (d) => _change(item, d),
+                      onOpen: () =>
+                          _activate(item, ref.read(commandBusProvider)),
+                      onFocus: () {
                         ref
-                            .read(commandBusProvider)
-                            .say(
-                              l.settingValue(
-                                item.label(l),
-                                item.value(_context(l)),
+                            .read(focusControllerProvider.notifier)
+                            .focus(item.id);
+                        final l = ref.read(speechLanguageProvider).strings;
+                        unawaited(
+                          ref
+                              .read(commandBusProvider)
+                              .say(
+                                l.settingValue(
+                                  item.label(l),
+                                  item.value(_context(l)),
+                                ),
                               ),
-                            ),
-                      );
-                    },
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

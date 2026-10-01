@@ -63,9 +63,43 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 ## Testing
 - `test/helpers/fakes.dart` (`TestEnv`, `FakeTts`, `FakeSpeechInput`, `FakePermissions`, …);
   widget tests create envs with `createEnv(tester)` (real clock).
-- Test DB: one in-memory SQLite per test process, wiped per test (`openTestDatabase`).
+- Test DB: a fresh in-memory SQLite per test, never closed (`openTestDatabase`).
 - Forever-animating widgets (spinner, listening waveform) need manual `pump`s.
 - Don't pipe `flutter test` into `head` (aborts the run).
 - `flutter_tester` on the dev PC randomly dies (0xC0000005 / "did not complete" /
   "Connection closed before test suite loaded") in any file; rerun. Real failures show an
-  assertion.
+  assertion. `bash tool/test_each.sh` runs each file alone and retries only crashes.
+
+## Accounts, setup, back (Phase 6B)
+- `core/auth/`: `PasswordHasher` (PBKDF2-HMAC-SHA256, 100 000 iterations, 16-byte salt,
+  `Isolate.run`; iterations stored in `users.secret_kind`), `AccountRepository`
+  (register, verify, security answer, guest, legacy PIN claim/upgrade, guest → account
+  migration), `LoginThrottle` (lockout per email in `login_attempts`), `SessionStore`
+  (`flutter_secure_storage`: logged-in id + fingerprint id), `Biometrics` (`local_auth`,
+  biometric only), `AccountSyncRepository` (mock: queues ids, sends nothing),
+  `CurrentAccount` (`currentAccountProvider`: login/logout/guest/completeRegistration,
+  switches the settings scope), `GuestReminders`.
+- `bootstrap()` → `restoreSession()`: secure-storage session (or the old
+  `account.currentUser` pref, moved once); "stay logged in" off → logged out at launch,
+  look kept on the device. `routerProvider` starts at `AppRoutes.home(account)`
+  (upgrade for legacy, setup if not completed, else Capture), Welcome, or `/auth`
+  (expired).
+- `features/auth/voice_form.dart`: `VoiceForm` — fields are focusable actions; any
+  non-command utterance fills the focused field (exact command phrases win), read back
+  (passwords only by length; `VoiceController.sensitive` hides recognized words).
+  Double-tap / "submit" / "tapos na" submits; long-press dictates the field.
+- `features/setup/`: `SetupFlow` (pure: plan per guest/redo/done steps, skip hidden
+  sight steps, back, resume, jump from summary) + `ProfilingScreen` (one registration
+  per step, id `setup.<step>`, so each step announces itself; values saved live through
+  `SettingsController`; progress in prefs `setup.step` / `setup.done` / `setup.seesText`).
+- Back: `NavIntent.back` ← two-finger swipe right, voice, and Android back
+  (`PopScope` in `AccessibleScreen`). `CommandBus.back()` asks first when
+  `hasUnsavedInput`, runs `beforeBack`, announces "Bumalik sa …", and on the first
+  screen offers to close the app (`appCloserProvider`).
+- Themes: `config/palette.dart` (`ThemeId`, `TextColors`), `AppPalette.withTextColor`;
+  `AppSettings.withTheme` applies the "unavailable color → theme default" rule. Text
+  size in sp: UI scaled by `TextSize.uiScale` (≤ 2×), document text exact
+  (`AppTextMetrics`). Theme extensions need value `==` or every rebuild animates.
+- `GestureSurface` turns off overscroll effects under it: the Android stretch effect
+  crashed `flutter_tester` (0xC0000005) on vertical swipes over a scroll view.
+- Reading history is per user (`documents.user_id`); `DocumentsDao.list(userId:)`.

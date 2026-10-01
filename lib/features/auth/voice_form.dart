@@ -80,9 +80,8 @@ class VoiceField {
   }
 
   /// The value as it may be spoken: passwords only by length.
-  String spokenValue(AppLocalizations l) => kind == FieldKind.password
-      ? l.formPasswordLength(value.length)
-      : value;
+  String spokenValue(AppLocalizations l) =>
+      kind == FieldKind.password ? l.formPasswordLength(value.length) : value;
 
   /// Cleans up dictated [heard] for this field.
   String fromSpeech(String heard) => switch (kind) {
@@ -111,11 +110,7 @@ class VoiceField {
 /// - Double-tap on the Gesture Pad, or "submit" / "tapos na", submits.
 class VoiceForm {
   /// Creates a form over [fields]; [onSubmit] runs when the user submits.
-  VoiceForm({
-    required this.ref,
-    required this.fields,
-    required this.onSubmit,
-  });
+  VoiceForm({required this.ref, required this.fields, required this.onSubmit});
 
   /// For the bus, focus and voice controller.
   final WidgetRef ref;
@@ -211,7 +206,9 @@ class VoiceForm {
   /// Takes free speech for the focused field. Returns false for commands
   /// (so the bus runs them) and when no field is focused.
   Future<bool> onUtterance(String text, CommandBus bus) async {
-    final f = focused;
+    // Focus can be reset when the screen registers; the question asked
+    // was then for the first empty field.
+    final f = focused ?? firstEmpty;
     if (f == null || _isCommand(text, bus.activeScreen)) return false;
     await fill(f, f.fromSpeech(text), bus);
     return true;
@@ -444,7 +441,9 @@ void focusFirstFieldWhenActive(
 ) {
   ref.listenManual(activeScreenProvider, (previous, next) {
     if (next?.id == screenId && previous?.id != screenId) {
-      scheduleMicrotask(() => form().focusStart(ref.read(commandBusProvider).strings));
+      scheduleMicrotask(
+        () => form().focusStart(ref.read(commandBusProvider).strings),
+      );
     }
   });
 }

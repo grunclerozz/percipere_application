@@ -80,7 +80,9 @@ class LoginThrottle {
     await _db.insert('login_attempts', {
       'key': key,
       'failures': failures,
-      'locked_until': delay == Duration.zero ? null : now + delay.inMilliseconds,
+      'locked_until': delay == Duration.zero
+          ? null
+          : now + delay.inMilliseconds,
       'updated_at': now,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
     return delay;

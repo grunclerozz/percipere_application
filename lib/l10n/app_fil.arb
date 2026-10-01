@@ -1,489 +1,1583 @@
 {
   "@@locale": "fil",
-
   "appName": "Percipere",
-  "@appName": { "description": "App name. Not translated." },
-
+  "@appName": {
+    "description": "App name. Not translated."
+  },
   "welcomeTitleLine1": "Welcome to",
-  "@welcomeTitleLine1": { "description": "First line of the Welcome title; the app name follows on the next line. Kept in English to match the approved design." },
+  "@welcomeTitleLine1": {
+    "description": "First line of the Welcome title; the app name follows on the next line. Kept in English to match the approved design."
+  },
   "welcomeSubtitle": "An app built on your behalf",
-  "@welcomeSubtitle": { "description": "Welcome tagline. Kept in English to match the approved design." },
+  "@welcomeSubtitle": {
+    "description": "Welcome tagline. Kept in English to match the approved design."
+  },
   "welcomePrompt": "Paano mo gustong mag-navigate sa app?",
-  "@welcomePrompt": { "description": "Question shown in the Speaking Zone on the Welcome screen." },
+  "@welcomePrompt": {
+    "description": "Question shown in the Speaking Zone on the Welcome screen."
+  },
   "navModeVoice": "Pa-boses (Voice)",
-  "@navModeVoice": { "description": "Button: choose voice navigation." },
+  "@navModeVoice": {
+    "description": "Button: choose voice navigation."
+  },
   "navModeGestures": "Pa-galaw (Gestures)",
-  "@navModeGestures": { "description": "Button: choose gesture navigation." },
-
+  "@navModeGestures": {
+    "description": "Button: choose gesture navigation."
+  },
   "capturePrompt": "Paano mo gustong i-capture ang iyong dokyumento?",
-  "@capturePrompt": { "description": "Question shown in the Speaking Zone on the Capture Method screen." },
+  "@capturePrompt": {
+    "description": "Question shown in the Speaking Zone on the Capture Method screen."
+  },
   "captureUpload": "Mag-upload",
-  "@captureUpload": { "description": "Button: upload a file (image, PDF, DOCX)." },
+  "@captureUpload": {
+    "description": "Button: upload a file (image, PDF, DOCX)."
+  },
   "captureCamera": "Gamit ang Camera",
-  "@captureCamera": { "description": "Button: capture a document with the camera." },
-
+  "@captureCamera": {
+    "description": "Button: capture a document with the camera."
+  },
   "gestureAreaLabel": "Lugar ng galaw (Gesture area)",
-  "@gestureAreaLabel": { "description": "Screen-reader label and faint visible hint of the Gesture Pad." },
+  "@gestureAreaLabel": {
+    "description": "Screen-reader label and faint visible hint of the Gesture Pad."
+  },
   "gestureAreaHintMenu": "Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal para magsalita.",
-  "@gestureAreaHintMenu": { "description": "Screen-reader hint of the Gesture Pad on menu screens." },
-  "gestureAreaHintReader": "I-tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.",
-  "@gestureAreaHintReader": { "description": "Screen-reader hint of the Gesture Pad on the Reader screen." },
-
+  "@gestureAreaHintMenu": {
+    "description": "Screen-reader hint of the Gesture Pad on menu screens."
+  },
+  "gestureAreaHintReader": "I-double tap para basahin o i-pause. Mag-swipe pakanan o pakaliwa para sa susunod o nakaraang pangungusap. Mag-swipe pataas o pababa para bilisan o bagalan.",
+  "@gestureAreaHintReader": {
+    "description": "Gesture Pad hint on the Reader."
+  },
   "heardLabel": "Narinig: “{text}”",
   "@heardLabel": {
     "description": "Speaking Zone line showing what the speech recognizer heard.",
-    "placeholders": { "text": { "type": "String", "example": "camera" } }
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "camera"
+      }
+    }
   },
-
   "readerLoading": "Binabasa ang dokumento…",
-  "@readerLoading": { "description": "Document Box loading state while text is being extracted." },
+  "@readerLoading": {
+    "description": "Document Box loading state while text is being extracted."
+  },
   "readerDocumentLabel": "Dokumento",
-  "@readerDocumentLabel": { "description": "Screen-reader label of the Document Box." },
+  "@readerDocumentLabel": {
+    "description": "Screen-reader label of the Document Box."
+  },
   "readerEmpty": "Walang tekstong mababasa.",
-  "@readerEmpty": { "description": "Document Box state when no document text is available." },
-
+  "@readerEmpty": {
+    "description": "Document Box state when no document text is available."
+  },
   "screenCapture": "Pagkuha ng dokumento",
-  "@screenCapture": { "description": "Spoken name of the Capture Method screen." },
+  "@screenCapture": {
+    "description": "Spoken name of the Capture Method screen."
+  },
   "screenReader": "Pagbasa",
-  "@screenReader": { "description": "Spoken name of the Reader screen." },
-
-  "welcomeIntro": "Maligayang pagdating sa Percipere, isang app na ginawa para sa iyo. Paano mo gustong mag-navigate sa app? I-double tap kahit saan sa screen para sa pa-boses. Mag-swipe pakanan para sa pa-galaw. I-tap para marinig ulit ito.",
-  "@welcomeIntro": { "description": "Spoken on entering the Welcome screen." },
-  "helpWelcome": "I-double tap: pa-boses. Mag-swipe pakanan: pa-galaw. I-tap: ulitin ang tanong.",
-  "@helpWelcome": { "description": "Spoken help on the Welcome screen." },
+  "@screenReader": {
+    "description": "Spoken name of the Reader screen."
+  },
+  "helpWelcome": "Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpWelcome": {
+    "description": "Spoken help on Welcome."
+  },
   "modeChosenVoice": "Napili mo ang pa-boses.",
-  "@modeChosenVoice": { "description": "Confirmation after choosing voice navigation." },
+  "@modeChosenVoice": {
+    "description": "Confirmation after choosing voice navigation."
+  },
   "modeChosenGestures": "Napili mo ang pa-galaw.",
-  "@modeChosenGestures": { "description": "Confirmation after choosing gesture navigation." },
-
-  "readerReady": "Handa na ang dokumento.",
-  "@readerReady": { "description": "Spoken on entering the Reader with a document." },
-
+  "@modeChosenGestures": {
+    "description": "Confirmation after choosing gesture navigation."
+  },
   "optionsList": "Mga pagpipilian: {items}.",
   "@optionsList": {
     "description": "Lists a screen's options in its entry announcement.",
-    "placeholders": { "items": { "type": "String", "example": "Mag-upload o Gamit ang Camera" } }
+    "placeholders": {
+      "items": {
+        "type": "String",
+        "example": "Mag-upload o Gamit ang Camera"
+      }
+    }
   },
   "wordOr": "o",
-  "@wordOr": { "description": "Joins the last two items of a spoken list." },
+  "@wordOr": {
+    "description": "Joins the last two items of a spoken list."
+  },
   "focusedItem": "{label}, {position} sa {total}.",
   "@focusedItem": {
     "description": "Spoken when focus moves to an option.",
     "placeholders": {
-      "label": { "type": "String", "example": "Mag-upload" },
-      "position": { "type": "int", "example": "1" },
-      "total": { "type": "int", "example": "2" }
+      "label": {
+        "type": "String",
+        "example": "Mag-upload"
+      },
+      "position": {
+        "type": "int",
+        "example": "1"
+      },
+      "total": {
+        "type": "int",
+        "example": "2"
+      }
     }
   },
   "modeHintGestures": "Mag-swipe pakanan o pakaliwa para lumipat, at i-double tap para pumili.",
-  "@modeHintGestures": { "description": "End of a screen announcement in gesture mode." },
+  "@modeHintGestures": {
+    "description": "End of a screen announcement in gesture mode."
+  },
   "modeHintVoice": "Sabihin ang utos pagkatapos ng tunog, o pindutin nang matagal ang lugar ng galaw. Gumagana rin ang mga galaw.",
-  "@modeHintVoice": { "description": "End of a screen announcement in voice mode." },
+  "@modeHintVoice": {
+    "description": "End of a screen announcement in voice mode."
+  },
   "modeHintTalkBack": "Gamitin ang mga galaw ng TalkBack para pumili.",
-  "@modeHintTalkBack": { "description": "End of a screen announcement when TalkBack is on." },
+  "@modeHintTalkBack": {
+    "description": "End of a screen announcement when TalkBack is on."
+  },
   "nothingFocused": "Wala pang napili. Mag-swipe pakanan para pumili.",
-  "@nothingFocused": { "description": "Double-tap with nothing focused." },
+  "@nothingFocused": {
+    "description": "Double-tap with nothing focused."
+  },
   "commandNotAvailable": "Hindi magagamit ang utos na iyan dito.",
-  "@commandNotAvailable": { "description": "A gesture or command the current screen doesn't support." },
-  "alreadyAtStart": "Nasa unang screen ka na.",
-  "@alreadyAtStart": { "description": "Back gesture with no previous screen." },
+  "@commandNotAvailable": {
+    "description": "A gesture or command the current screen doesn't support."
+  },
+  "alreadyAtStart": "Nasa simula ka na.",
+  "@alreadyAtStart": {
+    "description": "Back with no previous screen."
+  },
   "helpTitle": "Tulong para sa {screen}.",
   "@helpTitle": {
     "description": "Start of the spoken help.",
-    "placeholders": { "screen": { "type": "String", "example": "Pagkuha ng dokumento" } }
+    "placeholders": {
+      "screen": {
+        "type": "String",
+        "example": "Pagkuha ng dokumento"
+      }
+    }
   },
-  "helpGesturesMenu": "Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.",
-  "@helpGesturesMenu": { "description": "Spoken help listing the menu gestures." },
+  "helpGesturesMenu": "Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.",
+  "@helpGesturesMenu": {
+    "description": "Default spoken help."
+  },
   "talkBackNotice": "Naka-on ang TalkBack, kaya ang mga galaw ng TalkBack ang gagamitin sa halip na mga galaw ng Percipere. Gumagana pa rin ang mga utos sa boses.",
-  "@talkBackNotice": { "description": "Spoken once per launch when TalkBack is on." },
-
+  "@talkBackNotice": {
+    "description": "Spoken once per launch when TalkBack is on."
+  },
   "ttsFilipinoMissing": "The Filipino voice is not installed on this phone, so Percipere will speak English for now. To install it, open text-to-speech settings, choose Speech Services by Google, and download the Filipino voice.",
-  "@ttsFilipinoMissing": { "description": "Intentionally English in every locale: spoken when no Filipino voice can speak it." },
+  "@ttsFilipinoMissing": {
+    "description": "Intentionally English in every locale: spoken when no Filipino voice can speak it."
+  },
   "ttsFilipinoMissingSwipeUp": "Swipe up now to open text-to-speech settings.",
-  "@ttsFilipinoMissingSwipeUp": { "description": "Intentionally English in every locale. Welcome screen only." },
+  "@ttsFilipinoMissingSwipeUp": {
+    "description": "Intentionally English in every locale. Welcome screen only."
+  },
   "ttsOpeningSettings": "Opening text-to-speech settings.",
-  "@ttsOpeningSettings": { "description": "Intentionally English in every locale." },
+  "@ttsOpeningSettings": {
+    "description": "Intentionally English in every locale."
+  },
   "filipinoVoiceReady": "Handa na ang boses na Filipino.",
-  "@filipinoVoiceReady": { "description": "Spoken when the Filipino voice becomes available after returning to the app." },
-
-  "welcomeSayHint": "Maaari mo ring sabihin ang “boses” o “galaw”.",
-  "@welcomeSayHint": { "description": "Added to the Welcome prompt when the microphone is already allowed." },
+  "@filipinoVoiceReady": {
+    "description": "Spoken when the Filipino voice becomes available after returning to the app."
+  },
   "listening": "Nakikinig…",
-  "@listening": { "description": "Speaking Zone subtitle while listening for a command." },
+  "@listening": {
+    "description": "Speaking Zone subtitle while listening for a command."
+  },
   "voiceUnknown": "Pasensya na, hindi ko naintindihan. Maaari mong sabihin: {commands}.",
   "@voiceUnknown": {
     "description": "Unrecognized voice command; lists what can be said.",
-    "placeholders": { "commands": { "type": "String", "example": "Mag-upload, susunod, tulong" } }
+    "placeholders": {
+      "commands": {
+        "type": "String",
+        "example": "Mag-upload, susunod, tulong"
+      }
+    }
   },
   "voiceCommonCommands": "susunod, nakaraan, piliin, ulitin, bumalik, o tulong",
-  "@voiceCommonCommands": { "description": "App-wide commands listed after the screen's own options." },
+  "@voiceCommonCommands": {
+    "description": "App-wide commands listed after the screen's own options."
+  },
   "voiceDidYouMean": "Ang ibig mo bang sabihin ay “{phrase}”? Sabihin ang oo o hindi.",
   "@voiceDidYouMean": {
     "description": "Ask-back when a voice command is unclear.",
-    "placeholders": { "phrase": { "type": "String", "example": "basahin" } }
+    "placeholders": {
+      "phrase": {
+        "type": "String",
+        "example": "basahin"
+      }
+    }
   },
   "voiceCancelled": "Sige.",
-  "@voiceCancelled": { "description": "User said no to an ask-back or offer." },
+  "@voiceCancelled": {
+    "description": "User said no to an ask-back or offer."
+  },
   "voiceWakeReply": "Nakikinig ako.",
-  "@voiceWakeReply": { "description": "User said only the wake word (\"Percipere\")." },
+  "@voiceWakeReply": {
+    "description": "User said only the wake word (\"Percipere\")."
+  },
   "voiceNothingHeard": "Wala akong narinig.",
-  "@voiceNothingHeard": { "description": "A long-press listen ended in silence." },
+  "@voiceNothingHeard": {
+    "description": "A long-press listen ended in silence."
+  },
   "voiceListeningPaused": "Hihinto muna ako sa pakikinig. Pindutin nang matagal ang lugar ng galaw para kausapin ulit ako.",
-  "@voiceListeningPaused": { "description": "Auto-listening stopped after a minute without activity." },
+  "@voiceListeningPaused": {
+    "description": "Auto-listening stopped after a minute without activity."
+  },
   "micPermissionExplain": "Hihingi ngayon ang Android ng pahintulot na gamitin ng Percipere ang mikropono, para marinig ko ang iyong mga utos. Piliin ang “Habang ginagamit ang app”.",
-  "@micPermissionExplain": { "description": "Spoken right before the Android microphone permission dialog." },
+  "@micPermissionExplain": {
+    "description": "Spoken right before the Android microphone permission dialog."
+  },
   "micDenied": "Hindi ko magagamit ang mikropono, kaya mga galaw muna ang gagamitin.",
-  "@micDenied": { "description": "Microphone permission refused." },
+  "@micDenied": {
+    "description": "Microphone permission refused."
+  },
   "micDeniedPermanent": "Naka-block ang mikropono para sa Percipere. Maaari itong payagan sa settings ng app.",
-  "@micDeniedPermanent": { "description": "Microphone permanently refused; followed by the offer hint." },
+  "@micDeniedPermanent": {
+    "description": "Microphone permanently refused; followed by the offer hint."
+  },
   "offerConfirmHint": "I-double tap, o sabihin ang “oo”, para ituloy.",
-  "@offerConfirmHint": { "description": "Ends an offer (e.g. to open Settings)." },
+  "@offerConfirmHint": {
+    "description": "Ends an offer (e.g. to open Settings)."
+  },
   "voiceUnavailable": "Walang speech recognition ang teleponong ito, kaya mga galaw ang gagamitin.",
-  "@voiceUnavailable": { "description": "No recognizer on the phone; app switches to gestures." },
+  "@voiceUnavailable": {
+    "description": "No recognizer on the phone; app switches to gestures."
+  },
   "voiceOfflineMissing": "Walang internet, at hindi pa naka-install ang offline na pagkilala sa boses. Maaari itong i-download sa Settings, sa voice input.",
-  "@voiceOfflineMissing": { "description": "Offline speech pack missing and no connection; followed by the offer hint." },
+  "@voiceOfflineMissing": {
+    "description": "Offline speech pack missing and no connection; followed by the offer hint."
+  },
   "featureNotReady": "Wala pa ang bahaging iyan sa bersyong ito.",
-  "@featureNotReady": { "description": "Command for a screen that isn't built yet (history, settings, report)." },
+  "@featureNotReady": {
+    "description": "Command for a screen that isn't built yet (history, settings, report)."
+  },
   "helpVoiceCommands": "Mga utos sa boses: {commands}.",
   "@helpVoiceCommands": {
     "description": "Appended to help in voice mode.",
-    "placeholders": { "commands": { "type": "String", "example": "Mag-upload, susunod, tulong" } }
+    "placeholders": {
+      "commands": {
+        "type": "String",
+        "example": "Mag-upload, susunod, tulong"
+      }
+    }
   },
-
   "screenCamera": "Camera",
-  "@screenCamera": { "description": "Spoken name of the camera screen." },
+  "@screenCamera": {
+    "description": "Spoken name of the camera screen."
+  },
   "cameraIntro": "Itutok ang camera sa dokumento, mga tatlumpung sentimetro ang layo. Sasabihin ko kung ilalapit o ilalayo. I-double tap o sabihin ang “kunan” para kumuha ng litrato. Kusa rin akong kukuha kapag malinaw na ang teksto.",
-  "@cameraIntro": { "description": "Spoken on entering the camera screen." },
+  "@cameraIntro": {
+    "description": "Spoken on entering the camera screen."
+  },
   "cameraCaptureButton": "Kunan ang litrato",
-  "@cameraCaptureButton": { "description": "Camera screen button / action label." },
+  "@cameraCaptureButton": {
+    "description": "Camera screen button / action label."
+  },
   "guideTooDark": "Masyadong madilim. Humanap ng mas maliwanag na lugar.",
-  "@guideTooDark": { "description": "Camera guidance: preview is too dark." },
+  "@guideTooDark": {
+    "description": "Camera guidance: preview is too dark."
+  },
   "guideNoText": "Walang nakikitang teksto.",
-  "@guideNoText": { "description": "Camera guidance: no text in the frame." },
+  "@guideNoText": {
+    "description": "Camera guidance: no text in the frame."
+  },
   "guideMoveCloser": "Ilapit pa.",
-  "@guideMoveCloser": { "description": "Camera guidance: text too small." },
+  "@guideMoveCloser": {
+    "description": "Camera guidance: text too small."
+  },
   "guideMoveBack": "Ilayo nang kaunti.",
-  "@guideMoveBack": { "description": "Camera guidance: text fills the frame and is cut off." },
+  "@guideMoveBack": {
+    "description": "Camera guidance: text fills the frame and is cut off."
+  },
   "guideReady": "Handa na, hawakan nang maayos.",
-  "@guideReady": { "description": "Camera guidance: text is clear; hold still." },
+  "@guideReady": {
+    "description": "Camera guidance: text is clear; hold still."
+  },
   "cameraCapturing": "Kinukunan na.",
-  "@cameraCapturing": { "description": "Spoken as the photo is taken." },
+  "@cameraCapturing": {
+    "description": "Spoken as the photo is taken."
+  },
   "cameraCaptureFailed": "Hindi nakuha ang litrato. Subukan ulit.",
-  "@cameraCaptureFailed": { "description": "Taking the photo failed." },
+  "@cameraCaptureFailed": {
+    "description": "Taking the photo failed."
+  },
   "cameraPermissionExplain": "Hihingi ngayon ang Android ng pahintulot na gamitin ng Percipere ang camera. Piliin ang “Habang ginagamit ang app”.",
-  "@cameraPermissionExplain": { "description": "Spoken right before the Android camera permission dialog." },
+  "@cameraPermissionExplain": {
+    "description": "Spoken right before the Android camera permission dialog."
+  },
   "cameraDenied": "Hindi ko magagamit ang camera. Maaari kang mag-upload ng litrato sa halip.",
-  "@cameraDenied": { "description": "Camera permission refused." },
+  "@cameraDenied": {
+    "description": "Camera permission refused."
+  },
   "cameraDeniedPermanent": "Naka-block ang camera para sa Percipere. Maaari itong payagan sa settings ng app.",
-  "@cameraDeniedPermanent": { "description": "Camera permanently refused; followed by the offer hint." },
+  "@cameraDeniedPermanent": {
+    "description": "Camera permanently refused; followed by the offer hint."
+  },
   "cameraUnavailable": "Hindi mabuksan ang camera. Maaari kong buksan ang camera app ng telepono.",
-  "@cameraUnavailable": { "description": "In-app camera failed; followed by the offer hint." },
-  "helpCamera": "I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pababa gamit ang dalawang daliri: bumalik.",
-  "@helpCamera": { "description": "Spoken help on the camera screen." },
+  "@cameraUnavailable": {
+    "description": "In-app camera failed; followed by the offer hint."
+  },
+  "helpCamera": "I-double tap: kunan ang litrato. I-tap: ulitin ang gabay. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpCamera": {
+    "description": "Spoken help on the camera."
+  },
   "uploadOpening": "Pumili ng larawan, PDF, o Word na file.",
-  "@uploadOpening": { "description": "Spoken as the system file picker opens." },
+  "@uploadOpening": {
+    "description": "Spoken as the system file picker opens."
+  },
   "uploadCancelled": "Walang napiling file.",
-  "@uploadCancelled": { "description": "File picker closed without a file." },
+  "@uploadCancelled": {
+    "description": "File picker closed without a file."
+  },
   "readerExtractingPage": "Binabasa ang pahina {page} sa {total}.",
   "@readerExtractingPage": {
     "description": "Progress while reading a multi-page PDF.",
-    "placeholders": { "page": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "readerReadyParagraphs": "Handa na ang dokumento, may {count} talata.",
   "@readerReadyParagraphs": {
     "description": "Extraction finished. No plural form: Filipino plural rules put 2, 3, 5… in the 'one' category, and the noun doesn't change anyway.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "readerLowQuality": "Maaaring hindi malinaw ang pagkabasa sa ilang bahagi ng teksto.",
-  "@readerLowQuality": { "description": "Extracted text looks partly misread." },
+  "@readerLowQuality": {
+    "description": "Extracted text looks partly misread."
+  },
   "readerNoText": "Wala akong mabasang teksto.",
-  "@readerNoText": { "description": "No text found." },
+  "@readerNoText": {
+    "description": "No text found."
+  },
   "readerPhotoTips": "Subukan sa mas maliwanag na lugar, at hawakan nang tuwid at hindi gumagalaw ang telepono.",
-  "@readerPhotoTips": { "description": "Suggestions after a poor photo." },
+  "@readerPhotoTips": {
+    "description": "Suggestions after a poor photo."
+  },
   "readerRetakeOffer": "Gusto mo bang kumuha ulit ng litrato?",
-  "@readerRetakeOffer": { "description": "Offer to retake; followed by the offer hint." },
+  "@readerRetakeOffer": {
+    "description": "Offer to retake; followed by the offer hint."
+  },
   "readerUnreadable": "Hindi mabuksan ang file na ito. Maaaring sira ito.",
-  "@readerUnreadable": { "description": "Corrupt or unreadable file." },
+  "@readerUnreadable": {
+    "description": "Corrupt or unreadable file."
+  },
   "readerUnsupported": "Hindi ko pa kayang basahin ang ganitong file. Pumili ng larawan, PDF, o Word na file.",
-  "@readerUnsupported": { "description": "Unsupported file type." },
+  "@readerUnsupported": {
+    "description": "Unsupported file type."
+  },
   "readerPasswordProtected": "May password ang PDF na ito, kaya hindi ko ito mabasa.",
-  "@readerPasswordProtected": { "description": "Password-protected PDF." },
-
-  "readerStartHint": "I-tap, o sabihin ang “basahin”, para magsimula.",
-  "@readerStartHint": { "description": "Ends the Reader's ready announcement." },
+  "@readerPasswordProtected": {
+    "description": "Password-protected PDF."
+  },
+  "readerStartHint": "Mag-double-tap para simulan ang pagbasa, o sabihin ang “basahin”.",
+  "@readerStartHint": {
+    "description": "Auto-read off: how to start."
+  },
   "readerResumeAt": "Magpapatuloy sa pangungusap {position} sa {total}.",
   "@readerResumeAt": {
     "description": "Reopened from history at a saved position.",
-    "placeholders": { "position": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "readerFinished": "Tapos na ang dokumento.",
-  "@readerFinished": { "description": "Reading reached the end." },
+  "@readerFinished": {
+    "description": "Reading reached the end."
+  },
   "readerPaused": "Naka-pause.",
-  "@readerPaused": { "description": "Reading paused." },
+  "@readerPaused": {
+    "description": "Reading paused."
+  },
   "readerSpeed": "Bilis: {rate}x",
   "@readerSpeed": {
     "description": "Caption and speech after changing reading speed.",
-    "placeholders": { "rate": { "type": "String", "example": "1.2" } }
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "1.2"
+      }
+    }
   },
   "readerSaved": "Na-save sa kasaysayan.",
-  "@readerSaved": { "description": "Caption after saving (documents are also auto-saved)." },
+  "@readerSaved": {
+    "description": "Caption after saving (documents are also auto-saved)."
+  },
   "readerAtStart": "Ito na ang simula.",
-  "@readerAtStart": { "description": "Previous sentence/paragraph at the start." },
+  "@readerAtStart": {
+    "description": "Previous sentence/paragraph at the start."
+  },
   "readerAtEnd": "Ito na ang huling pangungusap.",
-  "@readerAtEnd": { "description": "Next sentence/paragraph at the end." },
+  "@readerAtEnd": {
+    "description": "Next sentence/paragraph at the end."
+  },
   "readerFromStart": "Mula sa simula.",
-  "@readerFromStart": { "description": "Restarting from the beginning." },
+  "@readerFromStart": {
+    "description": "Restarting from the beginning."
+  },
   "readerFilipinoNoVoice": "This document is in Filipino, but no Filipino voice is installed, so it will be read with an English voice and may be hard to understand.",
-  "@readerFilipinoNoVoice": { "description": "Intentionally English in every locale: only spoken when no Filipino voice exists." },
-  "helpReader": "I-tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pakanan o pakaliwa gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-double tap: ulitin ang pangungusap. Mag-swipe pababa gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.",
-  "@helpReader": { "description": "Spoken help on the Reader." },
-
+  "@readerFilipinoNoVoice": {
+    "description": "Intentionally English in every locale: only spoken when no Filipino voice exists."
+  },
+  "helpReader": "I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.",
+  "@helpReader": {
+    "description": "Spoken help on the Reader."
+  },
   "captureHistory": "Kasaysayan",
-  "@captureHistory": { "description": "Capture screen: open Reading History." },
+  "@captureHistory": {
+    "description": "Capture screen: open Reading History."
+  },
   "captureSettings": "Mga Setting",
-  "@captureSettings": { "description": "Capture screen: open Settings." },
-
+  "@captureSettings": {
+    "description": "Capture screen: open Settings."
+  },
   "screenSettings": "Mga Setting",
-  "@screenSettings": { "description": "Spoken name of the Settings screen." },
+  "@screenSettings": {
+    "description": "Spoken name of the Settings screen."
+  },
   "settingsIntro": "Mag-swipe pakanan o pakaliwa para pumili ng setting, at pataas o pababa para baguhin ito.",
-  "@settingsIntro": { "description": "Settings entry prompt." },
-  "helpSettings": "Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pababa gamit ang dalawang daliri: bumalik.",
-  "@helpSettings": { "description": "Spoken help on Settings." },
+  "@settingsIntro": {
+    "description": "Settings entry prompt."
+  },
+  "helpSettings": "Mag-swipe pakanan o pakaliwa: lumipat ng setting. Mag-swipe pataas o pababa: baguhin ang halaga. I-double tap: susunod na pagpipilian, o buksan. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpSettings": {
+    "description": "Spoken help in Settings."
+  },
   "settingValue": "{label}: {value}",
   "@settingValue": {
     "description": "A setting and its value, e.g. \"Bilis ng pagbasa: 1.2x\".",
-    "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
   },
   "setReadingRate": "Bilis ng pagbasa",
-  "@setReadingRate": { "description": "Setting: reading speed." },
+  "@setReadingRate": {
+    "description": "Setting: reading speed."
+  },
   "setPitch": "Tono ng boses",
-  "@setPitch": { "description": "Setting: voice pitch." },
+  "@setPitch": {
+    "description": "Setting: voice pitch."
+  },
   "setLanguage": "Wika",
-  "@setLanguage": { "description": "Setting: UI and prompt language." },
+  "@setLanguage": {
+    "description": "Setting: UI and prompt language."
+  },
   "setDocumentVoice": "Boses ng dokumento",
-  "@setDocumentVoice": { "description": "Setting: which voice reads documents." },
+  "@setDocumentVoice": {
+    "description": "Setting: which voice reads documents."
+  },
   "setTextSize": "Laki ng teksto",
-  "@setTextSize": { "description": "Setting: text size." },
+  "@setTextSize": {
+    "description": "Setting: text size."
+  },
   "setFont": "Font",
-  "@setFont": { "description": "Setting: font." },
-  "setColors": "Kulay",
-  "@setColors": { "description": "Setting: color theme." },
+  "@setFont": {
+    "description": "Setting: font."
+  },
   "setNavMode": "Paraan ng pag-navigate",
-  "@setNavMode": { "description": "Setting: voice or gestures." },
+  "@setNavMode": {
+    "description": "Setting: voice or gestures."
+  },
   "setHaptics": "Pag-vibrate",
-  "@setHaptics": { "description": "Setting: vibration cues." },
+  "@setHaptics": {
+    "description": "Setting: vibration cues."
+  },
   "setVerbosity": "Haba ng mga paliwanag",
-  "@setVerbosity": { "description": "Setting: how much the app says." },
+  "@setVerbosity": {
+    "description": "Setting: how much the app says."
+  },
   "setAutoCapture": "Kusang pagkuha ng litrato",
-  "@setAutoCapture": { "description": "Setting: camera auto-capture." },
-  "setAccount": "Account",
-  "@setAccount": { "description": "Setting row: open Account." },
+  "@setAutoCapture": {
+    "description": "Setting: camera auto-capture."
+  },
   "setTtsVoices": "Mga boses ng pagbasa",
-  "@setTtsVoices": { "description": "Setting row: open Android TTS settings." },
+  "@setTtsVoices": {
+    "description": "Setting row: open Android TTS settings."
+  },
   "valueOn": "Naka-on",
-  "@valueOn": { "description": "Toggle value." },
+  "@valueOn": {
+    "description": "Toggle value."
+  },
   "valueOff": "Naka-off",
-  "@valueOff": { "description": "Toggle value." },
+  "@valueOff": {
+    "description": "Toggle value."
+  },
   "valueAuto": "Awtomatiko",
-  "@valueAuto": { "description": "Document voice: detect per document." },
+  "@valueAuto": {
+    "description": "Document voice: detect per document."
+  },
   "langFilipino": "Filipino",
-  "@langFilipino": { "description": "Language name." },
+  "@langFilipino": {
+    "description": "Language name."
+  },
   "langEnglish": "Ingles",
-  "@langEnglish": { "description": "Language name." },
-  "paletteDefault": "Karaniwan: cream at navy",
-  "@paletteDefault": { "description": "Color theme." },
-  "paletteHighContrast": "Puti sa itim",
-  "@paletteHighContrast": { "description": "Color theme." },
-  "paletteYellow": "Dilaw sa itim",
-  "@paletteYellow": { "description": "Color theme." },
-  "paletteBlackOnWhite": "Itim sa puti",
-  "@paletteBlackOnWhite": { "description": "Color theme." },
+  "@langEnglish": {
+    "description": "Language name."
+  },
   "verbosityBrief": "Maikli",
-  "@verbosityBrief": { "description": "Verbosity level." },
+  "@verbosityBrief": {
+    "description": "Verbosity level."
+  },
   "verbosityNormal": "Karaniwan",
-  "@verbosityNormal": { "description": "Verbosity level." },
+  "@verbosityNormal": {
+    "description": "Verbosity level."
+  },
   "verbosityDetailed": "Detalyado",
-  "@verbosityDetailed": { "description": "Verbosity level." },
+  "@verbosityDetailed": {
+    "description": "Verbosity level."
+  },
   "navVoice": "Pa-boses",
-  "@navVoice": { "description": "Navigation mode value." },
+  "@navVoice": {
+    "description": "Navigation mode value."
+  },
   "navGestures": "Pa-galaw",
-  "@navGestures": { "description": "Navigation mode value." },
+  "@navGestures": {
+    "description": "Navigation mode value."
+  },
   "accountNone": "Walang naka-login",
-  "@accountNone": { "description": "Account row value when logged out." },
+  "@accountNone": {
+    "description": "Account row value when logged out."
+  },
   "accountAs": "Naka-login si {name}",
   "@accountAs": {
     "description": "Account row value when logged in.",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "ttsFilipinoInstalled": "May boses na Filipino",
-  "@ttsFilipinoInstalled": { "description": "Reading voices row value." },
+  "@ttsFilipinoInstalled": {
+    "description": "Reading voices row value."
+  },
   "ttsFilipinoNotInstalled": "Walang boses na Filipino. I-double tap para mag-install.",
-  "@ttsFilipinoNotInstalled": { "description": "Reading voices row value." },
+  "@ttsFilipinoNotInstalled": {
+    "description": "Reading voices row value."
+  },
   "actionIncrease": "Dagdagan",
-  "@actionIncrease": { "description": "Settings row button." },
+  "@actionIncrease": {
+    "description": "Settings row button."
+  },
   "actionDecrease": "Bawasan",
-  "@actionDecrease": { "description": "Settings row button." },
+  "@actionDecrease": {
+    "description": "Settings row button."
+  },
   "actionChange": "Palitan",
-  "@actionChange": { "description": "Settings row button (cycle)." },
+  "@actionChange": {
+    "description": "Settings row button (cycle)."
+  },
   "actionOpen": "Buksan",
-  "@actionOpen": { "description": "Settings row button (open)." },
-
+  "@actionOpen": {
+    "description": "Settings row button (open)."
+  },
   "screenHistory": "Kasaysayan ng Pagbasa",
-  "@screenHistory": { "description": "Spoken name of Reading History." },
+  "@screenHistory": {
+    "description": "Spoken name of Reading History."
+  },
   "historyIntro": "May {count} na dokumento. Mag-swipe pakanan para marinig ang bawat isa, at i-double tap para buksan.",
   "@historyIntro": {
     "description": "History entry prompt (count > 0). No plural form on purpose.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "historyEmpty": "Wala pang nababasang dokumento. Magbasa muna gamit ang Mag-upload o ang Camera.",
-  "@historyEmpty": { "description": "History has no documents." },
+  "@historyEmpty": {
+    "description": "History has no documents."
+  },
   "historyItem": "{title}, {source}, {date}",
   "@historyItem": {
     "description": "A history entry as spoken and shown.",
     "placeholders": {
-      "title": { "type": "String" },
-      "source": { "type": "String" },
-      "date": { "type": "String" }
+      "title": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "sourceCamera": "litrato",
-  "@sourceCamera": { "description": "Source type: camera photo." },
+  "@sourceCamera": {
+    "description": "Source type: camera photo."
+  },
   "sourceImage": "larawan",
-  "@sourceImage": { "description": "Source type: uploaded image." },
+  "@sourceImage": {
+    "description": "Source type: uploaded image."
+  },
   "sourcePdf": "PDF",
-  "@sourcePdf": { "description": "Source type." },
+  "@sourcePdf": {
+    "description": "Source type."
+  },
   "sourceDocx": "Word",
-  "@sourceDocx": { "description": "Source type." },
+  "@sourceDocx": {
+    "description": "Source type."
+  },
   "historyResults": "{count} resulta para sa “{query}”.",
   "@historyResults": {
     "description": "Search results count.",
-    "placeholders": { "count": { "type": "int" }, "query": { "type": "String" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "query": {
+        "type": "String"
+      }
+    }
   },
   "historyNoResults": "Walang nahanap para sa “{query}”.",
   "@historyNoResults": {
     "description": "Search found nothing.",
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
   "historyShowAll": "Ipinapakita muli ang lahat.",
-  "@historyShowAll": { "description": "Search cleared." },
+  "@historyShowAll": {
+    "description": "Search cleared."
+  },
   "historyOptions": "Mga opsyon para sa {title}. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin. I-double tap para piliin.",
   "@historyOptions": {
     "description": "Options for a document (after swipe up).",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "optOpen": "Buksan",
-  "@optOpen": { "description": "History option." },
+  "@optOpen": {
+    "description": "History option."
+  },
   "optRename": "Palitan ang pangalan",
-  "@optRename": { "description": "History option." },
+  "@optRename": {
+    "description": "History option."
+  },
   "optDelete": "Burahin",
-  "@optDelete": { "description": "History option." },
+  "@optDelete": {
+    "description": "History option."
+  },
   "historyRenamePrompt": "Sabihin ang bagong pangalan pagkatapos ng tunog.",
-  "@historyRenamePrompt": { "description": "Before dictating a new title." },
+  "@historyRenamePrompt": {
+    "description": "Before dictating a new title."
+  },
   "historyRenamed": "Pinalitan ang pangalan: {title}.",
   "@historyRenamed": {
     "description": "After renaming.",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "historyDeleteConfirm": "Burahin ang “{title}”?",
   "@historyDeleteConfirm": {
     "description": "Delete confirmation; followed by the offer hint.",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "historyDeleted": "Nabura ang “{title}”.",
   "@historyDeleted": {
     "description": "After deleting.",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "historySearch": "Hanapin",
-  "@historySearch": { "description": "Search field hint and voice keyword." },
-  "helpHistory": "Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pababa gamit ang dalawang daliri: bumalik.",
-  "@helpHistory": { "description": "Spoken help on History." },
-
-  "screenAccount": "Account",
-  "@screenAccount": { "description": "Spoken name of the Account screen." },
-  "accountIntroGuest": "Ginagamit ang Percipere nang walang account. Gumawa ng profile para mai-save ang iyong mga setting.",
-  "@accountIntroGuest": { "description": "Account prompt when logged out." },
-  "accountIntroUser": "Naka-login si {name}.",
-  "@accountIntroUser": {
-    "description": "Account prompt when logged in.",
-    "placeholders": { "name": { "type": "String" } }
+  "@historySearch": {
+    "description": "Search field hint and voice keyword."
   },
-  "accountCreate": "Gumawa ng profile",
-  "@accountCreate": { "description": "Account action." },
-  "accountLogin": "Mag-login",
-  "@accountLogin": { "description": "Account action." },
-  "accountLogout": "Mag-logout",
-  "@accountLogout": { "description": "Account action." },
-  "accountLoggedOut": "Naka-logout na. Ginagamit ang mga setting ng teleponong ito.",
-  "@accountLoggedOut": { "description": "After logout." },
-  "accountLoggedIn": "Maligayang pagbabalik, {name}.",
-  "@accountLoggedIn": {
-    "description": "After login.",
-    "placeholders": { "name": { "type": "String" } }
+  "helpHistory": "Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpHistory": {
+    "description": "Spoken help in History."
   },
-  "accountCreated": "Nagawa ang profile ni {name}, at naka-login na.",
-  "@accountCreated": {
-    "description": "After creating a profile.",
-    "placeholders": { "name": { "type": "String" } }
+  "fieldEmail": "Email Address",
+  "@fieldEmail": {
+    "description": "Field (mockup)."
   },
-  "screenCreateProfile": "Bagong profile",
-  "@screenCreateProfile": { "description": "Spoken name of the create-profile screen." },
-  "profileAskName": "Ano ang iyong pangalan? Pindutin nang matagal ang lugar ng galaw at sabihin ito, o i-type.",
-  "@profileAskName": { "description": "Create profile step 1." },
-  "profileNameIs": "Pangalan: {name}. I-double tap para ituloy, o pindutin nang matagal para ulitin.",
-  "@profileNameIs": {
-    "description": "Name captured.",
-    "placeholders": { "name": { "type": "String" } }
-  },
-  "profileAskEmail": "Email, kung mayroon. Pindutin nang matagal para sabihin ito, o i-type. Mag-swipe pakanan para laktawan.",
-  "@profileAskEmail": { "description": "Create profile step 2 (optional)." },
-  "profileEmailIs": "Email: {email}. I-double tap para ituloy.",
-  "@profileEmailIs": {
-    "description": "Email captured.",
-    "placeholders": { "email": { "type": "String" } }
-  },
-  "profileAskPin": "Gumawa ng apat na numerong PIN. Mag-swipe pataas o pababa para pumili ng numero at i-double tap para ilagay ito. Maaari mo ring pindutin nang matagal at sabihin ang apat na numero.",
-  "@profileAskPin": { "description": "Create profile step 3." },
-  "profileConfirmPin": "Ilagay ulit ang PIN para makumpirma.",
-  "@profileConfirmPin": { "description": "Create profile step 4." },
-  "profilePinMismatch": "Hindi magkapareho ang PIN. Subukan ulit.",
-  "@profilePinMismatch": { "description": "Confirmation PIN differs." },
-  "profileNameMissing": "Kailangan muna ng pangalan.",
-  "@profileNameMissing": { "description": "Continue without a name." },
-  "fieldName": "Pangalan",
-  "@fieldName": { "description": "Form field label." },
-  "fieldEmail": "Email (opsyonal)",
-  "@fieldEmail": { "description": "Form field label." },
   "fieldPin": "PIN",
-  "@fieldPin": { "description": "Form field label." },
-  "actionContinue": "Ituloy",
-  "@actionContinue": { "description": "Wizard action." },
+  "@fieldPin": {
+    "description": "Form field label."
+  },
   "actionSkip": "Laktawan",
-  "@actionSkip": { "description": "Wizard action." },
-  "screenLogin": "Mag-login",
-  "@screenLogin": { "description": "Spoken name of the login screen." },
-  "loginChooseProfile": "Pumili ng profile.",
-  "@loginChooseProfile": { "description": "Login step 1." },
+  "@actionSkip": {
+    "description": "Wizard action."
+  },
+  "screenLogin": "Login",
+  "@screenLogin": {
+    "description": "Screen name (mockup)."
+  },
   "loginAskPin": "Ilagay ang PIN ni {name}.",
   "@loginAskPin": {
     "description": "Login step 2.",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "loginWrongPin": "Mali ang PIN. Subukan ulit.",
-  "@loginWrongPin": { "description": "Wrong PIN." },
-  "loginNoProfiles": "Wala pang profile sa teleponong ito.",
-  "@loginNoProfiles": { "description": "No profiles to log into." },
+  "@loginWrongPin": {
+    "description": "Wrong PIN."
+  },
   "pinDigitEntered": "Numero {count} sa {total}.",
   "@pinDigitEntered": {
     "description": "A PIN digit was entered (the digit itself isn't repeated).",
-    "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "pinDeleted": "Binura ang huling numero.",
-  "@pinDeleted": { "description": "Last PIN digit removed." },
+  "@pinDeleted": {
+    "description": "Last PIN digit removed."
+  },
   "pinSayFour": "Sabihin ang apat na numero, halimbawa: isa, dalawa, tatlo, apat.",
-  "@pinSayFour": { "description": "Voice PIN didn't have four digits." },
+  "@pinSayFour": {
+    "description": "Voice PIN didn't have four digits."
+  },
   "pinDelete": "Burahin",
-  "@pinDelete": { "description": "Keypad delete key." },
+  "@pinDelete": {
+    "description": "Keypad delete key."
+  },
   "helpPin": "Mag-swipe pataas o pababa: pumili ng numero. I-double tap: ilagay ang numero. Mag-swipe pakaliwa: burahin ang huling numero. Pindutin nang matagal: sabihin ang apat na numero.",
-  "@helpPin": { "description": "Spoken help while entering a PIN." }
+  "@helpPin": {
+    "description": "Spoken help while entering a PIN."
+  },
+  "screenWelcome": "Welcome",
+  "@screenWelcome": {
+    "description": "Spoken name of the Welcome screen."
+  },
+  "welcomeHasAccount": "Meron ka na bang account?",
+  "@welcomeHasAccount": {
+    "description": "Welcome Speaking Zone before speech (mockup)."
+  },
+  "welcomeAccountPrompt": "Meron ka na bang account? Kung wala pa, mag-register ka.",
+  "@welcomeAccountPrompt": {
+    "description": "Welcome question (spoken)."
+  },
+  "welcomeHintVoice": "Sabihin ang “login”, “register”, o “subukan”, o mag-swipe para pumili at mag-double-tap para pindutin.",
+  "@welcomeHintVoice": {
+    "description": "Welcome: how to answer, microphone allowed."
+  },
+  "welcomeHintGestures": "Mag-swipe pakanan para pumili, at mag-double-tap para pindutin. I-tap para marinig ulit ito.",
+  "@welcomeHintGestures": {
+    "description": "Welcome: how to answer, no microphone."
+  },
+  "welcomeVoiceReady": "Maaari mo nang sabihin ang “login”, “register”, o “subukan”.",
+  "@welcomeVoiceReady": {
+    "description": "After the microphone is allowed on Welcome."
+  },
+  "actionLogin": "Login",
+  "@actionLogin": {
+    "description": "Button (mockup)."
+  },
+  "actionRegister": "Register",
+  "@actionRegister": {
+    "description": "Button (mockup)."
+  },
+  "actionTryFirst": "Subukan muna (Try first)",
+  "@actionTryFirst": {
+    "description": "Guest button (mockup)."
+  },
+  "actionSubmit": "Submit",
+  "@actionSubmit": {
+    "description": "Form button (mockup)."
+  },
+  "actionClear": "Burahin",
+  "@actionClear": {
+    "description": "Clears the focused form field (voice only)."
+  },
+  "actionOkay": "Okay",
+  "@actionOkay": {
+    "description": "Confirms a setup step."
+  },
+  "actionFinishSetup": "Tama, tapusin",
+  "@actionFinishSetup": {
+    "description": "Summary: confirm everything."
+  },
+  "actionForgotPassword": "Nakalimutan ang password",
+  "@actionForgotPassword": {
+    "description": "Login link."
+  },
+  "actionUseFingerprint": "Gamitin ang fingerprint",
+  "@actionUseFingerprint": {
+    "description": "Login link."
+  },
+  "actionLegacyAccount": "Lumang account (PIN)",
+  "@actionLegacyAccount": {
+    "description": "Login link to claim a pre-6B PIN account."
+  },
+  "answerYes": "Oo",
+  "@answerYes": {
+    "description": "Yes option."
+  },
+  "answerNo": "Hindi",
+  "@answerNo": {
+    "description": "No option."
+  },
+  "guestName": "Bisita",
+  "@guestName": {
+    "description": "Name of the guest profile."
+  },
+  "guestValue": "Bisita: naka-save lamang sa phone na ito",
+  "@guestValue": {
+    "description": "Settings value for guests."
+  },
+  "guestReminder": "Naka-save ito sa phone na ito lamang. Mag-register para hindi ito mawala.",
+  "@guestReminder": {
+    "description": "Guest registration reminder (said at most once per moment)."
+  },
+  "backUnsavedConfirm": "May hindi pa naka-save. Sigurado ka bang babalik?",
+  "@backUnsavedConfirm": {
+    "description": "Back with unsaved input."
+  },
+  "closeAppQuestion": "Gusto mo bang isara ang app?",
+  "@closeAppQuestion": {
+    "description": "Back on the first screen."
+  },
+  "backReturnedTo": "Bumalik sa {screen}.",
+  "@backReturnedTo": {
+    "description": "Announces the destination after back.",
+    "placeholders": {
+      "screen": {
+        "type": "String"
+      }
+    }
+  },
+  "formIntro": "Sagutin ang bawat tanong sa boses, o i-type ito.",
+  "@formIntro": {
+    "description": "Start of a form."
+  },
+  "formSubmitHint": "Pindutin ng dalawang beses ang gesture area o sabihin ang salitang submit or tapos na",
+  "@formSubmitHint": {
+    "description": "Form submit hint (mockup wording)."
+  },
+  "formFieldEmpty": "{field}, walang laman",
+  "@formFieldEmpty": {
+    "description": "Focused empty field.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "formFieldValue": "{field}: {value}",
+  "@formFieldValue": {
+    "description": "Focused field with its value.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "formPasswordLength": "{count} titik",
+  "@formPasswordLength": {
+    "description": "Password read back by length only. No plural in Filipino.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "formHeard": "{field}: {value}.",
+  "@formHeard": {
+    "description": "Read-back after a field is filled.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "formComplete": "Kumpleto na. {hint}",
+  "@formComplete": {
+    "description": "All fields filled.",
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "formChange": "{field}. Magsalita o mag-type para palitan.",
+  "@formChange": {
+    "description": "Focused field that has a value.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "formCleared": "Binura ang {field}. {prompt}",
+  "@formCleared": {
+    "description": "Field cleared.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "formMissing": "Kulang pa: {fields}.",
+  "@formMissing": {
+    "description": "Submit with empty fields.",
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "helpForm": "Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpForm": {
+    "description": "Spoken help on form screens."
+  },
+  "fieldFirstName": "First Name",
+  "@fieldFirstName": {
+    "description": "Field (mockup)."
+  },
+  "fieldLastName": "Last Name",
+  "@fieldLastName": {
+    "description": "Field (mockup)."
+  },
+  "fieldPassword": "Password",
+  "@fieldPassword": {
+    "description": "Field (mockup)."
+  },
+  "fieldNewPassword": "Bagong password",
+  "@fieldNewPassword": {
+    "description": "Field."
+  },
+  "fieldAnswer": "Sagot",
+  "@fieldAnswer": {
+    "description": "Security answer field."
+  },
+  "askFirstName": "Ano ang iyong pangalan (first name)?",
+  "@askFirstName": {
+    "description": "Register prompt."
+  },
+  "askLastName": "Ano ang iyong apelyido (last name)?",
+  "@askLastName": {
+    "description": "Register prompt."
+  },
+  "askEmail": "Ano ang iyong email address?",
+  "@askEmail": {
+    "description": "Prompt. Spell it: “at” for @, “dot” for a period."
+  },
+  "askNewPassword": "Gumawa ng password na hindi bababa sa 8 titik.",
+  "@askNewPassword": {
+    "description": "New password prompt."
+  },
+  "askPassword": "Ano ang iyong password?",
+  "@askPassword": {
+    "description": "Login prompt."
+  },
+  "askAnswer": "{question} Sabihin o i-type ang sagot.",
+  "@askAnswer": {
+    "description": "Security answer prompt.",
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
+  "emailInvalid": "Mukhang mali ang email address. Halimbawa: juan@gmail.com. Sa boses, sabihin ang “at” para sa @ at “dot” para sa tuldok.",
+  "@emailInvalid": {
+    "description": "Invalid email."
+  },
+  "emailTaken": "May account na sa phone na ito ang email na iyan. Mag-login ka, o gumamit ng ibang email.",
+  "@emailTaken": {
+    "description": "Duplicate email."
+  },
+  "passwordTooShort": "Ang password ay dapat hindi bababa sa 8 titik. {count} pa lang ang nailagay.",
+  "@passwordTooShort": {
+    "description": "Password too short. No plural in Filipino.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "screenRegister": "Register",
+  "@screenRegister": {
+    "description": "Screen name (mockup)."
+  },
+  "registerWorking": "Ginagawa ang iyong account…",
+  "@registerWorking": {
+    "description": "While hashing the password."
+  },
+  "registerDone": "Nagawa na ang iyong account, {name}.",
+  "@registerDone": {
+    "description": "After registering.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "helpLogin": "Magsalita o mag-type para sagutin ang email at password. I-double tap, o sabihin ang “submit” o “tapos na”: mag-login. Sabihin ang “nakalimutan”: i-reset ang password. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpLogin": {
+    "description": "Spoken help on Login."
+  },
+  "loginFingerprintIntro": "Ilagay ang iyong daliri sa fingerprint sensor para mag-login, o gamitin ang iyong password.",
+  "@loginFingerprintIntro": {
+    "description": "Login with fingerprint enabled."
+  },
+  "loginWrong": "Mali ang email o password.",
+  "@loginWrong": {
+    "description": "Failed login."
+  },
+  "loginAttemptsLeft": "{count} pang subok bago maghintay.",
+  "@loginAttemptsLeft": {
+    "description": "Failed login, before lockout. No plural in Filipino.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loginWelcomeBack": "Maligayang pagbabalik, {name}.",
+  "@loginWelcomeBack": {
+    "description": "After login.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lockoutStarted": "Masyadong maraming maling subok. Maghintay ng {seconds} segundo bago sumubok muli.",
+  "@lockoutStarted": {
+    "description": "Lockout begins.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lockoutWait": "Maghintay ng {seconds} segundo.",
+  "@lockoutWait": {
+    "description": "Lockout countdown.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lockoutOver": "Maaari ka nang sumubok muli.",
+  "@lockoutOver": {
+    "description": "Lockout ended."
+  },
+  "fingerprintReason": "Gamitin ang fingerprint para mag-login sa Percipere",
+  "@fingerprintReason": {
+    "description": "Android fingerprint dialog text."
+  },
+  "fingerprintFailed": "Hindi nakilala ang fingerprint. Gamitin ang iyong password. {prompt}",
+  "@fingerprintFailed": {
+    "description": "Fingerprint failed.",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "fingerprintUnavailable": "Hindi magamit ang fingerprint ngayon. Gamitin ang iyong password. {prompt}",
+  "@fingerprintUnavailable": {
+    "description": "Fingerprint unavailable.",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "authChoiceQuestion": "Nais mo bang mag login sa iyong account?",
+  "@authChoiceQuestion": {
+    "description": "After logout (mockup)."
+  },
+  "sessionExpired": "Natapos na ang iyong session.",
+  "@sessionExpired": {
+    "description": "Launch with stay-logged-in off."
+  },
+  "helpChooseList": "Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. Maaari mo ring sabihin ang pagpipilian. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpChooseList": {
+    "description": "Help on list/choice screens."
+  },
+  "screenSecurityQuestion": "Tanong pangseguridad",
+  "@screenSecurityQuestion": {
+    "description": "Screen name."
+  },
+  "securityChoose": "Pumili ng tanong pangseguridad. Gagamitin ito kapag nakalimutan mo ang iyong password.",
+  "@securityChoose": {
+    "description": "Choose a question."
+  },
+  "securityQFirstPet": "Ano ang pangalan ng una mong alagang hayop?",
+  "@securityQFirstPet": {
+    "description": "Security question."
+  },
+  "securityQBirthTown": "Saang bayan ka ipinanganak?",
+  "@securityQBirthTown": {
+    "description": "Security question."
+  },
+  "securityQMotherMaiden": "Ano ang apelyido ng iyong nanay noong dalaga pa siya?",
+  "@securityQMotherMaiden": {
+    "description": "Security question."
+  },
+  "securityQFirstSchool": "Ano ang pangalan ng una mong paaralan?",
+  "@securityQFirstSchool": {
+    "description": "Security question."
+  },
+  "securityQFavoriteFood": "Ano ang paborito mong pagkain?",
+  "@securityQFavoriteFood": {
+    "description": "Security question."
+  },
+  "securitySaved": "Na-save ang iyong tanong pangseguridad.",
+  "@securitySaved": {
+    "description": "Saved."
+  },
+  "securityRequired": "Kailangan ang tanong pangseguridad para ma-reset ang password. Pumili ng isa.",
+  "@securityRequired": {
+    "description": "Back on the choose step."
+  },
+  "screenFingerprint": "Fingerprint",
+  "@screenFingerprint": {
+    "description": "Screen name."
+  },
+  "fingerprintOffer": "Gusto mo bang gamitin ang iyong fingerprint sa pag-login?",
+  "@fingerprintOffer": {
+    "description": "Offer after registering."
+  },
+  "fingerprintOn": "Naka-on na ang fingerprint login.",
+  "@fingerprintOn": {
+    "description": "Enabled."
+  },
+  "fingerprintNotSet": "Hindi na-on ang fingerprint login. Maaari mo itong i-on mamaya sa Mga Setting.",
+  "@fingerprintNotSet": {
+    "description": "Enabling failed."
+  },
+  "fingerprintSkipped": "Sige, password na lang.",
+  "@fingerprintSkipped": {
+    "description": "Offer declined."
+  },
+  "fingerprintNoSensor": "Walang naka-set na fingerprint sa phone na ito.",
+  "@fingerprintNoSensor": {
+    "description": "No biometrics."
+  },
+  "screenForgotPassword": "Nakalimutan ang password",
+  "@screenForgotPassword": {
+    "description": "Screen name."
+  },
+  "forgotIntro": "Sasagutin mo ang iyong tanong pangseguridad para makagawa ng bagong password.",
+  "@forgotIntro": {
+    "description": "Forgot password start."
+  },
+  "forgotAdmin": "Maaari ring i-reset ng administrator ang iyong account.",
+  "@forgotAdmin": {
+    "description": "Always mentioned."
+  },
+  "forgotNoQuestion": "Walang account na may tanong pangseguridad para sa email na ito sa phone na ito.",
+  "@forgotNoQuestion": {
+    "description": "No account/question."
+  },
+  "forgotWrongAnswer": "Mali ang sagot.",
+  "@forgotWrongAnswer": {
+    "description": "Wrong answer."
+  },
+  "forgotDone": "Napalitan na ang password. Mag-login ka na.",
+  "@forgotDone": {
+    "description": "Reset done."
+  },
+  "screenLegacyAccount": "Lumang account",
+  "@screenLegacyAccount": {
+    "description": "Screen name."
+  },
+  "legacyChoose": "Pumili ng iyong lumang account na may PIN.",
+  "@legacyChoose": {
+    "description": "Choose an old account."
+  },
+  "legacyNone": "Walang lumang account sa phone na ito.",
+  "@legacyNone": {
+    "description": "None."
+  },
+  "legacyClaimed": "Tama ang PIN, {name}. Ngayon, maglagay ng email at password.",
+  "@legacyClaimed": {
+    "description": "Old PIN verified.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "screenUpgradeAccount": "I-update ang account",
+  "@screenUpgradeAccount": {
+    "description": "Screen name."
+  },
+  "upgradeIntro": "Hindi na ginagamit ang PIN. Maglagay ng email at password; mananatili ang iyong mga setting at kasaysayan.",
+  "@upgradeIntro": {
+    "description": "Upgrade intro."
+  },
+  "upgradeDone": "Na-update na ang iyong account.",
+  "@upgradeDone": {
+    "description": "Upgrade done."
+  },
+  "upgradeLeave": "Kung babalik ka, lalabas ka sa account na ito. Sigurado ka ba?",
+  "@upgradeLeave": {
+    "description": "Back on the upgrade screen."
+  },
+  "setupProgress": "Hakbang {step} ng {total}.",
+  "@setupProgress": {
+    "description": "Setup progress.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setupSummaryTitle": "Buod.",
+  "@setupSummaryTitle": {
+    "description": "Summary step title."
+  },
+  "setupChoiceHow": "Sabihin ang iyong sagot, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.",
+  "@setupChoiceHow": {
+    "description": "How to answer a choice step."
+  },
+  "setupNavHowVoice": "Sabihin ang “boses” o “galaw”, o mag-swipe pakanan para pumili at mag-double-tap para pindutin.",
+  "@setupNavHowVoice": {
+    "description": "Step 1 how to answer."
+  },
+  "setupSeesQuestion": "Nakakakita ka ba ng kahit kaunting teksto sa screen?",
+  "@setupSeesQuestion": {
+    "description": "Sight question."
+  },
+  "setupSizeQuestion": "Nababasa mo ba ng maayos ang texto?",
+  "@setupSizeQuestion": {
+    "description": "Step 2 (mockup)."
+  },
+  "setupSizeHow": "Mag-swipe pataas o sabihin ang “palakihin” para lumaki; mag-swipe pababa o sabihin ang “paliitin” para lumiit. I-double tap o sabihin ang “okay” kapag tama na.",
+  "@setupSizeHow": {
+    "description": "Step 2 how."
+  },
+  "setupSizeValue": "Laki ng teksto: {size}.",
+  "@setupSizeValue": {
+    "description": "Step 2 value.",
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "setupColorQuestion": "Anong kulay ang nais mo sa texto?",
+  "@setupColorQuestion": {
+    "description": "Step 3 (mockup)."
+  },
+  "setupCycleHow": "Mag-swipe pakanan o pakaliwa, o sabihin ang “susunod” o “nakaraan”, para palitan. I-double tap o sabihin ang “okay” kapag tama na.",
+  "@setupCycleHow": {
+    "description": "Steps 3 and 7 how."
+  },
+  "setupColorValue": "Kulay: {color}.",
+  "@setupColorValue": {
+    "description": "Step 3 value.",
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "setupLanguageQuestion": "Gusto mo ba ang boses sa Ingles o sa Tagalog?",
+  "@setupLanguageQuestion": {
+    "description": "Step 4."
+  },
+  "setupLanguageHow": "Mag-swipe pakanan para marinig ang bawat isa, at mag-double-tap para pumili. O sabihin ang “Tagalog” o “Ingles”.",
+  "@setupLanguageHow": {
+    "description": "Step 4 how."
+  },
+  "setupVoiceSample": "Ito ang boses sa Tagalog.",
+  "@setupVoiceSample": {
+    "description": "Voice sample, spoken in each voice."
+  },
+  "setupFilipinoMissing": "Walang boses na Filipino sa phone na ito. Gusto mo bang buksan ang text-to-speech settings para i-install ito?",
+  "@setupFilipinoMissing": {
+    "description": "Step 4 without a Filipino voice (spoken in English)."
+  },
+  "setupLanguageChosen": "Napili: {language}.",
+  "@setupLanguageChosen": {
+    "description": "Step 4 chosen.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "setupSpeedQuestion": "Gusto mo bang bilisan ang boses?",
+  "@setupSpeedQuestion": {
+    "description": "Step 5."
+  },
+  "setupSpeedHow": "Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.",
+  "@setupSpeedHow": {
+    "description": "Step 5 how."
+  },
+  "setupSpeedValue": "Bilis: {rate}x.",
+  "@setupSpeedValue": {
+    "description": "Step 5 value.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "setupPitchQuestion": "Gusto mo bang palitan ang tono ng boses?",
+  "@setupPitchQuestion": {
+    "description": "Step 6."
+  },
+  "setupPitchHow": "Mag-swipe pataas o sabihin ang “taasan”; mag-swipe pababa o sabihin ang “babaan”. I-double tap o sabihin ang “okay” kapag tama na.",
+  "@setupPitchHow": {
+    "description": "Step 6 how."
+  },
+  "setupPitchValue": "Tono: {pitch}.",
+  "@setupPitchValue": {
+    "description": "Step 6 value.",
+    "placeholders": {
+      "pitch": {
+        "type": "String"
+      }
+    }
+  },
+  "setupThemeQuestion": "Anong tema ang gusto mong simulan?",
+  "@setupThemeQuestion": {
+    "description": "Step 7."
+  },
+  "setupThemeValue": "Tema: {theme}.",
+  "@setupThemeValue": {
+    "description": "Step 7 value.",
+    "placeholders": {
+      "theme": {
+        "type": "String"
+      }
+    }
+  },
+  "themeCreamNavy": "Cream at Navy",
+  "@themeCreamNavy": {
+    "description": "Theme name."
+  },
+  "themeDarkYellow": "Dark mode na dilaw ang teksto",
+  "@themeDarkYellow": {
+    "description": "Theme name."
+  },
+  "themeDarkWhite": "Dark mode na puti ang teksto",
+  "@themeDarkWhite": {
+    "description": "Theme name."
+  },
+  "textColorReset": "Pinalitan ang kulay ng teksto para mas mabasa.",
+  "@textColorReset": {
+    "description": "Theme change reset the text color."
+  },
+  "setupVibrationQuestion": "Gusto mo bang mag-vibrate ang phone kapag may ginagawa ka?",
+  "@setupVibrationQuestion": {
+    "description": "Step 8."
+  },
+  "setupAutoReadQuestion": "Gusto mo bang awtomatikong basahin ang dokumento pagkatapos itong i-upload o i-scan?",
+  "@setupAutoReadQuestion": {
+    "description": "Step 9."
+  },
+  "setupSummaryQuestion": "Tama ba ang lahat?",
+  "@setupSummaryQuestion": {
+    "description": "Step 10 question."
+  },
+  "setupSummaryPrompt": "Ito ang iyong mga napili: {items}. Tama ba ang lahat? I-double tap o sabihin ang “oo” para tapusin. Para baguhin ang isa, sabihin halimbawa ang “bumalik sa bilis”, o mag-swipe at mag-double-tap.",
+  "@setupSummaryPrompt": {
+    "description": "Step 10.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryNavMode": "Paraan: {value}",
+  "@summaryNavMode": {
+    "description": "Summary line.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryLanguage": "Wika ng boses: {value}",
+  "@summaryLanguage": {
+    "description": "Summary line.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryVibration": "Vibrate: {value}",
+  "@summaryVibration": {
+    "description": "Summary line.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryAutoRead": "Awtomatikong pagbasa: {value}",
+  "@summaryAutoRead": {
+    "description": "Summary line.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setupAtLimit": "Hanggang dito na lang. {value}",
+  "@setupAtLimit": {
+    "description": "Value at its limit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "setupSkipped": "Nilaktawan. Ginamit ang karaniwang setting.",
+  "@setupSkipped": {
+    "description": "Step skipped."
+  },
+  "setupLeave": "Ito ang unang hakbang. Gusto mo bang bumalik sa Welcome? Lalabas ka sa account.",
+  "@setupLeave": {
+    "description": "Back on the first setup step."
+  },
+  "setupFinished": "Tapos na ang setup. Maaari mo itong baguhin anumang oras sa Mga Setting.",
+  "@setupFinished": {
+    "description": "Setup completed."
+  },
+  "setupSample": "Ang Percipere ay tumutulong sa iyo na mabasa ang mga liham, resibo, at aklat. Ganito ang magiging hitsura ng teksto.",
+  "@setupSample": {
+    "description": "Preview paragraph."
+  },
+  "setupPreviewLabel": "Halimbawang teksto",
+  "@setupPreviewLabel": {
+    "description": "Screen-reader label of the preview."
+  },
+  "helpSetupChoice": "Mag-swipe pakanan o pakaliwa: lumipat ng sagot. I-double tap: piliin. O sabihin ang sagot.",
+  "@helpSetupChoice": {
+    "description": "Help on choice steps."
+  },
+  "helpSetupVertical": "Mag-swipe pataas o pababa: baguhin. I-double tap o sabihin ang “okay”: tama na.",
+  "@helpSetupVertical": {
+    "description": "Help on up/down steps."
+  },
+  "helpSetupHorizontal": "Mag-swipe pakanan o pakaliwa: baguhin. I-double tap o sabihin ang “okay”: tama na.",
+  "@helpSetupHorizontal": {
+    "description": "Help on left/right steps."
+  },
+  "helpSetupCommon": "I-tap o sabihin ang “ulitin”: ulitin ang tanong. Sabihin ang “laktawan”: laktawan at gamitin ang karaniwan. Mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “bumalik”: nakaraang hakbang.",
+  "@helpSetupCommon": {
+    "description": "Help common to setup steps."
+  },
+  "helpSetupSummary": "I-double tap o sabihin ang “oo”: tapusin. Mag-swipe pakanan o pakaliwa: lumipat sa mga napili, at i-double tap para baguhin. O sabihin ang “bumalik sa” at ang pangalan, halimbawa “bumalik sa bilis”.",
+  "@helpSetupSummary": {
+    "description": "Help on the summary."
+  },
+  "langTagalog": "Tagalog",
+  "@langTagalog": {
+    "description": "Voice language option."
+  },
+  "langEnglishBoth": "Ingles (English)",
+  "@langEnglishBoth": {
+    "description": "Voice language option."
+  },
+  "setTheme": "Tema",
+  "@setTheme": {
+    "description": "Setting name."
+  },
+  "setTextColor": "Kulay ng teksto",
+  "@setTextColor": {
+    "description": "Setting name."
+  },
+  "setAutoRead": "Awtomatikong pagbasa",
+  "@setAutoRead": {
+    "description": "Setting name."
+  },
+  "setStayLoggedIn": "Manatiling naka-login",
+  "@setStayLoggedIn": {
+    "description": "Setting name."
+  },
+  "setFingerprint": "Fingerprint login",
+  "@setFingerprint": {
+    "description": "Setting name."
+  },
+  "setRedoSetup": "Ulitin ang setup",
+  "@setRedoSetup": {
+    "description": "Setting name."
+  },
+  "setRedoSetupValue": "Sagutin ulit ang mga tanong",
+  "@setRedoSetupValue": {
+    "description": "Setting value."
+  },
+  "setLogout": "Logout",
+  "@setLogout": {
+    "description": "Setting name."
+  },
+  "logoutConfirm": "Sigurado ka bang gusto mong mag-logout?",
+  "@logoutConfirm": {
+    "description": "Logout confirmation."
+  },
+  "logoutGuestConfirm": "Lalabas ka sa bisitang profile. Mananatili ito sa phone na ito. Sigurado ka ba?",
+  "@logoutGuestConfirm": {
+    "description": "Guest logout confirmation."
+  },
+  "loggedOut": "Naka-logout ka na.",
+  "@loggedOut": {
+    "description": "After logout."
+  },
+  "setupSpeedSample": "Ganito kabilis ang boses.",
+  "@setupSpeedSample": {
+    "description": "Spoken at the new speed after a change."
+  },
+  "setupPitchSample": "Ganito ang tono ng boses.",
+  "@setupPitchSample": {
+    "description": "Spoken after a tone change."
+  }
 }

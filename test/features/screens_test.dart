@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:percipere_app/app/locale_provider.dart';
 import 'package:percipere_app/core/widgets/document_box.dart';
+import 'package:percipere_app/core/widgets/eye_logo.dart';
 import 'package:percipere_app/core/widgets/gesture_pad.dart';
 import 'package:percipere_app/core/widgets/speaking_zone.dart';
 import 'package:percipere_app/features/capture/capture_screen.dart';
@@ -13,16 +14,17 @@ import '../helpers/pump_app.dart';
 
 void main() {
   group('WelcomeScreen', () {
-    testWidgets('shows title, prompt and both mode buttons', (tester) async {
+    testWidgets('shows the eye logo, title, question and three buttons', (
+      tester,
+    ) async {
       await pumpThemed(tester, const WelcomeScreen());
+      expect(find.byType(EyeLogo), findsOneWidget);
       expect(find.text('Welcome to\nPercipere'), findsOneWidget);
       expect(find.text('An app built on your behalf'), findsOneWidget);
-      expect(
-        find.text('Paano mo gustong mag-navigate sa app?'),
-        findsOneWidget,
-      );
-      expect(find.text('Pa-boses (Voice)'), findsOneWidget);
-      expect(find.text('Pa-galaw (Gestures)'), findsOneWidget);
+      expect(find.text('Meron ka na bang account?'), findsOneWidget);
+      expect(find.text('Login'), findsOneWidget);
+      expect(find.text('Register'), findsOneWidget);
+      expect(find.text('Subukan muna (Try first)'), findsOneWidget);
       // No Gesture Pad on Welcome — the whole screen is the gesture surface.
       expect(find.byType(GesturePad), findsNothing);
     });
@@ -33,17 +35,7 @@ void main() {
         const WelcomeScreen(),
         locale: AppLocales.english,
       );
-      expect(
-        find.text('How would you like to navigate the app?'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('scrolls instead of overflowing at 2x text', (tester) async {
-      tester.platformDispatcher.textScaleFactorTestValue = 2;
-      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await pumpApp(tester, await createEnv(tester));
-      expect(tester.takeException(), isNull);
+      expect(find.text('Do you already have an account?'), findsOneWidget);
     });
   });
 

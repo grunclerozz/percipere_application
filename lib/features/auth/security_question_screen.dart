@@ -59,7 +59,6 @@ class _SecurityQuestionScreenState
     onSubmit: _submit,
   );
 
-
   @override
   void dispose() {
     _form.dispose();
@@ -76,7 +75,13 @@ class _SecurityQuestionScreenState
     if (_busy || q == null || account == null) return;
     final l = bus.strings;
     if (_answer.isEmpty) {
-      return reportInvalid(_form, _answer, l.formMissing(l.fieldAnswer), bus, ref);
+      return reportInvalid(
+        _form,
+        _answer,
+        l.formMissing(l.fieldAnswer),
+        bus,
+        ref,
+      );
     }
     setState(() => _busy = true);
     try {
@@ -158,7 +163,9 @@ class _SecurityQuestionScreenState
             ? Ids.securityQuestion
             : '${Ids.securityQuestion}.answer',
         title: l10n.screenSecurityQuestion,
-        subtitle: q == null ? l10n.securityChoose : l10n.askAnswer(q.text(l10n)),
+        subtitle: q == null
+            ? l10n.securityChoose
+            : l10n.askAnswer(q.text(l10n)),
         padHint: q == null ? l10n.helpChooseList : null,
         child: q == null
             ? Column(

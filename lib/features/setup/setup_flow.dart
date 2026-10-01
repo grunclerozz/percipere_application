@@ -156,13 +156,12 @@ class SetupFlow {
       if (s != SetupStep.summary && s != SetupStep.seesText && !hidden(s)) s,
   ];
 
-  SetupFlow _at(int i, {bool fromSummary = false, bool? seesText}) =>
-      SetupFlow(
-        plan: plan,
-        index: i,
-        seesText: seesText ?? this.seesText,
-        fromSummary: fromSummary,
-      );
+  SetupFlow _at(int i, {bool fromSummary = false, bool? seesText}) => SetupFlow(
+    plan: plan,
+    index: i,
+    seesText: seesText ?? this.seesText,
+    fromSummary: fromSummary,
+  );
 
   /// After confirming or skipping the current step. A step opened from the
   /// summary returns to it.
@@ -204,7 +203,9 @@ class SetupFlow {
   /// is a sight step skipped earlier, the sight question is asked first.
   SetupFlow jumpTo(SetupStep s) {
     var target = s;
-    if (s.needsSight && seesText == false && plan.contains(SetupStep.seesText)) {
+    if (s.needsSight &&
+        seesText == false &&
+        plan.contains(SetupStep.seesText)) {
       target = SetupStep.seesText;
     }
     final i = plan.indexOf(target);

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/haptics.dart';
+import '../../core/auth/guest_reminders.dart';
+import '../../core/auth/session.dart';
 import '../../core/db/daos/documents_dao.dart';
 import '../../core/extraction/document_extractor.dart';
 import '../../core/extraction/extraction_exception.dart';
@@ -354,13 +356,20 @@ class ReaderController extends Notifier<ReaderState> {
 
   Future<void> _saveNew(ReaderState s, String sourceType) async {
     if (_documentId != null || s.text.trim().isEmpty) return;
+    final account = ref.read(currentAccountProvider);
     final id = await _dao.insert(
       title: titleFor(s.text),
       fullText: s.text,
       sourceType: sourceType,
       language: s.language == DocLanguage.english ? 'en' : 'fil',
+      userId: account?.id,
     );
     _documentId = id;
+    if (account != null && account.isGuest) {
+      // Remind the guest once, later, at a natural moment (never while
+      // reading): the next time Capture is announced.
+      await GuestReminders(ref.read(userPrefsProvider)).historySaved(account);
+    }
     if (ref.mounted) state = state.copyWith(documentId: id);
   }
 

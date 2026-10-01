@@ -105,14 +105,14 @@ Future<void> confirmLogout(WidgetRef ref, CommandBus bus) {
   return bus.offer(
     account?.isGuest == true ? l.logoutGuestConfirm : l.logoutConfirm,
     () async {
+      final router = ref.read(routerProvider);
+      final haptics = ref.read(hapticsProvider);
       await ref.read(currentAccountProvider.notifier).logout();
-      unawaited(ref.read(hapticsProvider).confirm());
+      unawaited(haptics.confirm());
       await bus.say(bus.strings.loggedOut, protect: true);
-      ref
-          .read(routerProvider)
-          .go(
-            account?.isGuest == true ? AppRoutes.welcome : AppRoutes.authChoice,
-          );
+      router.go(
+        account?.isGuest == true ? AppRoutes.welcome : AppRoutes.authChoice,
+      );
     },
   );
 }
@@ -284,7 +284,8 @@ List<SettingItem> settingItemsFor(Account? account) => [
       id: Ids.settingFingerprint,
       kind: SettingKind.link,
       label: (l) => l.setFingerprint,
-      value: (c) => c.ref.read(currentAccountProvider)?.fingerprintEnabled == true
+      value: (c) =>
+          c.ref.read(currentAccountProvider)?.fingerprintEnabled == true
           ? c.l.valueOn
           : c.l.valueOff,
       open: _toggleFingerprint,

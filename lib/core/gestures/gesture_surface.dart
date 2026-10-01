@@ -84,7 +84,14 @@ class _GestureSurfaceState extends ConsumerState<GestureSurface> {
                 e.timeStamp,
               ),
               onPointerCancel: (e) => _classifier.pointerCancel(e.pointer),
-              child: widget.child,
+              // A swipe here is a command: content may still scroll (large
+              // text) but must not stretch or glow at the edges as if the
+              // swipe were meant for it.
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context)
+                    .copyWith(overscroll: false),
+                child: widget.child,
+              ),
             ),
     );
   }

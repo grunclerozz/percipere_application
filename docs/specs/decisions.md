@@ -2,6 +2,31 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-01 — Phase 6B implementation notes
+- Step 1 wording follows the mockup ("Paano mo gustong mag-navigate sa app?"), not the
+  prompt text; its layout is the `how_do_they_want_to_use` mockup (no Gesture Pad).
+- The "can you see text?" question shares number 2 with Text size ("Hakbang 2 ng 10").
+  Guests' short setup is numbered 1–4. A registered ex-guest's setup is numbered over
+  the steps still to do.
+- Dictated passwords are lowercased with spaces removed (recognizers capitalize and
+  space words unpredictably); typed passwords are kept exactly.
+- A dictated value fills the focused field unless it is *exactly* a command phrase
+  ("tapos na", "bumalik", …), so names are never mistaken for commands.
+- Lockout also applies to security-answer guesses (own counter per email). Submitting
+  while locked clears the password and asks for it again when time is up.
+- Skip on Step 1 sets gestures (long-press still opens voice).
+- Back on the first setup step offers to log out and return to Welcome; in "Ulitin ang
+  setup" it returns to Settings.
+- Logout keeps the user's look and voice on the device (low-vision users shouldn't lose
+  their text size on the login screen).
+- Legacy PIN accounts lose their (unverified) email in the migration and set one when
+  upgrading; they then set a security question and do the setup.
+- Saying a Settings row's name opens it only for rows that open something (Logout,
+  Ulitin ang setup, Fingerprint); values change only by swipe/double-tap.
+- UI text scaling is capped at 2× (36 sp); document text goes to 48 sp.
+- Tests: one in-memory database per test; `tool/test_each.sh` runs each file and retries
+  `flutter_tester` crashes (the overscroll crash above was one real cause).
+
 ## 2026-10-01 — Phase 6B planning
 
 **Decided**

@@ -45,7 +45,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gestureAreaHintReader =>
-      'Tap to play or pause. Swipe right or left for the next or previous sentence. Swipe up or down to read faster or slower.';
+      'Double-tap to play or pause. Swipe right or left for the next or previous sentence. Swipe up or down to read faster or slower.';
 
   @override
   String heardLabel(String text) {
@@ -68,21 +68,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenReader => 'Reader';
 
   @override
-  String get welcomeIntro =>
-      'Welcome to Percipere, an app built on your behalf. How would you like to navigate the app? Double-tap anywhere on the screen for voice. Swipe right for gestures. Tap to hear this again.';
-
-  @override
   String get helpWelcome =>
-      'Double-tap: voice. Swipe right: gestures. Tap: repeat the question.';
+      'Swipe right or left: move between Login, Register and Try first. Double-tap: press. Tap: repeat the question. Long-press: speak. Two-finger swipe right: go back.';
 
   @override
   String get modeChosenVoice => 'You chose voice navigation.';
 
   @override
   String get modeChosenGestures => 'You chose gesture navigation.';
-
-  @override
-  String get readerReady => 'The document is ready.';
 
   @override
   String optionsList(String items) {
@@ -116,7 +109,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commandNotAvailable => 'That command isn\'t available here.';
 
   @override
-  String get alreadyAtStart => 'You\'re already on the first screen.';
+  String get alreadyAtStart => 'You\'re already at the start.';
 
   @override
   String helpTitle(String screen) {
@@ -125,7 +118,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpGesturesMenu =>
-      'Swipe right or left: move between options. Double-tap: choose. Tap: repeat the question. Two-finger swipe down: go back. Long-press: speak a command. Two-finger double-tap: stop speaking. Three-finger tap: help.';
+      'Swipe right or left: move between options. Double-tap: choose. Tap: repeat the question. Two-finger swipe right: go back. Long-press: speak a command. Two-finger double-tap: stop speaking. Three-finger tap: help.';
 
   @override
   String get talkBackNotice =>
@@ -144,9 +137,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filipinoVoiceReady => 'The Filipino voice is ready.';
-
-  @override
-  String get welcomeSayHint => 'You can also say “voice” or “gestures”.';
 
   @override
   String get listening => 'Listening…';
@@ -259,7 +249,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCamera =>
-      'Double-tap: take the photo. Tap: repeat the guidance. Two-finger swipe down: go back.';
+      'Double-tap: take the photo. Tap: repeat the guidance. Two-finger swipe right: go back.';
 
   @override
   String get uploadOpening => 'Choose a photo, PDF, or Word file.';
@@ -310,7 +300,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This PDF is password-protected, so I can\'t read it.';
 
   @override
-  String get readerStartHint => 'Tap, or say “read”, to start.';
+  String get readerStartHint => 'Double-tap to start reading, or say “read”.';
 
   @override
   String readerResumeAt(int position, int total) {
@@ -346,7 +336,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'Tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe right or left: next or previous paragraph. Swipe up or down: faster or slower. Double-tap: repeat the sentence. Two-finger swipe down: go back. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, repeat, from the beginning, save, and back.';
+      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, repeat, from the beginning, save, and back.';
 
   @override
   String get captureHistory => 'History';
@@ -363,7 +353,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpSettings =>
-      'Swipe right or left: move between settings. Swipe up or down: change the value. Double-tap: next option, or open. Two-finger swipe down: go back.';
+      'Swipe right or left: move between settings. Swipe up or down: change the value. Double-tap: next choice, or open. Two-finger swipe right: go back.';
 
   @override
   String settingValue(String label, String value) {
@@ -389,9 +379,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setFont => 'Font';
 
   @override
-  String get setColors => 'Colors';
-
-  @override
   String get setNavMode => 'Navigation';
 
   @override
@@ -402,9 +389,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setAutoCapture => 'Automatic photo';
-
-  @override
-  String get setAccount => 'Account';
 
   @override
   String get setTtsVoices => 'Reading voices';
@@ -423,18 +407,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get langEnglish => 'English';
-
-  @override
-  String get paletteDefault => 'Default: cream and navy';
-
-  @override
-  String get paletteHighContrast => 'White on black';
-
-  @override
-  String get paletteYellow => 'Yellow on black';
-
-  @override
-  String get paletteBlackOnWhite => 'Black on white';
 
   @override
   String get verbosityBrief => 'Brief';
@@ -569,96 +541,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpHistory =>
-      'Swipe right or left: move between documents. Double-tap: open and continue reading. Swipe up: options such as rename and delete. Say “search” and a word to search. Two-finger swipe down: go back.';
+      'Swipe right or left: move between documents. Double-tap: open and continue reading. Swipe up: options, such as rename and delete. Say “search” and a word to search. Two-finger swipe right: go back.';
 
   @override
-  String get screenAccount => 'Account';
-
-  @override
-  String get accountIntroGuest =>
-      'You\'re using Percipere without an account. Create a profile to save your settings.';
-
-  @override
-  String accountIntroUser(String name) {
-    return 'Logged in as $name.';
-  }
-
-  @override
-  String get accountCreate => 'Create a profile';
-
-  @override
-  String get accountLogin => 'Log in';
-
-  @override
-  String get accountLogout => 'Log out';
-
-  @override
-  String get accountLoggedOut => 'Logged out. Using this phone\'s settings.';
-
-  @override
-  String accountLoggedIn(String name) {
-    return 'Welcome back, $name.';
-  }
-
-  @override
-  String accountCreated(String name) {
-    return 'Profile for $name created, and you\'re logged in.';
-  }
-
-  @override
-  String get screenCreateProfile => 'New profile';
-
-  @override
-  String get profileAskName =>
-      'What is your name? Long-press the gesture area and say it, or type it.';
-
-  @override
-  String profileNameIs(String name) {
-    return 'Name: $name. Double-tap to continue, or long-press to say it again.';
-  }
-
-  @override
-  String get profileAskEmail =>
-      'Email, if you have one. Long-press to say it, or type it. Swipe right to skip.';
-
-  @override
-  String profileEmailIs(String email) {
-    return 'Email: $email. Double-tap to continue.';
-  }
-
-  @override
-  String get profileAskPin =>
-      'Create a four-digit PIN. Swipe up or down to choose a digit and double-tap to enter it. You can also long-press and say the four digits.';
-
-  @override
-  String get profileConfirmPin => 'Enter the PIN again to confirm.';
-
-  @override
-  String get profilePinMismatch => 'The PINs don\'t match. Please try again.';
-
-  @override
-  String get profileNameMissing => 'A name is needed first.';
-
-  @override
-  String get fieldName => 'Name';
-
-  @override
-  String get fieldEmail => 'Email (optional)';
+  String get fieldEmail => 'Email Address';
 
   @override
   String get fieldPin => 'PIN';
 
   @override
-  String get actionContinue => 'Continue';
-
-  @override
   String get actionSkip => 'Skip';
 
   @override
-  String get screenLogin => 'Log in';
-
-  @override
-  String get loginChooseProfile => 'Choose a profile.';
+  String get screenLogin => 'Login';
 
   @override
   String loginAskPin(String name) {
@@ -667,9 +562,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginWrongPin => 'Wrong PIN. Please try again.';
-
-  @override
-  String get loginNoProfiles => 'There are no profiles on this phone yet.';
 
   @override
   String pinDigitEntered(int count, int total) {
@@ -689,4 +581,600 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpPin =>
       'Swipe up or down: choose a digit. Double-tap: enter the digit. Swipe left: delete the last digit. Long-press: say the four digits.';
+
+  @override
+  String get screenWelcome => 'Welcome';
+
+  @override
+  String get welcomeHasAccount => 'Do you already have an account?';
+
+  @override
+  String get welcomeAccountPrompt =>
+      'Do you already have an account? If not, register.';
+
+  @override
+  String get welcomeHintVoice =>
+      'Say “login”, “register”, or “try first”, or swipe to choose and double-tap to press.';
+
+  @override
+  String get welcomeHintGestures =>
+      'Swipe right to choose, and double-tap to press. Tap to hear this again.';
+
+  @override
+  String get welcomeVoiceReady =>
+      'You can now say “login”, “register”, or “try first”.';
+
+  @override
+  String get actionLogin => 'Login';
+
+  @override
+  String get actionRegister => 'Register';
+
+  @override
+  String get actionTryFirst => 'Subukan muna (Try first)';
+
+  @override
+  String get actionSubmit => 'Submit';
+
+  @override
+  String get actionClear => 'Clear';
+
+  @override
+  String get actionOkay => 'Okay';
+
+  @override
+  String get actionFinishSetup => 'Correct, finish';
+
+  @override
+  String get actionForgotPassword => 'Forgot password';
+
+  @override
+  String get actionUseFingerprint => 'Use fingerprint';
+
+  @override
+  String get actionLegacyAccount => 'Old account (PIN)';
+
+  @override
+  String get answerYes => 'Yes';
+
+  @override
+  String get answerNo => 'No';
+
+  @override
+  String get guestName => 'Guest';
+
+  @override
+  String get guestValue => 'Guest: saved on this phone only';
+
+  @override
+  String get guestReminder =>
+      'This is saved on this phone only. Register so you don\'t lose it.';
+
+  @override
+  String get backUnsavedConfirm =>
+      'Something isn\'t saved yet. Are you sure you want to go back?';
+
+  @override
+  String get closeAppQuestion => 'Do you want to close the app?';
+
+  @override
+  String backReturnedTo(String screen) {
+    return 'Back to $screen.';
+  }
+
+  @override
+  String get formIntro => 'Answer each question by voice, or type it.';
+
+  @override
+  String get formSubmitHint =>
+      'Double-tap the gesture area or say submit or done';
+
+  @override
+  String formFieldEmpty(String field) {
+    return '$field, empty';
+  }
+
+  @override
+  String formFieldValue(String field, String value) {
+    return '$field: $value';
+  }
+
+  @override
+  String formPasswordLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters',
+      one: '1 character',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formHeard(String field, String value) {
+    return '$field: $value.';
+  }
+
+  @override
+  String formComplete(String hint) {
+    return 'All filled in. $hint';
+  }
+
+  @override
+  String formChange(String field) {
+    return '$field. Speak or type to change it.';
+  }
+
+  @override
+  String formCleared(String field, String prompt) {
+    return '$field cleared. $prompt';
+  }
+
+  @override
+  String formMissing(String fields) {
+    return 'Still missing: $fields.';
+  }
+
+  @override
+  String get helpForm =>
+      'Speak to answer the question, or type it. Swipe right or left: move between fields. Tap: repeat the question. Long-press: speak. Double-tap, or say “submit” or “done”: submit. Say “clear”: clear the field. Two-finger swipe right: go back.';
+
+  @override
+  String get fieldFirstName => 'First Name';
+
+  @override
+  String get fieldLastName => 'Last Name';
+
+  @override
+  String get fieldPassword => 'Password';
+
+  @override
+  String get fieldNewPassword => 'New password';
+
+  @override
+  String get fieldAnswer => 'Answer';
+
+  @override
+  String get askFirstName => 'What is your first name?';
+
+  @override
+  String get askLastName => 'What is your last name?';
+
+  @override
+  String get askEmail => 'What is your email address?';
+
+  @override
+  String get askNewPassword => 'Make a password of at least 8 characters.';
+
+  @override
+  String get askPassword => 'What is your password?';
+
+  @override
+  String askAnswer(String question) {
+    return '$question Say or type the answer.';
+  }
+
+  @override
+  String get emailInvalid =>
+      'That email address doesn\'t look right. Example: juan@gmail.com. By voice, say “at” for @ and “dot” for a period.';
+
+  @override
+  String get emailTaken =>
+      'That email already has an account on this phone. Log in, or use another email.';
+
+  @override
+  String passwordTooShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'only $count',
+      one: 'only 1',
+    );
+    return 'The password must be at least 8 characters. It has $_temp0.';
+  }
+
+  @override
+  String get screenRegister => 'Register';
+
+  @override
+  String get registerWorking => 'Creating your account…';
+
+  @override
+  String registerDone(String name) {
+    return 'Your account is ready, $name.';
+  }
+
+  @override
+  String get helpLogin =>
+      'Speak or type your email and password. Double-tap, or say “submit” or “done”: log in. Say “forgot”: reset the password. Two-finger swipe right: go back.';
+
+  @override
+  String get loginFingerprintIntro =>
+      'Put your finger on the fingerprint sensor to log in, or use your password.';
+
+  @override
+  String get loginWrong => 'Wrong email or password.';
+
+  @override
+  String loginAttemptsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more tries',
+      one: '1 more try',
+    );
+    return '$_temp0 before you must wait.';
+  }
+
+  @override
+  String loginWelcomeBack(String name) {
+    return 'Welcome back, $name.';
+  }
+
+  @override
+  String lockoutStarted(int seconds) {
+    return 'Too many wrong tries. Wait $seconds seconds before trying again.';
+  }
+
+  @override
+  String lockoutWait(int seconds) {
+    return 'Wait $seconds seconds.';
+  }
+
+  @override
+  String get lockoutOver => 'You can try again now.';
+
+  @override
+  String get fingerprintReason => 'Use your fingerprint to log in to Percipere';
+
+  @override
+  String fingerprintFailed(String prompt) {
+    return 'The fingerprint wasn\'t recognized. Use your password. $prompt';
+  }
+
+  @override
+  String fingerprintUnavailable(String prompt) {
+    return 'The fingerprint can\'t be used right now. Use your password. $prompt';
+  }
+
+  @override
+  String get authChoiceQuestion => 'Do you want to log in to your account?';
+
+  @override
+  String get sessionExpired => 'Your session has ended.';
+
+  @override
+  String get helpChooseList =>
+      'Swipe right or left: move between choices. Double-tap: choose. You can also say the choice. Two-finger swipe right: go back.';
+
+  @override
+  String get screenSecurityQuestion => 'Security question';
+
+  @override
+  String get securityChoose =>
+      'Choose a security question. It is used if you forget your password.';
+
+  @override
+  String get securityQFirstPet => 'What was the name of your first pet?';
+
+  @override
+  String get securityQBirthTown => 'In which town were you born?';
+
+  @override
+  String get securityQMotherMaiden => 'What is your mother\'s maiden name?';
+
+  @override
+  String get securityQFirstSchool => 'What was the name of your first school?';
+
+  @override
+  String get securityQFavoriteFood => 'What is your favorite food?';
+
+  @override
+  String get securitySaved => 'Your security question is saved.';
+
+  @override
+  String get securityRequired =>
+      'A security question is needed to reset your password. Choose one.';
+
+  @override
+  String get screenFingerprint => 'Fingerprint';
+
+  @override
+  String get fingerprintOffer =>
+      'Do you want to use your fingerprint to log in?';
+
+  @override
+  String get fingerprintOn => 'Fingerprint login is on.';
+
+  @override
+  String get fingerprintNotSet =>
+      'Fingerprint login wasn\'t turned on. You can turn it on later in Settings.';
+
+  @override
+  String get fingerprintSkipped => 'Okay, password only.';
+
+  @override
+  String get fingerprintNoSensor => 'No fingerprint is set up on this phone.';
+
+  @override
+  String get screenForgotPassword => 'Forgot password';
+
+  @override
+  String get forgotIntro =>
+      'You\'ll answer your security question to make a new password.';
+
+  @override
+  String get forgotAdmin => 'The administrator can also reset your account.';
+
+  @override
+  String get forgotNoQuestion =>
+      'There\'s no account with a security question for this email on this phone.';
+
+  @override
+  String get forgotWrongAnswer => 'That answer is wrong.';
+
+  @override
+  String get forgotDone => 'Your password is changed. Log in now.';
+
+  @override
+  String get screenLegacyAccount => 'Old account';
+
+  @override
+  String get legacyChoose => 'Choose your old PIN account.';
+
+  @override
+  String get legacyNone => 'There are no old accounts on this phone.';
+
+  @override
+  String legacyClaimed(String name) {
+    return 'Right PIN, $name. Now set an email and password.';
+  }
+
+  @override
+  String get screenUpgradeAccount => 'Update account';
+
+  @override
+  String get upgradeIntro =>
+      'PINs are no longer used. Set an email and password; your settings and history stay.';
+
+  @override
+  String get upgradeDone => 'Your account is updated.';
+
+  @override
+  String get upgradeLeave =>
+      'Going back logs you out of this account. Are you sure?';
+
+  @override
+  String setupProgress(int step, int total) {
+    return 'Step $step of $total.';
+  }
+
+  @override
+  String get setupSummaryTitle => 'Summary.';
+
+  @override
+  String get setupChoiceHow =>
+      'Say your answer, or swipe right to choose and double-tap to press.';
+
+  @override
+  String get setupNavHowVoice =>
+      'Say “voice” or “gestures”, or swipe right to choose and double-tap to press.';
+
+  @override
+  String get setupSeesQuestion =>
+      'Can you see at least some text on the screen?';
+
+  @override
+  String get setupSizeQuestion => 'Can you read the text well?';
+
+  @override
+  String get setupSizeHow =>
+      'Swipe up or say “bigger” to enlarge; swipe down or say “smaller” to shrink. Double-tap or say “okay” when it\'s right.';
+
+  @override
+  String setupSizeValue(int size) {
+    return 'Text size: $size.';
+  }
+
+  @override
+  String get setupColorQuestion => 'Which text color do you want?';
+
+  @override
+  String get setupCycleHow =>
+      'Swipe right or left, or say “next” or “previous”, to change it. Double-tap or say “okay” when it\'s right.';
+
+  @override
+  String setupColorValue(String color) {
+    return 'Color: $color.';
+  }
+
+  @override
+  String get setupLanguageQuestion =>
+      'Do you want the voice in English or in Tagalog?';
+
+  @override
+  String get setupLanguageHow =>
+      'Swipe right to hear each one, and double-tap to choose. Or say “Tagalog” or “English”.';
+
+  @override
+  String get setupVoiceSample => 'This is the English voice.';
+
+  @override
+  String get setupFilipinoMissing =>
+      'There is no Filipino voice on this phone. Do you want to open text-to-speech settings to install it?';
+
+  @override
+  String setupLanguageChosen(String language) {
+    return 'Chosen: $language.';
+  }
+
+  @override
+  String get setupSpeedQuestion => 'Do you want the voice faster?';
+
+  @override
+  String get setupSpeedHow =>
+      'Swipe up or say “faster”; swipe down or say “slower”. Double-tap or say “okay” when it\'s right.';
+
+  @override
+  String setupSpeedValue(String rate) {
+    return 'Speed: ${rate}x.';
+  }
+
+  @override
+  String get setupPitchQuestion => 'Do you want to change the voice\'s tone?';
+
+  @override
+  String get setupPitchHow =>
+      'Swipe up or say “higher”; swipe down or say “lower”. Double-tap or say “okay” when it\'s right.';
+
+  @override
+  String setupPitchValue(String pitch) {
+    return 'Tone: $pitch.';
+  }
+
+  @override
+  String get setupThemeQuestion => 'Which theme do you want to start with?';
+
+  @override
+  String setupThemeValue(String theme) {
+    return 'Theme: $theme.';
+  }
+
+  @override
+  String get themeCreamNavy => 'Cream & Navy';
+
+  @override
+  String get themeDarkYellow => 'Dark mode with yellow text';
+
+  @override
+  String get themeDarkWhite => 'Dark mode with white text';
+
+  @override
+  String get textColorReset =>
+      'The text color was changed so it\'s easier to read.';
+
+  @override
+  String get setupVibrationQuestion =>
+      'Do you want the phone to vibrate when you do something?';
+
+  @override
+  String get setupAutoReadQuestion =>
+      'Do you want documents read automatically after they are uploaded or scanned?';
+
+  @override
+  String get setupSummaryQuestion => 'Is everything right?';
+
+  @override
+  String setupSummaryPrompt(String items) {
+    return 'Here is what you chose: $items. Is everything right? Double-tap or say “yes” to finish. To change one, say for example “back to speed”, or swipe and double-tap.';
+  }
+
+  @override
+  String summaryNavMode(String value) {
+    return 'Navigation: $value';
+  }
+
+  @override
+  String summaryLanguage(String value) {
+    return 'Voice language: $value';
+  }
+
+  @override
+  String summaryVibration(String value) {
+    return 'Vibration: $value';
+  }
+
+  @override
+  String summaryAutoRead(String value) {
+    return 'Auto-read: $value';
+  }
+
+  @override
+  String setupAtLimit(String value) {
+    return 'That\'s the limit. $value';
+  }
+
+  @override
+  String get setupSkipped => 'Skipped. The default is kept.';
+
+  @override
+  String get setupLeave =>
+      'This is the first step. Do you want to go back to Welcome? You\'ll be logged out.';
+
+  @override
+  String get setupFinished =>
+      'Setup is done. You can change it any time in Settings.';
+
+  @override
+  String get setupSample =>
+      'Percipere helps you read letters, receipts and books. This is how the text will look.';
+
+  @override
+  String get setupPreviewLabel => 'Sample text';
+
+  @override
+  String get helpSetupChoice =>
+      'Swipe right or left: move between answers. Double-tap: choose. Or say the answer.';
+
+  @override
+  String get helpSetupVertical =>
+      'Swipe up or down: change it. Double-tap or say “okay”: done.';
+
+  @override
+  String get helpSetupHorizontal =>
+      'Swipe right or left: change it. Double-tap or say “okay”: done.';
+
+  @override
+  String get helpSetupCommon =>
+      'Tap or say “repeat”: repeat the question. Say “skip”: skip and keep the default. Two-finger swipe right, or say “back”: previous step.';
+
+  @override
+  String get helpSetupSummary =>
+      'Double-tap or say “yes”: finish. Swipe right or left: move through your choices, and double-tap to change one. Or say “back to” and its name, for example “back to speed”.';
+
+  @override
+  String get langTagalog => 'Tagalog';
+
+  @override
+  String get langEnglishBoth => 'English';
+
+  @override
+  String get setTheme => 'Theme';
+
+  @override
+  String get setTextColor => 'Text color';
+
+  @override
+  String get setAutoRead => 'Auto-read documents';
+
+  @override
+  String get setStayLoggedIn => 'Stay logged in';
+
+  @override
+  String get setFingerprint => 'Fingerprint login';
+
+  @override
+  String get setRedoSetup => 'Redo setup';
+
+  @override
+  String get setRedoSetupValue => 'Answer the questions again';
+
+  @override
+  String get setLogout => 'Logout';
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to log out?';
+
+  @override
+  String get logoutGuestConfirm =>
+      'You\'ll leave the guest profile. It stays on this phone. Are you sure?';
+
+  @override
+  String get loggedOut => 'You\'re logged out.';
+
+  @override
+  String get setupSpeedSample => 'This is how fast the voice is.';
+
+  @override
+  String get setupPitchSample => 'This is how the voice sounds.';
 }

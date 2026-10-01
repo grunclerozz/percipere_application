@@ -29,7 +29,6 @@ import '../../core/settings/settings_controller.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/tts/tts_service.dart';
-import '../../core/voice/command_matcher.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/bordered_panel.dart';
 import '../../core/widgets/eye_logo.dart';
@@ -139,11 +138,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     final flow = _flow!;
     unawaited(ref.read(hapticsProvider).confirm());
     _done.add(flow.step);
-    await _prefs.set(
-      PrefKeys.setupDone,
-      [for (final s in _done) s.name],
-      userId: _userId,
-    );
+    await _prefs.set(PrefKeys.setupDone, [
+      for (final s in _done) s.name,
+    ], userId: _userId);
     if (!mounted) return;
     await _go(flow.next());
   }
@@ -202,11 +199,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     unawaited(ref.read(hapticsProvider).confirm());
     _done.add(SetupStep.seesText);
     await _prefs.set(PrefKeys.setupSeesText, sees, userId: _userId);
-    await _prefs.set(
-      PrefKeys.setupDone,
-      [for (final s in _done) s.name],
-      userId: _userId,
-    );
+    await _prefs.set(PrefKeys.setupDone, [
+      for (final s in _done) s.name,
+    ], userId: _userId);
     if (!mounted) return;
     await _go(_flow!.answerSeesText(sees));
   }
@@ -318,14 +313,19 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     final confirm = A11yAction(
       id: '$_screenId.confirm',
       label: (l) => l.actionOkay,
-      voiceSynonyms: const ['okay', 'ok', 'sige', 'tama', 'tapos na', 'confirm'],
+      voiceSynonyms: const [
+        'okay',
+        'ok',
+        'sige',
+        'tama',
+        'tapos na',
+        'confirm',
+      ],
       focusable: false,
       confirmation: (_) => '',
       onActivate: (_) => _confirm(),
     );
-    final common = <NavIntent, BusHandler>{
-      NavIntent.back: _back,
-    };
+    final common = <NavIntent, BusHandler>{NavIntent.back: _back};
 
     switch (step) {
       case SetupStep.navMode:
@@ -465,12 +465,16 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
               '${l.setupSpeedValue(ReadingRate.label(_s.readingRate))}',
           up: () => _change(
             (s) => s.copyWith(readingRate: s.readingRate + ReadingRate.step),
-            (l, s) => l.setupSpeedValue(ReadingRate.label(s.readingRate)),
+            (l, s) =>
+                '${l.setupSpeedValue(ReadingRate.label(s.readingRate))} '
+                '${l.setupSpeedSample}',
             useRate: true,
           ),
           down: () => _change(
             (s) => s.copyWith(readingRate: s.readingRate - ReadingRate.step),
-            (l, s) => l.setupSpeedValue(ReadingRate.label(s.readingRate)),
+            (l, s) =>
+                '${l.setupSpeedValue(ReadingRate.label(s.readingRate))} '
+                '${l.setupSpeedSample}',
             useRate: true,
           ),
           vertical: true,
@@ -486,11 +490,15 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
               '${l.setupPitchValue(ReadingRate.label(_s.pitch))}',
           up: () => _change(
             (s) => s.copyWith(pitch: s.pitch + ReadingRate.step),
-            (l, s) => l.setupPitchValue(ReadingRate.label(s.pitch)),
+            (l, s) =>
+                '${l.setupPitchValue(ReadingRate.label(s.pitch))} '
+                '${l.setupPitchSample}',
           ),
           down: () => _change(
             (s) => s.copyWith(pitch: s.pitch - ReadingRate.step),
-            (l, s) => l.setupPitchValue(ReadingRate.label(s.pitch)),
+            (l, s) =>
+                '${l.setupPitchValue(ReadingRate.label(s.pitch))} '
+                '${l.setupPitchSample}',
           ),
           upWords: const ['taasan', 'mas mataas', 'higher'],
           downWords: const ['babaan', 'mas mababa', 'lower'],
@@ -539,8 +547,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
               synonyms: const ['hindi', 'no', 'off', 'huwag'],
               onFocus: (_) =>
                   _settings.update((s) => s.copyWith(haptics: false)),
-              choose: () =>
-                  _settings.update((s) => s.copyWith(haptics: false)),
+              choose: () => _settings.update((s) => s.copyWith(haptics: false)),
             ),
           ],
           skip: skip,
@@ -557,8 +564,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
               id: '$_screenId.yes',
               label: (l) => l.answerYes,
               synonyms: const ['oo', 'opo', 'yes', 'on'],
-              choose: () =>
-                  _settings.update((s) => s.copyWith(autoRead: true)),
+              choose: () => _settings.update((s) => s.copyWith(autoRead: true)),
             ),
             _Option(
               id: '$_screenId.no',
@@ -588,9 +594,10 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     bool autoListen = false,
   }) {
     Future<void> choose(_Option o) async {
+      final step = _flow?.step;
       await o.choose();
-      // seesText moves on by itself.
-      if (_flow?.step != SetupStep.seesText && mounted) await _confirm();
+      // The sight question moves on by itself.
+      if (step != SetupStep.seesText && mounted) await _confirm();
     }
 
     Future<void> move(CommandBus bus, int d) async {
@@ -933,8 +940,9 @@ class _StepView extends ConsumerWidget {
 
     return GesturePadLayout(
       padHint: switch (step) {
-        SetupStep.textSize || SetupStep.speed || SetupStep.pitch =>
-          l10n.helpSetupVertical,
+        SetupStep.textSize ||
+        SetupStep.speed ||
+        SetupStep.pitch => l10n.helpSetupVertical,
         SetupStep.textColor || SetupStep.theme => l10n.helpSetupHorizontal,
         SetupStep.summary => l10n.helpSetupSummary,
         _ => l10n.helpSetupChoice,

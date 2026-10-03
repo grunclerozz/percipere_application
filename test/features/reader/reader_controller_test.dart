@@ -9,6 +9,7 @@ import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
+import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/tts/language_detector.dart';
 import 'package:percipere_app/core/tts/reading_rate.dart';
 import 'package:percipere_app/core/tts/tts_service.dart';
@@ -89,6 +90,40 @@ void main() {
     await finish();
     expect(state().index, 1);
     expect(env.tts.spoken.last, startsWith(s2Start));
+  });
+
+  test('text size while reading: caption now, spoken at the sentence break, '
+      'reading never interrupted', () async {
+    await setUpWith();
+    unawaited(reader().play());
+    await pumpEventQueue();
+    expect(env.tts.spoken.last, s1);
+
+    await reader().changeTextSize(1);
+    expect(state().caption, 'Laki: 20');
+    expect(container.read(settingsProvider).textSize, 20);
+    expect(env.tts.spoken.last, s1, reason: 'sentence not cut off');
+    expect(state().playing, isTrue);
+
+    await finish(); // sentence 1 ends → "Laki: 20", then sentence 2
+    env.tts.finishCurrent();
+    await pumpEventQueue();
+    expect(env.tts.transcript, contains('Laki: 20'));
+    expect(env.tts.spoken.last, startsWith(s2Start));
+    expect(state().playing, isTrue);
+  });
+
+  test('text size is clamped to 18–48 in steps of 2', () async {
+    await setUpWith();
+    for (var i = 0; i < 20; i++) {
+      env.tts.autoComplete = true;
+      await reader().changeTextSize(1);
+    }
+    expect(container.read(settingsProvider).textSize, 48);
+    for (var i = 0; i < 20; i++) {
+      await reader().changeTextSize(-1);
+    }
+    expect(container.read(settingsProvider).textSize, 18);
   });
 
   test('pause stops, confirms, and saves the position', () async {

@@ -40,6 +40,12 @@ enum NavIntent {
 
   // ── Voice-only intents (no default gesture) ──────────────────────────────
 
+  /// Bigger document text ("palakihin"). Also the A+ button and pinch out.
+  textBigger,
+
+  /// Smaller document text ("paliitin"). Also the A- button and pinch in.
+  textSmaller,
+
   /// Start reading the document ("basahin").
   read,
 

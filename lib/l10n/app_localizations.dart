@@ -368,6 +368,12 @@ abstract class AppLocalizations {
   /// **'Hihinto muna ako sa pakikinig. Pindutin nang matagal ang lugar ng galaw para kausapin ulit ako.'**
   String get voiceListeningPaused;
 
+  /// Voice recognition failed the same way several times in a row; listening stops instead of retrying forever.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.'**
+  String get voiceRepeatedError;
+
   /// Spoken right before the Android microphone permission dialog.
   ///
   /// In fil, this message translates to:
@@ -602,6 +608,36 @@ abstract class AppLocalizations {
   /// **'Bilis: {rate}x'**
   String readerSpeed(String rate);
 
+  /// Caption and speech after changing the Reader text size (sp).
+  ///
+  /// In fil, this message translates to:
+  /// **'Laki: {size}'**
+  String readerSize(int size);
+
+  /// Text size is already at its largest.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinakamalaki na.'**
+  String get readerSizeMax;
+
+  /// Text size is already at its smallest.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinakamaliit na.'**
+  String get readerSizeMin;
+
+  /// Spoken label of the A+ button above the Document Box.
+  ///
+  /// In fil, this message translates to:
+  /// **'Palakihin ang teksto'**
+  String get readerTextBigger;
+
+  /// Spoken label of the A- button above the Document Box.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paliitin ang teksto'**
+  String get readerTextSmaller;
+
   /// Caption after saving (documents are also auto-saved).
   ///
   /// In fil, this message translates to:
@@ -635,7 +671,7 @@ abstract class AppLocalizations {
   /// Spoken help on the Reader.
   ///
   /// In fil, this message translates to:
-  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.'**
+  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.'**
   String get helpReader;
 
   /// Capture screen: open Reading History.

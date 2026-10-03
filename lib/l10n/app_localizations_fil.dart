@@ -171,6 +171,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hihinto muna ako sa pakikinig. Pindutin nang matagal ang lugar ng galaw para kausapin ulit ako.';
 
   @override
+  String get voiceRepeatedError =>
+      'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.';
+
+  @override
   String get micPermissionExplain =>
       'Hihingi ngayon ang Android ng pahintulot na gamitin ng Percipere ang mikropono, para marinig ko ang iyong mga utos. Piliin ang “Habang ginagamit ang app”.';
 
@@ -317,6 +321,23 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
+  String readerSize(int size) {
+    return 'Laki: $size';
+  }
+
+  @override
+  String get readerSizeMax => 'Pinakamalaki na.';
+
+  @override
+  String get readerSizeMin => 'Pinakamaliit na.';
+
+  @override
+  String get readerTextBigger => 'Palakihin ang teksto';
+
+  @override
+  String get readerTextSmaller => 'Paliitin ang teksto';
+
+  @override
   String get readerSaved => 'Na-save sa kasaysayan.';
 
   @override
@@ -334,7 +355,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, ulitin, mula sa simula, i-save, at bumalik.';
+      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.';
 
   @override
   String get captureHistory => 'Kasaysayan';

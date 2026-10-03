@@ -33,6 +33,8 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
   ],
   NavIntent.faster: ['bilisan', 'faster', 'mas mabilis'],
   NavIntent.slower: ['bagalan', 'slower', 'mas mabagal'],
+  NavIntent.textBigger: ['palakihin', 'lakihan', 'bigger', 'zoom in'],
+  NavIntent.textSmaller: ['paliitin', 'liitan', 'smaller', 'zoom out'],
   NavIntent.camera: ['camera', 'kamera'],
   NavIntent.capture: ['kunan', 'capture', 'take picture'],
   NavIntent.upload: ['mag-upload', 'upload', 'i-upload'],

@@ -199,6 +199,25 @@ void main() {
     expect(await result, isNull);
   });
 
+  test('instant identical failures: tries online, then the default '
+      'locale, then stops and says so', () async {
+    await setUpWith();
+    await speakThenSettle('Una.');
+    expect(env.speech.sessions.single.onDevice, isTrue);
+
+    for (var i = 0; i < 100; i++) {
+      if (env.tts.transcript.contains('Hihinto muna ako')) break;
+      if (env.speech.listening) env.speech.fail('error_client');
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+    }
+    final sessions = env.speech.sessions;
+    expect(sessions.any((s) => !s.onDevice), isTrue, reason: 'online rung');
+    expect(sessions.any((s) => s.localeId == null), isTrue, reason: 'locale');
+    expect(env.tts.transcript, contains('Hihinto muna ako'));
+    expect(env.speech.listening, isFalse);
+    expect(sessions.length, lessThan(10), reason: 'no endless retrying');
+  }, timeout: const Timeout(Duration(seconds: 90)));
+
   test('no recognizer: explains and switches to gestures', () async {
     await setUpWith(recognizer: false);
     await voice().listenNow();

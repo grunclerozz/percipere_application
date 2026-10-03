@@ -1,6 +1,17 @@
 # Decision log
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
+## 2026-10-03 — Reader text size on the Document Box, not the Gesture Pad
+- Asked to make two-finger swipe up/down the text-size gesture. That would have removed
+  previous/next paragraph from the pad, so the user chose instead: **pinch to zoom in the
+  Document Box**, plus A−/A+ buttons and voice — the pad's gestures stay unchanged.
+  Profiling Step 2 is unchanged too (single-finger swipes + voice).
+- Voice listening loop: sessions are logged (`[Voice …]` in logcat); restarts wait for the
+  previous session to finish, back off (0.4 s → 5 s) after instant failures, step down
+  through on-device → online → the phone's default locale, and after 3 identical failures
+  stop and say so (`voiceRepeatedError`). Sessions are now `listenFor` 30 s,
+  `pauseFor` 4 s (5 s for dictation).
+
 
 ## 2026-10-01 — Review: no overlaps, no page scrolling
 - Review finding: screens overlapped or needed scrolling when the text got bigger.

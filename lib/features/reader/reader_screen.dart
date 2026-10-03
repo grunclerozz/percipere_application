@@ -30,7 +30,8 @@ import 'reader_controller.dart';
 /// two-finger double-tap = stop (pause), two-finger swipe right = back
 /// (reading stops and the position is saved first). With auto-read on,
 /// a new document starts reading as soon as its text is ready. Voice adds "basahin", "i-pause", "ituloy",
-/// "mula sa simula" and "i-save". The sentence being read is highlighted and
+/// "mula sa simula", "i-save", and "palakihin" / "paliitin" (text size, also
+/// the A+/A− buttons and pinching the Document Box). The sentence being read is highlighted and
 /// kept in view; system messages appear as a caption strip.
 class ReaderScreen extends ConsumerStatefulWidget {
   /// Creates the Reader for [source].
@@ -176,6 +177,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       NavIntent.nextParagraph: _reading((c) => c.skipParagraph(1)),
       NavIntent.previousParagraph: _reading((c) => c.skipParagraph(-1)),
       NavIntent.repeat: _reading((c) => c.repeatSentence()),
+      NavIntent.textBigger: _reading((c) => c.changeTextSize(1)),
+      NavIntent.textSmaller: _reading((c) => c.changeTextSize(-1)),
       NavIntent.faster: _reading((c) => c.changeRate(ReadingRate.step)),
       NavIntent.slower: _reading((c) => c.changeRate(-ReadingRate.step)),
       NavIntent.readFromStart: _reading((c) => c.readFromStart()),
@@ -204,6 +207,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               : _outcome(s, l10n),
           highlight: s.current?.range,
           caption: s.caption,
+          // Buttons, pinch and voice all go through the same intents.
+          onTextSize: hasText
+              ? (direction) => _bus.dispatch(
+                  direction > 0 ? NavIntent.textBigger : NavIntent.textSmaller,
+                )
+              : null,
         ),
       ),
     );

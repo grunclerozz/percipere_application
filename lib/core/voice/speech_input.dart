@@ -12,13 +12,13 @@ class ListenRequest {
     required this.localeId,
     required this.onDevice,
     this.phrases = const [],
-    this.listenFor = const Duration(seconds: 12),
-    this.pauseFor = const Duration(seconds: 3),
+    this.listenFor = const Duration(seconds: 30),
+    this.pauseFor = const Duration(seconds: 4),
     this.dictation = false,
   });
 
-  /// Recognizer locale, e.g. `fil-PH`.
-  final String localeId;
+  /// Recognizer locale, e.g. `fil-PH`. Null uses the device's default.
+  final String? localeId;
 
   /// Recognize on the device only (offline pack required).
   final bool onDevice;
@@ -84,7 +84,9 @@ class SttSpeechInput implements SpeechInput {
   @override
   Future<List<String>> localeIds() async {
     final locales = await _stt.locales();
-    return [for (final l in locales) l.localeId];
+    final ids = [for (final l in locales) l.localeId];
+    debugPrint('[Voice] recognizer locales (${ids.length}): $ids');
+    return ids;
   }
 
   @override

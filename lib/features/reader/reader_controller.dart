@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/theme_settings.dart';
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/auth/guest_reminders.dart';
@@ -228,6 +229,10 @@ class ReaderController extends Notifier<ReaderState> {
   int _savedIndex = -1;
   Timer? _captionTimer;
 
+  /// Spoken note (text size) waiting for the next sentence break, so changing
+  /// the size never cuts a sentence off.
+  String? _pendingNote;
+
   @override
   ReaderState build() {
     _tts = ref.read(ttsServiceProvider);
@@ -425,6 +430,15 @@ class ReaderController extends Notifier<ReaderState> {
       if (single) return _stopped();
       _setIndex(i + 1);
       if ((_index - _savedIndex).abs() >= saveEvery) unawaited(_savePosition());
+      final note = _pendingNote;
+      if (note != null) {
+        // Sentence break: say what changed, then carry on.
+        _pendingNote = null;
+        _announcer.setReading(false);
+        await _announcer.say(note);
+        if (token != _token || !ref.mounted) return;
+        _announcer.setReading(true);
+      }
     }
   }
 
@@ -496,6 +510,39 @@ class ReaderController extends Notifier<ReaderState> {
     await _sayCaption(_l.readerSpeed(ReadingRate.label(after)));
   }
 
+  /// A+/A−, pinch or voice: text size one step bigger ([direction] 1) or
+  /// smaller (−1), saved to the user's settings. While reading, the new
+  /// value shows in the caption at once and is spoken at the next sentence
+  /// break; otherwise it is spoken right away.
+  Future<void> changeTextSize(int direction) async {
+    if (state.phase != ReaderPhase.ready) return;
+    final before = ref.read(settingsProvider).textSize;
+    final after =
+        (await ref
+                .read(settingsProvider.notifier)
+                .update(
+                  (s) =>
+                      s.copyWith(textSize: before + direction * TextSize.step),
+                ))
+            .textSize;
+    if (!ref.mounted) return;
+    final atLimit = after == before;
+    final note = atLimit
+        ? (direction > 0 ? _l.readerSizeMax : _l.readerSizeMin)
+        : _l.readerSize(after.round());
+    if (atLimit) {
+      unawaited(ref.read(hapticsProvider).error());
+      // A held pinch repeats at the limit: say it once.
+      if (state.caption == note || _pendingNote == note) return;
+    }
+    if (_playing) {
+      _showCaption(note);
+      _pendingNote = note;
+    } else {
+      await _sayCaption(note, resume: false);
+    }
+  }
+
   /// "I-save": documents are auto-saved; this confirms (and saves if not yet).
   Future<void> save() async {
     await _saveNew(state, 'image');
@@ -520,6 +567,7 @@ class ReaderController extends Notifier<ReaderState> {
 
   void _stopped() {
     _playing = false;
+    _pendingNote = null;
     if (!ref.mounted) return;
     state = state.copyWith(playing: false);
     _announcer.setReading(false);
@@ -557,13 +605,7 @@ class ReaderController extends Notifier<ReaderState> {
   /// Shows [text] as a caption for ~2 s and speaks it, pausing reading
   /// around it and resuming afterwards if it was playing (and [resume]).
   Future<void> _sayCaption(String text, {bool resume = true}) async {
-    _captionTimer?.cancel();
-    state = state.copyWith(caption: text);
-    _captionTimer = Timer(const Duration(seconds: 2), () {
-      if (ref.mounted && state.caption == text) {
-        state = state.copyWith(caption: null);
-      }
-    });
+    _showCaption(text);
     final wasPlaying = _playing;
     if (wasPlaying) {
       await _halt();
@@ -571,6 +613,17 @@ class ReaderController extends Notifier<ReaderState> {
     }
     await _announcer.say(text);
     if (wasPlaying && resume && ref.mounted) await play();
+  }
+
+  /// Shows [text] in the caption strip for ~2 s (no speech).
+  void _showCaption(String text) {
+    _captionTimer?.cancel();
+    state = state.copyWith(caption: text);
+    _captionTimer = Timer(const Duration(seconds: 2), () {
+      if (ref.mounted && state.caption == text) {
+        state = state.copyWith(caption: null);
+      }
+    });
   }
 
   Future<void> _savePosition() async {

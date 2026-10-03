@@ -63,7 +63,10 @@ void main() {
       final text = tester.widget<RichText>(
         find
             .descendant(
-              of: find.byType(DocumentBox),
+              of: find.descendant(
+                of: find.byType(DocumentBox),
+                matching: find.byType(SingleChildScrollView),
+              ),
               matching: find.byType(RichText),
             )
             .first,

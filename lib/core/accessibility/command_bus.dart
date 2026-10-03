@@ -126,6 +126,8 @@ class CommandBus {
         return say(_l10n.featureNotReady);
       case NavIntent.faster:
       case NavIntent.slower:
+      case NavIntent.textBigger:
+      case NavIntent.textSmaller:
       case NavIntent.nextParagraph:
       case NavIntent.previousParagraph:
       case NavIntent.readFromStart:

@@ -169,6 +169,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'I\'ll stop listening for now. Long-press the gesture area to talk to me again.';
 
   @override
+  String get voiceRepeatedError =>
+      'My voice listening isn\'t working right now, so I\'ll stop. Long-press the gesture area to try again, or use gestures.';
+
+  @override
   String get micPermissionExplain =>
       'Android will now ask to let Percipere use the microphone, so I can hear your commands. Choose “While using the app”.';
 
@@ -319,6 +323,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String readerSize(int size) {
+    return 'Size: $size';
+  }
+
+  @override
+  String get readerSizeMax => 'Already the largest.';
+
+  @override
+  String get readerSizeMin => 'Already the smallest.';
+
+  @override
+  String get readerTextBigger => 'Make the text bigger';
+
+  @override
+  String get readerTextSmaller => 'Make the text smaller';
+
+  @override
   String get readerSaved => 'Saved to history.';
 
   @override
@@ -336,7 +357,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, repeat, from the beginning, save, and back.';
+      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back.';
 
   @override
   String get captureHistory => 'History';

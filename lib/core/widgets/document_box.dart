@@ -3,8 +3,10 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/theme/app_palette.dart';
 import '../../app/theme/app_theme.dart';
+import '../../app/theme/theme_settings.dart';
 import '../../config/constants.dart';
 import '../../l10n/app_localizations.dart';
+import '../gestures/gesture_surface.dart';
 import 'bordered_panel.dart';
 
 /// The Document Box on the Reader screen: shows extracted text (bold,
@@ -24,7 +26,12 @@ class DocumentBox extends StatefulWidget {
     this.caption,
     this.scrollController,
     this.emptyMessage,
+    this.onTextSize,
   });
+
+  /// Asks for a bigger (1) or smaller (−1) text size. Non-null shows the
+  /// A−/A+ buttons above the text and turns on pinch-to-zoom.
+  final void Function(int direction)? onTextSize;
 
   /// Document text, or null/empty when there is nothing to show.
   final String? text;
@@ -56,11 +63,68 @@ class DocumentBox extends StatefulWidget {
 class _DocumentBoxState extends State<DocumentBox> {
   static const double _padTop = 14;
 
+  /// Spread change (pinch out / in) that counts as one text-size step.
+  static const double _pinchStep = 1.18;
+
   ScrollController? _ownController;
   final GlobalKey _textKey = GlobalKey();
+  final Map<int, Offset> _pointers = {};
+  double? _pinchBase;
+  double? _lastSize;
 
   ScrollController get _controller =>
       widget.scrollController ?? (_ownController ??= ScrollController());
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final size = Theme.of(context).extension<AppTextMetrics>()?.textSize;
+    if (_lastSize != null && size != _lastSize) {
+      // The text reflowed: keep the sentence being read where the user can
+      // see it.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _revealHighlight(force: true),
+      );
+    }
+    _lastSize = size;
+  }
+
+  double _spread() {
+    final p = _pointers.values.take(2).toList();
+    return (p[0] - p[1]).distance;
+  }
+
+  void _pointerDown(PointerDownEvent e) {
+    _pointers[e.pointer] = e.localPosition;
+    if (_pointers.length == 2 && widget.onTextSize != null) {
+      setState(() => _pinchBase = _spread());
+    }
+  }
+
+  void _pointerMove(PointerMoveEvent e) {
+    if (!_pointers.containsKey(e.pointer)) return;
+    _pointers[e.pointer] = e.localPosition;
+    final base = _pinchBase;
+    final onSize = widget.onTextSize;
+    if (base == null || base < 1 || _pointers.length < 2 || onSize == null) {
+      return;
+    }
+    final ratio = _spread() / base;
+    if (ratio >= _pinchStep) {
+      _pinchBase = _spread();
+      onSize(1);
+    } else if (ratio <= 1 / _pinchStep) {
+      _pinchBase = _spread();
+      onSize(-1);
+    }
+  }
+
+  void _pointerEnd(PointerEvent e) {
+    _pointers.remove(e.pointer);
+    if (_pointers.length < 2 && _pinchBase != null) {
+      setState(() => _pinchBase = null);
+    }
+  }
 
   @override
   void didUpdateWidget(DocumentBox oldWidget) {
@@ -71,8 +135,9 @@ class _DocumentBoxState extends State<DocumentBox> {
   }
 
   /// Scrolls so the highlighted sentence is in view (about a quarter from
-  /// the top), if it isn't already.
-  void _revealHighlight() {
+  /// the top), if it isn't already — or always, with [force] (after a text
+  /// size change, jumping at once).
+  void _revealHighlight({bool force = false}) {
     final range = widget.highlight;
     final paragraph = _textKey.currentContext?.findRenderObject();
     if (!mounted ||
@@ -90,13 +155,13 @@ class _DocumentBoxState extends State<DocumentBox> {
     final position = _controller.position;
     final viewTop = position.pixels;
     final viewBottom = viewTop + position.viewportDimension;
-    if (top >= viewTop && bottom <= viewBottom) return;
+    if (!force && top >= viewTop && bottom <= viewBottom) return;
 
     final target = (top - position.viewportDimension * 0.25).clamp(
       position.minScrollExtent,
       position.maxScrollExtent,
     );
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (force || MediaQuery.disableAnimationsOf(context)) {
       _controller.jumpTo(target);
     } else {
       _controller.animateTo(
@@ -141,6 +206,10 @@ class _DocumentBoxState extends State<DocumentBox> {
         thumbVisibility: true,
         child: SingleChildScrollView(
           controller: _controller,
+          // Two fingers pinch; they don't also scroll.
+          physics: _pinchBase == null
+              ? null
+              : const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(14, _padTop, 20, 14),
           child: Text.rich(
             key: _textKey,
@@ -157,18 +226,38 @@ class _DocumentBoxState extends State<DocumentBox> {
       container: true,
       label: l10n.readerDocumentLabel,
       child: BorderedPanel(
-        child: Stack(
+        child: Column(
           children: [
-            Positioned.fill(child: body),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedSwitcher(
-                duration: AppDurations.fade,
-                child: caption == null
-                    ? const SizedBox.shrink()
-                    : _CaptionStrip(key: ValueKey(caption), message: caption),
+            if (widget.onTextSize != null)
+              _SizeBar(
+                size: _lastSize ?? TextSize.standard,
+                onTextSize: widget.onTextSize!,
+              ),
+            Expanded(
+              child: Listener(
+                onPointerDown: _pointerDown,
+                onPointerMove: _pointerMove,
+                onPointerUp: _pointerEnd,
+                onPointerCancel: _pointerEnd,
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: body),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: AnimatedSwitcher(
+                        duration: AppDurations.fade,
+                        child: caption == null
+                            ? const SizedBox.shrink()
+                            : _CaptionStrip(
+                                key: ValueKey(caption),
+                                message: caption,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -206,6 +295,98 @@ class _DocumentBoxState extends State<DocumentBox> {
         ),
         TextSpan(text: range.textAfter(text)),
       ],
+    );
+  }
+}
+
+/// "A−  18  A+" above the text: big, always visible, spoken by label.
+class _SizeBar extends StatelessWidget {
+  const _SizeBar({required this.size, required this.onTextSize});
+
+  final double size;
+  final void Function(int direction) onTextSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+      child: Row(
+        children: [
+          _SizeButton(
+            glyph: 'A−',
+            label: l10n.readerTextSmaller,
+            onTap: () => onTextSize(-1),
+          ),
+          Expanded(
+            child: ExcludeSemantics(
+              child: Text(
+                '${size.round()}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: p.body),
+              ),
+            ),
+          ),
+          _SizeButton(
+            glyph: 'A+',
+            label: l10n.readerTextBigger,
+            onTap: () => onTextSize(1),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SizeButton extends StatelessWidget {
+  const _SizeButton({
+    required this.glyph,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String glyph;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Listener(
+      onPointerDown: (e) => GestureSurface.claimPointer(context, e.pointer),
+      child: Semantics(
+        button: true,
+        label: label,
+        onTap: onTap,
+        excludeSemantics: true,
+        child: Material(
+          color: p.secondary,
+          shape: StadiumBorder(
+            side: BorderSide(color: p.secondaryOutline, width: 1.5),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: AppDimens.minTouchTarget + 8,
+                minHeight: AppDimens.minTouchTarget - 8,
+              ),
+              child: Center(
+                child: Text(
+                  glyph,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: p.onSecondary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

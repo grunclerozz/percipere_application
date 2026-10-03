@@ -73,6 +73,20 @@ class VoiceController extends Notifier<VoiceState> {
   bool _offlineNoticeGiven = false;
   int _session = 0;
   int _failures = 0;
+
+  /// Recognizer session the plugin hasn't reported finished (`done` / error /
+  /// cancel). Starting another one meanwhile gives `error_busy`.
+  bool _platformOpen = false;
+  DateTime? _sessionStart;
+
+  /// Fallback ladder for a recognizer that keeps failing: on-device →
+  /// online ([_onDeviceUnavailable]) → the phone's default locale.
+  bool _useDefaultLocale = false;
+
+  /// Consecutive identical failures, and sessions that ended almost at once.
+  String? _lastFailure;
+  int _sameFailures = 0;
+  int _instantFailures = 0;
   DateTime _lastActivity = DateTime.now();
   Timer? _restartTimer;
   Timer? _heardTimer;
@@ -118,6 +132,108 @@ class VoiceController extends Notifier<VoiceState> {
   /// Whether the microphone is allowed (as last checked).
   bool get micGranted => _micGranted;
 
+  /// A session that ends sooner than this without a result is a failure, not
+  /// someone being quiet.
+  static const Duration _instantEnd = Duration(milliseconds: 1500);
+
+  /// Identical failures in a row before the next fallback rung / giving up.
+  static const int _escalateAfter = 2;
+  static const int _giveUpAfter = 3;
+
+  /// Timestamped log line for the listening loop (`adb logcat -s flutter`).
+  void _log(String message) {
+    final start = _sessionStart;
+    final since = start == null
+        ? ''
+        : ' +${DateTime.now().difference(start).inMilliseconds}ms';
+    debugPrint(
+      '[Voice ${DateTime.now().toIso8601String()} s$_session$since] $message',
+    );
+  }
+
+  /// Restart delay after sessions that fail at once: 0, 400 ms, 800 ms, … 5 s.
+  Duration get _backoff => _instantFailures == 0
+      ? Duration.zero
+      : Duration(
+          milliseconds: (400 << (_instantFailures - 1).clamp(0, 4)).clamp(
+            400,
+            5000,
+          ),
+        );
+
+  /// Records a session that ended with nothing heard ([code] says why) and
+  /// decides what happens next. Returns true if it handled the restart itself
+  /// (fallback rung tried, or listening abandoned).
+  bool _failedSession(String code) {
+    final start = _sessionStart;
+    final lasted = start == null
+        ? Duration.zero
+        : DateTime.now().difference(start);
+    final instant = lasted < _instantEnd;
+    final quietCode =
+        code == 'error_no_match' ||
+        code == 'error_speech_timeout' ||
+        code == 'done_without_result' ||
+        code == 'empty_final';
+    _log(
+      'session ended without speech: $code after ${lasted.inMilliseconds}ms '
+      '(${instant ? 'INSTANT' : 'normal'})',
+    );
+    if (!instant && quietCode) {
+      // Someone was just quiet: not a fault.
+      _instantFailures = 0;
+      _lastFailure = null;
+      _sameFailures = 0;
+      return false;
+    }
+    _instantFailures = instant ? _instantFailures + 1 : 0;
+    _sameFailures = code == _lastFailure ? _sameFailures + 1 : 1;
+    _lastFailure = code;
+
+    if (_sameFailures >= _escalateAfter && !_ladderExhausted) {
+      if (!_onDeviceUnavailable) {
+        _log('repeated $code: retrying with onDevice=false');
+        _onDeviceUnavailable = true;
+      } else {
+        _log('repeated $code: retrying with the phone default locale');
+        _useDefaultLocale = true;
+      }
+      _sameFailures = 0;
+      _restartAfterBackoff();
+      return true;
+    }
+    if (_sameFailures >= _giveUpAfter) {
+      _giveUp(code);
+      return true;
+    }
+    return false;
+  }
+
+  bool get _ladderExhausted => _onDeviceUnavailable && _useDefaultLocale;
+
+  void _restartAfterBackoff() {
+    _restartTimer?.cancel();
+    final wait = _backoff + const Duration(milliseconds: 350);
+    _log('restarting in ${wait.inMilliseconds}ms');
+    _restartTimer = Timer(wait, () {
+      if (ref.mounted && !_listening) unawaited(_start());
+    });
+  }
+
+  /// Stops retrying and says so aloud.
+  void _giveUp(String code) {
+    _log('giving up after repeated "$code"');
+    _restartTimer?.cancel();
+    _endDictation();
+    _oneShot = false;
+    _budgetSpent = true;
+    _listening = false;
+    _sameFailures = 0;
+    _instantFailures = 0;
+    state = VoiceState(heard: state.heard);
+    unawaited(_say(_l.voiceRepeatedError));
+  }
+
   /// Records user activity; resets the auto-listen idle budget.
   void noteActivity() {
     _lastActivity = DateTime.now();
@@ -146,6 +262,7 @@ class VoiceController extends Notifier<VoiceState> {
     _endDictation();
     final result = _dictation = Completer<String?>();
     _oneShot = false;
+    _sameFailures = _instantFailures = 0;
     unawaited(ref.read(hapticsProvider).tick());
     await _start();
     return result.future;
@@ -165,6 +282,7 @@ class VoiceController extends Notifier<VoiceState> {
     if (!await ensureReady(requestPermission: true)) return;
     if (!ref.mounted) return;
     _oneShot = !_wantsAutoListen;
+    _sameFailures = _instantFailures = 0; // an explicit retry starts fresh
     unawaited(ref.read(hapticsProvider).tick());
     await _start();
   }
@@ -193,7 +311,12 @@ class VoiceController extends Notifier<VoiceState> {
         onError: _onError,
         onStatus: _onStatus,
       );
-      if (_recognizerAvailable) _localeId = await _pickLocale();
+      if (_recognizerAvailable) {
+        _localeId = await _pickLocale();
+        _log('initialized; picked locale $_localeId');
+      } else {
+        _log('initialize() returned false: no recognizer');
+      }
       if (!ref.mounted) return false;
     }
     if (!_recognizerAvailable) {
@@ -212,9 +335,11 @@ class VoiceController extends Notifier<VoiceState> {
     _restartTimer?.cancel();
     _endDictation();
     if (_listening) {
+      _log('cancelled by app (stopListening)');
       _session++;
       _listening = false;
       await _stt.cancel();
+      _platformOpen = false;
     }
     if (ref.mounted && state.listening) {
       state = VoiceState(heard: state.heard);
@@ -260,6 +385,10 @@ class VoiceController extends Notifier<VoiceState> {
     final wasBusy = previous != null && (previous.speaking || previous.reading);
     if (busy && _listening) {
       // Never listen to ourselves.
+      _log(
+        'speech started ("${next.text}", reading=${next.reading}): '
+        'cancelling the open session',
+      );
       unawaited(stopListening());
     } else if (wasBusy && !busy) {
       _scheduleAutoListen();
@@ -269,7 +398,7 @@ class VoiceController extends Notifier<VoiceState> {
   void _scheduleAutoListen() {
     _restartTimer?.cancel();
     if (!_wantsAutoListen) return;
-    _restartTimer = Timer(AppDurations.autoListenDelay, () {
+    _restartTimer = Timer(AppDurations.autoListenDelay + _backoff, () {
       if (!ref.mounted) return;
       if (!_appActive || _listening || _budgetSpent || !_wantsAutoListen) {
         return;
@@ -294,36 +423,63 @@ class VoiceController extends Notifier<VoiceState> {
     await _start();
   }
 
-  Future<void> _start() async {
+  Future<void> _start({int waited = 0}) async {
+    if (_platformOpen && waited < 4) {
+      // The previous session hasn't reported `done` yet: listening now would
+      // give error_busy. Wait for it instead.
+      _log('start deferred: previous session still open (${waited + 1}/4)');
+      _restartTimer?.cancel();
+      _restartTimer = Timer(const Duration(milliseconds: 300), () {
+        if (ref.mounted && !_listening) unawaited(_start(waited: waited + 1));
+      });
+      return;
+    }
     final session = ++_session;
+    _sessionStart = DateTime.now();
     _gotFinal = false;
     _listening = true;
+    _platformOpen = true;
     state = VoiceState(status: ListenStatus.listening, heard: state.heard);
     final dictating = _dictation != null;
+    final request = ListenRequest(
+      localeId: _useDefaultLocale ? null : (_localeId ?? 'fil-PH'),
+      onDevice: !_onDeviceUnavailable,
+      phrases: dictating
+          ? const []
+          : ref.read(commandBusProvider).expectedPhrases(),
+      dictation: dictating,
+      pauseFor: dictating
+          ? const Duration(seconds: 5)
+          : const Duration(seconds: 4),
+    );
+    _log(
+      'listen() locale=${request.localeId ?? 'device default'} '
+      'onDevice=${request.onDevice} dictation=$dictating '
+      'listenFor=${request.listenFor.inSeconds}s '
+      'pauseFor=${request.pauseFor.inSeconds}s partialResults=true '
+      'phrases=${request.phrases.length}',
+    );
     try {
       await _stt.listen(
-        ListenRequest(
-          localeId: _localeId ?? 'fil-PH',
-          onDevice: !_onDeviceUnavailable,
-          phrases: dictating
-              ? const []
-              : ref.read(commandBusProvider).expectedPhrases(),
-          dictation: dictating,
-          pauseFor: dictating
-              ? const Duration(seconds: 4)
-              : const Duration(seconds: 3),
-        ),
+        request,
         onResult: (words, isFinal) => _onResult(session, words, isFinal),
       );
     } on Object catch (e) {
-      debugPrint('Listen failed: $e');
+      _log('listen() threw: $e');
       _listening = false;
+      _platformOpen = false;
       if (ref.mounted) state = VoiceState(heard: state.heard);
     }
   }
 
   void _onResult(int session, String words, bool isFinal) {
-    if (session != _session || !ref.mounted) return;
+    if (session != _session || !ref.mounted) {
+      _log('ignored stale result "$words" (session $session)');
+      return;
+    }
+    _log(
+      '${isFinal ? 'FINAL' : 'partial'} result: ${sensitive ? '•••' : '"$words"'}',
+    );
     if (!isFinal) {
       state = VoiceState(
         status: ListenStatus.listening,
@@ -334,9 +490,15 @@ class VoiceController extends Notifier<VoiceState> {
     }
     _gotFinal = true;
     _listening = false;
-    _failures = 0;
     final text = words.trim();
-    if (text.isEmpty) return _endEmpty();
+    if (text.isEmpty) {
+      if (_failedSession('empty_final')) return;
+      return _endEmpty();
+    }
+    _failures = 0;
+    _instantFailures = 0;
+    _sameFailures = 0;
+    _lastFailure = null;
 
     _oneShot = false;
     noteActivity();
@@ -365,12 +527,28 @@ class VoiceController extends Notifier<VoiceState> {
 
   void _onStatus(String status) {
     if (!ref.mounted) return;
-    if (status == 'done' && _listening && !_gotFinal) _endEmpty();
+    _log('status: $status (listening=$_listening, gotFinal=$_gotFinal)');
+    if (status == 'done' || status == 'notListening') _platformOpen = false;
+    if (status == 'done' && _listening && !_gotFinal) {
+      _listening = false;
+      if (_failedSession('done_without_result')) return;
+      _endEmpty();
+    }
   }
 
   void _onError(String code) {
-    if (!ref.mounted || !_listening) return;
+    if (!ref.mounted) return;
+    _log('ERROR $code (listening=$_listening)');
+    _platformOpen = false;
+    if (!_listening) return;
     _listening = false;
+    if (code != 'error_permission' &&
+        code != 'error_insufficient_permissions' &&
+        code != 'error_language_unavailable' &&
+        code != 'error_language_not_supported' &&
+        _failedSession(code)) {
+      return;
+    }
     final retryingOnline =
         (code == 'error_language_unavailable' ||
             code == 'error_language_not_supported') &&
@@ -414,7 +592,14 @@ class VoiceController extends Notifier<VoiceState> {
       default:
         debugPrint('Speech error: $code');
         state = VoiceState(heard: state.heard);
-        if (++_failures < 3) _scheduleAutoListen();
+        // Identical repeats are handled by _failedSession; this caps a mix
+        // of different errors, and says so instead of failing silently.
+        if (++_failures < 8) {
+          _scheduleAutoListen();
+        } else {
+          _failures = 0;
+          _giveUp(code);
+        }
     }
   }
 

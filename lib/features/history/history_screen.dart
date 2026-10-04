@@ -18,6 +18,7 @@ import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/auth/session.dart';
 import '../../core/db/daos/documents_dao.dart';
+import '../../core/describe/image_prep.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/command_matcher.dart';
@@ -170,6 +171,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Future<void> _delete(DocumentRecord d, CommandBus bus) =>
       bus.offer(_l.historyDeleteConfirm(d.title), () async {
         await _dao.delete(d.id);
+        await deleteThumbnail(d.thumbnailPath);
         unawaited(ref.read(hapticsProvider).confirm());
         if (!mounted) return;
         setState(() => _optionsFor = null);

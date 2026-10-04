@@ -37,7 +37,7 @@ class _DescribeIntroOnEntryState extends ConsumerState<DescribeIntroOnEntry> {
     super.initState();
     ref.listenManual(activeScreenProvider, (previous, next) {
       if (next?.id == widget.screenId && previous?.id != widget.screenId) {
-        unawaited(_explain());
+        unawaited(_explain().catchError(_failed));
       }
     });
   }
@@ -57,12 +57,17 @@ class _DescribeIntroOnEntryState extends ConsumerState<DescribeIntroOnEntry> {
     super.dispose();
   }
 
+  /// The explanation is a nicety: a failing preference or speech call must
+  /// never surface as an error on the Capture screen.
+  void _failed(Object error) => debugPrint('Maglarawan intro failed: $error');
+
   Future<void> _explain() async {
     final prefs = ref.read(userPrefsProvider);
     // Per user (a guest has their own id); the device before anyone logs in.
     final userId =
         ref.read(currentAccountProvider)?.id ?? PreferencesDao.deviceScope;
-    if (await prefs.get(PrefKeys.describeIntroSeen, userId: userId) == true) {
+    final seen = await prefs.get(PrefKeys.describeIntroSeen, userId: userId);
+    if (!mounted || seen == true) {
       return;
     }
     await prefs.set(PrefKeys.describeIntroSeen, true, userId: userId);

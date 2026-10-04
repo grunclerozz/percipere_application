@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -28,5 +30,20 @@ void main() {
 
   test('bytes that are not an image give null', () {
     expect(resizeToJpeg(Uint8List.fromList([1, 2, 3]), 1600), isNull);
+  });
+
+  group('deleteThumbnail', () {
+    test('removes the file', () async {
+      final dir = Directory.systemTemp.createTempSync('thumb_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/t.jpg')..writeAsBytesSync([1, 2, 3]);
+      await deleteThumbnail(file.path);
+      expect(file.existsSync(), isFalse);
+    });
+
+    test('a missing file or no path is fine', () async {
+      await deleteThumbnail('/does/not/exist.jpg');
+      await deleteThumbnail(null);
+    });
   });
 }

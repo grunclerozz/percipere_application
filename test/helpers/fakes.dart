@@ -729,6 +729,9 @@ class FakeImagePrep implements ImagePrep {
   /// Images prepared for upload.
   int uploads = 0;
 
+  /// Makes [saveThumbnail] fail.
+  bool failThumbnail = false;
+
   /// Thumbnails saved.
   int thumbnails = 0;
 
@@ -740,6 +743,7 @@ class FakeImagePrep implements ImagePrep {
 
   @override
   Future<String?> saveThumbnail(String path) async {
+    if (failThumbnail) throw StateError('disk full');
     thumbnails++;
     return 'thumbs/thumb_$thumbnails.jpg';
   }

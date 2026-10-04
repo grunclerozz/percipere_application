@@ -79,3 +79,13 @@ class IsolateImagePrep implements ImagePrep {
 final imagePrepProvider = Provider<ImagePrep>(
   (ref) => const IsolateImagePrep(),
 );
+
+/// Removes a history thumbnail; a missing file or path is fine.
+Future<void> deleteThumbnail(String? path) async {
+  if (path == null) return;
+  try {
+    await File(path).delete();
+  } on Object {
+    // Already gone.
+  }
+}

@@ -162,6 +162,7 @@ class DescribeController extends Notifier<DescribeState> {
   Timer? _progress;
   Timer? _captionTimer;
   bool _offlineNoticeGiven = false;
+  bool _saving = false;
 
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
   CommandBus get _bus => ref.read(commandBusProvider);
@@ -180,10 +181,18 @@ class DescribeController extends Notifier<DescribeState> {
     });
     switch (subject) {
       case NewImage(:final path):
-        scheduleMicrotask(_analyse);
+        scheduleMicrotask(
+          () => _analyse().catchError(
+            (Object e) => debugPrint('Describe crashed: $e'),
+          ),
+        );
         return DescribeState(imagePath: path);
       case SavedDescription(:final id):
-        scheduleMicrotask(() => _loadSaved(id));
+        scheduleMicrotask(
+          () =>
+              _loadSaved(id)
+                  .catchError((Object e) => debugPrint('Load crashed: $e')),
+        );
         return const DescribeState();
     }
   }
@@ -243,14 +252,28 @@ class DescribeController extends Notifier<DescribeState> {
   }
 
   Future<void> _loadSaved(int id) async {
-    final record = await ref.read(documentsDaoProvider).get(id);
+    final DocumentRecord? record;
+    try {
+      record = await ref.read(documentsDaoProvider).get(id);
+    } on Object catch (e) {
+      debugPrint('Loading description failed: $e');
+      if (ref.mounted) {
+        state = state.copyWith(phase: DescribePhase.failed);
+        await _announcer.say(_l.describeUnreadable, interrupt: false);
+      }
+      return;
+    }
     if (!ref.mounted) return;
     if (record == null) {
       state = state.copyWith(phase: DescribePhase.failed);
       await _announcer.say(_l.describeUnreadable, interrupt: false);
       return;
     }
-    unawaited(ref.read(documentsDaoProvider).markOpened(id));
+    unawaited(
+      ref.read(documentsDaoProvider).markOpened(id).catchError((Object e) {
+        debugPrint('markOpened failed: $e');
+      }),
+    );
     state = DescribeState(
       phase: DescribePhase.ready,
       thumbnailPath: record.thumbnailPath,
@@ -268,11 +291,23 @@ class DescribeController extends Notifier<DescribeState> {
     await _announcer.say(state.fullText);
   }
 
+  /// Whether the phone is online; a failing check counts as offline.
+  Future<bool> _online() async {
+    try {
+      return await ref.read(isOnlineProvider)();
+    } on Object catch (e) {
+      debugPrint('Connectivity check failed: $e');
+      return false;
+    }
+  }
+
   /// Offered after the offline description when online.
   Future<void> _offerDetail() async {
     if (!ref.mounted || state.phase != DescribePhase.ready) return;
     if (subject is! NewImage) return;
-    if (!await ref.read(isOnlineProvider)()) {
+    final online = await _online();
+    if (!ref.mounted) return;
+    if (!online) {
       if (!_offlineNoticeGiven) {
         _offlineNoticeGiven = true;
         await _announcer.say(_l.describeNeedsInternet, interrupt: false);
@@ -292,7 +327,9 @@ class DescribeController extends Notifier<DescribeState> {
     if (state.phase != DescribePhase.ready || subject is! NewImage) {
       return _bus.notAvailable();
     }
-    if (!await ref.read(isOnlineProvider)()) {
+    final online = await _online();
+    if (!ref.mounted) return;
+    if (!online) {
       await _announcer.say(_l.describeNeedsInternet);
       return;
     }
@@ -329,6 +366,10 @@ class DescribeController extends Notifier<DescribeState> {
     try {
       final jpeg = await ref.read(imagePrepProvider).forUpload(path);
       if (jpeg == null) throw const DescriptionException('unreadable image');
+      if (!ref.mounted) {
+        timer.cancel();
+        return;
+      }
       final account = ref.read(currentAccountProvider);
       final result = await ref
           .read(imageDescriptionRepositoryProvider)
@@ -373,30 +414,50 @@ class DescribeController extends Notifier<DescribeState> {
   /// updates the saved text).
   Future<void> save() async {
     if (state.phase != DescribePhase.ready) return _bus.notAvailable();
-    final dao = ref.read(documentsDaoProvider);
-    final existing = state.documentId;
-    if (existing != null) {
-      await dao.updateText(existing, state.fullText);
-    } else {
-      final path = state.imagePath;
-      final thumbnail = path == null
-          ? null
-          : await ref.read(imagePrepProvider).saveThumbnail(path);
-      if (!ref.mounted) return;
-      final account = ref.read(currentAccountProvider);
-      final id = await dao.insert(
-        title: titleFor(state.description),
-        fullText: state.fullText,
-        sourceType: 'description',
-        language: _l.localeName == 'fil' ? 'fil' : 'en',
-        userId: account?.id,
-        thumbnailPath: thumbnail,
-      );
-      if (!ref.mounted) return;
-      state = state.copyWith(documentId: id);
-      if (account != null && account.isGuest) {
-        await GuestReminders(ref.read(userPrefsProvider)).historySaved(account);
+    if (_saving) return; // a second activation while the first is running
+    _saving = true;
+    try {
+      final dao = ref.read(documentsDaoProvider);
+      final existing = state.documentId;
+      if (existing != null) {
+        await dao.updateText(existing, state.fullText);
+      } else {
+        final path = state.imagePath;
+        String? thumbnail;
+        if (path != null) {
+          try {
+            thumbnail = await ref.read(imagePrepProvider).saveThumbnail(path);
+          } on Object catch (e) {
+            // Saving the description matters more than its picture.
+            debugPrint('Thumbnail failed: $e');
+          }
+        }
+        if (!ref.mounted) return;
+        final account = ref.read(currentAccountProvider);
+        final id = await dao.insert(
+          title: titleFor(state.description),
+          fullText: state.fullText,
+          sourceType: 'description',
+          language: _l.localeName == 'fil' ? 'fil' : 'en',
+          userId: account?.id,
+          thumbnailPath: thumbnail,
+        );
+        if (!ref.mounted) return;
+        state = state.copyWith(documentId: id);
+        if (account != null && account.isGuest) {
+          await GuestReminders(ref.read(userPrefsProvider))
+              .historySaved(account);
+        }
       }
+    } on Object catch (e) {
+      debugPrint('Saving description failed: $e');
+      if (ref.mounted) {
+        unawaited(ref.read(hapticsProvider).error());
+        await _bus.notAvailable();
+      }
+      return;
+    } finally {
+      _saving = false;
     }
     if (ref.mounted) await _announcer.say(_l.readerSaved);
   }

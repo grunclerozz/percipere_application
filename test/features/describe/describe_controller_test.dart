@@ -285,6 +285,22 @@ void main() {
       },
     );
 
+    test('a failing thumbnail still saves the description', () async {
+      await setUpWith();
+      env.imagePrep.failThumbnail = true;
+      await controller().save();
+      final docs = await history();
+      expect(docs, hasLength(1));
+      expect(docs.single.thumbnailPath, isNull);
+      expect(env.tts.transcript, contains('Na-save sa kasaysayan.'));
+    });
+
+    test('activating save twice at once saves once', () async {
+      await setUpWith();
+      await Future.wait([controller().save(), controller().save()]);
+      expect(await history(), hasLength(1));
+    });
+
     test('a saved description can be reopened from history', () async {
       await setUpWith();
       await controller().save();

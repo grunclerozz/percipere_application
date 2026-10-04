@@ -90,7 +90,6 @@ class HttpImageDescriptionRepository implements ImageDescriptionRepository {
           'language': language,
           if (userId != null) 'user_id': userId else 'guest': 'true',
         }),
-        options: Options(receiveTimeout: const Duration(seconds: 40)),
       );
       final body = response.data;
       final text = body?['description'];
@@ -111,5 +110,13 @@ class HttpImageDescriptionRepository implements ImageDescriptionRepository {
 final imageDescriptionRepositoryProvider = Provider<ImageDescriptionRepository>(
   (ref) => Env.useMockApi
       ? const MockImageDescriptionRepository()
-      : HttpImageDescriptionRepository(Dio()),
+      : HttpImageDescriptionRepository(
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 15),
+              sendTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 40),
+            ),
+          ),
+        ),
 );

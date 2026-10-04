@@ -360,6 +360,109 @@ class AppLocalizationsEn extends AppLocalizations {
       'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back.';
 
   @override
+  String get captureDescribe => 'Describe';
+
+  @override
+  String get describeAnnouncement =>
+      'You can also try our new feature: Describe. It tells you what is in a picture.';
+
+  @override
+  String get describeExplanation =>
+      'Describe is for pictures without text, or when you want to know what is in a picture. Take a photo with the camera or upload a picture, and we will tell you what we see. If you are online, you can ask for a more detailed description.';
+
+  @override
+  String get screenDescribe => 'Describe';
+
+  @override
+  String get describeSourcePrompt => 'How would you like to get the picture?';
+
+  @override
+  String get describeWorking => 'Looking at the picture…';
+
+  @override
+  String describeLooksLike(String items) {
+    return 'It looks like there is $items in the picture.';
+  }
+
+  @override
+  String get describeAnd => 'and';
+
+  @override
+  String get describeNothing =>
+      'I can\'t tell what is in the picture. Try again with brighter light.';
+
+  @override
+  String get describeReminder =>
+      'Reminder: please confirm this with someone you trust before using it.';
+
+  @override
+  String get describeTextFound =>
+      'I also found some text. Would you like me to read it?';
+
+  @override
+  String get describeNoText => 'No text was found in this picture.';
+
+  @override
+  String get describeDetailOffer =>
+      'Would you like a more detailed description?';
+
+  @override
+  String get describeNeedsInternet =>
+      'A detailed description needs internet. Try again when you are online.';
+
+  @override
+  String get describeConsentAsk =>
+      'The picture will be sent to our server and to Google\'s service to describe it. Is that okay?';
+
+  @override
+  String get describeConsentDeclined =>
+      'Okay, I won\'t send the picture. You can change this in Settings.';
+
+  @override
+  String get describeDetailFailed =>
+      'I can\'t get the detailed description right now. Try again later.';
+
+  @override
+  String get describeUnreadable => 'I can\'t open this picture.';
+
+  @override
+  String get describeRepeat => 'Repeat';
+
+  @override
+  String get describeMore => 'More detail';
+
+  @override
+  String get describeReadText => 'Read the text';
+
+  @override
+  String get describeSave => 'Save';
+
+  @override
+  String get describeNew => 'New picture';
+
+  @override
+  String get describeThumbnailLabel => 'The picture';
+
+  @override
+  String get helpDescribe =>
+      'Swipe right or left to choose an option, and double-tap to use it. Options: repeat, more detail, read the text, save, and new picture. Pinch the box to make the text bigger or smaller. Two-finger swipe right: go back.';
+
+  @override
+  String get sourceDescription => 'picture (Describe)';
+
+  @override
+  String get setDescribeConsent => 'Detailed descriptions';
+
+  @override
+  String get valueConsentAsk => 'Ask first';
+
+  @override
+  String get valueConsentAllowed => 'Allowed';
+
+  @override
+  String get valueConsentDeclined => 'Not allowed';
+
+  @override
   String get captureHistory => 'History';
 
   @override

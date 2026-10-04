@@ -1,0 +1,446 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../app/router.dart';
+import '../../app/theme/theme_settings.dart';
+import '../../core/accessibility/announcer.dart';
+import '../../core/accessibility/command_bus.dart';
+import '../../core/accessibility/haptics.dart';
+import '../../core/auth/guest_reminders.dart';
+import '../../core/auth/session.dart';
+import '../../core/db/daos/documents_dao.dart';
+import '../../core/describe/image_labeler.dart';
+import '../../core/describe/image_prep.dart';
+import '../../core/describe/label_description.dart';
+import '../../core/network/connectivity.dart';
+import '../../core/network/image_description_repository.dart';
+import '../../core/ocr/ocr_service.dart';
+import '../../core/ocr/text_cleanup.dart';
+import '../../core/settings/app_settings.dart';
+import '../../core/settings/settings_controller.dart';
+import '../../core/tts/chunker.dart';
+import '../../core/tts/speech_language.dart';
+import '../../l10n/app_localizations.dart';
+import '../reader/reader_controller.dart';
+
+/// What the Description screen shows.
+@immutable
+sealed class DescribeSubject {
+  const DescribeSubject();
+}
+
+/// A picture to describe (from the camera or the file picker).
+final class NewImage extends DescribeSubject {
+  /// Describes the image at [path].
+  const NewImage(this.path, {this.fromCamera = false});
+
+  /// Local image file.
+  final String path;
+
+  /// Taken with the in-app camera: deleted when the screen closes.
+  final bool fromCamera;
+
+  @override
+  bool operator ==(Object other) => other is NewImage && other.path == path;
+
+  @override
+  int get hashCode => path.hashCode;
+}
+
+/// A description saved in Reading History.
+final class SavedDescription extends DescribeSubject {
+  /// Reopens history entry [id].
+  const SavedDescription(this.id);
+
+  /// Document id.
+  final int id;
+
+  @override
+  bool operator ==(Object other) => other is SavedDescription && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+/// Where the analysis is.
+enum DescribePhase {
+  /// Looking at the picture.
+  working,
+
+  /// Described.
+  ready,
+
+  /// The picture could not be opened.
+  failed,
+}
+
+/// State of the Description screen.
+@immutable
+class DescribeState {
+  /// Creates a state.
+  const DescribeState({
+    this.phase = DescribePhase.working,
+    this.imagePath,
+    this.thumbnailPath,
+    this.description = '',
+    this.detailed,
+    this.foundText,
+    this.documentId,
+    this.caption,
+  });
+
+  /// Progress.
+  final DescribePhase phase;
+
+  /// The picture being described (not for saved descriptions).
+  final String? imagePath;
+
+  /// Saved thumbnail (saved descriptions).
+  final String? thumbnailPath;
+
+  /// The offline description (or the saved text).
+  final String description;
+
+  /// The server's detailed description, once asked for.
+  final String? detailed;
+
+  /// Readable text found in the picture, if any.
+  final String? foundText;
+
+  /// History entry, once saved.
+  final int? documentId;
+
+  /// Short message above the text ("Laki: 22"), cleared after a moment.
+  final String? caption;
+
+  /// Everything there is to read.
+  String get fullText =>
+      detailed == null ? description : '$description $detailed';
+
+  /// The picture to show: the live image, or the saved thumbnail.
+  String? get picturePath => imagePath ?? thumbnailPath;
+
+  static const Object _keep = Object();
+
+  /// Copy with changes ([detailed], [foundText], [caption] can be nulled).
+  DescribeState copyWith({
+    DescribePhase? phase,
+    String? description,
+    Object? detailed = _keep,
+    Object? foundText = _keep,
+    int? documentId,
+    Object? caption = _keep,
+  }) => DescribeState(
+    phase: phase ?? this.phase,
+    imagePath: imagePath,
+    thumbnailPath: thumbnailPath,
+    description: description ?? this.description,
+    detailed: identical(detailed, _keep) ? this.detailed : detailed as String?,
+    foundText: identical(foundText, _keep)
+        ? this.foundText
+        : foundText as String?,
+    documentId: documentId ?? this.documentId,
+    caption: identical(caption, _keep) ? this.caption : caption as String?,
+  );
+}
+
+/// Describes one picture: offline labels first (always), the existing OCR for
+/// text, and — only if the user agrees — the web app's detailed description.
+class DescribeController extends Notifier<DescribeState> {
+  /// Creates the controller for [subject].
+  DescribeController(this.subject);
+
+  /// What is being described.
+  final DescribeSubject subject;
+
+  /// Says "Tinitingnan ang larawan…" when the analysis takes longer.
+  static const Duration progressAfter = Duration(seconds: 1);
+
+  Timer? _progress;
+  Timer? _captionTimer;
+  bool _offlineNoticeGiven = false;
+
+  AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
+  CommandBus get _bus => ref.read(commandBusProvider);
+  Announcer get _announcer => ref.read(announcerProvider.notifier);
+
+  @override
+  DescribeState build() {
+    ref.onDispose(() {
+      final subject = this.subject;
+      if (subject is NewImage && subject.fromCamera) {
+        // Camera photos are only needed for the description.
+        unawaited(File(subject.path).delete().then((_) {}).catchError((_) {}));
+      }
+      _progress?.cancel();
+      _captionTimer?.cancel();
+    });
+    switch (subject) {
+      case NewImage(:final path):
+        scheduleMicrotask(_analyse);
+        return DescribeState(imagePath: path);
+      case SavedDescription(:final id):
+        scheduleMicrotask(() => _loadSaved(id));
+        return const DescribeState();
+    }
+  }
+
+  // ── Analysis ──────────────────────────────────────────────────────────────
+
+  Future<void> _analyse() async {
+    final path = (subject as NewImage).path;
+    _progress = Timer(progressAfter, () {
+      if (ref.mounted && state.phase == DescribePhase.working) {
+        unawaited(_announcer.say(_l.describeWorking, interrupt: false));
+      }
+    });
+    try {
+      final results = await Future.wait<Object?>([
+        ref.read(imageLabelerProvider).label(path),
+        _findText(path),
+      ]);
+      if (!ref.mounted) return;
+      _progress?.cancel();
+      final labels = results[0]! as List<LabelResult>;
+      state = state.copyWith(
+        phase: DescribePhase.ready,
+        description: offlineDescription(labels, _l),
+        foundText: results[1] as String?,
+      );
+    } on Object catch (e) {
+      debugPrint('Describe failed: $e');
+      _progress?.cancel();
+      if (!ref.mounted) return;
+      state = state.copyWith(phase: DescribePhase.failed);
+      unawaited(ref.read(hapticsProvider).error());
+      await _announcer.say(_l.describeUnreadable, interrupt: false);
+      return;
+    }
+    await _announcer.say(state.description, interrupt: false);
+    if (!ref.mounted) return;
+    final text = state.foundText;
+    if (text != null) {
+      await _bus.offer(_l.describeTextFound, readText, onDecline: _offerDetail);
+    } else {
+      await _offerDetail();
+    }
+  }
+
+  /// OCR on the same image; the text only if it reads like text.
+  Future<String?> _findText(String path) async {
+    try {
+      final page = await ref.read(ocrServiceProvider).recognizeFile(path);
+      final text = cleanText(page.text);
+      final quality = assessQuality(text, ocrConfidence: page.confidence);
+      return quality == TextQuality.good ? text : null;
+    } on Object catch (e) {
+      debugPrint('Text check failed: $e');
+      return null;
+    }
+  }
+
+  Future<void> _loadSaved(int id) async {
+    final record = await ref.read(documentsDaoProvider).get(id);
+    if (!ref.mounted) return;
+    if (record == null) {
+      state = state.copyWith(phase: DescribePhase.failed);
+      await _announcer.say(_l.describeUnreadable, interrupt: false);
+      return;
+    }
+    unawaited(ref.read(documentsDaoProvider).markOpened(id));
+    state = DescribeState(
+      phase: DescribePhase.ready,
+      thumbnailPath: record.thumbnailPath,
+      description: record.fullText,
+      documentId: id,
+    );
+    await _announcer.say(record.fullText, interrupt: false);
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  /// "Ulitin": say the description again.
+  Future<void> repeat() async {
+    if (state.phase != DescribePhase.ready) return _bus.notAvailable();
+    await _announcer.say(state.fullText);
+  }
+
+  /// Offered after the offline description when online.
+  Future<void> _offerDetail() async {
+    if (!ref.mounted || state.phase != DescribePhase.ready) return;
+    if (subject is! NewImage) return;
+    if (!await ref.read(isOnlineProvider)()) {
+      if (!_offlineNoticeGiven) {
+        _offlineNoticeGiven = true;
+        await _announcer.say(_l.describeNeedsInternet, interrupt: false);
+      }
+      return;
+    }
+    if (ref.read(settingsProvider).describeConsent ==
+        DescribeConsent.declined) {
+      return; // Said no before: don't ask again, Settings can change it.
+    }
+    await _bus.offer(_l.describeDetailOffer, requestDetail);
+  }
+
+  /// "Mas detalyado": the web app's description, after consent.
+  Future<void> requestDetail() async {
+    final subject = this.subject;
+    if (state.phase != DescribePhase.ready || subject is! NewImage) {
+      return _bus.notAvailable();
+    }
+    if (!await ref.read(isOnlineProvider)()) {
+      await _announcer.say(_l.describeNeedsInternet);
+      return;
+    }
+    switch (ref.read(settingsProvider).describeConsent) {
+      case DescribeConsent.allowed:
+        return _fetchDetail(subject.path);
+      case DescribeConsent.declined:
+        await _announcer.say(_l.describeConsentDeclined);
+      case DescribeConsent.ask:
+        await _bus.offer(
+          _l.describeConsentAsk,
+          () async {
+            await _setConsent(DescribeConsent.allowed);
+            await _fetchDetail(subject.path);
+          },
+          onDecline: () async {
+            await _setConsent(DescribeConsent.declined);
+            await _announcer.say(_l.describeConsentDeclined);
+          },
+        );
+    }
+  }
+
+  Future<void> _setConsent(DescribeConsent value) => ref
+      .read(settingsProvider.notifier)
+      .update((s) => s.copyWith(describeConsent: value));
+
+  Future<void> _fetchDetail(String path) async {
+    final timer = Timer(progressAfter, () {
+      if (ref.mounted) {
+        unawaited(_announcer.say(_l.describeWorking, interrupt: false));
+      }
+    });
+    try {
+      final jpeg = await ref.read(imagePrepProvider).forUpload(path);
+      if (jpeg == null) throw const DescriptionException('unreadable image');
+      final account = ref.read(currentAccountProvider);
+      final result = await ref
+          .read(imageDescriptionRepositoryProvider)
+          .describe(
+            jpeg: jpeg,
+            language: _l.localeName == 'fil' ? 'fil' : 'en',
+            // Guests are anonymous.
+            userId: account == null || account.isGuest ? null : account.id,
+          );
+      timer.cancel();
+      if (!ref.mounted) return;
+      state = state.copyWith(detailed: result.description);
+      final id = state.documentId;
+      if (id != null) {
+        await ref.read(documentsDaoProvider).updateText(id, state.fullText);
+      }
+      await _announcer.say(result.description);
+    } on Object catch (e) {
+      timer.cancel();
+      debugPrint('Detailed description failed: $e');
+      if (!ref.mounted) return;
+      unawaited(ref.read(hapticsProvider).error());
+      await _announcer.say(_l.describeDetailFailed);
+    }
+  }
+
+  /// "Basahin ang teksto": open the text found in the picture in the Reader.
+  Future<void> readText() async {
+    final text = state.foundText;
+    if (text == null) {
+      unawaited(ref.read(hapticsProvider).error());
+      return _announcer.say(_l.describeNoText);
+    }
+    unawaited(
+      ref
+          .read(routerProvider)
+          .push(AppRoutes.reader, extra: TextSource(text, save: true)),
+    );
+  }
+
+  /// "I-save": put the description in Reading History (once; later detail
+  /// updates the saved text).
+  Future<void> save() async {
+    if (state.phase != DescribePhase.ready) return _bus.notAvailable();
+    final dao = ref.read(documentsDaoProvider);
+    final existing = state.documentId;
+    if (existing != null) {
+      await dao.updateText(existing, state.fullText);
+    } else {
+      final path = state.imagePath;
+      final thumbnail = path == null
+          ? null
+          : await ref.read(imagePrepProvider).saveThumbnail(path);
+      if (!ref.mounted) return;
+      final account = ref.read(currentAccountProvider);
+      final id = await dao.insert(
+        title: titleFor(state.description),
+        fullText: state.fullText,
+        sourceType: 'description',
+        language: _l.localeName == 'fil' ? 'fil' : 'en',
+        userId: account?.id,
+        thumbnailPath: thumbnail,
+      );
+      if (!ref.mounted) return;
+      state = state.copyWith(documentId: id);
+      if (account != null && account.isGuest) {
+        await GuestReminders(ref.read(userPrefsProvider)).historySaved(account);
+      }
+    }
+    if (ref.mounted) await _announcer.say(_l.readerSaved);
+  }
+
+  /// "Bagong larawan": back to choosing a source.
+  void newPicture() => unawaited(
+    ref.read(routerProvider).pushReplacement(AppRoutes.describeSource),
+  );
+
+  /// Pinch, A−/A+ or voice: text size one step bigger ([direction] 1) or
+  /// smaller (−1), saved like in the Reader.
+  Future<void> changeTextSize(int direction) async {
+    final before = ref.read(settingsProvider).textSize;
+    final after =
+        (await ref
+                .read(settingsProvider.notifier)
+                .update(
+                  (s) =>
+                      s.copyWith(textSize: before + direction * TextSize.step),
+                ))
+            .textSize;
+    if (!ref.mounted) return;
+    final atLimit = after == before;
+    final note = atLimit
+        ? (direction > 0 ? _l.readerSizeMax : _l.readerSizeMin)
+        : _l.readerSize(after.round());
+    if (atLimit) {
+      unawaited(ref.read(hapticsProvider).error());
+      // A held pinch repeats at the limit: say it once.
+      if (state.caption == note) return;
+    }
+    _captionTimer?.cancel();
+    state = state.copyWith(caption: note);
+    _captionTimer = Timer(const Duration(seconds: 2), () {
+      if (ref.mounted && state.caption == note) {
+        state = state.copyWith(caption: null);
+      }
+    });
+    await _announcer.say(note, interrupt: false);
+  }
+}
+
+/// Description state per subject; disposed when the screen closes.
+final describeControllerProvider = NotifierProvider.autoDispose
+    .family<DescribeController, DescribeState, DescribeSubject>(
+      DescribeController.new,
+    );

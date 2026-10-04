@@ -11,6 +11,7 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/voice/command_matcher.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../core/widgets/guest_reminder_on_entry.dart';
 import '../../core/widgets/live_speaking_zone.dart';
@@ -19,6 +20,7 @@ import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 import '../reader/reader_controller.dart';
 import '../upload/document_picker.dart';
+import 'describe_intro_on_entry.dart';
 
 /// Screen B — Capture method: upload a file or use the camera.
 ///
@@ -36,6 +38,31 @@ class CaptureScreen extends ConsumerWidget {
 
   /// Action: capture with the camera.
   static const String cameraAction = Ids.captureCamera;
+
+  /// Words that ask what Maglarawan is while its button is focused.
+  static const List<String> _explainWords = [
+    'ano ang maglarawan',
+    'paliwanag',
+    'explain',
+    'tulong',
+  ];
+
+  /// "Ano ang maglarawan?" / "paliwanag" / "explain" / "tulong" while
+  /// Maglarawan is focused: says what it is.
+  static Future<bool> _explainDescribe(
+    WidgetRef ref,
+    String text,
+    CommandBus bus,
+  ) async {
+    if (ref.read(focusControllerProvider) != Ids.captureDescribe) return false;
+    final said = CommandMatcher.normalize(text);
+    final asks = _explainWords.any(
+      (w) => said.contains(CommandMatcher.normalize(w)),
+    );
+    if (!asks) return false;
+    await bus.say(bus.strings.describeExplanation);
+    return true;
+  }
 
   static ScreenRegistration _registration(WidgetRef ref) {
     Future<void> upload(CommandBus bus) async {
@@ -64,7 +91,9 @@ class CaptureScreen extends ConsumerWidget {
     return ScreenRegistration(
       id: screenId,
       title: (l) => l.screenCapture,
-      prompt: (l) => l.capturePrompt,
+      // The new feature is mentioned after the usual question.
+      prompt: (l) => '${l.capturePrompt} ${l.describeAnnouncement}',
+      onUtterance: (text, bus) => _explainDescribe(ref, text, bus),
       actions: [
         A11yAction(
           id: uploadAction,
@@ -77,6 +106,19 @@ class CaptureScreen extends ConsumerWidget {
           label: (l) => l.captureCamera,
           voiceSynonyms: const ['camera', 'kamera'],
           onActivate: camera,
+        ),
+        A11yAction(
+          id: Ids.captureDescribe,
+          label: (l) => l.captureDescribe,
+          voiceSynonyms: const [
+            'maglarawan',
+            'ilarawan',
+            'describe',
+            'ano ito',
+          ],
+          onActivate: (_) => unawaited(
+            ref.read(routerProvider).push(AppRoutes.describeSource),
+          ),
         ),
         A11yAction(
           id: Ids.captureHistory,
@@ -102,68 +144,79 @@ class CaptureScreen extends ConsumerWidget {
 
     return AccessibleScreen(
       registration: _registration,
-      child: GuestReminderOnEntry(
+      child: DescribeIntroOnEntry(
         screenId: screenId,
-        moment: GuestReminderMoment.history,
-        child: GesturePadLayout(
-          padHint: l10n.gestureAreaHintMenu,
-          content: CustomScrollView(
-            slivers: [
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Spacer(),
-                    LiveSpeakingZone(
-                      screenId: screenId,
-                      fallback: l10n.capturePrompt,
-                    ),
-                    const SizedBox(height: 32),
-                    const Spacer(flex: 2),
-                    PillButton(
-                      label: l10n.captureUpload,
-                      focused: focused == uploadAction,
-                      onPressed: () => bus.activate(uploadAction),
-                    ),
-                    const SizedBox(height: AppDimens.buttonGap),
-                    PillButton(
-                      label: l10n.captureCamera,
-                      variant: PillVariant.secondary,
-                      focused: focused == cameraAction,
-                      onPressed: () => bus.activate(cameraAction),
-                    ),
-                    const SizedBox(height: AppDimens.buttonGap),
-                    // Secondary destinations, smaller than the two main
-                    // choices from the design, side by side so everything
-                    // fits on one screen. Labels shrink to fit their button
-                    // (never wrapping mid-word).
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SmallLink(
-                            label: l10n.captureHistory,
-                            icon: Icons.history,
-                            focused: focused == Ids.captureHistory,
-                            onPressed: () => bus.activate(Ids.captureHistory),
+        child: GuestReminderOnEntry(
+          screenId: screenId,
+          moment: GuestReminderMoment.history,
+          child: GesturePadLayout(
+            padHint: l10n.gestureAreaHintMenu,
+            content: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Spacer(),
+                      LiveSpeakingZone(
+                        screenId: screenId,
+                        fallback: l10n.capturePrompt,
+                      ),
+                      const SizedBox(height: 12),
+                      const Spacer(flex: 2),
+                      PillButton(
+                        label: l10n.captureUpload,
+                        focused: focused == uploadAction,
+                        onPressed: () => bus.activate(uploadAction),
+                      ),
+                      const SizedBox(height: AppDimens.buttonGap),
+                      PillButton(
+                        label: l10n.captureCamera,
+                        variant: PillVariant.secondary,
+                        focused: focused == cameraAction,
+                        onPressed: () => bus.activate(cameraAction),
+                      ),
+                      const SizedBox(height: AppDimens.buttonGap),
+                      PillButton(
+                        label: l10n.captureDescribe,
+                        variant: PillVariant.tertiary,
+                        focused: focused == Ids.captureDescribe,
+                        onPressed: () => bus.activate(Ids.captureDescribe),
+                      ),
+                      const SizedBox(height: AppDimens.buttonGap),
+                      // Secondary destinations, smaller than the two main
+                      // choices from the design, side by side so everything
+                      // fits on one screen. Labels shrink to fit their button
+                      // (never wrapping mid-word).
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SmallLink(
+                              label: l10n.captureHistory,
+                              icon: Icons.history,
+                              focused: focused == Ids.captureHistory,
+                              onPressed: () => bus.activate(Ids.captureHistory),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: SmallLink(
-                            label: l10n.captureSettings,
-                            icon: Icons.tune,
-                            focused: focused == Ids.captureSettings,
-                            onPressed: () => bus.activate(Ids.captureSettings),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: SmallLink(
+                              label: l10n.captureSettings,
+                              icon: Icons.tune,
+                              focused: focused == Ids.captureSettings,
+                              onPressed: () =>
+                                  bus.activate(Ids.captureSettings),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                  ],
+                        ],
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

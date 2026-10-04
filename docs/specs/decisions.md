@@ -1,6 +1,19 @@
 # Decision log
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
+## 2026-10-04 — Phase 6C = Maglarawan only; algorithms postponed to 6D (user)
+- Phase 6C is **Maglarawan** (image description). The three hand-written algorithms
+  (Levenshtein/WER, Laplacian variance, Otsu) move to a postponed **Phase 6D: Core
+  Algorithms** (`algorithms.md`). The existing command matcher, camera guidance and OCR
+  stay unchanged; the matcher thresholds are not touched.
+- Offline-first: on-device ML Kit image labeling (top 3 labels ≥ 0.7, Filipino map with
+  English fallback), then the existing OCR. Detailed description is optional, online only,
+  **through the web app** (`POST /api/describe-image`); the app never calls Gemini and
+  never holds an API key. Mocked for now behind `ImageDescriptionRepository`.
+- First detailed request needs spoken **privacy consent**, saved per user, changeable in
+  Settings. Guests can use everything; their requests are flagged anonymous.
+- Description screen gets the Reader's text size controls (see 2026-10-03 entry).
+
 ## 2026-10-03 — Reader text size on the Document Box, not the Gesture Pad
 - Asked to make two-finger swipe up/down the text-size gesture. That would have removed
   previous/next paragraph from the pad, so the user chose instead: **pinch to zoom in the

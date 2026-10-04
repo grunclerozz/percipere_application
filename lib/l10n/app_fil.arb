@@ -466,6 +466,131 @@
   "@helpReader": {
     "description": "Spoken help on the Reader."
   },
+  "captureDescribe": "Maglarawan",
+  "@captureDescribe": {
+    "description": "Capture button: describe what is in a picture."
+  },
+  "describeAnnouncement": "Pwede mo ring gamitin ang bago naming feature: Maglarawan. Sasabihin nito kung ano ang nasa isang larawan.",
+  "@describeAnnouncement": {
+    "description": "Added to the Capture announcement."
+  },
+  "describeExplanation": "Ang Maglarawan ay para sa mga larawang walang teksto, o kung gusto mong malaman kung ano ang nasa larawan. Kumuha ng litrato gamit ang camera o mag-upload ng larawan, at sasabihin namin kung ano ang nakikita namin. Kung may internet, maaari kang humingi ng mas detalyadong paglalarawan.",
+  "@describeExplanation": {
+    "description": "Full explanation of Maglarawan: read once on the first Capture visit, and on request."
+  },
+  "screenDescribe": "Maglarawan",
+  "@screenDescribe": {
+    "description": "Name of the Maglarawan screens."
+  },
+  "describeSourcePrompt": "Paano mo gustong kunin ang larawan?",
+  "@describeSourcePrompt": {
+    "description": "Maglarawan: choose camera or upload."
+  },
+  "describeWorking": "Tinitingnan ang larawan…",
+  "@describeWorking": {
+    "description": "Said when looking at the picture takes more than a second."
+  },
+  "describeLooksLike": "Mukhang may {items} sa larawan.",
+  "@describeLooksLike": {
+    "description": "Offline description. Items are already joined (a, b, at c).",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "describeAnd": "at",
+  "@describeAnd": {
+    "description": "Joins the last two labels."
+  },
+  "describeNothing": "Hindi ko matiyak kung ano ang nasa larawan. Subukan ulit na may mas maliwanag na ilaw.",
+  "@describeNothing": {
+    "description": "No label was confident enough."
+  },
+  "describeReminder": "Paalala: kumpirmahin ito sa taong pinagkakatiwalaan mo bago gamitin.",
+  "@describeReminder": {
+    "description": "Added when a label suggests medicine, pills or money."
+  },
+  "describeTextFound": "May nakita rin akong teksto. Gusto mo bang basahin ito?",
+  "@describeTextFound": {
+    "description": "OCR found readable text in the picture."
+  },
+  "describeNoText": "Walang nakitang teksto sa larawang ito.",
+  "@describeNoText": {
+    "description": "Read the text, but there is none."
+  },
+  "describeDetailOffer": "Gusto mo ba ng mas detalyadong paglalarawan?",
+  "@describeDetailOffer": {
+    "description": "Offered when online."
+  },
+  "describeNeedsInternet": "Kailangan ng internet para sa mas detalyadong paglalarawan. Subukan ulit kapag may internet.",
+  "@describeNeedsInternet": {
+    "description": "Detailed description asked for while offline."
+  },
+  "describeConsentAsk": "Ipapadala ang larawan sa aming server at sa serbisyo ng Google para mailarawan ito. Sige ba?",
+  "@describeConsentAsk": {
+    "description": "Privacy consent, asked before the first detailed description."
+  },
+  "describeConsentDeclined": "Sige, hindi ko ipapadala ang larawan. Mababago mo ito sa Settings.",
+  "@describeConsentDeclined": {
+    "description": "The user said no to sending the image."
+  },
+  "describeDetailFailed": "Hindi ko makuha ang detalyadong paglalarawan ngayon. Subukan ulit mamaya.",
+  "@describeDetailFailed": {
+    "description": "The server could not describe the image."
+  },
+  "describeUnreadable": "Hindi ko mabasa ang larawang ito.",
+  "@describeUnreadable": {
+    "description": "The image file could not be opened."
+  },
+  "describeRepeat": "Ulitin",
+  "@describeRepeat": {
+    "description": "Description action: say it again."
+  },
+  "describeMore": "Mas detalyado",
+  "@describeMore": {
+    "description": "Description action: online detailed description."
+  },
+  "describeReadText": "Basahin ang teksto",
+  "@describeReadText": {
+    "description": "Description action: open the found text in the Reader."
+  },
+  "describeSave": "I-save",
+  "@describeSave": {
+    "description": "Description action: save to history."
+  },
+  "describeNew": "Bagong larawan",
+  "@describeNew": {
+    "description": "Description action: start over with another picture."
+  },
+  "describeThumbnailLabel": "Ang larawan",
+  "@describeThumbnailLabel": {
+    "description": "Screen-reader label of the picture on the Description screen."
+  },
+  "helpDescribe": "Mag-swipe pakanan o pakaliwa para pumili ng opsyon, at i-double tap para gamitin. Mga opsyon: ulitin, mas detalyado, basahin ang teksto, i-save, at bagong larawan. I-pinch ang kahon para palakihin o paliitin ang teksto. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
+  "@helpDescribe": {
+    "description": "Spoken help on the Description screen."
+  },
+  "sourceDescription": "larawan (Maglarawan)",
+  "@sourceDescription": {
+    "description": "Source type in Reading History: a described image."
+  },
+  "setDescribeConsent": "Detalyadong paglalarawan",
+  "@setDescribeConsent": {
+    "description": "Setting: allow sending images to the server for a detailed description."
+  },
+  "valueConsentAsk": "Itatanong muna",
+  "@valueConsentAsk": {
+    "description": "Consent not given or refused yet."
+  },
+  "valueConsentAllowed": "Pinapayagan",
+  "@valueConsentAllowed": {
+    "description": "Sending images is allowed."
+  },
+  "valueConsentDeclined": "Hindi pinapayagan",
+  "@valueConsentDeclined": {
+    "description": "Sending images is not allowed."
+  },
   "captureHistory": "Kasaysayan",
   "@captureHistory": {
     "description": "Capture screen: open Reading History."

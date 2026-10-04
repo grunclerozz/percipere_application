@@ -191,4 +191,65 @@ void main() {
       throwsA(isA<DatabaseException>()),
     );
   });
+
+  test(
+    'v2 → v3: history keeps its rows and accepts described images',
+    () async {
+      final db = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: 2,
+          singleInstance: false,
+          onCreate: (db, _) => Migrations.migrate(db, 0, 2),
+        ),
+      );
+      addTearDown(db.close);
+      const now = 1700000000000;
+      await db.insert('documents', {
+        'title': 'Liham',
+        'full_text': 'Magandang araw.',
+        'source_type': 'camera',
+        'created_at': now,
+        'updated_at': now,
+        'last_position': 3,
+      });
+      await expectLater(
+        db.insert('documents', {
+          'title': 'Larawan',
+          'full_text': 'Mukhang may mesa.',
+          'source_type': 'description',
+          'created_at': now,
+          'updated_at': now,
+        }),
+        throwsA(isA<DatabaseException>()),
+        reason: 'not allowed before the migration',
+      );
+
+      await db.transaction((txn) => Migrations.migrate(txn, 2, 3));
+
+      final old = (await db.query('documents')).single;
+      expect(old['title'], 'Liham');
+      expect(old['last_position'], 3);
+      expect(old['thumbnail_path'], isNull);
+      await db.insert('documents', {
+        'title': 'Larawan',
+        'full_text': 'Mukhang may mesa.',
+        'source_type': 'description',
+        'thumbnail_path': 'thumbs/t.jpg',
+        'created_at': now,
+        'updated_at': now,
+      });
+      expect(await db.query('documents'), hasLength(2));
+      await expectLater(
+        db.insert('documents', {
+          'title': 'x',
+          'full_text': 'x',
+          'source_type': 'video',
+          'created_at': now,
+          'updated_at': now,
+        }),
+        throwsA(isA<DatabaseException>()),
+      );
+    },
+  );
 }

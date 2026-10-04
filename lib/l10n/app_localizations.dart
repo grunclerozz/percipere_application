@@ -674,6 +674,186 @@ abstract class AppLocalizations {
   /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.'**
   String get helpReader;
 
+  /// Capture button: describe what is in a picture.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maglarawan'**
+  String get captureDescribe;
+
+  /// Added to the Capture announcement.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pwede mo ring gamitin ang bago naming feature: Maglarawan. Sasabihin nito kung ano ang nasa isang larawan.'**
+  String get describeAnnouncement;
+
+  /// Full explanation of Maglarawan: read once on the first Capture visit, and on request.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang Maglarawan ay para sa mga larawang walang teksto, o kung gusto mong malaman kung ano ang nasa larawan. Kumuha ng litrato gamit ang camera o mag-upload ng larawan, at sasabihin namin kung ano ang nakikita namin. Kung may internet, maaari kang humingi ng mas detalyadong paglalarawan.'**
+  String get describeExplanation;
+
+  /// Name of the Maglarawan screens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maglarawan'**
+  String get screenDescribe;
+
+  /// Maglarawan: choose camera or upload.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paano mo gustong kunin ang larawan?'**
+  String get describeSourcePrompt;
+
+  /// Said when looking at the picture takes more than a second.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tinitingnan ang larawan…'**
+  String get describeWorking;
+
+  /// Offline description. Items are already joined (a, b, at c).
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang may {items} sa larawan.'**
+  String describeLooksLike(String items);
+
+  /// Joins the last two labels.
+  ///
+  /// In fil, this message translates to:
+  /// **'at'**
+  String get describeAnd;
+
+  /// No label was confident enough.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko matiyak kung ano ang nasa larawan. Subukan ulit na may mas maliwanag na ilaw.'**
+  String get describeNothing;
+
+  /// Added when a label suggests medicine, pills or money.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paalala: kumpirmahin ito sa taong pinagkakatiwalaan mo bago gamitin.'**
+  String get describeReminder;
+
+  /// OCR found readable text in the picture.
+  ///
+  /// In fil, this message translates to:
+  /// **'May nakita rin akong teksto. Gusto mo bang basahin ito?'**
+  String get describeTextFound;
+
+  /// Read the text, but there is none.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang nakitang teksto sa larawang ito.'**
+  String get describeNoText;
+
+  /// Offered when online.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo ba ng mas detalyadong paglalarawan?'**
+  String get describeDetailOffer;
+
+  /// Detailed description asked for while offline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ng internet para sa mas detalyadong paglalarawan. Subukan ulit kapag may internet.'**
+  String get describeNeedsInternet;
+
+  /// Privacy consent, asked before the first detailed description.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ipapadala ang larawan sa aming server at sa serbisyo ng Google para mailarawan ito. Sige ba?'**
+  String get describeConsentAsk;
+
+  /// The user said no to sending the image.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige, hindi ko ipapadala ang larawan. Mababago mo ito sa Settings.'**
+  String get describeConsentDeclined;
+
+  /// The server could not describe the image.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko makuha ang detalyadong paglalarawan ngayon. Subukan ulit mamaya.'**
+  String get describeDetailFailed;
+
+  /// The image file could not be opened.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko mabasa ang larawang ito.'**
+  String get describeUnreadable;
+
+  /// Description action: say it again.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ulitin'**
+  String get describeRepeat;
+
+  /// Description action: online detailed description.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mas detalyado'**
+  String get describeMore;
+
+  /// Description action: open the found text in the Reader.
+  ///
+  /// In fil, this message translates to:
+  /// **'Basahin ang teksto'**
+  String get describeReadText;
+
+  /// Description action: save to history.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-save'**
+  String get describeSave;
+
+  /// Description action: start over with another picture.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bagong larawan'**
+  String get describeNew;
+
+  /// Screen-reader label of the picture on the Description screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang larawan'**
+  String get describeThumbnailLabel;
+
+  /// Spoken help on the Description screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para pumili ng opsyon, at i-double tap para gamitin. Mga opsyon: ulitin, mas detalyado, basahin ang teksto, i-save, at bagong larawan. I-pinch ang kahon para palakihin o paliitin ang teksto. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  String get helpDescribe;
+
+  /// Source type in Reading History: a described image.
+  ///
+  /// In fil, this message translates to:
+  /// **'larawan (Maglarawan)'**
+  String get sourceDescription;
+
+  /// Setting: allow sending images to the server for a detailed description.
+  ///
+  /// In fil, this message translates to:
+  /// **'Detalyadong paglalarawan'**
+  String get setDescribeConsent;
+
+  /// Consent not given or refused yet.
+  ///
+  /// In fil, this message translates to:
+  /// **'Itatanong muna'**
+  String get valueConsentAsk;
+
+  /// Sending images is allowed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinapayagan'**
+  String get valueConsentAllowed;
+
+  /// Sending images is not allowed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pinapayagan'**
+  String get valueConsentDeclined;
+
   /// Capture screen: open Reading History.
   ///
   /// In fil, this message translates to:

@@ -54,10 +54,12 @@ Future<TestEnv> createEnv(
   AppSettings? appSettings,
   bool? loggedIn,
   bool setupDone = true,
+  bool describeIntroSeen = true,
 }) async => (await tester.runAsync(
   () => TestEnv.create(
     loggedIn: loggedIn,
     setupDone: setupDone,
+    describeIntroSeen: describeIntroSeen,
     tts: tts,
     speech: speech,
     permissions: permissions,

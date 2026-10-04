@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +24,7 @@ import '../../core/voice/command_matcher.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../l10n/app_localizations.dart';
+import '../describe/describe_controller.dart';
 import '../reader/reader_controller.dart';
 
 /// Reading History: saved documents, newest (or most recently reopened)
@@ -101,6 +103,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         'camera' => l.sourceCamera,
         'pdf' => l.sourcePdf,
         'docx' => l.sourceDocx,
+        'description' => l.sourceDescription,
         _ => l.sourceImage,
       };
 
@@ -114,6 +117,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   Future<void> _open(DocumentRecord d) async {
     setState(() => _optionsFor = null);
+    if (d.sourceType == 'description') {
+      await ref
+          .read(routerProvider)
+          .push(AppRoutes.describe, extra: SavedDescription(d.id));
+      if (mounted) await _load();
+      return;
+    }
     await ref
         .read(routerProvider)
         .push(AppRoutes.reader, extra: HistorySource(d.id));
@@ -339,20 +349,45 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                     width: isFocused ? 3 : 1,
                                   ),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
                                   children: [
-                                    Text(
-                                      d.title,
-                                      style: textTheme.bodyLarge?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: p.heading,
+                                    if (d.thumbnailPath != null) ...[
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          File(d.thumbnailPath!),
+                                          width: 56,
+                                          height: 56,
+                                          fit: BoxFit.cover,
+                                          cacheWidth: 112,
+                                          excludeFromSemantics: true,
+                                          errorBuilder: (_, _, _) =>
+                                              const SizedBox(width: 56),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${_source(d, l10n)} · ${_date(d, l10n)}',
-                                      style: textTheme.bodyMedium,
+                                      const SizedBox(width: 12),
+                                    ],
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            d.title,
+                                            style: textTheme.bodyLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: p.heading,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${_source(d, l10n)} · '
+                                            '${_date(d, l10n)}',
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),

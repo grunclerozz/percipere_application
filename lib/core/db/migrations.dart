@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1, _v2];
+  static const List<Migration> all = [_v1, _v2, _v3];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -201,4 +201,35 @@ const Migration _v2 = Migration(2, 'Email + password accounts (Phase 6B)', [
     WHERE p.user_id = 'device' AND p.key = 'account.currentUser'
   ) WHERE user_id IS NULL
   ''',
+]);
+
+const Migration _v3 = Migration(3, 'Image descriptions in history (Phase 6C)', [
+  // SQLite can't change a CHECK in place: rebuild `documents` with
+  // 'description' as a source type, plus the thumbnail of a described image.
+  '''
+  CREATE TABLE documents_v3 (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        TEXT REFERENCES users(id) ON DELETE CASCADE,
+    title          TEXT NOT NULL,
+    full_text      TEXT NOT NULL,
+    source_type    TEXT NOT NULL
+                   CHECK (source_type IN
+                          ('camera', 'image', 'pdf', 'docx', 'description')),
+    language       TEXT NOT NULL DEFAULT 'fil',
+    created_at     INTEGER NOT NULL,
+    updated_at     INTEGER NOT NULL,
+    last_opened_at INTEGER,
+    last_position  INTEGER NOT NULL DEFAULT 0,
+    thumbnail_path TEXT
+  )
+  ''',
+  '''
+  INSERT INTO documents_v3 (id, user_id, title, full_text, source_type,
+    language, created_at, updated_at, last_opened_at, last_position)
+  SELECT id, user_id, title, full_text, source_type, language, created_at,
+    updated_at, last_opened_at, last_position FROM documents
+  ''',
+  'DROP TABLE documents',
+  'ALTER TABLE documents_v3 RENAME TO documents',
+  'CREATE INDEX idx_documents_user_created ON documents (user_id, created_at DESC)',
 ]);

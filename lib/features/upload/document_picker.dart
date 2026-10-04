@@ -37,6 +37,9 @@ abstract interface class DocumentPicker {
   /// Opens the Storage Access Framework picker for JPG/PNG/PDF/DOCX.
   Future<PickResult> pickDocument();
 
+  /// Opens the picker for JPG/PNG images only (Maglarawan).
+  Future<PickResult> pickImage();
+
   /// Fallback when the in-app camera fails: the phone's own camera app.
   Future<PickResult> takePhotoWithSystemCamera();
 }
@@ -59,6 +62,21 @@ class SystemDocumentPicker implements DocumentPicker {
     final kind = DocumentKind.forPath(path);
     if (kind == null) return const PickUnsupported();
     return Picked(DocumentFile(path: path, kind: kind));
+  }
+
+  @override
+  Future<PickResult> pickImage() async {
+    final files = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['jpg', 'jpeg', 'png'],
+    );
+    if (files.isEmpty) return const PickCancelled();
+    final path = files.first.path;
+    if (path == null) return const PickCancelled();
+    if (DocumentKind.forPath(path) != DocumentKind.image) {
+      return const PickUnsupported();
+    }
+    return Picked(DocumentFile(path: path, kind: DocumentKind.image));
   }
 
   @override

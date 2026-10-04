@@ -8,17 +8,21 @@ syncing with a separate web admin app (later).
 **Work in phases; stop after each for review. Ask before major architectural changes.**
 
 ## Current status
-- Phases 1–6: ✅ done and approved.
-- **Phase 6B — Registration, Login, Profiling: ✅ built 2026-10-01, awaiting review.**
-  Email + password accounts (PBKDF2, lockout, security question, fingerprint,
-  secure-storage session), PIN accounts migrated, 10-step guided setup, guest mode,
-  app-wide back (gesture / voice / Android back), 3 themes + text colors, text size in
-  sp, auto-read. 273 tests pass (`bash tool/test_each.sh`). Manual checklist:
-  `docs/testing/phase-6b-checklist.md`.
+- Phases 1–6 and **6B (Registration, Login, Profiling): ✅ done and approved.**
+  Tests: `bash tool/test_each.sh`. Since 6B: Reader text size (A−/A+, pinch,
+  voice) and the voice listening-loop fix (logging, backoff, fallbacks).
+- **Phase 6C — Maglarawan (image recognition): ✅ built 2026-10-04, awaiting review.**
+  Offline labels + OCR text check, optional detailed description via the web app (mocked),
+  consent, Description screen, History type "Larawan". 361 tests pass. Checklist:
+  `docs/testing/phase-6c-checklist.md`. Spec: `docs/specs/image-recognition.md`. Existing
+  command matcher, camera guidance and OCR logic unchanged.
+- Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ postponed
+  (`docs/specs/algorithms.md`).
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
 
 ## Where things are written
 - `docs/specs/auth.md`, `profiling.md`, `guest-mode.md`, `navigation.md` — 6B requirements.
+- `docs/specs/image-recognition.md`, `algorithms.md` — Phase 6C requirements / postponed 6D requirements.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).
 - `docs/ui/` — mockups. **Mockup layout and wording win** over prompt text.

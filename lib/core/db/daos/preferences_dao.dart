@@ -34,6 +34,12 @@ abstract final class PrefKeys {
   /// Start reading new documents automatically.
   static const String autoRead = 'reader.autoRead';
 
+  /// `ask`, `allowed` or `declined`: detailed image descriptions.
+  static const String describeConsent = 'describe.consent';
+
+  /// True once the Maglarawan explanation has been read to this user.
+  static const String describeIntroSeen = 'describe.introSeen';
+
   /// Keep the session between launches.
   static const String stayLoggedIn = 'account.stayLoggedIn';
 

@@ -16,6 +16,7 @@ class DocumentRecord {
     required this.language,
     required this.createdAt,
     required this.lastPosition,
+    this.thumbnailPath,
     this.lastOpenedAt,
   });
 
@@ -28,7 +29,7 @@ class DocumentRecord {
   /// Clean document text.
   final String fullText;
 
-  /// `camera`, `image`, `pdf` or `docx`.
+  /// `camera`, `image`, `pdf`, `docx` or `description` (Maglarawan).
   final String sourceType;
 
   /// `fil` or `en`.
@@ -39,6 +40,9 @@ class DocumentRecord {
 
   /// When it was last opened, if ever reopened.
   final DateTime? lastOpenedAt;
+
+  /// Thumbnail file of a described image (`description` only).
+  final String? thumbnailPath;
 
   /// Sentence index to resume from.
   final int lastPosition;
@@ -54,6 +58,7 @@ class DocumentRecord {
         ? null
         : DateTime.fromMillisecondsSinceEpoch(r['last_opened_at']! as int),
     lastPosition: r['last_position']! as int,
+    thumbnailPath: r['thumbnail_path'] as String?,
   );
 }
 
@@ -73,10 +78,12 @@ class DocumentsDao {
     required String sourceType,
     required String language,
     String? userId,
+    String? thumbnailPath,
   }) {
     final now = _now;
     return _db.insert('documents', {
       'user_id': userId,
+      'thumbnail_path': thumbnailPath,
       'title': title,
       'full_text': fullText,
       'source_type': sourceType,
@@ -112,6 +119,14 @@ class DocumentsDao {
   Future<void> updatePosition(int id, int position) => _db.update(
     'documents',
     {'last_position': position, 'updated_at': _now},
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+
+  /// Replaces the text of a saved description (a detailed one arrived).
+  Future<void> updateText(int id, String fullText) => _db.update(
+    'documents',
+    {'full_text': fullText, 'updated_at': _now},
     where: 'id = ?',
     whereArgs: [id],
   );

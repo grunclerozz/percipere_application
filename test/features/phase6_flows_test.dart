@@ -90,7 +90,7 @@ void main() {
       expect(env.tts.transcript, contains('Mga Setting.'));
 
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 18.');
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 19.');
 
       await tester.swipeUp();
       expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.25x');
@@ -149,7 +149,9 @@ void main() {
       expect(
         env.tts.transcript,
         'Pagkuha ng dokumento. '
-        'Paano mo gustong i-capture ang iyong dokyumento?',
+        'Paano mo gustong i-capture ang iyong dokyumento? '
+        'Pwede mo ring gamitin ang bago naming feature: Maglarawan. Sasabihin '
+        'nito kung ano ang nasa isang larawan.',
       );
     });
   });

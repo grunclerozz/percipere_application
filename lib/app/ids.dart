@@ -20,6 +20,36 @@ abstract final class Ids {
   /// Capture: use the camera.
   static const String captureCamera = 'capture.camera';
 
+  /// Capture: describe a picture (Maglarawan).
+  static const String captureDescribe = 'capture.describe';
+
+  /// Maglarawan: choose camera or upload.
+  static const String describeSource = 'describe.source';
+
+  /// Maglarawan source: use the camera.
+  static const String describeSourceCamera = 'describe.source.camera';
+
+  /// Maglarawan source: upload a picture.
+  static const String describeSourceUpload = 'describe.source.upload';
+
+  /// Description screen.
+  static const String describe = 'describe';
+
+  /// Description: say it again.
+  static const String describeRepeat = 'describe.repeat';
+
+  /// Description: online detailed description.
+  static const String describeMore = 'describe.more';
+
+  /// Description: read the text found in the picture.
+  static const String describeReadText = 'describe.readText';
+
+  /// Description: save to history.
+  static const String describeSave = 'describe.save';
+
+  /// Description: start over with another picture.
+  static const String describeNew = 'describe.new';
+
   /// Camera screen.
   static const String camera = 'camera';
 
@@ -73,6 +103,9 @@ abstract final class Ids {
 
   /// Setting row.
   static const String settingTtsVoices = 'settings.ttsVoices';
+
+  /// Setting row.
+  static const String settingDescribeConsent = 'settings.describeConsent';
 
   /// Reading History screen.
   static const String history = 'history';

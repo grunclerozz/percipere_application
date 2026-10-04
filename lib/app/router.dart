@@ -13,6 +13,9 @@ import '../features/auth/security_question_screen.dart';
 import '../features/auth/upgrade_account_screen.dart';
 import '../features/camera/camera_screen.dart';
 import '../features/capture/capture_screen.dart';
+import '../features/describe/describe_controller.dart';
+import '../features/describe/describe_screen.dart';
+import '../features/describe/describe_source_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/reader/reader_controller.dart';
 import '../features/reader/reader_screen.dart';
@@ -56,8 +59,15 @@ abstract final class AppRoutes {
   /// Capture method (upload or camera) — the home screen.
   static const String capture = '/capture';
 
-  /// Camera capture with audio guidance.
+  /// Camera capture with audio guidance. `extra`: true when the photo is to
+  /// be described (Maglarawan) instead of read.
   static const String camera = '/camera';
+
+  /// Maglarawan: choose camera or upload.
+  static const String describeSource = '/describe/source';
+
+  /// Description of a picture. `extra`: a `DescribeSubject`.
+  static const String describe = '/describe';
 
   /// Reader. Pass a `ReaderSource` (or plain text) as `extra`.
   static const String reader = '/reader';
@@ -139,7 +149,20 @@ GoRouter buildRouter({
       ),
       GoRoute(
         path: AppRoutes.camera,
-        builder: (context, state) => const CameraScreen(),
+        builder: (context, state) =>
+            CameraScreen(forDescription: state.extra == true),
+      ),
+      GoRoute(
+        path: AppRoutes.describeSource,
+        builder: (context, state) => const DescribeSourceScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.describe,
+        builder: (context, state) => DescribeScreen(
+          subject: state.extra is DescribeSubject
+              ? state.extra! as DescribeSubject
+              : const SavedDescription(0),
+        ),
       ),
       GoRoute(
         path: AppRoutes.settings,

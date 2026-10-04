@@ -358,6 +358,109 @@ class AppLocalizationsFil extends AppLocalizations {
       'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.';
 
   @override
+  String get captureDescribe => 'Maglarawan';
+
+  @override
+  String get describeAnnouncement =>
+      'Pwede mo ring gamitin ang bago naming feature: Maglarawan. Sasabihin nito kung ano ang nasa isang larawan.';
+
+  @override
+  String get describeExplanation =>
+      'Ang Maglarawan ay para sa mga larawang walang teksto, o kung gusto mong malaman kung ano ang nasa larawan. Kumuha ng litrato gamit ang camera o mag-upload ng larawan, at sasabihin namin kung ano ang nakikita namin. Kung may internet, maaari kang humingi ng mas detalyadong paglalarawan.';
+
+  @override
+  String get screenDescribe => 'Maglarawan';
+
+  @override
+  String get describeSourcePrompt => 'Paano mo gustong kunin ang larawan?';
+
+  @override
+  String get describeWorking => 'Tinitingnan ang larawan…';
+
+  @override
+  String describeLooksLike(String items) {
+    return 'Mukhang may $items sa larawan.';
+  }
+
+  @override
+  String get describeAnd => 'at';
+
+  @override
+  String get describeNothing =>
+      'Hindi ko matiyak kung ano ang nasa larawan. Subukan ulit na may mas maliwanag na ilaw.';
+
+  @override
+  String get describeReminder =>
+      'Paalala: kumpirmahin ito sa taong pinagkakatiwalaan mo bago gamitin.';
+
+  @override
+  String get describeTextFound =>
+      'May nakita rin akong teksto. Gusto mo bang basahin ito?';
+
+  @override
+  String get describeNoText => 'Walang nakitang teksto sa larawang ito.';
+
+  @override
+  String get describeDetailOffer =>
+      'Gusto mo ba ng mas detalyadong paglalarawan?';
+
+  @override
+  String get describeNeedsInternet =>
+      'Kailangan ng internet para sa mas detalyadong paglalarawan. Subukan ulit kapag may internet.';
+
+  @override
+  String get describeConsentAsk =>
+      'Ipapadala ang larawan sa aming server at sa serbisyo ng Google para mailarawan ito. Sige ba?';
+
+  @override
+  String get describeConsentDeclined =>
+      'Sige, hindi ko ipapadala ang larawan. Mababago mo ito sa Settings.';
+
+  @override
+  String get describeDetailFailed =>
+      'Hindi ko makuha ang detalyadong paglalarawan ngayon. Subukan ulit mamaya.';
+
+  @override
+  String get describeUnreadable => 'Hindi ko mabasa ang larawang ito.';
+
+  @override
+  String get describeRepeat => 'Ulitin';
+
+  @override
+  String get describeMore => 'Mas detalyado';
+
+  @override
+  String get describeReadText => 'Basahin ang teksto';
+
+  @override
+  String get describeSave => 'I-save';
+
+  @override
+  String get describeNew => 'Bagong larawan';
+
+  @override
+  String get describeThumbnailLabel => 'Ang larawan';
+
+  @override
+  String get helpDescribe =>
+      'Mag-swipe pakanan o pakaliwa para pumili ng opsyon, at i-double tap para gamitin. Mga opsyon: ulitin, mas detalyado, basahin ang teksto, i-save, at bagong larawan. I-pinch ang kahon para palakihin o paliitin ang teksto. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+
+  @override
+  String get sourceDescription => 'larawan (Maglarawan)';
+
+  @override
+  String get setDescribeConsent => 'Detalyadong paglalarawan';
+
+  @override
+  String get valueConsentAsk => 'Itatanong muna';
+
+  @override
+  String get valueConsentAllowed => 'Pinapayagan';
+
+  @override
+  String get valueConsentDeclined => 'Hindi pinapayagan';
+
+  @override
   String get captureHistory => 'Kasaysayan';
 
   @override

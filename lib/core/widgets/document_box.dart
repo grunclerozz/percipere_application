@@ -27,11 +27,16 @@ class DocumentBox extends StatefulWidget {
     this.scrollController,
     this.emptyMessage,
     this.onTextSize,
+    this.header,
   });
 
   /// Asks for a bigger (1) or smaller (−1) text size. Non-null shows the
   /// A−/A+ buttons above the text and turns on pinch-to-zoom.
   final void Function(int direction)? onTextSize;
+
+  /// Shown above the text, inside the scrolling area (the picture on the
+  /// Description screen).
+  final Widget? header;
 
   /// Document text, or null/empty when there is nothing to show.
   final String? text;
@@ -68,6 +73,7 @@ class _DocumentBoxState extends State<DocumentBox> {
 
   ScrollController? _ownController;
   final GlobalKey _textKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   final Map<int, Offset> _pointers = {};
   double? _pinchBase;
   double? _lastSize;
@@ -150,8 +156,9 @@ class _DocumentBoxState extends State<DocumentBox> {
       TextSelection(baseOffset: range.start, extentOffset: range.end),
     );
     if (boxes.isEmpty) return;
-    final top = boxes.first.top + _padTop;
-    final bottom = boxes.last.bottom + _padTop;
+    final headerHeight = (_headerKey.currentContext?.size?.height ?? 0);
+    final top = boxes.first.top + _padTop + headerHeight;
+    final bottom = boxes.last.bottom + _padTop + headerHeight;
     final position = _controller.position;
     final viewTop = position.pixels;
     final viewBottom = viewTop + position.viewportDimension;
@@ -211,12 +218,25 @@ class _DocumentBoxState extends State<DocumentBox> {
               ? null
               : const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(14, _padTop, 20, 14),
-          child: Text.rich(
-            key: _textKey,
-            _buildSpans(context, text, widget.highlight),
-            textAlign: TextAlign.justify,
-            style: AppTheme.documentText(context),
-            textScaler: AppTheme.documentTextScaler,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.header != null)
+                KeyedSubtree(
+                  key: _headerKey,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: widget.header,
+                  ),
+                ),
+              Text.rich(
+                key: _textKey,
+                _buildSpans(context, text, widget.highlight),
+                textAlign: TextAlign.justify,
+                style: AppTheme.documentText(context),
+                textScaler: AppTheme.documentTextScaler,
+              ),
+            ],
           ),
         ),
       );

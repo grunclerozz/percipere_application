@@ -264,6 +264,19 @@ List<SettingItem> settingItemsFor(Account? account) => [
     adjust: (s, d) => s.copyWith(autoCapture: !s.autoCapture),
   ),
   SettingItem(
+    id: Ids.settingDescribeConsent,
+    kind: SettingKind.choice,
+    label: (l) => l.setDescribeConsent,
+    value: (c) => switch (c.settings.describeConsent) {
+      DescribeConsent.ask => c.l.valueConsentAsk,
+      DescribeConsent.allowed => c.l.valueConsentAllowed,
+      DescribeConsent.declined => c.l.valueConsentDeclined,
+    },
+    adjust: (s, d) => s.copyWith(
+      describeConsent: _cycle(DescribeConsent.values, s.describeConsent, d),
+    ),
+  ),
+  SettingItem(
     id: Ids.settingTtsVoices,
     kind: SettingKind.link,
     label: (l) => l.setTtsVoices,

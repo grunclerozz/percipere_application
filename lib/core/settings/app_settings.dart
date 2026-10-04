@@ -31,6 +31,19 @@ enum DocumentVoice {
   english,
 }
 
+/// Whether the user allows sending images to the server for a detailed
+/// description (Maglarawan).
+enum DescribeConsent {
+  /// Not asked yet: ask before the first detailed description.
+  ask,
+
+  /// Agreed.
+  allowed,
+
+  /// Declined: detailed descriptions are not offered.
+  declined,
+}
+
 /// Every user-adjustable setting, saved per profile (or for the device when
 /// no one is logged in). One key per field in the `preferences` table, so
 /// adding a setting never needs a migration.
@@ -52,6 +65,7 @@ class AppSettings {
     this.autoCapture = true,
     this.autoRead = true,
     this.stayLoggedIn = true,
+    this.describeConsent = DescribeConsent.ask,
   });
 
   /// Voice or gestures; null until chosen (profiling Step 1).
@@ -96,6 +110,9 @@ class AppSettings {
   /// Keep the session between launches.
   final bool stayLoggedIn;
 
+  /// Permission to send images for a detailed description.
+  final DescribeConsent describeConsent;
+
   /// The theme-related part.
   ThemeSettings get theme => ThemeSettings(
     theme: themeId,
@@ -138,6 +155,7 @@ class AppSettings {
     bool? autoCapture,
     bool? autoRead,
     bool? stayLoggedIn,
+    DescribeConsent? describeConsent,
   }) => AppSettings(
     navMode: identical(navMode, _keep) ? this.navMode : navMode as NavMode?,
     readingRate: ReadingRate.normalize(readingRate ?? this.readingRate),
@@ -155,6 +173,7 @@ class AppSettings {
     autoCapture: autoCapture ?? this.autoCapture,
     autoRead: autoRead ?? this.autoRead,
     stayLoggedIn: stayLoggedIn ?? this.stayLoggedIn,
+    describeConsent: describeConsent ?? this.describeConsent,
   );
 
   /// Preference key → JSON value.
@@ -173,6 +192,7 @@ class AppSettings {
     PrefKeys.autoCapture: autoCapture,
     PrefKeys.autoRead: autoRead,
     PrefKeys.stayLoggedIn: stayLoggedIn,
+    PrefKeys.describeConsent: describeConsent.name,
   };
 
   /// Reads settings from stored preferences; anything missing or invalid
@@ -213,6 +233,10 @@ class AppSettings {
       autoCapture: bool_(p[PrefKeys.autoCapture]),
       autoRead: bool_(p[PrefKeys.autoRead]),
       stayLoggedIn: bool_(p[PrefKeys.stayLoggedIn]),
+      describeConsent: byName(
+        DescribeConsent.values,
+        p[PrefKeys.describeConsent],
+      ),
     );
   }
 
@@ -232,7 +256,8 @@ class AppSettings {
       other.verbosity == verbosity &&
       other.autoCapture == autoCapture &&
       other.autoRead == autoRead &&
-      other.stayLoggedIn == stayLoggedIn;
+      other.stayLoggedIn == stayLoggedIn &&
+      other.describeConsent == describeConsent;
 
   @override
   int get hashCode => Object.hash(
@@ -250,5 +275,6 @@ class AppSettings {
     autoCapture,
     autoRead,
     stayLoggedIn,
+    describeConsent,
   );
 }

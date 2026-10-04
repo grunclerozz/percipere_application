@@ -112,3 +112,27 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 - `GestureSurface` turns off overscroll effects under it: the Android stretch effect
   crashed `flutter_tester` (0xC0000005) on vertical swipes over a scroll view.
 - Reading history is per user (`documents.user_id`); `DocumentsDao.list(userId:)`.
+
+## Maglarawan — image description (Phase 6C)
+- `core/describe/`: `ImageLabelerService` (ML Kit base model, offline) → `pickLabels`
+  (≥ 0.7, top 3) → `offlineDescription` (Filipino via `config/image_labels_fil.dart`,
+  English fallback, always "Mukhang…", + the Paalala for medicine/money labels).
+  `ImagePrep` (isolate): `resizeToJpeg` (≤ 1600 px for upload, 320 px thumbnails).
+- `core/network/image_description_repository.dart`: the web app boundary
+  (`POST /api/describe-image`, see `docs/api-contract.md`); mock while `USE_MOCK_API`.
+  `connectivity.dart`: `isOnlineProvider`. The app never calls Gemini.
+- `features/describe/`: `DescribeController` (family by `DescribeSubject`: `NewImage` or
+  `SavedDescription`) runs labels + the existing OCR together, speaks the description,
+  then `CommandBus.offer`s (text found → Reader; detail when online). `offer` now takes
+  `onDecline` so the offers chain. Consent is `AppSettings.describeConsent`
+  (ask/allowed/declined; per user; Settings row). `DescribeSourceScreen` picks camera or
+  upload; the camera takes `CameraScreen(forDescription: true)` (route `extra: true`).
+- `DocumentBox(header:, onTextSize:)`: the thumbnail scrolls with the text; the same
+  pinch/A−/A+ text size as the Reader.
+- Database v3 rebuilt `documents` to allow `source_type = 'description'` and added
+  `thumbnail_path`. History opens those entries on the Description screen.
+- Capture: third action `capture.describe`; `DescribeIntroOnEntry` reads the full
+  explanation once per user (`describe.introSeen`); `onUtterance` answers "ano ang
+  maglarawan / paliwanag / explain / tulong" while the button is focused.
+- Tests: `TestEnv` fakes (`labeler`, `ocr`, `imagePrep`, `describeRepo`, `online`) and
+  marks the intro as already heard unless `describeIntroSeen: false`.

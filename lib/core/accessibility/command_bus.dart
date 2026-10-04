@@ -26,10 +26,11 @@ import 'screen_registration.dart';
 /// A question waiting for "oo/hindi" (or a double-tap): an ask-back
 /// ("Ang ibig mo bang sabihin ay …?") or an offer ("…open Settings?").
 class _Pending {
-  _Pending(this.onYes)
+  _Pending(this.onYes, [this.onNo])
     : expires = DateTime.now().add(AppDurations.pendingAnswer);
 
   final FutureOr<void> Function() onYes;
+  final FutureOr<void> Function()? onNo;
   final DateTime expires;
 
   bool get valid => DateTime.now().isBefore(expires);
@@ -154,6 +155,8 @@ class CommandBus {
           unawaited(_haptics.confirm());
           return pending.onYes();
         }
+        final onNo = pending.onNo;
+        if (onNo != null) return onNo();
         return say(_l10n.voiceCancelled);
       }
       // Not a yes/no: treat it as a new command.
@@ -184,8 +187,12 @@ class CommandBus {
 
   /// Speaks [prompt] and lets the user accept with a double-tap or "oo"
   /// within [AppDurations.pendingAnswer].
-  Future<void> offer(String prompt, FutureOr<void> Function() onAccept) {
-    _pending = _Pending(onAccept);
+  Future<void> offer(
+    String prompt,
+    FutureOr<void> Function() onAccept, {
+    FutureOr<void> Function()? onDecline,
+  }) {
+    _pending = _Pending(onAccept, onDecline);
     return say('$prompt ${_l10n.offerConfirmHint}');
   }
 
@@ -331,7 +338,7 @@ class CommandBus {
     final parts = <String>[
       if (title != null)
         returning ? l.backReturnedTo(title(l)) : _asSentence(title(l)),
-      screen.prompt(l),
+      if (screen.prompt(l).isNotEmpty) screen.prompt(l),
     ];
     final items = screen.focusables;
     if (screen.listOptions && items.isNotEmpty) {

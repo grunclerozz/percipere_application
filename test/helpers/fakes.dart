@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:percipere_app/core/accessibility/haptics.dart';
@@ -12,8 +14,13 @@ import 'package:percipere_app/core/auth/password_hasher.dart';
 import 'package:percipere_app/core/auth/session.dart';
 import 'package:percipere_app/core/auth/session_store.dart';
 import 'package:percipere_app/core/db/app_database.dart';
+import 'package:percipere_app/core/db/daos/preferences_dao.dart';
+import 'package:percipere_app/core/describe/image_labeler.dart';
+import 'package:percipere_app/core/describe/image_prep.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/core/extraction/extraction_exception.dart';
+import 'package:percipere_app/core/network/connectivity.dart';
+import 'package:percipere_app/core/network/image_description_repository.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/platform/app_closer.dart';
@@ -319,6 +326,7 @@ class TestEnv {
     AppSettings? appSettings,
     bool? loggedIn,
     bool setupDone = true,
+    bool describeIntroSeen = true,
   }) async {
     final database = await openTestDatabase();
     Account? account;
@@ -332,6 +340,13 @@ class TestEnv {
       );
       await repo.setProfilingCompleted(a.id, setupDone);
       account = await repo.get(a.id);
+    }
+    if (describeIntroSeen) {
+      // Older tests don't expect the one-time Maglarawan explanation.
+      final prefs = PreferencesDao(database.db);
+      for (final scope in [PreferencesDao.deviceScope, ?account?.id]) {
+        await prefs.set(PrefKeys.describeIntroSeen, true, userId: scope);
+      }
     }
     return TestEnv(
       database: database,
@@ -403,6 +418,21 @@ class TestEnv {
   /// Fake extractor (swap its fields to script results).
   final FakeDocumentExtractor extractor = FakeDocumentExtractor();
 
+  /// Fake image labeler (what the picture contains).
+  final FakeImageLabeler labeler = FakeImageLabeler();
+
+  /// Fake OCR (text found in a picture).
+  final FakeOcrService ocr = FakeOcrService();
+
+  /// Fake image preparation.
+  final FakeImagePrep imagePrep = FakeImagePrep();
+
+  /// Fake web app.
+  final FakeDescriptionRepository describeRepo = FakeDescriptionRepository();
+
+  /// Whether the phone is online.
+  bool online = true;
+
   /// The camera the next camera screen gets.
   FakeCameraSession camera = FakeCameraSession();
 
@@ -431,6 +461,11 @@ class TestEnv {
     hapticsProvider.overrideWithValue(haptics),
     systemSettingsProvider.overrideWithValue(settings),
     speechInputProvider.overrideWithValue(speech),
+    imageLabelerProvider.overrideWithValue(labeler),
+    ocrServiceProvider.overrideWithValue(ocr),
+    imagePrepProvider.overrideWithValue(imagePrep),
+    imageDescriptionRepositoryProvider.overrideWithValue(describeRepo),
+    isOnlineProvider.overrideWithValue(() async => online),
     documentPickerProvider.overrideWithValue(picker),
     documentExtractorProvider.overrideWithValue(extractor),
     cameraSessionFactoryProvider.overrideWithValue(() => camera),
@@ -471,6 +506,20 @@ class FakeDocumentPicker implements DocumentPicker {
   Future<PickResult> pickDocument() async {
     picks++;
     return nextPick;
+  }
+
+  /// Next result of [pickImage].
+  PickResult nextImage = const Picked(
+    DocumentFile(path: 'picture.jpg', kind: DocumentKind.image),
+  );
+
+  /// Times the image picker was opened.
+  int imagePicks = 0;
+
+  @override
+  Future<PickResult> pickImage() async {
+    imagePicks++;
+    return nextImage;
   }
 
   @override
@@ -633,5 +682,95 @@ class FakeBiometrics implements Biometrics {
   Future<BiometricResult> authenticate(String reason) async {
     prompts++;
     return next;
+  }
+}
+
+/// Scripted image labels: [results] is what the picture "contains".
+class FakeImageLabeler implements ImageLabelerService {
+  /// What labeling returns.
+  List<LabelResult> results = const [
+    LabelResult('Food', 0.93),
+    LabelResult('Plate', 0.88),
+    LabelResult('Table', 0.81),
+    LabelResult('Spoon', 0.55),
+  ];
+
+  /// Throws instead, if set.
+  bool fail = false;
+
+  /// Images labeled so far.
+  final List<String> labeled = [];
+
+  @override
+  Future<List<LabelResult>> label(String path) async {
+    labeled.add(path);
+    if (fail) throw StateError('cannot open image');
+    return results;
+  }
+
+  @override
+  Future<void> close() async {}
+}
+
+/// Scripted OCR: [page] is the text "found" in any image.
+class FakeOcrService implements OcrService {
+  /// What recognition returns.
+  OcrPage page = const OcrPage(text: '');
+
+  @override
+  Future<OcrPage> recognizeFile(String path) async => page;
+
+  @override
+  Future<void> close() async {}
+}
+
+/// Image preparation without files or isolates.
+class FakeImagePrep implements ImagePrep {
+  /// Images prepared for upload.
+  int uploads = 0;
+
+  /// Thumbnails saved.
+  int thumbnails = 0;
+
+  @override
+  Future<Uint8List?> forUpload(String path) async {
+    uploads++;
+    return Uint8List.fromList([1, 2, 3]);
+  }
+
+  @override
+  Future<String?> saveThumbnail(String path) async {
+    thumbnails++;
+    return 'thumbs/thumb_$thumbnails.jpg';
+  }
+}
+
+/// Scripted web app: records each request.
+class FakeDescriptionRepository implements ImageDescriptionRepository {
+  /// What the server answers.
+  DescriptionResult result = const DescriptionResult(
+    description: 'Mukhang isang mesa na may pagkain.',
+    hasText: false,
+  );
+
+  /// Fails instead, if set.
+  bool fail = false;
+
+  /// Languages of the requests.
+  final List<String> languages = [];
+
+  /// User ids of the requests (null = anonymous guest).
+  final List<String?> userIds = [];
+
+  @override
+  Future<DescriptionResult> describe({
+    required Uint8List jpeg,
+    required String language,
+    String? userId,
+  }) async {
+    languages.add(language);
+    userIds.add(userId);
+    if (fail) throw const DescriptionException('offline');
+    return result;
   }
 }

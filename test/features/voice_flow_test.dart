@@ -31,7 +31,7 @@ void main() {
     env.speech.hear('susunod');
     await tester.pumpAndSettle();
     expect(find.text('Narinig: “susunod”'), findsOneWidget);
-    expect(env.tts.spoken.last, 'Mag-upload, 1 sa 4.');
+    expect(env.tts.spoken.last, 'Mag-upload, 1 sa 5.');
 
     // The heard line fades after a few seconds.
     await tester.pump(const Duration(seconds: 4));

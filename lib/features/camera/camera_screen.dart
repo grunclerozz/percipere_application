@@ -22,6 +22,7 @@ import '../../core/tts/speech_language.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
+import '../describe/describe_controller.dart';
 import '../reader/reader_controller.dart';
 import '../upload/document_picker.dart';
 import 'camera_guidance.dart';
@@ -36,7 +37,11 @@ import 'camera_session.dart';
 /// moment. If the in-app camera fails, offers the phone's camera app.
 class CameraScreen extends ConsumerStatefulWidget {
   /// Creates the camera screen.
-  const CameraScreen({super.key, this.autoCapture = true});
+  const CameraScreen({
+    super.key,
+    this.autoCapture = true,
+    this.forDescription = false,
+  });
 
   /// Screen id.
   static const String screenId = Ids.camera;
@@ -44,6 +49,9 @@ class CameraScreen extends ConsumerStatefulWidget {
   /// Take the photo automatically when the text is steady and clear.
   /// (Becomes a user setting in Phase 6.)
   final bool autoCapture;
+
+  /// The photo is described (Maglarawan) instead of read.
+  final bool forDescription;
 
   @override
   ConsumerState<CameraScreen> createState() => _CameraScreenState();
@@ -187,6 +195,15 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   }
 
   void _openReader(DocumentFile file) {
+    if (widget.forDescription) {
+      ref
+          .read(routerProvider)
+          .pushReplacement(
+            AppRoutes.describe,
+            extra: NewImage(file.path, fromCamera: file.fromCamera),
+          );
+      return;
+    }
     // Replace the camera: "back" from the Reader returns to Capture.
     ref
         .read(routerProvider)

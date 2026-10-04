@@ -51,6 +51,32 @@ gestures, voice, tts, ocr, extraction, db, settings, platform, widgets}` ·
 - Never store or log passwords in plain text.
 - `flutter analyze` clean; `///` docs on public classes; tests for logic and screens.
 
+## End-of-phase quality check (required before reporting a phase as done)
+Standing rule for the end of every phase, stabilization pass and fix task. Run this check
+and include the results in the report. **Don't run the app on the device; the user runs
+and tests it themselves.**
+
+1. **Static checks:** run `flutter analyze` and fix every error and warning.
+2. **Tests:** run the full test suite (`flutter test`; on this PC `bash tool/test_each.sh`).
+   Every test must pass. Add tests for any new feature or fixed bug.
+3. **Build:** make sure a release build compiles (`flutter build apk --release`), not
+   only debug. (If Gradle says "Unable to establish loopback connection", see Environment.)
+4. **Crash review:** read through all code changed in this phase for possible crashes:
+   unhandled exceptions, null values, async errors, `setState` or context use after a
+   screen is closed, missing `try/catch` around camera, microphone, TTS, file and
+   database calls, and permission denials.
+5. **Regression check:** make sure features from earlier phases still work, especially
+   voice commands, gestures, back navigation, TTS, the Reader and saved preferences. List
+   anything this phase may have affected.
+6. **Accessibility check:** every new screen announces itself, every action works by
+   voice, gesture and tap, every widget has Semantics labels, and new text follows the
+   user's text size, color and theme.
+7. **Report:** a short summary with these headings: **Passed**, **Fixed during the
+   check**, **Known issues remaining**, and **What I should test manually on the tablet**.
+
+Never report a phase as done while errors, failing tests or known crashes remain, unless
+they are listed clearly under "Known issues remaining" with the reason they weren't fixed.
+
 ## Environment
 - Windows host; project at `D:\Development\Flutter Projects\percipere_app` (quote paths).
 - Test on emulator **`Percipere_Light`** (Android 14, Google TTS + speech, host GPU).

@@ -245,6 +245,13 @@ List<SettingItem> settingItemsFor(Account? account) => [
     adjust: (s, d) => s.copyWith(autoRead: !s.autoRead),
   ),
   SettingItem(
+    id: Ids.settingListenWhileReading,
+    kind: SettingKind.toggle,
+    label: (l) => l.setListenWhileReading,
+    value: (c) => c.settings.listenWhileReading ? c.l.valueOn : c.l.valueOff,
+    adjust: (s, d) => s.copyWith(listenWhileReading: !s.listenWhileReading),
+  ),
+  SettingItem(
     id: Ids.settingVerbosity,
     kind: SettingKind.choice,
     label: (l) => l.setVerbosity,

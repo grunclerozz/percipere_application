@@ -9,13 +9,15 @@ import 'package:percipere_app/core/accessibility/command_bus.dart';
 import 'package:percipere_app/core/accessibility/focus_controller.dart';
 import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
-import 'package:percipere_app/core/db/daos/documents_dao.dart';
+import 'package:percipere_app/core/db/daos/library_dao.dart';
+import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/widgets/document_box.dart';
 import 'package:percipere_app/features/camera/camera_screen.dart';
 import 'package:percipere_app/features/capture/capture_screen.dart';
 import 'package:percipere_app/features/describe/describe_screen.dart';
 import 'package:percipere_app/features/describe/describe_source_screen.dart';
-import 'package:percipere_app/features/history/history_screen.dart';
+import 'package:percipere_app/features/library/item_details_screen.dart';
+import 'package:percipere_app/features/library/library_screen.dart';
 
 import '../../helpers/fakes.dart';
 import '../../helpers/pump_app.dart';
@@ -52,7 +54,7 @@ Future<TestEnv> _startOnCapture(WidgetTester tester) async {
     mode: NavMode.gestures,
     describeIntroSeen: false,
   );
-  await pumpApp(tester, env);
+  await pumpAppOnCapture(tester, env);
   expect(find.byType(CaptureScreen), findsOneWidget);
   await _settle(tester);
   return env;
@@ -106,9 +108,9 @@ void main() {
 
       // Leave and come back: only the short line this time.
       final c = _scope(tester);
-      unawaited(c.read(routerProvider).push(AppRoutes.history));
+      unawaited(c.read(routerProvider).push(AppRoutes.library));
       await tester.pumpAndSettle();
-      expect(find.byType(HistoryScreen), findsOneWidget);
+      expect(find.byType(LibraryScreen), findsOneWidget);
       await c.read(commandBusProvider).back();
       await tester.pumpAndSettle();
       expect(find.byType(CaptureScreen), findsOneWidget);
@@ -199,10 +201,10 @@ void main() {
       await c.read(commandBusProvider).handleUtterance('i-save');
       await tester.pumpAndSettle();
       final docs = await tester.runAsync(
-        () => DocumentsDao(env.database.db).list(userId: env.account!.id),
+        () => LibraryDao(env.database.db).list(env.account!.id),
       );
-      expect(docs!.single.sourceType, 'description');
-      expect(env.tts.transcript, contains('Na-save sa kasaysayan.'));
+      expect(docs!.single.source, LibrarySource.description);
+      expect(env.tts.transcript, contains('Na-save sa Aklatan.'));
 
       await c.read(commandBusProvider).handleUtterance('bagong larawan');
       await tester.pumpAndSettle();
@@ -233,7 +235,7 @@ void main() {
       expect(c.read(focusControllerProvider), Ids.describeSave);
       await bus.dispatch(NavIntent.activate);
       await tester.pumpAndSettle();
-      expect(env.tts.transcript, contains('Na-save sa kasaysayan.'));
+      expect(env.tts.transcript, contains('Na-save sa Aklatan.'));
     });
 
     testWidgets('text size: A+, A−, voice and pinch share one size', (
@@ -275,18 +277,19 @@ void main() {
       expect(env.tts.transcript, contains('Laki: 22'));
     });
 
-    testWidgets('a saved description reopens from Reading History', (
-      tester,
-    ) async {
+    testWidgets('a saved description reopens from the Library', (tester) async {
       final env = await _openDescription(tester);
       final c = _scope(tester);
       await c.read(commandBusProvider).handleUtterance('i-save');
       await tester.pumpAndSettle();
-      c.read(routerProvider).go(AppRoutes.history);
+      c.read(routerProvider).go(AppRoutes.library);
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('larawan (Maglarawan)'), findsOneWidget);
-      await tester.tap(find.textContaining('Mukhang may pagkain'));
+      expect(find.textContaining('larawan (Maglarawan)'), findsWidgets);
+      await tester.tap(find.textContaining('Mukhang may pagkain').first);
+      await tester.pumpAndSettle();
+      expect(find.byType(ItemDetailsScreen), findsOneWidget);
+      await tester.tap(find.text('Basahin'));
       await tester.pumpAndSettle();
       expect(find.byType(DescribeScreen), findsOneWidget);
       expect(env.labeler.labeled, hasLength(1), reason: 'not analysed again');

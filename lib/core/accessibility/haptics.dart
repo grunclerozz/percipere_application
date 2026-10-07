@@ -9,6 +9,9 @@ abstract interface class Haptics {
   /// Very light tick: finger landed on a gesture surface, focus moved.
   Future<void> tick();
 
+  /// Very short pulse: a voice command was heard (before it runs).
+  Future<void> heard();
+
   /// Short pulse: an action was confirmed.
   Future<void> confirm();
 
@@ -33,6 +36,16 @@ class DeviceHaptics implements Haptics {
   @override
   Future<void> tick() async {
     if (enabled) await HapticFeedback.selectionClick();
+  }
+
+  @override
+  Future<void> heard() async {
+    if (!enabled) return;
+    if (await _canVibrate()) {
+      await Vibration.vibrate(duration: 25);
+    } else {
+      await HapticFeedback.lightImpact();
+    }
   }
 
   @override

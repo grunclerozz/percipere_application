@@ -13,7 +13,6 @@ import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/voice/command_matcher.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
-import '../../core/widgets/guest_reminder_on_entry.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../core/widgets/small_link.dart';
@@ -82,6 +81,9 @@ class CaptureScreen extends ConsumerWidget {
         case PickUnsupported():
           await bus.notAvailable();
           await bus.say(l.readerUnsupported);
+        case PickFailed():
+          await bus.notAvailable();
+          await bus.say(l.uploadFailed);
       }
     }
 
@@ -94,6 +96,8 @@ class CaptureScreen extends ConsumerWidget {
       // The new feature is mentioned after the usual question.
       prompt: (l) => '${l.capturePrompt} ${l.describeAnnouncement}',
       onUtterance: (text, bus) => _explainDescribe(ref, text, bus),
+      // Its phrases are whole questions, never the start of a longer one.
+      freeTextPrefixes: const [],
       actions: [
         A11yAction(
           id: uploadAction,
@@ -121,12 +125,6 @@ class CaptureScreen extends ConsumerWidget {
           ),
         ),
         A11yAction(
-          id: Ids.captureHistory,
-          label: (l) => l.captureHistory,
-          voiceSynonyms: const ['kasaysayan', 'history'],
-          onActivate: (bus) => bus.dispatch(NavIntent.history),
-        ),
-        A11yAction(
           id: Ids.captureSettings,
           label: (l) => l.captureSettings,
           voiceSynonyms: const ['settings', 'setting', 'ayos'],
@@ -146,77 +144,57 @@ class CaptureScreen extends ConsumerWidget {
       registration: _registration,
       child: DescribeIntroOnEntry(
         screenId: screenId,
-        child: GuestReminderOnEntry(
-          screenId: screenId,
-          moment: GuestReminderMoment.history,
-          child: GesturePadLayout(
-            padHint: l10n.gestureAreaHintMenu,
-            content: CustomScrollView(
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Spacer(),
-                      LiveSpeakingZone(
-                        screenId: screenId,
-                        fallback: l10n.capturePrompt,
-                      ),
-                      const SizedBox(height: 12),
-                      const Spacer(flex: 2),
-                      PillButton(
-                        label: l10n.captureUpload,
-                        focused: focused == uploadAction,
-                        onPressed: () => bus.activate(uploadAction),
-                      ),
-                      const SizedBox(height: AppDimens.buttonGap),
-                      PillButton(
-                        label: l10n.captureCamera,
-                        variant: PillVariant.secondary,
-                        focused: focused == cameraAction,
-                        onPressed: () => bus.activate(cameraAction),
-                      ),
-                      const SizedBox(height: AppDimens.buttonGap),
-                      PillButton(
-                        label: l10n.captureDescribe,
-                        variant: PillVariant.tertiary,
-                        focused: focused == Ids.captureDescribe,
-                        onPressed: () => bus.activate(Ids.captureDescribe),
-                      ),
-                      const SizedBox(height: AppDimens.buttonGap),
-                      // Secondary destinations, smaller than the two main
-                      // choices from the design, side by side so everything
-                      // fits on one screen. Labels shrink to fit their button
-                      // (never wrapping mid-word).
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SmallLink(
-                              label: l10n.captureHistory,
-                              icon: Icons.history,
-                              focused: focused == Ids.captureHistory,
-                              onPressed: () => bus.activate(Ids.captureHistory),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: SmallLink(
-                              label: l10n.captureSettings,
-                              icon: Icons.tune,
-                              focused: focused == Ids.captureSettings,
-                              onPressed: () =>
-                                  bus.activate(Ids.captureSettings),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
+        child: GesturePadLayout(
+          padHint: l10n.gestureAreaHintMenu,
+          content: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(),
+                    LiveSpeakingZone(
+                      screenId: screenId,
+                      fallback: l10n.capturePrompt,
+                    ),
+                    const SizedBox(height: 12),
+                    const Spacer(flex: 2),
+                    PillButton(
+                      label: l10n.captureUpload,
+                      focused: focused == uploadAction,
+                      onPressed: () => bus.activate(uploadAction),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    PillButton(
+                      label: l10n.captureCamera,
+                      variant: PillVariant.secondary,
+                      focused: focused == cameraAction,
+                      onPressed: () => bus.activate(cameraAction),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    PillButton(
+                      label: l10n.captureDescribe,
+                      variant: PillVariant.tertiary,
+                      focused: focused == Ids.captureDescribe,
+                      onPressed: () => bus.activate(Ids.captureDescribe),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    // Secondary destinations, smaller than the two main
+                    // choices from the design, side by side so everything
+                    // fits on one screen. Labels shrink to fit their button
+                    // (never wrapping mid-word).
+                    SmallLink(
+                      label: l10n.captureSettings,
+                      icon: Icons.tune,
+                      focused: focused == Ids.captureSettings,
+                      onPressed: () => bus.activate(Ids.captureSettings),
+                    ),
+                    const Spacer(),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

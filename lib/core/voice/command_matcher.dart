@@ -67,8 +67,12 @@ sealed class MatchResult {
 
 /// Confident match.
 final class Matched extends MatchResult {
-  /// Creates a match.
-  const Matched(this.target, this.phrase, this.score);
+  /// Creates a match; [at] is the word position of a phrase found word for
+  /// word, -1 for a fuzzy match.
+  const Matched(this.target, this.phrase, this.score, {this.at = -1});
+
+  /// Word position of the phrase in the utterance (-1: fuzzy match).
+  final int at;
 
   /// What to run.
   final CommandTarget target;
@@ -119,9 +123,16 @@ class CommandMatcher {
   final double askThreshold;
 
   /// Matches [utterance] against [phrases].
+  ///
+  /// When the utterance contains several phrases word for word ("itigil,
+  /// bumalik"), the one said **first** wins; at the same position the longer
+  /// one ("susunod na talata" over "susunod"). One phrase runs one command.
   MatchResult match(String utterance, List<CommandPhrase> phrases) {
     final input = tokens(utterance);
     if (input.isEmpty || phrases.isEmpty) return const NoMatch();
+
+    final contained = _firstContained(input, phrases);
+    if (contained != null) return contained;
 
     // Best phrase per target, in first-seen order (earlier = higher priority).
     final perTarget = <CommandTarget, (double, String)>{};
@@ -155,6 +166,76 @@ class CommandMatcher {
     return const NoMatch();
   }
 
+  /// The command said first among the phrases found word for word in
+  /// [input], or null if none is. Two different commands at the same position
+  /// and length are a tie: asked back, not guessed.
+  MatchResult? _firstContained(
+    List<String> input,
+    List<CommandPhrase> phrases,
+  ) {
+    // Earliest (start, score, phrase) per target.
+    final found = <CommandTarget, (int, double, String)>{};
+    for (final p in phrases) {
+      for (final variant in _variants(p.phrase)) {
+        final words = tokens(variant);
+        if (words.isEmpty) continue;
+        final at = _indexOfRun(input, words);
+        if (at < 0) continue;
+        final s = 1.0 + 0.01 * words.length;
+        final current = found[p.target];
+        if (current == null ||
+            at < current.$1 ||
+            (at == current.$1 && s > current.$2)) {
+          found[p.target] = (at, s, p.phrase);
+        }
+      }
+    }
+    if (found.isEmpty) return null;
+    final ranked = found.entries.toList()
+      ..sort((a, b) {
+        final byStart = a.value.$1.compareTo(b.value.$1);
+        return byStart != 0 ? byStart : b.value.$2.compareTo(a.value.$2);
+      });
+    final best = ranked.first;
+    final (start, s, phrase) = best.value;
+    if (ranked.length > 1) {
+      final (nextStart, nextScore, _) = ranked[1].value;
+      if (nextStart == start && (nextScore - s).abs() < 0.005) {
+        return Ambiguous(best.key, phrase, s);
+      }
+    }
+    return Matched(best.key, phrase, s, at: start);
+  }
+
+  /// Similarity of the **whole** utterance to [phrase] (0..1), ignoring word
+  /// breaks: "i pause" and "ipause" both score 1 against "i-pause". Unlike
+  /// [score], extra words lower it, so a partial result only counts as a
+  /// command when it is nothing but the command.
+  static double wholeScore(List<String> input, String phrase) {
+    if (input.isEmpty) return 0;
+    final said = input.join();
+    var best = 0.0;
+    for (final variant in _variants(phrase)) {
+      final p = tokens(variant).join();
+      if (p.isEmpty) continue;
+      best = math.max(best, similarity(said, p));
+    }
+    return best;
+  }
+
+  /// Whether [phrase] continues the words said so far ([input]), so the
+  /// user may still be saying it: "susunod" → "susunod na talata",
+  /// "susunod na tala" → "susunod na talata".
+  static bool extendedBy(List<String> input, String phrase) {
+    if (input.isEmpty) return false;
+    final said = input.join();
+    for (final variant in _variants(phrase)) {
+      final p = tokens(variant).join();
+      if (p.length > said.length && p.startsWith(said)) return true;
+    }
+    return false;
+  }
+
   /// Similarity of [phrase] to the utterance [input] tokens: 0..1, or just
   /// above 1 when the phrase occurs verbatim (1 + 0.01 per word).
   static double score(List<String> input, String phrase) {
@@ -185,7 +266,11 @@ class CommandMatcher {
     if (phrase.contains('-')) yield phrase.replaceAll('-', ' ');
   }
 
-  static bool _containsRun(List<String> haystack, List<String> needle) {
+  static bool _containsRun(List<String> haystack, List<String> needle) =>
+      _indexOfRun(haystack, needle) >= 0;
+
+  /// Where [needle] first occurs as a run of words in [haystack], or -1.
+  static int _indexOfRun(List<String> haystack, List<String> needle) {
     for (var i = 0; i + needle.length <= haystack.length; i++) {
       var all = true;
       for (var j = 0; j < needle.length; j++) {
@@ -194,9 +279,9 @@ class CommandMatcher {
           break;
         }
       }
-      if (all) return true;
+      if (all) return i;
     }
-    return false;
+    return -1;
   }
 
   /// Normalized words of [text]: lowercase, diacritics removed, hyphens

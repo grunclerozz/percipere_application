@@ -4,6 +4,8 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../../config/voice_config.dart';
+
 /// Parameters for one listening session.
 @immutable
 class ListenRequest {
@@ -12,8 +14,9 @@ class ListenRequest {
     required this.localeId,
     required this.onDevice,
     this.phrases = const [],
-    this.listenFor = const Duration(seconds: 30),
-    this.pauseFor = const Duration(seconds: 4),
+    this.listenFor = VoiceConfig.listenFor,
+    this.pauseFor = VoiceConfig.waitForSpeech,
+    this.pauseAfterSpeech = VoiceConfig.commandPause,
     this.dictation = false,
   });
 
@@ -29,8 +32,13 @@ class ListenRequest {
   /// Longest session.
   final Duration listenFor;
 
-  /// Silence that ends the session.
+  /// Silence that ends the session before any words are heard (the wait
+  /// for the user to start speaking).
   final Duration pauseFor;
+
+  /// Silence that ends the session once words have been heard; the
+  /// controller switches to it with [SpeechInput.changePauseFor].
+  final Duration pauseAfterSpeech;
 
   /// Free speech (a name, a title) rather than a short command.
   final bool dictation;
@@ -48,11 +56,16 @@ abstract interface class SpeechInput {
   /// Recognizer locale ids available on this phone.
   Future<List<String>> localeIds();
 
-  /// Starts a session. [onResult] gets partial and final results.
+  /// Starts a session. [onResult] gets partial and final results;
+  /// [onSoundLevel] the microphone level (for timing logs only).
   Future<void> listen(
     ListenRequest request, {
     required void Function(String words, bool isFinal) onResult,
+    void Function(double level)? onSoundLevel,
   });
+
+  /// Changes the silence that ends the open session, counted from now.
+  void changePauseFor(Duration pauseFor);
 
   /// Ends the session, keeping what was heard so far.
   Future<void> stop();
@@ -74,6 +87,7 @@ class SttSpeechInput implements SpeechInput {
       return await _stt.initialize(
         onError: (SpeechRecognitionError e) => onError(e.errorMsg),
         onStatus: onStatus,
+        finalTimeout: VoiceConfig.finalTimeout,
       );
     } on Object catch (e) {
       debugPrint('Speech init failed: $e');
@@ -85,7 +99,7 @@ class SttSpeechInput implements SpeechInput {
   Future<List<String>> localeIds() async {
     final locales = await _stt.locales();
     final ids = [for (final l in locales) l.localeId];
-    debugPrint('[Voice] recognizer locales (${ids.length}): $ids');
+    debugPrint('[VOICE] recognizer locales (${ids.length}): $ids');
     return ids;
   }
 
@@ -93,10 +107,12 @@ class SttSpeechInput implements SpeechInput {
   Future<void> listen(
     ListenRequest request, {
     required void Function(String words, bool isFinal) onResult,
+    void Function(double level)? onSoundLevel,
   }) {
     return _stt.listen(
       onResult: (SpeechRecognitionResult r) =>
           onResult(r.recognizedWords, r.finalResult),
+      onSoundLevelChange: onSoundLevel,
       listenOptions: SpeechListenOptions(
         localeId: request.localeId,
         onDevice: request.onDevice,
@@ -110,6 +126,16 @@ class SttSpeechInput implements SpeechInput {
         contextualPhrases: request.phrases,
       ),
     );
+  }
+
+  @override
+  void changePauseFor(Duration pauseFor) {
+    try {
+      _stt.changePauseFor(pauseFor);
+    } on Object catch (e) {
+      // The session ended meanwhile: nothing to change.
+      debugPrint('[VOICE] changePauseFor skipped: $e');
+    }
   }
 
   @override

@@ -6,6 +6,7 @@ import '../../app/ids.dart';
 import '../../app/locale_provider.dart';
 import '../../app/router.dart';
 import '../../config/constants.dart';
+import '../../config/voice_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../gestures/gesture_map.dart';
 import '../platform/app_closer.dart';
@@ -34,6 +35,18 @@ class _Pending {
   final DateTime expires;
 
   bool get valid => DateTime.now().isBefore(expires);
+}
+
+/// A partial speech result that already reads as a whole command.
+class PartialMatch {
+  /// Creates a partial match.
+  const PartialMatch(this.target, this.score);
+
+  /// What it would run.
+  final CommandTarget target;
+
+  /// Similarity of the whole partial result to the command, 0..1.
+  final double score;
 }
 
 /// The single entry point for user input. Gestures, voice commands and
@@ -67,7 +80,9 @@ class CommandBus {
   /// Handles [intent] on the active screen: a pending question first (for
   /// [NavIntent.activate]), then the screen's override, then the default.
   Future<void> dispatch(NavIntent intent) async {
-    _voice.noteActivity();
+    _voice
+      ..noteActivity()
+      ..commandExecuted(intent.name);
     final screen = activeScreen;
     if (screen == null) return;
 
@@ -118,8 +133,8 @@ class CommandBus {
         return _setMode(NavMode.voice);
       case NavIntent.gestureMode:
         return _setMode(NavMode.gestures);
-      case NavIntent.history:
-        return _openScreen(AppRoutes.history, Ids.history);
+      case NavIntent.library:
+        return _openLibrary();
       case NavIntent.settings:
         return _openScreen(AppRoutes.settings, Ids.settings);
       case NavIntent.report:
@@ -136,6 +151,10 @@ class CommandBus {
       case NavIntent.pause:
       case NavIntent.resume:
       case NavIntent.save:
+      case NavIntent.nextChapter:
+      case NavIntent.previousChapter:
+      case NavIntent.favorite:
+      case NavIntent.favorites:
         return notAvailable();
     }
   }
@@ -151,6 +170,7 @@ class CommandBus {
     if (pending != null) {
       final answer = _matcher.match(text, _yesNoPhrases);
       if (answer is Matched) {
+        _voice.markMatched(answer.phrase);
         if (answer.target == const ValueTarget(true)) {
           unawaited(_haptics.confirm());
           return pending.onYes();
@@ -164,17 +184,102 @@ class CommandBus {
 
     final screen = activeScreen;
     final custom = screen?.onUtterance;
-    if (custom != null && await custom(text, this)) return;
+    if (custom != null && await custom(text, this)) {
+      _voice.markMatched('screen command', done: true);
+      return;
+    }
     switch (_matchCommand(text, screen)) {
-      case Matched(:final target):
+      case Matched(:final target, :final phrase):
+        _voice.markMatched(phrase);
         return _run(target);
       case Ambiguous(:final target, :final phrase):
+        _voice.markMatched('unsure: "$phrase"', done: true);
         _pending = _Pending(() => _run(target));
         return say(_l10n.voiceDidYouMean(phrase));
       case NoMatch():
+        _voice.markMatched('no command', done: true);
         unawaited(_haptics.error());
         return say(_l10n.voiceUnknown(_commandSummary(screen)));
     }
+  }
+
+  /// Whether the partial result [partial] is already a whole command, so it
+  /// can run before the recognizer's final result. Null while the user may
+  /// still be talking: a longer command or a free-text command starts this
+  /// way ("susunod" → "susunod na talata", "ituloy" → "ituloy ang Liham"),
+  /// or the screen reads free text without saying how it begins.
+  ///
+  /// Compares the whole partial result with each phrase (extra words lower
+  /// the score), in the same order as [handleUtterance]: a pending yes/no
+  /// question, then the screen's own actions, then app-wide commands. What
+  /// runs is still decided by [handleUtterance].
+  PartialMatch? judgePartial(String partial) {
+    final input = CommandMatcher.tokens(_stripWakeWord(partial));
+    final screen = activeScreen;
+    if (input.isEmpty || screen == null) return null;
+    final prefixes = screen.freeTextPrefixes;
+    if (screen.onUtterance != null && prefixes == null) return null;
+    for (final prefix in prefixes ?? const <String>[]) {
+      final words = CommandMatcher.tokens(prefix);
+      final startsWithIt =
+          input.length >= words.length &&
+          CommandMatcher.wholeScore(input.sublist(0, words.length), prefix) ==
+              1;
+      if (startsWithIt || CommandMatcher.extendedBy(input, prefix)) {
+        return null;
+      }
+    }
+
+    final pending = _pending;
+    final groups = [
+      if (pending != null && pending.valid) _yesNoPhrases,
+      _screenPhrases(screen),
+      _globalPhrases,
+    ];
+    PartialMatch? found;
+    for (final group in groups) {
+      final best = _bestWhole(input, group);
+      if (best == null) return null; // two commands fit equally: wait
+      if (best.score >= VoiceConfig.partialRepeatScore) {
+        found = best;
+        break;
+      }
+    }
+    if (found == null) return null;
+    // A different, longer command may still be on its way.
+    for (final group in groups) {
+      for (final p in group) {
+        if (p.target != found.target &&
+            CommandMatcher.extendedBy(input, p.phrase)) {
+          return null;
+        }
+      }
+    }
+    return found;
+  }
+
+  /// The phrase in [phrases] most similar to the whole of [input]; null for
+  /// a tie between two different commands.
+  static PartialMatch? _bestWhole(
+    List<String> input,
+    List<CommandPhrase> phrases,
+  ) {
+    CommandTarget? best;
+    var bestScore = 0.0;
+    var tied = false;
+    for (final p in phrases) {
+      final s = CommandMatcher.wholeScore(input, p.phrase);
+      if (s > bestScore + 0.005) {
+        best = p.target;
+        bestScore = s;
+        tied = false;
+      } else if (s >= bestScore - 0.005 && best != null && p.target != best) {
+        tied = true;
+      }
+    }
+    if (best == null) return const PartialMatch(ValueTarget(false), 0);
+    if (tied && bestScore >= VoiceConfig.partialRepeatScore) return null;
+    return PartialMatch(best, bestScore);
   }
 
   /// Phrases the recognizer should expect on the active screen.
@@ -205,8 +310,14 @@ class CommandBus {
   MatchResult _matchCommand(String text, ScreenRegistration? screen) {
     // The screen's own actions win over app-wide commands.
     final local = _matcher.match(text, _screenPhrases(screen));
-    if (local is Matched) return local;
     final global = _matcher.match(text, _globalPhrases);
+    if (local is Matched) {
+      // Two commands in one phrase: the first one said runs.
+      if (global is Matched && global.at >= 0 && global.at < local.at) {
+        return global;
+      }
+      return local;
+    }
     if (global is Matched) return global;
     if (local is Ambiguous) return local;
     return global;
@@ -308,7 +419,9 @@ class CommandBus {
   /// short, protected spoken confirmation. Visual taps call this too, so
   /// every path gives the same feedback.
   Future<void> activate(String actionId) async {
-    _voice.noteActivity();
+    _voice
+      ..noteActivity()
+      ..commandExecuted(actionId);
     final action = activeScreen?.action(actionId);
     if (action == null) return notAvailable();
     _ref.read(focusControllerProvider.notifier).focus(actionId);
@@ -439,9 +552,24 @@ class CommandBus {
   }
 
   Future<void> _goHome() async {
-    if (activeScreen?.id == Ids.capture) return announceScreen(activeScreen!);
+    if (activeScreen?.id == Ids.home) return announceScreen(activeScreen!);
     unawaited(_haptics.confirm());
-    _ref.read(routerProvider).go(AppRoutes.capture);
+    _ref.read(routerProvider).go(AppRoutes.home);
+  }
+
+  /// Opens the Library on top of Home, so Back always returns to Home. From
+  /// the Reader or a description it is pushed instead, so Back returns there.
+  Future<void> _openLibrary() async {
+    final id = activeScreen?.id;
+    if (id == Ids.library) return announceScreen(activeScreen!);
+    unawaited(_haptics.confirm());
+    final router = _ref.read(routerProvider);
+    if (id == Ids.reader || id == Ids.describe) {
+      unawaited(router.push(AppRoutes.library));
+      return;
+    }
+    router.go(AppRoutes.home);
+    unawaited(router.push(AppRoutes.library));
   }
 
   /// Runs [actionId] on screen [screenId], navigating to [route] first if
@@ -452,7 +580,10 @@ class CommandBus {
     String actionId,
   ) async {
     if (activeScreen?.id != screenId) {
-      _ref.read(routerProvider).go(route);
+      final router = _ref.read(routerProvider);
+      // Capture sits on top of Home, so Back returns to Home.
+      router.go(AppRoutes.home);
+      unawaited(router.push(route));
       if (!await _awaitScreen(screenId)) return;
     }
     await activate(actionId);

@@ -191,7 +191,15 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     final result = await ref
         .read(documentPickerProvider)
         .takePhotoWithSystemCamera();
-    if (result is Picked && mounted) _openReader(result.file);
+    if (!mounted) return;
+    switch (result) {
+      case Picked(:final file):
+        _openReader(file);
+      case PickFailed():
+        await _bus.say(_bus.strings.uploadFailed);
+      case PickCancelled() || PickUnsupported():
+        break;
+    }
   }
 
   void _openReader(DocumentFile file) {

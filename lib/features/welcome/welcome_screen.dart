@@ -82,7 +82,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       final router = ref.read(routerProvider);
       final session = ref.read(currentAccountProvider.notifier);
       final account = await session.startGuest(bus.strings.guestName);
-      router.go(AppRoutes.home(account));
+      router.go(AppRoutes.landing(account));
     }
 
     return ScreenRegistration(

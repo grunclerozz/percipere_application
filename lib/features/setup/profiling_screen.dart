@@ -221,7 +221,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     if (widget.mode == SetupMode.redo && router.canPop()) {
       router.pop();
     } else {
-      router.go(AppRoutes.capture);
+      router.go(AppRoutes.home);
     }
   }
 

@@ -45,10 +45,6 @@ abstract final class AppDurations {
   /// One full cycle of the waveform animation.
   static const Duration waveformCycle = Duration(milliseconds: 1400);
 
-  /// Pause between the end of speech and auto-listening (lets the speaker's
-  /// echo die down so the app doesn't hear itself).
-  static const Duration autoListenDelay = Duration(milliseconds: 450);
-
   /// In voice mode, stop auto-listening after this long with no command or
   /// gesture (saves battery and avoids endless recognizer beeps). A
   /// long-press re-arms it.

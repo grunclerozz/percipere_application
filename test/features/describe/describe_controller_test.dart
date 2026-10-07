@@ -4,9 +4,10 @@ import 'package:percipere_app/core/accessibility/announcer.dart';
 import 'package:percipere_app/core/accessibility/command_bus.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/auth/session.dart';
-import 'package:percipere_app/core/db/daos/documents_dao.dart';
+import 'package:percipere_app/core/db/daos/library_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/describe/image_labeler.dart';
+import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
@@ -254,9 +255,12 @@ void main() {
     });
   });
 
-  group('saving to Reading History', () {
-    Future<List<DocumentRecord>> history() =>
-        DocumentsDao(env.database.db).list(userId: env.account!.id);
+  group('saving to the Library', () {
+    Future<List<LibraryItem>> history() =>
+        LibraryDao(env.database.db).list(env.account!.id);
+
+    Future<String> textOf(LibraryItem item) async =>
+        (await LibraryDao(env.database.db).loadText(item)).single.text;
 
     test('saves once as a "description" with its thumbnail', () async {
       await setUpWith();
@@ -265,11 +269,11 @@ void main() {
 
       final docs = await history();
       expect(docs, hasLength(1));
-      expect(docs.single.sourceType, 'description');
-      expect(docs.single.thumbnailPath, 'thumbs/thumb_1.jpg');
-      expect(docs.single.fullText, _offlineSentence);
+      expect(docs.single.source, LibrarySource.description);
+      expect(docs.single.coverPath, 'thumbs/thumb_1.jpg');
+      expect(await textOf(docs.single), _offlineSentence);
       expect(env.imagePrep.thumbnails, 1);
-      expect(env.tts.transcript, contains('Na-save sa kasaysayan.'));
+      expect(env.tts.transcript, contains('Na-save sa Aklatan.'));
     });
 
     test(
@@ -281,7 +285,7 @@ void main() {
         await controller().save();
         await controller().requestDetail();
         final docs = await history();
-        expect(docs.single.fullText, contains('Mukhang isang mesa'));
+        expect(await textOf(docs.single), contains('Mukhang isang mesa'));
       },
     );
 
@@ -291,8 +295,8 @@ void main() {
       await controller().save();
       final docs = await history();
       expect(docs, hasLength(1));
-      expect(docs.single.thumbnailPath, isNull);
-      expect(env.tts.transcript, contains('Na-save sa kasaysayan.'));
+      expect(docs.single.coverPath, isNull);
+      expect(env.tts.transcript, contains('Na-save sa Aklatan.'));
     });
 
     test('activating save twice at once saves once', () async {

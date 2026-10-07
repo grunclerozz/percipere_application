@@ -11,8 +11,9 @@ import 'package:percipere_app/core/auth/password_hasher.dart';
 import 'package:percipere_app/core/auth/session.dart';
 import 'package:percipere_app/core/auth/session_store.dart';
 import 'package:percipere_app/core/auth/validators.dart';
-import 'package:percipere_app/core/db/daos/documents_dao.dart';
+import 'package:percipere_app/core/db/daos/library_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
+import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 
 import '../../helpers/fakes.dart';
@@ -350,14 +351,23 @@ void main() {
         'navMode',
         'speed',
       ], userId: guest.id);
-      final docs = DocumentsDao(env.database.db);
-      await docs.insert(
+      final docs = LibraryDao(env.database.db);
+      final saved = await docs.insertDocument(
         title: 'Resibo',
         fullText: 'Bigas',
-        sourceType: 'camera',
+        source: LibrarySource.camera,
+        format: LibraryFormat.image,
         language: 'fil',
         userId: guest.id,
       );
+      await docs.addFavorite(
+        itemId: saved.id,
+        chapterIndex: 0,
+        sentenceIndex: 0,
+        label: 'Bigas',
+      );
+      final collection = await docs.createCollection(guest.id, 'Resibo');
+      await docs.addToCollection(collection.id, saved.id);
 
       final repo = container.read(accountRepositoryProvider);
       final a = await repo.register(
@@ -370,8 +380,11 @@ void main() {
 
       expect(container.read(currentAccountProvider)?.id, a.id);
       expect(container.read(settingsProvider).readingRate, 1.5);
-      expect((await docs.list(userId: a.id)).single.title, 'Resibo');
-      expect(await docs.list(userId: guest.id), isEmpty);
+      expect((await docs.list(a.id)).single.title, 'Resibo');
+      expect(await docs.list(guest.id), isEmpty);
+      expect(await docs.favorites(saved.id), hasLength(1));
+      expect((await docs.collections(a.id)).single.itemCount, 1);
+      expect(await docs.collections(guest.id), isEmpty);
       expect(await prefs.get(PrefKeys.setupDone, userId: a.id), [
         'navMode',
         'speed',

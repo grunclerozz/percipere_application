@@ -12,13 +12,16 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/extraction/extraction_exception.dart';
+import '../../core/library/library_models.dart';
 import '../../core/ocr/text_cleanup.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
+import '../../core/voice/command_matcher.dart';
 import '../../core/widgets/document_box.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../l10n/app_localizations.dart';
+import '../library/favorites_screen.dart';
 import 'reader_controller.dart';
 
 /// Screen C — Reader: the Document Box replaces the Speaking Zone, and the
@@ -119,7 +122,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       return switch (s.failure) {
         ExtractionFailure.unsupported => l.readerUnsupported,
         ExtractionFailure.passwordProtected => l.readerPasswordProtected,
-        _ => l.readerUnreadable,
+        ExtractionFailure.missing => l.readerFileMissing,
+        ExtractionFailure.ocrUnavailable => l.readerOcrFailed,
+        ExtractionFailure.unreadable || null => l.readerUnreadable,
       };
     }
     if (s.quality == TextQuality.empty) {
@@ -140,6 +145,28 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   void _retake() => ref.read(routerProvider).pushReplacement(AppRoutes.camera);
+
+  /// "Mga paborito ko": lists the favorites of this item; choosing one jumps
+  /// there and carries on reading.
+  Future<void> _showFavorites(CommandBus bus) async {
+    final id = ref.read(_provider).itemId;
+    if (id == null) return bus.notAvailable();
+    await _controller.pause(quiet: true);
+    // Not awaited: the choice arrives when the list closes.
+    unawaited(
+      ref
+          .read(routerProvider)
+          .push<Object?>(
+            AppRoutes.favorites,
+            extra: FavoritesArgs(id, forReader: true),
+          )
+          .then((picked) async {
+            if (picked is Favorite && mounted) {
+              await _controller.goTo(picked.chapterIndex, picked.sentenceIndex);
+            }
+          }),
+    );
+  }
 
   /// Runs [action] when the document can be read; otherwise explains.
   BusHandler _reading(Future<void> Function(ReaderController c) action) =>
@@ -166,7 +193,32 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     help: (l) => l.helpReader,
     // Stop reading and save the position before leaving.
     beforeBack: () => _controller.pause(quiet: true),
+    // Reads only whole phrases, so partial results can run commands.
+    freeTextPrefixes: const [],
+    // "mga paborito ko" lists the favorites; without this the "Paborito"
+    // button's own label would match it and save a new one.
+    onUtterance: (text, bus) async {
+      final said = CommandMatcher.normalize(text);
+      if (said.contains('mga paborito') || said.contains('my favorites')) {
+        await _showFavorites(bus);
+        return true;
+      }
+      return false;
+    },
+    actions: [
+      A11yAction(
+        id: Ids.readerFavorite,
+        label: (l) => l.readerFavorite,
+        voiceSynonyms: const ['favorite', 'paborito', 'i-favorite ito'],
+        confirmation: (_) => '',
+        onActivate: _reading((c) => c.addFavorite()),
+      ),
+    ],
     intentHandlers: {
+      NavIntent.favorite: _reading((c) => c.addFavorite()),
+      NavIntent.favorites: _showFavorites,
+      NavIntent.nextChapter: _reading((c) => c.skipChapter(1)),
+      NavIntent.previousChapter: _reading((c) => c.skipChapter(-1)),
       NavIntent.activate: _reading((c) => c.togglePlay()),
       NavIntent.read: _reading((c) => c.play()),
       NavIntent.resume: _reading((c) => c.play()),
@@ -207,6 +259,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               : _outcome(s, l10n),
           highlight: s.current?.range,
           caption: s.caption,
+          favoriteLabel: hasText ? l10n.readerFavorite : null,
+          onFavorite: hasText ? () => _bus.dispatch(NavIntent.favorite) : null,
           // Buttons, pinch and voice all go through the same intents.
           onTextSize: hasText
               ? (direction) => _bus.dispatch(

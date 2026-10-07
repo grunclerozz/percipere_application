@@ -145,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _bus.strings.loginWelcomeBack(account.firstName),
       protect: true,
     );
-    if (mounted) ref.read(routerProvider).go(AppRoutes.home(account));
+    if (mounted) ref.read(routerProvider).go(AppRoutes.landing(account));
   }
 
   Future<void> _submit(CommandBus bus) async {

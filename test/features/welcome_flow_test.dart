@@ -196,7 +196,7 @@ void main() {
   group('Back navigation', () {
     Future<TestEnv> openReader(WidgetTester tester) async {
       final env = await createEnv(tester, mode: NavMode.gestures);
-      await pumpApp(tester, env);
+      await pumpAppOnCapture(tester, env);
       await tester.swipeAt(tester.padCenter, const Offset(150, 0));
       await tester.doubleTapAt(tester.padCenter); // Mag-upload
       expect(find.byType(ReaderScreen), findsOneWidget);

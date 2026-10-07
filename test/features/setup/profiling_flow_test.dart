@@ -10,7 +10,7 @@ import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/widgets/gesture_pad.dart';
-import 'package:percipere_app/features/capture/capture_screen.dart';
+import 'package:percipere_app/features/home/home_screen.dart';
 import 'package:percipere_app/features/setup/profiling_screen.dart';
 
 import '../../helpers/fakes.dart';
@@ -119,7 +119,7 @@ void main() {
 
     await tester.say('oo');
     expect(env.tts.transcript, contains('Tapos na ang setup.'));
-    expect(find.byType(CaptureScreen), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
     final account = tester.scope.read(currentAccountProvider)!;
     expect(account.profilingCompleted, isTrue);
     final done = await tester.runAsync(

@@ -12,7 +12,7 @@ import 'package:percipere_app/features/auth/forgot_password_screen.dart';
 import 'package:percipere_app/features/auth/login_screen.dart';
 import 'package:percipere_app/features/auth/register_screen.dart';
 import 'package:percipere_app/features/auth/security_question_screen.dart';
-import 'package:percipere_app/features/capture/capture_screen.dart';
+import 'package:percipere_app/features/home/home_screen.dart';
 import 'package:percipere_app/features/setup/profiling_screen.dart';
 
 import '../helpers/fakes.dart';
@@ -266,7 +266,7 @@ void main() {
       await tester.say(TestEnv.testPassword);
       await tester.say('tapos na');
       expect(env.tts.transcript, contains('Maligayang pagbabalik, Ana.'));
-      expect(find.byType(CaptureScreen), findsOneWidget);
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('an account that never finished the setup goes to it', (
@@ -314,7 +314,7 @@ void main() {
 
       env.biometrics.next = BiometricResult.success;
       await tester.say('fingerprint');
-      expect(find.byType(CaptureScreen), findsOneWidget);
+      expect(find.byType(HomeScreen), findsOneWidget);
       expect(tester.scope.read(currentAccountProvider)?.id, id);
     });
   });

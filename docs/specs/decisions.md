@@ -1,6 +1,77 @@
 # Decision log
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
+
+## 2026-10-07 — Every document input failed in the release APK (bug fix)
+- **Root cause:** R8 full mode (default with AGP 9) stripped members of Google ML Kit's
+  internal classes that ML Kit reads by reflection. In the release APK every OCR call threw
+  `NullPointerException … Object.getClass() on a null object reference` (in
+  `com.google.android.gms.internal.mlkit_vision_common`), so camera scans, image uploads
+  and scanned PDF pages all failed. Debug runs and `flutter test` don't shrink, so nothing
+  caught it. The extractor turned every exception into "Hindi mabuksan ang file na ito",
+  which hid the real error.
+- **Fix:** keep rules for `com.google.mlkit.**`, `com.google.android.gms.internal.mlkit_**`,
+  `com.google.android.gms.vision.**`, `com.google.android.odml.**` in
+  `android/app/proguard-rules.pro` (shrinking stays on). Reproduced and verified on the
+  `Percipere_Light` emulator with the release APK: image, PDF, DOCX, camera and Maglarawan
+  all work. `test/android_release_rules_test.dart` fails if the rules are removed.
+- **Separate messages:** picker errors / a chosen file that can't be copied → `PickFailed`
+  ("Hindi ko makuha ang file na pinili mo"), no longer "Walang napiling file"; a missing
+  file → `ExtractionFailure.missing`; an OCR engine failure → `ocrUnavailable` ("Hindi
+  gumana ang pagbasa ng teksto… Hindi sira ang file"); a Library save failure keeps the
+  text readable and says it wasn't saved. All logged with `[CAPTURE]` and stack traces.
+- A picked file with only a `content://` address is read by bytes into the cache; the kind
+  comes from the file name.
+
+## 2026-10-07 — Voice response time (user request)
+**Decided (user)**: target under 1 s from the end of a spoken command to its action; act on
+partial results; short pause for commands, long for dictation (tunable); earcon + pulse the
+moment a command is heard; listen while reading (barge-in) with a self-voice filter and only
+reading commands; discard stale results; one command per phrase.
+**Implemented**
+- Cause of the delay: command sessions used `pauseFor` 4 s (the plugin waits that long
+  after the last word before stopping), then up to 2 s more for the final result.
+- `config/voice_config.dart` holds every value: command pause 1.2 s, dictation 4 s, final
+  timeout 0.8 s, partial thresholds 0.9 / 0.8 (×2), gaps 450 ms after speech and 200 ms
+  after silence, barge-in start 300 ms, echo filter thresholds. `AppDurations.autoListenDelay`
+  moved there as `afterSpeechGap`.
+- "Makinig habang nagbabasa" (`listenWhileReading`) is a setting from the start, on by
+  default, because false triggers from the tablet speaker can't be ruled out before the
+  device test; Reader help recommends earphones.
+- Two commands in one phrase now run the first one (before: asked "Ang ibig mo bang
+  sabihin…?").
+- `error_busy` no longer steps down the recognizer fallback ladder (it only backs off), so
+  the shorter gaps can't switch the app to online recognition.
+- Fix after the first tablet test: the plugin counts the pause from the start of listening,
+  so a 1.2 s pause ended every session before the user began; those quick endings counted
+  as recognizer failures and listening gave up. Sessions now wait `waitForSpeech` (4 s) for
+  the first words, then switch to the 1.2 s pause (`changePauseFor`).
+- Partial results are not acted on in forms, profiling and the legacy PIN screen (their
+  `onUtterance` reads free text); they still get the 1.2 s pause. Dictation keeps 4 s.
+
+## 2026-10-06 — Phase 6E = Aklatan (Library); 6D stays postponed (user)
+**Decided (user)**
+- Next phase is **6E: Aklatan (Library)**, in two parts. Part A first; Part B (EPUB image
+  descriptions) only after the user has tested Part A.
+- The Library **fully replaces Reading History**; all history entries migrate with no data
+  loss, then the History screen and code are removed. "kasaysayan"/"history" open the Library.
+- New **Home** screen (Magbasa ng bago / Aklatan) is where login, profiling and guest mode
+  lead; Back from Capture and Library returns to Home; "home"/"simula" go there from anywhere.
+- Own scanned/uploaded documents **stay on the device** (privacy); only admin-book data
+  (book list, progress, favorites, collection links) is designed to sync in Phase 7.
+- Admin books come from `AdminBookRepository` (mocked, public-domain texts only).
+- Phase 6D (algorithms) remains postponed; Phases 7–8 too.
+
+**Decided (user approved the 6E build plan 2026-10-06; 6E goes before 6D)**:
+1. Schema v4 adds `library_items`, `library_favorites`, `library_collections`,
+   `library_collection_items`; `documents` is renamed `documents_legacy` (kept as a safety
+   copy for one release, dropped by a later migration), not dropped in v4.
+2. Own-document text stays in the database (`text_ref = 'db'`), book text goes to files in
+   private storage (`text_ref = 'file:<path>'`), so migrated history needs no file moves.
+3. Positions are (chapter, sentence). Migrated documents are chapter 0 with their old
+   sentence index; total sentences are back-filled the first time the Library is opened.
+4. EPUB parsed with the `archive` + `xml` packages already in the project (no new package).
+5. `AppRoutes.home(account)` is renamed to avoid clashing with the new Home route.
 ## 2026-10-04 — Phase 6C = Maglarawan only; algorithms postponed to 6D (user)
 - Phase 6C is **Maglarawan** (image description). The three hand-written algorithms
   (Levenshtein/WER, Laplacian variance, Otsu) move to a postponed **Phase 6D: Core
@@ -19,7 +90,7 @@ Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** o
   previous/next paragraph from the pad, so the user chose instead: **pinch to zoom in the
   Document Box**, plus A−/A+ buttons and voice — the pad's gestures stay unchanged.
   Profiling Step 2 is unchanged too (single-finger swipes + voice).
-- Voice listening loop: sessions are logged (`[Voice …]` in logcat); restarts wait for the
+- Voice listening loop: sessions are logged (`[VOICE …]` in logcat; was `[Voice …]`); restarts wait for the
   previous session to finish, back off (0.4 s → 5 s) after instant failures, step down
   through on-device → online → the phone's default locale, and after 3 identical failures
   stop and say so (`voiceRepeatedError`). Sessions are now `listenFor` 30 s,

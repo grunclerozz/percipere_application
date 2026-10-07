@@ -11,10 +11,12 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/auth/guest_reminders.dart';
 import '../../core/auth/session.dart';
-import '../../core/db/daos/documents_dao.dart';
+import '../../core/db/daos/library_dao.dart';
 import '../../core/describe/image_labeler.dart';
 import '../../core/describe/image_prep.dart';
 import '../../core/describe/label_description.dart';
+import '../../core/library/chaptered_text.dart';
+import '../../core/library/library_models.dart';
 import '../../core/network/connectivity.dart';
 import '../../core/network/image_description_repository.dart';
 import '../../core/ocr/ocr_service.dart';
@@ -50,13 +52,13 @@ final class NewImage extends DescribeSubject {
   int get hashCode => path.hashCode;
 }
 
-/// A description saved in Reading History.
+/// A description saved in the Library.
 final class SavedDescription extends DescribeSubject {
-  /// Reopens history entry [id].
+  /// Reopens library item [id].
   const SavedDescription(this.id);
 
-  /// Document id.
-  final int id;
+  /// Library item id.
+  final String id;
 
   @override
   bool operator ==(Object other) => other is SavedDescription && other.id == id;
@@ -110,8 +112,8 @@ class DescribeState {
   /// Readable text found in the picture, if any.
   final String? foundText;
 
-  /// History entry, once saved.
-  final int? documentId;
+  /// Library item, once saved.
+  final String? documentId;
 
   /// Short message above the text ("Laki: 22"), cleared after a moment.
   final String? caption;
@@ -131,7 +133,7 @@ class DescribeState {
     String? description,
     Object? detailed = _keep,
     Object? foundText = _keep,
-    int? documentId,
+    String? documentId,
     Object? caption = _keep,
   }) => DescribeState(
     phase: phase ?? this.phase,
@@ -251,10 +253,16 @@ class DescribeController extends Notifier<DescribeState> {
     }
   }
 
-  Future<void> _loadSaved(int id) async {
-    final DocumentRecord? record;
+  Future<void> _loadSaved(String id) async {
+    final LibraryItem? record;
+    String text = '';
     try {
-      record = await ref.read(documentsDaoProvider).get(id);
+      final dao = ref.read(libraryDaoProvider);
+      record = await dao.get(id);
+      if (record != null) {
+        final chapters = await dao.loadText(record);
+        text = chapters.isEmpty ? '' : chapters.first.text;
+      }
     } on Object catch (e) {
       debugPrint('Loading description failed: $e');
       if (ref.mounted) {
@@ -270,17 +278,17 @@ class DescribeController extends Notifier<DescribeState> {
       return;
     }
     unawaited(
-      ref.read(documentsDaoProvider).markOpened(id).catchError((Object e) {
+      ref.read(libraryDaoProvider).markOpened(id).catchError((Object e) {
         debugPrint('markOpened failed: $e');
       }),
     );
     state = DescribeState(
       phase: DescribePhase.ready,
-      thumbnailPath: record.thumbnailPath,
-      description: record.fullText,
+      thumbnailPath: record.coverPath,
+      description: text,
       documentId: id,
     );
-    await _announcer.say(record.fullText, interrupt: false);
+    await _announcer.say(text, interrupt: false);
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
@@ -384,7 +392,7 @@ class DescribeController extends Notifier<DescribeState> {
       state = state.copyWith(detailed: result.description);
       final id = state.documentId;
       if (id != null) {
-        await ref.read(documentsDaoProvider).updateText(id, state.fullText);
+        await ref.read(libraryDaoProvider).updateText(id, state.fullText);
       }
       await _announcer.say(result.description);
     } on Object catch (e) {
@@ -417,7 +425,7 @@ class DescribeController extends Notifier<DescribeState> {
     if (_saving) return; // a second activation while the first is running
     _saving = true;
     try {
-      final dao = ref.read(documentsDaoProvider);
+      final dao = ref.read(libraryDaoProvider);
       final existing = state.documentId;
       if (existing != null) {
         await dao.updateText(existing, state.fullText);
@@ -434,16 +442,18 @@ class DescribeController extends Notifier<DescribeState> {
         }
         if (!ref.mounted) return;
         final account = ref.read(currentAccountProvider);
-        final id = await dao.insert(
+        final item = await dao.insertDocument(
           title: titleFor(state.description),
           fullText: state.fullText,
-          sourceType: 'description',
+          source: LibrarySource.description,
+          format: LibraryFormat.image,
           language: _l.localeName == 'fil' ? 'fil' : 'en',
           userId: account?.id,
-          thumbnailPath: thumbnail,
+          coverPath: thumbnail,
+          wordCount: countWords(state.fullText),
         );
         if (!ref.mounted) return;
-        state = state.copyWith(documentId: id);
+        state = state.copyWith(documentId: item.id);
         if (account != null && account.isGuest) {
           await GuestReminders(ref.read(userPrefsProvider))
               .historySaved(account);

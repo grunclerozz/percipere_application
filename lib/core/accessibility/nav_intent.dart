@@ -58,10 +58,10 @@ enum NavIntent {
   /// Read from the beginning ("mula sa simula").
   readFromStart,
 
-  /// Save the document to history ("i-save").
+  /// Save the document to the Library ("i-save").
   save,
 
-  /// Go to the main (Capture) screen ("home", "simula").
+  /// Go to the Home screen ("home", "simula").
   home,
 
   /// Open the camera ("camera").
@@ -73,8 +73,20 @@ enum NavIntent {
   /// Upload a file ("mag-upload").
   upload,
 
-  /// Open Reading History ("kasaysayan"). Phase 6.
-  history,
+  /// Open the Library ("aklatan", "kasaysayan").
+  library,
+
+  /// Reader: next chapter.
+  nextChapter,
+
+  /// Reader: previous chapter.
+  previousChapter,
+
+  /// Reader: save this spot as a favorite.
+  favorite,
+
+  /// Reader: list the favorites of this item.
+  favorites,
 
   /// Open Accessibility Settings ("settings", "ayos"). Phase 6.
   settings,

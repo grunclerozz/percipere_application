@@ -4,19 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:percipere_app/core/accessibility/announcer.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
-import 'package:percipere_app/core/db/daos/documents_dao.dart';
+import 'package:percipere_app/core/db/daos/library_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
+import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
+import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/tts/language_detector.dart';
 import 'package:percipere_app/core/tts/reading_rate.dart';
 import 'package:percipere_app/core/tts/tts_service.dart';
+import 'package:percipere_app/core/voice/barge_in.dart';
 import 'package:percipere_app/core/voice/voice_controller.dart';
 import 'package:percipere_app/features/reader/reader_controller.dart';
 
 import '../../helpers/fakes.dart';
+import '../../helpers/library_seed.dart';
 
 /// The five sentences of [sampleText], in order.
 const s1 = 'Ang Bataan ay isang lalawigan sa rehiyon ng Gitnang Luzon.';
@@ -38,10 +42,12 @@ void main() {
     FakeTts? tts,
     NavMode? mode,
     ReaderSource source = _file,
+    AppSettings? settings,
   }) async {
     env = await TestEnv.create(
       tts: tts ?? FakeTts(autoComplete: false),
       mode: mode,
+      appSettings: settings,
       permissions: FakePermissions(mic: PermissionAccess.granted),
     );
     container = ProviderContainer(overrides: env.overrides);
@@ -70,9 +76,11 @@ void main() {
     expect(s.index, 0);
     expect(s.current!.range.start, 0);
 
-    final saved = await DocumentsDao(env.database.db).get(s.documentId!);
+    final saved = await LibraryDao(env.database.db).get(s.itemId!);
     expect(saved!.title, startsWith('Ang Bataan ay isang lalawigan'));
-    expect(saved.sourceType, 'pdf');
+    expect(saved.source, LibrarySource.upload);
+    expect(saved.format, LibraryFormat.pdf);
+    expect(saved.totalSentences, 5);
     expect(saved.language, 'fil');
   });
 
@@ -139,8 +147,9 @@ void main() {
     expect(state().playing, isFalse);
     expect(container.read(announcerProvider).reading, isFalse);
     expect(env.tts.spoken.last, 'Naka-pause.');
-    final saved = await DocumentsDao(env.database.db).get(state().documentId!);
-    expect(saved!.lastPosition, 1);
+    final saved = await LibraryDao(env.database.db).get(state().itemId!);
+    expect(saved!.sentenceIndex, 1);
+    expect(saved.percent, 20);
   });
 
   test('next while playing jumps and keeps reading', () async {
@@ -238,7 +247,7 @@ void main() {
     await pumpEventQueue();
     expect(state().index, 5);
     expect(state().current, isNull);
-    expect(env.tts.spoken.last, 'Tapos na ang dokumento.');
+    expect(env.tts.spoken.last, startsWith('Tapos mo nang basahin ang '));
 
     env.tts.spoken.clear();
     env.tts.autoComplete = false;
@@ -305,30 +314,33 @@ void main() {
 
   test('history: resumes at the saved position', () async {
     await setUpWith(tts: FakeTts());
-    final dao = DocumentsDao(env.database.db);
-    final id = await dao.insert(
+    final item = await seedDocument(
+      env,
       title: 'Liham',
-      fullText: sampleText,
-      sourceType: 'docx',
-      language: 'fil',
+      text: sampleText,
+      position: 3,
     );
-    await dao.updatePosition(id, 3);
+    final dao = LibraryDao(env.database.db);
+    final id = item.id;
 
-    final history = HistorySource(id);
+    final history = ItemSource(id);
     container.listen(readerControllerProvider(history), (_, _) {});
     await pumpEventQueue();
     final s = container.read(readerControllerProvider(history));
     expect(s.index, 3);
     expect(s.resumedFrom, 3);
-    expect(s.documentId, id);
+    expect(s.itemId, id);
     expect((await dao.get(id))!.lastOpenedAt, isNotNull);
 
     await container.read(readerControllerProvider(history).notifier).play();
     expect(env.tts.spoken.first, startsWith(s4Start));
   });
 
-  test('voice mode never listens while a document is being read', () async {
-    await setUpWith(mode: NavMode.voice);
+  test('"listen while reading" off: never listens while reading', () async {
+    await setUpWith(
+      mode: NavMode.voice,
+      settings: const AppSettings(listenWhileReading: false),
+    );
     unawaited(reader().play());
     await Future<void>.delayed(const Duration(milliseconds: 700));
     expect(env.speech.listening, isFalse);
@@ -337,6 +349,33 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 700));
     expect(env.speech.listening, isTrue, reason: 'listens once paused');
   });
+
+  test(
+    '"listen while reading" on: listens for reading commands only',
+    () async {
+      await setUpWith(mode: NavMode.voice);
+      unawaited(reader().play());
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      expect(env.speech.listening, isTrue);
+      expect(env.speech.sessions.last.phrases, BargeIn.phrases);
+      // The Reader tells voice input what it is reading (self-voice filter).
+      expect(
+        container
+            .read(announcerProvider.notifier)
+            .readAloudSince(DateTime(2000)),
+        isNotEmpty,
+      );
+
+      unawaited(reader().pause(quiet: true));
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      expect(env.speech.listening, isTrue, reason: 'listens once paused');
+      expect(
+        env.speech.sessions.last.phrases,
+        isNot(BargeIn.phrases),
+        reason: 'an ordinary command session again',
+      );
+    },
+  );
 
   test('quality is kept from extraction', () async {
     await setUpWith(tts: FakeTts());

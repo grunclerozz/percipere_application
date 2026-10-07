@@ -8,7 +8,7 @@ import 'package:percipere_app/app/router.dart';
 import 'package:percipere_app/core/accessibility/command_bus.dart';
 import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
-import 'package:percipere_app/core/db/daos/documents_dao.dart';
+import 'package:percipere_app/core/db/daos/library_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
@@ -19,6 +19,7 @@ import 'package:percipere_app/features/reader/reader_controller.dart';
 import 'package:percipere_app/features/reader/reader_screen.dart';
 
 import '../../helpers/fakes.dart';
+import '../../helpers/library_seed.dart';
 import '../../helpers/pump_app.dart';
 
 extension on WidgetTester {
@@ -84,7 +85,7 @@ Future<TestEnv> _openReader(
     mode: NavMode.gestures,
     appSettings: AppSettings(autoRead: autoRead),
   );
-  await pumpApp(tester, env);
+  await pumpAppOnCapture(tester, env);
   // Capture → Mag-upload → Reader (fake picker + extractor).
   await tester.tap(find.text('Mag-upload'));
   await tester.pumpAndSettle();
@@ -119,7 +120,7 @@ void main() {
     tester,
   ) async {
     final env = await createEnv(tester, mode: NavMode.gestures);
-    await pumpApp(tester, env);
+    await pumpAppOnCapture(tester, env);
     env.tts.autoComplete = false;
     await tester.tap(find.text('Mag-upload'));
     for (var i = 0; i < 30 && !env.tts.isSpeaking; i++) {
@@ -222,25 +223,17 @@ void main() {
     expect(find.byType(CaptureScreen), findsOneWidget);
     expect(env.tts.transcript, contains('Bumalik sa Pagkuha ng dokumento.'));
     final docs = await tester.runAsync(
-      () => DocumentsDao(env.database.db).list(userId: env.account!.id),
+      () => LibraryDao(env.database.db).list(env.account!.id),
     );
-    expect(docs!.single.lastPosition, 1);
+    expect(docs!.single.sentenceIndex, 1);
   });
 
   testWidgets('reopening from history resumes and says where', (tester) async {
     final env = await createEnv(tester, mode: NavMode.gestures);
-    final dao = DocumentsDao(env.database.db);
-    final id = await tester.runAsync(
-      () => dao.insert(
-        title: 'Liham',
-        fullText: sampleText,
-        sourceType: 'docx',
-        language: 'fil',
-        userId: env.account!.id,
-      ),
-    );
-    await tester.runAsync(() => dao.updatePosition(id!, 2));
-    await pumpApp(tester, env);
+    final id = (await tester.runAsync(
+      () => seedDocument(env, title: 'Liham', text: sampleText, position: 2),
+    ))!.id;
+    await pumpAppOnCapture(tester, env);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(CaptureScreen)),
@@ -248,7 +241,7 @@ void main() {
     unawaited(
       container
           .read(routerProvider)
-          .push(AppRoutes.reader, extra: HistorySource(id!)),
+          .push(AppRoutes.reader, extra: ItemSource(id)),
     );
     await tester.pumpAndSettle();
 
@@ -302,7 +295,7 @@ void _textSizeTests() {
       mode: NavMode.gestures,
       appSettings: const AppSettings(textSize: 48),
     );
-    await pumpApp(tester, env);
+    await pumpAppOnCapture(tester, env);
     await tester.tap(find.text('Mag-upload'));
     await tester.pumpAndSettle();
     final c = await containerOf(tester);
@@ -387,24 +380,15 @@ void _textSizeTests() {
       for (var i = 1; i <= 40; i++)
         'Ito ang pangungusap bilang $i ng mahabang dokumento.',
     ].join(' ');
-    final dao = DocumentsDao(env.database.db);
-    final id = await tester.runAsync(() async {
-      final id = await dao.insert(
-        title: 'Mahaba',
-        fullText: text,
-        sourceType: 'docx',
-        language: 'fil',
-        userId: env.account!.id,
-      );
-      await dao.updatePosition(id, 30);
-      return id;
-    });
-    await pumpApp(tester, env);
+    final id = (await tester.runAsync(
+      () => seedDocument(env, title: 'Mahaba', text: text, position: 30),
+    ))!.id;
+    await pumpAppOnCapture(tester, env);
     final c = ProviderScope.containerOf(
       tester.element(find.byType(CaptureScreen)),
     );
     unawaited(
-      c.read(routerProvider).push(AppRoutes.reader, extra: HistorySource(id!)),
+      c.read(routerProvider).push(AppRoutes.reader, extra: ItemSource(id)),
     );
     await tester.pumpAndSettle();
 

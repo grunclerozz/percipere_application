@@ -34,6 +34,9 @@ abstract final class PrefKeys {
   /// Start reading new documents automatically.
   static const String autoRead = 'reader.autoRead';
 
+  /// Keep listening for commands while a document is read aloud.
+  static const String listenWhileReading = 'voice.listenWhileReading';
+
   /// `ask`, `allowed` or `declined`: detailed image descriptions.
   static const String describeConsent = 'describe.consent';
 
@@ -57,6 +60,10 @@ abstract final class PrefKeys {
 
   /// Guest reminder given in Settings.
   static const String guestReminderSettings = 'guest.reminder.settings';
+
+  /// How many times a guest was warned about downloaded books (0, 1 at the
+  /// first download, 2 after the follow-up in the Library).
+  static const String guestReminderDownload = 'guest.reminder.download';
 
   /// Device scope: the microphone was already requested on Welcome.
   static const String micAsked = 'mic.askedOnWelcome';

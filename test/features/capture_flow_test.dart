@@ -27,7 +27,7 @@ Future<TestEnv> _startOnCapture(
       cameraOnRequest: cameraOnRequest,
     ),
   );
-  await pumpApp(tester, env);
+  await pumpAppOnCapture(tester, env);
   expect(find.byType(CaptureScreen), findsOneWidget);
   return env;
 }

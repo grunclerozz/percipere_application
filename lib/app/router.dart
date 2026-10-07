@@ -16,7 +16,11 @@ import '../features/capture/capture_screen.dart';
 import '../features/describe/describe_controller.dart';
 import '../features/describe/describe_screen.dart';
 import '../features/describe/describe_source_screen.dart';
-import '../features/history/history_screen.dart';
+import '../features/home/home_screen.dart';
+import '../features/library/chapters_screen.dart';
+import '../features/library/favorites_screen.dart';
+import '../features/library/item_details_screen.dart';
+import '../features/library/library_screen.dart';
 import '../features/reader/reader_controller.dart';
 import '../features/reader/reader_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -56,7 +60,10 @@ abstract final class AppRoutes {
   /// Guided setup (profiling). `extra`: a [SetupMode].
   static const String setup = '/setup';
 
-  /// Capture method (upload or camera) — the home screen.
+  /// Home: "Magbasa ng bago" or "Aklatan". The base of the back stack.
+  static const String home = '/home';
+
+  /// Capture method (upload, camera or Maglarawan); opened from Home.
   static const String capture = '/capture';
 
   /// Camera capture with audio guidance. `extra`: true when the photo is to
@@ -75,15 +82,24 @@ abstract final class AppRoutes {
   /// Accessibility Settings.
   static const String settings = '/settings';
 
-  /// Reading History.
-  static const String history = '/history';
+  /// The Library (Aklatan).
+  static const String library = '/library';
+
+  /// Details of one library item. `extra`: the item id.
+  static const String libraryItem = '/library/item';
+
+  /// Favorites of one item. `extra`: a `FavoritesArgs`.
+  static const String favorites = '/library/favorites';
+
+  /// Chapters of one item. `extra`: the item id.
+  static const String chapters = '/library/chapters';
 
   /// Where a logged-in [account] goes: set an email/password (old PIN
-  /// account), finish the setup, or Capture.
-  static String home(Account account) {
+  /// account), finish the setup, or Home.
+  static String landing(Account account) {
     if (account.isLegacy) return upgradeAccount;
     if (!account.profilingCompleted) return setup;
-    return capture;
+    return home;
   }
 }
 
@@ -144,6 +160,10 @@ GoRouter buildRouter({
         ),
       ),
       GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.capture,
         builder: (context, state) => const CaptureScreen(),
       ),
@@ -161,7 +181,7 @@ GoRouter buildRouter({
         builder: (context, state) => DescribeScreen(
           subject: state.extra is DescribeSubject
               ? state.extra! as DescribeSubject
-              : const SavedDescription(0),
+              : const SavedDescription(''),
         ),
       ),
       GoRoute(
@@ -169,8 +189,28 @@ GoRouter buildRouter({
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
-        path: AppRoutes.history,
-        builder: (context, state) => const HistoryScreen(),
+        path: AppRoutes.library,
+        builder: (context, state) => const LibraryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.libraryItem,
+        builder: (context, state) => ItemDetailsScreen(
+          itemId: state.extra is String ? state.extra! as String : '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.favorites,
+        builder: (context, state) => FavoritesScreen(
+          args: state.extra is FavoritesArgs
+              ? state.extra! as FavoritesArgs
+              : const FavoritesArgs(''),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.chapters,
+        builder: (context, state) => ChaptersScreen(
+          itemId: state.extra is String ? state.extra! as String : '',
+        ),
       ),
       GoRoute(
         path: AppRoutes.reader,
@@ -193,7 +233,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final expired = ref.read(initialSessionExpiredProvider);
   final router = buildRouter(
     initialLocation: account != null
-        ? AppRoutes.home(account)
+        ? AppRoutes.landing(account)
         : expired
         ? AppRoutes.authChoice
         : AppRoutes.welcome,

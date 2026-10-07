@@ -10,7 +10,7 @@ command matcher, camera guidance and OCR unchanged.
 - Third button below "Mag-upload" and "Gamit ang Camera": **"Maglarawan"**. Style like the
   "Subukan muna" button on Welcome (white with a navy border, adapted per theme; the
   existing `PillVariant.tertiary`). `docs/ui/` doesn't show it yet; stay consistent.
-- Focus order: Mag-upload → Gamit ang Camera → **Maglarawan** → (History, Settings).
+- Focus order: Mag-upload → Gamit ang Camera → **Maglarawan** → (Settings; the Library link moved to Home).
 - Voice: "maglarawan", "ilarawan", "describe", "ano ito".
 - **Announcement**, after the usual capture question: "Pwede mo ring gamitin ang bago
   naming feature: Maglarawan. Sasabihin nito kung ano ang nasa isang larawan."
@@ -51,7 +51,7 @@ requests are sent flagged anonymous.
 - Options (voice, or swipe to focus + double-tap): **ulitin** / repeat, **mas detalyado** /
   more detail (online), **basahin ang teksto** / read text (only if text found),
   **i-save** / save, **bagong larawan** / new picture.
-- Saved descriptions go to Reading History with type **"Larawan"** and the thumbnail.
+- Saved descriptions go to the Library (source "Maglarawan") with the thumbnail.
 - Back navigation follows the app-wide rules (`navigation.md`).
 
 ## A4. Online description via the web app (mocked for now)

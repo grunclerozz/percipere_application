@@ -9,9 +9,12 @@ import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/auth/guest_reminders.dart';
 import '../../core/auth/session.dart';
-import '../../core/db/daos/documents_dao.dart';
+import '../../core/db/daos/library_dao.dart';
+import '../../core/describe/image_prep.dart';
 import '../../core/extraction/document_extractor.dart';
 import '../../core/extraction/extraction_exception.dart';
+import '../../core/library/chaptered_text.dart';
+import '../../core/library/library_models.dart';
 import '../../core/ocr/text_cleanup.dart';
 import '../../core/settings/app_settings.dart';
 import '../../core/settings/settings_controller.dart';
@@ -28,7 +31,7 @@ sealed class ReaderSource {
   const ReaderSource();
 }
 
-/// Text that is already extracted. Saved to history only if [save].
+/// Text that is already extracted. Saved to the Library only if [save].
 final class TextSource extends ReaderSource {
   /// Creates a text source.
   const TextSource(this.text, {this.save = false});
@@ -36,7 +39,7 @@ final class TextSource extends ReaderSource {
   /// The text.
   final String text;
 
-  /// Add it to Reading History.
+  /// Add it to the Library.
   final bool save;
 
   @override
@@ -47,7 +50,7 @@ final class TextSource extends ReaderSource {
   int get hashCode => Object.hash(text, save);
 }
 
-/// A file still to be read (camera photo or upload); saved to history.
+/// A file still to be read (camera photo or upload); saved to the Library.
 final class FileSource extends ReaderSource {
   /// Creates a file source.
   const FileSource(this.file);
@@ -62,20 +65,39 @@ final class FileSource extends ReaderSource {
   int get hashCode => file.hashCode;
 }
 
-/// A Reading History entry, resumed at its saved position.
-final class HistorySource extends ReaderSource {
-  /// Creates a history source.
-  const HistorySource(this.documentId);
+/// A library item, resumed at its saved position (or at [chapter] and
+/// [sentence] when jumping to a favorite).
+final class ItemSource extends ReaderSource {
+  /// Opens item [itemId].
+  const ItemSource(
+    this.itemId, {
+    this.fromStart = false,
+    this.chapter,
+    this.sentence,
+  });
 
-  /// `documents.id`.
-  final int documentId;
+  /// `library_items.id`.
+  final String itemId;
+
+  /// Ignore the saved position and begin at the start.
+  final bool fromStart;
+
+  /// Chapter to start in, when jumping.
+  final int? chapter;
+
+  /// Sentence (inside [chapter]) to start at.
+  final int? sentence;
 
   @override
   bool operator ==(Object other) =>
-      other is HistorySource && other.documentId == documentId;
+      other is ItemSource &&
+      other.itemId == itemId &&
+      other.fromStart == fromStart &&
+      other.chapter == chapter &&
+      other.sentence == sentence;
 
   @override
-  int get hashCode => documentId.hashCode;
+  int get hashCode => Object.hash(itemId, fromStart, chapter, sentence);
 }
 
 /// Reader lifecycle.
@@ -106,9 +128,12 @@ class ReaderState {
     this.index = 0,
     this.playing = false,
     this.language = DocLanguage.filipino,
-    this.documentId,
+    this.itemId,
+    this.title,
     this.resumedFrom,
     this.caption,
+    this.chapterStarts = const [],
+    this.chapterTitles = const [],
   });
 
   /// Lifecycle phase.
@@ -144,8 +169,29 @@ class ReaderState {
   /// Detected document language (chooses the voice).
   final DocLanguage language;
 
-  /// Reading History id, once saved.
-  final int? documentId;
+  /// Library item id, once saved.
+  final String? itemId;
+
+  /// Title of the item (for the finished announcement).
+  final String? title;
+
+  /// Index of the first sentence of each chapter (one entry if none).
+  final List<int> chapterStarts;
+
+  /// Chapter titles, parallel to [chapterStarts].
+  final List<String> chapterTitles;
+
+  /// More than one chapter to move between.
+  bool get hasChapters => chapterStarts.length > 1;
+
+  /// Chapter of the current sentence.
+  int get chapter {
+    var c = 0;
+    for (var i = 0; i < chapterStarts.length; i++) {
+      if (chapterStarts[i] <= index) c = i;
+    }
+    return c;
+  }
 
   /// Sentence index the document was resumed at (history), if not 0.
   final int? resumedFrom;
@@ -179,7 +225,10 @@ class ReaderState {
     int? index,
     bool? playing,
     DocLanguage? language,
-    int? documentId,
+    String? itemId,
+    String? title,
+    List<int>? chapterStarts,
+    List<String>? chapterTitles,
     int? resumedFrom,
     Object? caption = _keep,
   }) => ReaderState(
@@ -194,7 +243,10 @@ class ReaderState {
     index: index ?? this.index,
     playing: playing ?? this.playing,
     language: language ?? this.language,
-    documentId: documentId ?? this.documentId,
+    itemId: itemId ?? this.itemId,
+    title: title ?? this.title,
+    chapterStarts: chapterStarts ?? this.chapterStarts,
+    chapterTitles: chapterTitles ?? this.chapterTitles,
     resumedFrom: resumedFrom ?? this.resumedFrom,
     caption: identical(caption, _keep) ? this.caption : caption as String?,
   );
@@ -207,8 +259,10 @@ class ReaderState {
 ///   highlight are exact. Each loop run has a token: pausing or skipping bumps
 ///   it, so a stopped sentence is told apart from one interrupted by someone
 ///   else (a prompt, "stop all speech", long-press to talk) — which pauses.
-/// - Documents are auto-saved to Reading History; the position is saved on
-///   pause, every few sentences, and when the Reader closes.
+/// - Documents are auto-saved to the Library as soon as their text is
+///   extracted; the position (chapter and sentence) is saved on pause, every
+///   few sentences, and when the Reader closes.
+/// - Items with chapters announce each chapter's title as it starts.
 class ReaderController extends Notifier<ReaderState> {
   /// Creates the controller for [source].
   ReaderController(this.source);
@@ -220,11 +274,14 @@ class ReaderController extends Notifier<ReaderState> {
   static const int saveEvery = 5;
 
   late TtsService _tts;
-  late DocumentsDao _dao;
+  late LibraryDao _dao;
   late Announcer _announcer;
   int _token = 0;
   bool _playing = false;
-  int? _documentId;
+  String? _itemId;
+  Future<void>? _saving;
+  bool _finished = false;
+  ChapteredText? _layout;
   int _index = 0;
   int _savedIndex = -1;
   Timer? _captionTimer;
@@ -236,7 +293,7 @@ class ReaderController extends Notifier<ReaderState> {
   @override
   ReaderState build() {
     _tts = ref.read(ttsServiceProvider);
-    _dao = ref.read(documentsDaoProvider);
+    _dao = ref.read(libraryDaoProvider);
     _announcer = ref.read(announcerProvider.notifier);
     ref.onDispose(() {
       _token++;
@@ -248,9 +305,9 @@ class ReaderController extends Notifier<ReaderState> {
         // Providers can't be modified inside onDispose.
         scheduleMicrotask(() => announcer.setReading(false));
       }
-      final id = _documentId;
-      if (id != null && _index != _savedIndex) {
-        unawaited(_dao.updatePosition(id, _index));
+      final id = _itemId;
+      if (id != null && _index != _savedIndex && !_finished) {
+        unawaited(_writePosition(id, _index));
       }
     });
 
@@ -265,8 +322,8 @@ class ReaderController extends Notifier<ReaderState> {
           phase: ReaderPhase.loading,
           fromCamera: file.fromCamera,
         );
-      case HistorySource(:final documentId):
-        scheduleMicrotask(() => _loadHistory(documentId));
+      case ItemSource():
+        scheduleMicrotask(() => _loadItem(source as ItemSource));
         return const ReaderState(phase: ReaderPhase.loading);
     }
   }
@@ -282,6 +339,7 @@ class ReaderController extends Notifier<ReaderState> {
   }) {
     final sentences = chunkText(text);
     _index = index;
+    _layout = null;
     return (base ?? const ReaderState(phase: ReaderPhase.ready)).copyWith(
       phase: ReaderPhase.ready,
       text: text,
@@ -313,12 +371,31 @@ class ReaderController extends Notifier<ReaderState> {
       );
       state = ready;
       if (result.quality != TextQuality.empty) {
-        await _saveNew(ready, file.sourceType);
+        try {
+          await _saveNew(ready, file.sourceType, photo: file);
+        } on Object catch (e, stack) {
+          // Storage failure: the text is still readable; say it wasn't kept.
+          debugPrint('[CAPTURE] saving to the Library failed: $e');
+          debugPrint('[CAPTURE] $stack');
+          if (ref.mounted) {
+            unawaited(_announcer.say(_l.readerSaveFailed, interrupt: false));
+          }
+        }
       }
     } on ExtractionException catch (e) {
-      debugPrint('Extraction failed: $e');
+      debugPrint('[CAPTURE] reading ${file.kind.name} failed: $e');
       if (ref.mounted) {
         state = state.copyWith(phase: ReaderPhase.failed, failure: e.failure);
+      }
+    } on Object catch (e, stack) {
+      // Anything else must not leave the Reader stuck on "loading".
+      debugPrint('[CAPTURE] reading ${file.kind.name} failed: $e');
+      debugPrint('[CAPTURE] $stack');
+      if (ref.mounted) {
+        state = state.copyWith(
+          phase: ReaderPhase.failed,
+          failure: ExtractionFailure.unreadable,
+        );
       }
     } finally {
       // Camera photos are only needed to extract the text.
@@ -332,50 +409,125 @@ class ReaderController extends Notifier<ReaderState> {
     }
   }
 
-  Future<void> _loadHistory(int id) async {
-    final record = await _dao.get(id);
+  Future<void> _loadItem(ItemSource src) async {
+    final LibraryItem? item;
+    final List<ChapterText> chapters;
+    try {
+      item = await _dao.get(src.itemId);
+      chapters = item == null ? const [] : await _dao.loadText(item);
+    } on Object catch (e) {
+      debugPrint('Loading item failed: $e');
+      if (ref.mounted) {
+        state = state.copyWith(
+          phase: ReaderPhase.failed,
+          failure: ExtractionFailure.unreadable,
+        );
+      }
+      return;
+    }
     if (!ref.mounted) return;
-    if (record == null) {
+    if (item == null || chapters.every((c) => c.text.trim().isEmpty)) {
       state = state.copyWith(
         phase: ReaderPhase.failed,
         failure: ExtractionFailure.unreadable,
       );
       return;
     }
-    _documentId = id;
-    unawaited(_dao.markOpened(id));
-    final sentences = chunkText(record.fullText);
-    final start = record.lastPosition < sentences.length
-        ? record.lastPosition
-        : 0;
+    final layout = await ChapteredText.buildAsync(chapters);
+    if (!ref.mounted) return;
+    _itemId = item.id;
+    _finished = item.finished;
+    unawaited(_dao.markOpened(item.id));
+    if (item.totalSentences != layout.sentences.length ||
+        item.chapters.length != layout.chapterStarts.length) {
+      // First time the text is laid out (migrated history, new book).
+      unawaited(
+        _dao.setTotals(
+          item.id,
+          totalSentences: layout.sentences.length,
+          wordCount: layout.wordCount,
+          chapters: layout.info,
+        ),
+      );
+    }
+    final int start;
+    if (src.chapter != null) {
+      start = layout.globalOf(src.chapter!, src.sentence ?? 0);
+    } else if (src.fromStart || item.finished) {
+      start = 0;
+    } else {
+      final saved = layout.globalOf(item.chapterIndex, item.sentenceIndex);
+      start = saved < layout.sentences.length ? saved : 0;
+    }
     _savedIndex = start;
-    state = _ready(
-      record.fullText,
-      assessQuality(record.fullText),
-      language: record.language == 'en'
+    _layout = layout;
+    _index = start;
+    state = ReaderState(
+      phase: ReaderPhase.ready,
+      text: layout.text,
+      sentences: layout.sentences,
+      index: start,
+      language: item.language == 'en'
           ? DocLanguage.english
           : DocLanguage.filipino,
-      index: start,
-    ).copyWith(documentId: id);
+      quality: assessQuality(layout.text),
+      itemId: item.id,
+      title: item.title,
+      chapterStarts: layout.chapterStarts,
+      chapterTitles: layout.chapterTitles,
+      resumedFrom: start > 0 ? start : null,
+    );
   }
 
-  Future<void> _saveNew(ReaderState s, String sourceType) async {
-    if (_documentId != null || s.text.trim().isEmpty) return;
+  /// Stores a newly read document in the Library (once).
+  Future<void> _saveNew(
+    ReaderState s,
+    String sourceType, {
+    DocumentFile? photo,
+  }) {
+    return _saving ??= _saveNewNow(s, sourceType, photo: photo);
+  }
+
+  Future<void> _saveNewNow(
+    ReaderState s,
+    String sourceType, {
+    DocumentFile? photo,
+  }) async {
+    if (_itemId != null || s.text.trim().isEmpty) return;
     final account = ref.read(currentAccountProvider);
-    final id = await _dao.insert(
+    String? cover;
+    if (photo != null && photo.kind == DocumentKind.image) {
+      try {
+        cover = await ref.read(imagePrepProvider).saveThumbnail(photo.path);
+      } on Object catch (e) {
+        // The document matters more than its picture.
+        debugPrint('Cover failed: $e');
+      }
+    }
+    final (source, format) = switch (sourceType) {
+      'camera' => (LibrarySource.camera, LibraryFormat.image),
+      'pdf' => (LibrarySource.upload, LibraryFormat.pdf),
+      'docx' => (LibrarySource.upload, LibraryFormat.docx),
+      _ => (LibrarySource.upload, LibraryFormat.image),
+    };
+    final item = await _dao.insertDocument(
       title: titleFor(s.text),
       fullText: s.text,
-      sourceType: sourceType,
+      source: source,
+      format: format,
       language: s.language == DocLanguage.english ? 'en' : 'fil',
       userId: account?.id,
+      coverPath: cover,
+      totalSentences: s.sentences.length,
+      wordCount: countWords(s.text),
     );
-    _documentId = id;
+    _itemId = item.id;
     if (account != null && account.isGuest) {
       // Remind the guest once, later, at a natural moment (never while
-      // reading): the next time Capture is announced.
+      // reading): the next time the Library is announced.
       await GuestReminders(ref.read(userPrefsProvider)).historySaved(account);
     }
-    if (ref.mounted) state = state.copyWith(documentId: id);
+    if (ref.mounted) state = state.copyWith(itemId: item.id, title: item.title);
   }
 
   // ── Playback ──────────────────────────────────────────────────────────────
@@ -411,6 +563,12 @@ class ReaderController extends Notifier<ReaderState> {
     final n = state.sentences.length;
     if (state.index >= n) _setIndex(0);
     _playing = true;
+    if (_finished) {
+      // Reading a finished item again.
+      _finished = false;
+      final id = _itemId;
+      if (id != null) unawaited(_dao.setFinished(id, finished: false));
+    }
     state = state.copyWith(playing: true);
     // Cut any prompt so reading starts at once.
     await _announcer.stop();
@@ -420,8 +578,10 @@ class ReaderController extends Notifier<ReaderState> {
     while (token == _token) {
       final i = state.index;
       if (i >= n) return _finish();
+      final sentence = state.sentences[i].textIn(state.text);
+      _announcer.noteReadAloud(sentence);
       final spoken = await _tts.speak(
-        state.sentences[i].textIn(state.text),
+        sentence,
         languageTag: _voiceTag,
         rate: ref.read(readingRateProvider),
       );
@@ -430,6 +590,12 @@ class ReaderController extends Notifier<ReaderState> {
       if (single) return _stopped();
       _setIndex(i + 1);
       if ((_index - _savedIndex).abs() >= saveEvery) unawaited(_savePosition());
+      if (_index < n &&
+          state.hasChapters &&
+          state.chapterStarts.contains(_index)) {
+        final title = state.chapterTitles[state.chapterStarts.indexOf(_index)];
+        _pendingNote = [?_pendingNote, _l.readerChapter(title)].join(' ');
+      }
       final note = _pendingNote;
       if (note != null) {
         // Sentence break: say what changed, then carry on.
@@ -550,6 +716,79 @@ class ReaderController extends Notifier<ReaderState> {
     await _sayCaption(_l.readerSaved);
   }
 
+  /// "Paborito": saves the current spot as a favorite.
+  Future<void> addFavorite() async {
+    if (!state.canRead) return;
+    await _saving;
+    final id = _itemId;
+    if (id == null) {
+      unawaited(ref.read(hapticsProvider).error());
+      return _sayCaption(_l.commandNotAvailable, resume: false);
+    }
+    final i = state.index.clamp(0, state.sentences.length - 1);
+    final (chapter, sentence) = _chapterPos(i);
+    try {
+      await _dao.addFavorite(
+        itemId: id,
+        chapterIndex: chapter,
+        sentenceIndex: sentence,
+        label: favoriteLabel(state.sentences[i].textIn(state.text)),
+      );
+    } on Object catch (e) {
+      debugPrint('Saving the favorite failed: $e');
+      unawaited(ref.read(hapticsProvider).error());
+      return _sayCaption(_l.commandNotAvailable, resume: false);
+    }
+    unawaited(ref.read(hapticsProvider).confirm());
+    if (ref.mounted) await _sayCaption(_l.readerFavoriteSaved);
+  }
+
+  /// Jumps to a saved spot and carries on reading from there.
+  Future<void> goTo(int chapter, int sentence) async {
+    if (!state.canRead) return;
+    final target = _layout?.globalOf(chapter, sentence) ?? sentence;
+    await _halt();
+    _stopped();
+    _setIndex(target.clamp(0, state.sentences.length - 1));
+    await play();
+  }
+
+  /// "Susunod / nakaraang kabanata": jumps to the start of the next chapter,
+  /// or the start of this one (previous, when already past its start).
+  Future<void> skipChapter(int delta) async {
+    if (!state.hasChapters) {
+      unawaited(ref.read(hapticsProvider).error());
+      return _sayCaption(_l.readerNoChapters, resume: _playing);
+    }
+    final starts = state.chapterStarts;
+    final c = state.chapter;
+    final int target;
+    if (delta > 0) {
+      target = c + 1 < starts.length ? starts[c + 1] : -1;
+    } else {
+      target = state.index > starts[c]
+          ? starts[c]
+          : (c > 0 ? starts[c - 1] : -1);
+    }
+    if (target < 0) {
+      unawaited(ref.read(hapticsProvider).error());
+      return _sayCaption(
+        delta > 0 ? _l.readerAtEnd : _l.readerAtStart,
+        resume: _playing,
+      );
+    }
+    if (_playing) {
+      await _halt();
+      _stopped();
+    }
+    _setIndex(target);
+    unawaited(ref.read(hapticsProvider).tick());
+    final title = state.chapterTitles[state.chapter];
+    _showCaption(title);
+    await _announcer.say(_l.readerChapter(title));
+    if (ref.mounted) await play();
+  }
+
   // ── Internals ─────────────────────────────────────────────────────────────
 
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
@@ -579,8 +818,28 @@ class ReaderController extends Notifier<ReaderState> {
     state = state.copyWith(playing: false, index: state.sentences.length);
     _announcer.setReading(false);
     _index = 0; // resume from the start next time
-    unawaited(_savePosition());
-    unawaited(_announcer.say(_l.readerFinished));
+    final id = _itemId;
+    if (id != null) {
+      _finished = true;
+      _savedIndex = 0;
+      unawaited(
+        _dao
+            .updateProgress(
+              id,
+              chapterIndex: 0,
+              sentenceIndex: 0,
+              globalSentence: 0,
+            )
+            .then((_) => _dao.setFinished(id, finished: true))
+            .catchError((Object e) => debugPrint('Finish failed: $e')),
+      );
+    }
+    final title = state.title;
+    unawaited(
+      _announcer.say(
+        title == null ? _l.readerFinished : _l.readerFinishedTitle(title),
+      ),
+    );
   }
 
   Future<void> _jumpTo(int target) async {
@@ -627,10 +886,27 @@ class ReaderController extends Notifier<ReaderState> {
   }
 
   Future<void> _savePosition() async {
-    final id = _documentId;
-    if (id == null || _index == _savedIndex) return;
+    final id = _itemId;
+    if (id == null || _index == _savedIndex || _finished) return;
     _savedIndex = _index;
-    await _dao.updatePosition(id, _index);
+    await _writePosition(id, _index);
+  }
+
+  (int, int) _chapterPos(int index) {
+    final l = _layout;
+    return l == null ? (0, index) : (l.chapterOf(index), l.inChapter(index));
+  }
+
+  Future<void> _writePosition(String id, int index) {
+    final (chapter, sentence) = _chapterPos(index);
+    return _dao
+        .updateProgress(
+          id,
+          chapterIndex: chapter,
+          sentenceIndex: sentence,
+          globalSentence: index,
+        )
+        .catchError((Object e) => debugPrint('Saving position failed: $e'));
   }
 }
 

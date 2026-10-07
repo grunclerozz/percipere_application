@@ -84,3 +84,11 @@ Future<void> setSurface(WidgetTester tester, Size size) async {
     ..devicePixelRatio = 3;
   addTearDown(tester.view.reset);
 }
+
+/// Pumps the whole app and opens Capture from Home ("Magbasa ng bago"), the
+/// way a user gets there now.
+Future<void> pumpAppOnCapture(WidgetTester tester, TestEnv env) async {
+  await pumpApp(tester, env);
+  await tester.tap(find.text('Magbasa ng bago'));
+  await tester.pumpAndSettle();
+}

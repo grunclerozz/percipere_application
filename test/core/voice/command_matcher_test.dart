@@ -54,7 +54,7 @@ void main() {
       'kunan': NavIntent.capture,
       'mag-upload': NavIntent.upload,
       'i-save': NavIntent.save,
-      'kasaysayan': NavIntent.history,
+      'kasaysayan': NavIntent.library,
       'ayos': NavIntent.settings,
       'tulong': NavIntent.help,
       'simula': NavIntent.home,
@@ -90,8 +90,46 @@ void main() {
     expect((result as Ambiguous).phrase, 'bilisan');
   });
 
-  test('two different commands in one utterance asks instead of guessing', () {
-    expect(matcher.match('ulitin basahin', global), isA<Ambiguous>());
+  test('two commands in one phrase: the first one said runs', () {
+    expect(intentOf('ulitin basahin'), NavIntent.repeat);
+    expect(intentOf('itigil bumalik'), NavIntent.stopSpeech);
+    expect(intentOf('bumalik itigil'), NavIntent.back);
+    expect(intentOf('ok susunod'), NavIntent.activate);
+    // The same command said twice is still one command.
+    expect(intentOf('susunod susunod'), NavIntent.next);
+  });
+
+  test('at the same position the longer phrase still wins', () {
+    expect(intentOf('basahin mula sa simula'), NavIntent.readFromStart);
+    expect(intentOf('mga paborito ko'), NavIntent.favorites);
+  });
+
+  test('a contained phrase reports its word position', () {
+    final m = matcher.match('pakiusap itigil na', global) as Matched;
+    expect(m.at, 1);
+  });
+
+  test('whole-utterance score: extra words lower it', () {
+    final pause = CommandMatcher.tokens('i pause');
+    expect(CommandMatcher.wholeScore(pause, 'i-pause'), 1);
+    expect(
+      CommandMatcher.wholeScore(CommandMatcher.tokens('ituloy ang'), 'ituloy'),
+      lessThan(0.8),
+    );
+  });
+
+  test('extendedBy: the user may still be saying a longer phrase', () {
+    final said = CommandMatcher.tokens('susunod');
+    expect(CommandMatcher.extendedBy(said, 'susunod na talata'), isTrue);
+    expect(
+      CommandMatcher.extendedBy(
+        CommandMatcher.tokens('susunod na tala'),
+        'susunod na talata',
+      ),
+      isTrue,
+    );
+    expect(CommandMatcher.extendedBy(said, 'susunod'), isFalse);
+    expect(CommandMatcher.extendedBy(said, 'bumalik'), isFalse);
   });
 
   test('longer phrases win over shorter ones they contain', () {

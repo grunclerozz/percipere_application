@@ -27,9 +27,38 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   `VoiceController` (permission, turn-taking, auto-listen, errors, `dictate()`).
 - Matching order: screen action labels (both locales; "A (B)" also yields A and B) and
   `voiceSynonyms`, then app-wide commands.
-- Turn-taking: speech starting cancels the recognizer; speech ending re-arms it after
-  `AppDurations.autoListenDelay`; never listens while reading. Auto-listen in voice mode or
-  on `autoListen` screens; stops after `voiceIdleLimit` idle.
+- Turn-taking: a prompt starting cancels the recognizer; speech ending re-arms it after
+  `VoiceConfig.afterSpeechGap` (echo); a session that ended in silence restarts after
+  `VoiceConfig.sessionGap`. All timings and thresholds live in `config/voice_config.dart`.
+- Pauses: commands end after `VoiceConfig.commandPause` (1.2 s) of silence, dictation after
+  `dictationPause` (4 s). The plugin's final-result wait is `finalTimeout` (0.8 s).
+- Partial results: `CommandBus.judgePartial` checks whether a partial result is already a
+  whole command (whole-utterance similarity; pending yes/no, then screen actions, then
+  app-wide). ≥ 0.9 runs at once; ≥ 0.8 runs when the same command matched twice in a row.
+  It waits when a different, longer command starts the same way ("susunod" → "susunod na
+  talata") or the words begin a free-text command (`ScreenRegistration.freeTextPrefixes`;
+  screens with `onUtterance` and no list never act early). Running goes through
+  `handleUtterance`, as for final results; the session is then cancelled and its later
+  results are stale (session id), so nothing runs twice.
+- One command per phrase: among phrases found word for word, the one said first wins
+  (`Matched.at`), also across screen actions and app-wide commands.
+- Stale results: any command (voice, gesture, tap) calls `VoiceController.commandExecuted`;
+  results from a session that began before it are discarded, and a session open during a
+  gesture is restarted.
+- Feedback: the moment a phrase is handed to the bus, `Earcon.heard()` (Android
+  `ToneGenerator`, channel `ph.bataan.percipere/sound`) and `Haptics.heard()` (25 ms).
+- Barge-in: in voice mode with Settings "Makinig habang nagbabasa" on
+  (`listenWhileReading`, default on), the mic stays open while the Reader reads. The Reader
+  records each sentence (`Announcer.noteReadAloud`); `BargeIn` removes words of the
+  sentences read during the session (fuzzy ≥ 0.8 for words of 4+ letters) and accepts only
+  `readingControlIntents` (pause, stop, back, faster, slower, bigger, smaller, favorite,
+  repeat) at ≥ 0.9; everything else is dropped silently. Prompts still never overlap
+  listening. Long-press always stops speech, closes any open session and listens at once.
+- Logs: `[VOICE <time> s<session> +ms]` for each step (speech started by mic level, every
+  partial/final result, MATCH, ACTION) and one `[VOICE TIMING]` line per command with the
+  gaps and **END OF SPEECH→ACTION**.
+- Auto-listen in voice mode or on `autoListen` screens; stops after `voiceIdleLimit` idle
+  (reading counts as activity).
 - On-device recognition first; `error_language_unavailable` → online; no network → explain
   + offer Voice input settings. Mic permission only after a spoken explanation.
 
@@ -45,20 +74,21 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 
 ## Reader (Phase 5)
 - `core/tts/chunker.dart` (sentences with exact offsets), `language_detector.dart`
-  (fil/en stop words; Taglish → Filipino), `core/db/daos/documents_dao.dart`.
+  (fil/en stop words; Taglish → Filipino), `core/db/daos/library_dao.dart`.
 - `ReaderController`: TTS one sentence per `speak()` (true = finished, false = stopped);
   a token per loop run separates own pause/skip from external interruption (→ pause).
-  Auto-saved to history; position saved on pause, every 5 sentences, on close.
-  `HistorySource(id)` resumes.
+  Auto-saved to the Library as soon as the text is extracted; the position (chapter +
+  sentence) is saved on pause, every 5 sentences, on close. `ItemSource(id)` resumes
+  (or opens at a chapter/sentence for a favorite). Chapters come from `ChapteredText`.
+  Finished = last sentence read: `finished` + "Tapos mo nang basahin …".
 
-## Settings / History (Phase 6)
+## Settings (Phase 6)
 - `core/settings/`: `AppSettings` + `SettingsController` (`settingsProvider`), per scope
   (user id or `device`), one preference key per field. Theme/locale/mode/speed/haptics
   providers are views. New setting = field + `PrefKeys` key + row in `setting_items.dart`.
 - Settings rows: swipe L/R focus (spoken with value), up/down adjust, double-tap
   cycle/open; TalkBack adjustable semantics need `increasedValue`/`decreasedValue`.
-- History: list/search/rename/delete; swipe up = item options; "hanapin X" via
-  `onUtterance`; delete confirmed via `bus.offer`.
+- (Reading History was replaced by the Library in Phase 6E.)
 
 ## Testing
 - `test/helpers/fakes.dart` (`TestEnv`, `FakeTts`, `FakeSpeechInput`, `FakePermissions`, …);
@@ -81,8 +111,8 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   switches the settings scope), `GuestReminders`.
 - `bootstrap()` → `restoreSession()`: secure-storage session (or the old
   `account.currentUser` pref, moved once); "stay logged in" off → logged out at launch,
-  look kept on the device. `routerProvider` starts at `AppRoutes.home(account)`
-  (upgrade for legacy, setup if not completed, else Capture), Welcome, or `/auth`
+  look kept on the device. `routerProvider` starts at `AppRoutes.landing(account)`
+  (upgrade for legacy, setup if not completed, else Home), Welcome, or `/auth`
   (expired).
 - `features/auth/voice_form.dart`: `VoiceForm` — fields are focusable actions; any
   non-command utterance fills the focused field (exact command phrases win), read back
@@ -111,7 +141,7 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   with the system bars and text size 48: no page scrolling.
 - `GestureSurface` turns off overscroll effects under it: the Android stretch effect
   crashed `flutter_tester` (0xC0000005) on vertical swipes over a scroll view.
-- Reading history is per user (`documents.user_id`); `DocumentsDao.list(userId:)`.
+- The Library is per user (`library_items.user_id`); `LibraryDao.list(userId)`.
 
 ## Maglarawan — image description (Phase 6C)
 - `core/describe/`: `ImageLabelerService` (ML Kit base model, offline) → `pickLabels`
@@ -130,9 +160,44 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 - `DocumentBox(header:, onTextSize:)`: the thumbnail scrolls with the text; the same
   pinch/A−/A+ text size as the Reader.
 - Database v3 rebuilt `documents` to allow `source_type = 'description'` and added
-  `thumbnail_path`. History opens those entries on the Description screen.
+  `thumbnail_path`; v4 moved those rows to `library_items` (`source = 'description'`).
+  The Library opens them on the Description screen.
 - Capture: third action `capture.describe`; `DescribeIntroOnEntry` reads the full
   explanation once per user (`describe.introSeen`); `onUtterance` answers "ano ang
   maglarawan / paliwanag / explain / tulong" while the button is focused.
 - Tests: `TestEnv` fakes (`labeler`, `ocr`, `imagePrep`, `describeRepo`, `online`) and
   marks the intro as already heard unless `describeIntroSeen: false`.
+
+## Aklatan — the Library (Phase 6E, Part A)
+Spec: `library.md`; endpoints: `../api-contract.md`.
+- **Routes:** `AppRoutes.home` is the base of the back stack; `capture`, `library`,
+  `libraryItem`, `favorites`, `chapters` are pushed on top, so Back always returns to Home.
+  `_openLibrary()` / `_goAndActivate` in `CommandBus` rebuild `home → screen`.
+  `AppRoutes.landing(account)` = upgrade / setup / Home.
+- **Data (schema v4):** `library_items` (own documents + one row per user per catalog
+  book), `library_favorites`, `library_collections`, `library_collection_items`. Every row
+  has a UUID, `synced`, `updated_at`; own documents are `local_only`. `documents_legacy` is
+  the renamed old table, kept as a safety copy until a later migration drops it.
+  `LibraryDao` leaves text out of list queries; `loadText(item)` reads the DB text (own
+  documents, `text_ref = 'db'`) or the JSON text cache (`text_ref = 'file'`, `BookText`).
+- **Position:** (chapter index, sentence inside the chapter); `percent` = global sentence
+  / `total_sentences`. `ChapteredText` lays chapters out as one string + sentences +
+  `chapterStarts`. Migrated history is chapter 0; totals are back-filled when the Library
+  or the Reader first opens the item.
+- **Books:** `AdminBookRepository` (mock: `sample_books.dart` builds EPUB and PDF bytes),
+  `LibraryService` (refresh catalog, read online into the cache, download, remove, update),
+  `EpubParser` (container → OPF spine → nav/NCX titles → XHTML paragraphs; records image
+  positions in `BookText.images` for Part B; DRM/invalid reported), PDF chapters from the
+  outline (`chaptersFromPdf`). Parsing runs off the main thread (`compute`).
+- **UI:** `HomeScreen`; `LibraryScreen` (shelves; its own focus: swipe left/right in a
+  shelf, up/down between shelves; `LibraryController` holds the lists; `LibraryActions`
+  opens/downloads/marks); `ItemDetailsScreen`, `FavoritesScreen`, `ChaptersScreen` reuse
+  `BoxedList`. Reader: "Paborito" button in the `DocumentBox` bar, intents `favorite`,
+  `favorites`, `nextChapter`, `previousChapter`.
+- **Guests:** first download → `guestDownloadWarning` offer (decline continues); one more
+  reminder from the Library; `migrateGuest` moves items, favorites and collections.
+- **Sync design:** `LibrarySyncRepository` (mock); `LibraryDao.syncBatch(userId)` builds
+  what would be sent — admin-book data only.
+- **Tests:** `TestEnv` has `books` (mock web app), `storage`, `libraryPaths` (temp dir),
+  `bookLoader`; `seedDocument` / `seedBook` in `test/helpers/library_seed.dart`;
+  `pumpAppOnCapture` opens Capture from Home.

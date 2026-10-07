@@ -1,8 +1,114 @@
-# Web app API contract
+# Web app API contract — what Percipere needs
 
-The Percipere app talks to the separate web admin app at `API_BASE_URL`. The app never
-calls Gemini (or any AI service) directly and never holds an API key: the web app does.
-Until the web app exists the app uses mocks (`USE_MOCK_API=true`, the default).
+Endpoints the web admin app must provide. Today the app talks to a **mock**
+(`MockAdminBookRepository`, `MockLibrarySyncRepository`,
+`MockImageDescriptionRepository`); the real clients replace the mocks behind the same
+interfaces (`lib/core/library/admin_book_repository.dart`,
+`library_sync_repository.dart`, `lib/core/network/image_description_repository.dart`).
+
+All paths are under the web app's base URL (`Env`). JSON is UTF-8. Dates are ISO 8601
+(UTC). Errors: a JSON body `{"error": "message"}` with a normal HTTP status. The app is
+**offline-first**: every call may fail with no internet, and nothing blocks reading.
+
+Authentication: the Library endpoints for the catalog are **public** (guests read and
+download books too). The sync endpoints need the signed-in account's token (Phase 7).
+
+---
+
+## Books (admin-managed) — Phase 6E
+
+### Book object
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | stable id |
+| `title` | string | |
+| `author` | string | |
+| `language` | `"fil"` \| `"en"` | |
+| `category` | string | category name (shelf title in the app) |
+| `description` | string | short, read aloud on the details screen |
+| `format` | `"pdf"` \| `"epub"` | |
+| `fileSize` | integer | bytes; the app announces it before a download |
+| `coverUrl` | string \| null | |
+| `version` | integer | **must increase whenever the file is replaced** |
+| `createdAt` | date-time | |
+| `updatedAt` | date-time | |
+| `active` | boolean | `false` once an admin removed the book |
+
+### `GET /api/books`
+The catalog.
+
+Query: `page` (default 1), `pageSize` (default 50), `category` (name), `q` (search in
+title/author), `since` (date-time: only books created **or changed** after it, **including
+inactive ones**, so the app learns about removals).
+
+Response: `{ "items": [Book], "page": 1, "pageSize": 50, "total": 3 }`
+
+The app reads every page, then:
+- books it has not seen → shown as **"Bago"** and announced ("May mga bagong aklat sa
+  Aklatan.", no number);
+- a downloaded book with a higher `version` → offers to update the download, keeping the
+  reading position;
+- `active: false` (or a book that disappears) → the user is told, the progress record is
+  kept and the book is marked unavailable.
+
+### `GET /api/books/{id}`
+One book (Book object). 404 if it never existed.
+
+### `GET /api/books/{id}/file`
+The PDF or EPUB bytes (`Content-Type: application/pdf` or `application/epub+zip`), with
+`Content-Length` so the app can announce progress, and `Accept-Ranges` if possible.
+- **PDF**: text layer preferred; scanned pages are OCR'd on the phone. A PDF outline gives
+  the chapters.
+- **EPUB**: EPUB 2 or 3, **no DRM** (DRM-protected files are rejected with a spoken
+  message). The spine gives the chapter order, the nav document or NCX the titles. Images
+  are allowed (Part B describes them on the phone). Prefer `alt` text on images.
+- 404 / 410 if the book was removed.
+
+### `GET /api/books/{id}/cover`
+The cover image (JPEG or PNG, about 300 × 400 px is enough). 404 if none.
+
+### `GET /api/categories`
+`{ "items": [ { "name": "Pabula", "count": 12 } ] }`
+
+### Content rules
+Only public-domain or properly licensed books. The app reads files aloud and stores
+extracted text on the phone.
+
+---
+
+## Library sync — Phase 7 (designed now, not built)
+
+Only **admin-book data** syncs. The user's own scanned and uploaded documents **never
+leave the phone** (privacy); the app marks them `local_only` and the sync layer skips
+them. Every record has a client-generated `id` (UUID) and `updatedAt`; the server keeps the
+newest `updatedAt` per id (last write wins).
+
+When the same account signs in on another device, its book list, progress, favorites and
+collections are restored; downloads can be fetched again.
+
+### `PUT /api/library/books`
+The books the user added or downloaded: `[ { "bookId": "...", "downloaded": true } ]`.
+
+### `PUT /api/library/progress`
+`[ { "bookId": "...", "chapter": 2, "sentence": 14, "percent": 37.5, "finished": false,
+"updatedAt": "..." } ]` — `chapter` and `sentence` are the exact resume position
+(`sentence` counted inside the chapter).
+
+### `PUT /api/library/favorites`
+`[ { "id": "uuid", "bookId": "...", "chapter": 2, "sentence": 14, "label": "first words",
+"updatedAt": "...", "deleted": false } ]`
+
+### `PUT /api/library/collections`
+`[ { "id": "uuid", "name": "Paaralan", "bookIds": ["..."], "updatedAt": "...", "deleted":
+false } ]` — only book ids are listed; documents in a collection stay on the phone.
+
+### `GET /api/library?since=<date-time>`
+Everything above changed after `since`, for a new device:
+`{ "books": [...], "progress": [...], "favorites": [...], "collections": [...] }`
+
+---
+
+# Image description — Phase 6C
 
 ## `POST /api/describe-image` — detailed image description (Maglarawan)
 

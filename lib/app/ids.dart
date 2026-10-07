@@ -59,9 +59,6 @@ abstract final class Ids {
   /// Reader screen.
   static const String reader = 'reader';
 
-  /// Capture: open Reading History.
-  static const String captureHistory = 'capture.history';
-
   /// Capture: open Settings.
   static const String captureSettings = 'capture.settings';
 
@@ -107,14 +104,44 @@ abstract final class Ids {
   /// Setting row.
   static const String settingDescribeConsent = 'settings.describeConsent';
 
-  /// Reading History screen.
-  static const String history = 'history';
+  /// Home: what do you want to do?
+  static const String home = 'home';
+
+  /// Home: read something new (Capture).
+  static const String homeRead = 'home.read';
+
+  /// Home: open the Library.
+  static const String homeLibrary = 'home.library';
+
+  /// Home: open Settings.
+  static const String homeSettings = 'home.settings';
+
+  /// Library screen (Aklatan).
+  static const String library = 'library';
+
+  /// Library item details; each action adds `.<name>`.
+  static const String libraryItem = 'libraryItem';
+
+  /// Favorites list of one item.
+  static const String favorites = 'favorites';
+
+  /// Chapters list of one item.
+  static const String chapters = 'chapters';
+
+  /// Picker for the collection to add an item to.
+  static const String collectionPicker = 'collectionPicker';
+
+  /// Reader: save the current spot as a favorite.
+  static const String readerFavorite = 'reader.favorite';
 
   /// Setting row.
   static const String settingTextColor = 'settings.textColor';
 
   /// Setting row.
   static const String settingAutoRead = 'settings.autoRead';
+
+  /// Setting: listen while reading (barge-in).
+  static const String settingListenWhileReading = 'settings.listenWhileReading';
 
   /// Setting row.
   static const String settingStayLoggedIn = 'settings.stayLoggedIn';

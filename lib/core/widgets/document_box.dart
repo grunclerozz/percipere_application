@@ -27,8 +27,17 @@ class DocumentBox extends StatefulWidget {
     this.scrollController,
     this.emptyMessage,
     this.onTextSize,
+    this.onFavorite,
+    this.favoriteLabel,
     this.header,
   });
+
+  /// Saves the current spot as a favorite. Non-null shows a "Paborito" button
+  /// between A− and A+.
+  final VoidCallback? onFavorite;
+
+  /// Spoken and visible label of the favorite button.
+  final String? favoriteLabel;
 
   /// Asks for a bigger (1) or smaller (−1) text size. Non-null shows the
   /// A−/A+ buttons above the text and turns on pinch-to-zoom.
@@ -252,6 +261,8 @@ class _DocumentBoxState extends State<DocumentBox> {
               _SizeBar(
                 size: _lastSize ?? TextSize.standard,
                 onTextSize: widget.onTextSize!,
+                onFavorite: widget.onFavorite,
+                favoriteLabel: widget.favoriteLabel,
               ),
             Expanded(
               child: Listener(
@@ -321,10 +332,17 @@ class _DocumentBoxState extends State<DocumentBox> {
 
 /// "A−  18  A+" above the text: big, always visible, spoken by label.
 class _SizeBar extends StatelessWidget {
-  const _SizeBar({required this.size, required this.onTextSize});
+  const _SizeBar({
+    required this.size,
+    required this.onTextSize,
+    this.onFavorite,
+    this.favoriteLabel,
+  });
 
   final double size;
   final void Function(int direction) onTextSize;
+  final VoidCallback? onFavorite;
+  final String? favoriteLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -340,14 +358,22 @@ class _SizeBar extends StatelessWidget {
             onTap: () => onTextSize(-1),
           ),
           Expanded(
-            child: ExcludeSemantics(
-              child: Text(
-                '${size.round()}',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelLarge
-                    ?.copyWith(color: p.body),
-              ),
-            ),
+            child: onFavorite == null
+                ? ExcludeSemantics(
+                    child: Text(
+                      '${size.round()}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelLarge
+                          ?.copyWith(color: p.body),
+                    ),
+                  )
+                : Center(
+                    child: _SizeButton(
+                      glyph: '★ ${favoriteLabel ?? ''}',
+                      label: favoriteLabel ?? '',
+                      onTap: onFavorite!,
+                    ),
+                  ),
           ),
           _SizeButton(
             glyph: 'A+',

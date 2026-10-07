@@ -265,6 +265,22 @@ class AppLocalizationsFil extends AppLocalizations {
   String get uploadCancelled => 'Walang napiling file.';
 
   @override
+  String get uploadFailed =>
+      'Hindi ko makuha ang file na pinili mo. Subukan ulit, o pumili ng ibang file.';
+
+  @override
+  String get readerFileMissing =>
+      'Nawala ang file bago ko ito nabasa. Pakisubukan ulit.';
+
+  @override
+  String get readerOcrFailed =>
+      'Hindi gumana ang pagbasa ng teksto sa phone na ito ngayon. Hindi sira ang file. Pakisubukan ulit.';
+
+  @override
+  String get readerSaveFailed =>
+      'Mababasa mo ito, pero hindi ko ito na-save sa Aklatan.';
+
+  @override
   String readerExtractingPage(int page, int total) {
     return 'Binabasa ang pahina $page sa $total.';
   }
@@ -338,7 +354,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get readerTextSmaller => 'Paliitin ang teksto';
 
   @override
-  String get readerSaved => 'Na-save sa kasaysayan.';
+  String get readerSaved => 'Na-save sa Aklatan.';
 
   @override
   String get readerAtStart => 'Ito na ang simula.';
@@ -355,7 +371,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.';
+      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area para huminto agad at makinig.';
 
   @override
   String get captureDescribe => 'Maglarawan';
@@ -459,9 +475,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get valueConsentDeclined => 'Hindi pinapayagan';
-
-  @override
-  String get captureHistory => 'Kasaysayan';
 
   @override
   String get captureSettings => 'Mga Setting';
@@ -573,23 +586,6 @@ class AppLocalizationsFil extends AppLocalizations {
   String get actionOpen => 'Buksan';
 
   @override
-  String get screenHistory => 'Kasaysayan ng Pagbasa';
-
-  @override
-  String historyIntro(int count) {
-    return 'May $count na dokumento. Mag-swipe pakanan para marinig ang bawat isa, at i-double tap para buksan.';
-  }
-
-  @override
-  String get historyEmpty =>
-      'Wala pang nababasang dokumento. Magbasa muna gamit ang Mag-upload o ang Camera.';
-
-  @override
-  String historyItem(String title, String source, String date) {
-    return '$title, $source, $date';
-  }
-
-  @override
   String get sourceCamera => 'litrato';
 
   @override
@@ -613,11 +609,6 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get historyShowAll => 'Ipinapakita muli ang lahat.';
-
-  @override
-  String historyOptions(String title) {
-    return 'Mga opsyon para sa $title. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin. I-double tap para piliin.';
-  }
 
   @override
   String get optOpen => 'Buksan';
@@ -646,13 +637,6 @@ class AppLocalizationsFil extends AppLocalizations {
   String historyDeleted(String title) {
     return 'Nabura ang “$title”.';
   }
-
-  @override
-  String get historySearch => 'Hanapin';
-
-  @override
-  String get helpHistory =>
-      'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String get fieldEmail => 'Email Address';
@@ -1244,6 +1228,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get setAutoRead => 'Awtomatikong pagbasa';
 
   @override
+  String get setListenWhileReading => 'Makinig habang nagbabasa';
+
+  @override
   String get setStayLoggedIn => 'Manatiling naka-login';
 
   @override
@@ -1273,4 +1260,479 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get setupPitchSample => 'Ganito ang tono ng boses.';
+
+  @override
+  String get screenHome => 'Home';
+
+  @override
+  String get homePrompt => 'Ano ang gusto mong gawin?';
+
+  @override
+  String get homeRead => 'Magbasa ng bago';
+
+  @override
+  String get homeLibrary => 'Aklatan';
+
+  @override
+  String get screenLibrary => 'Aklatan';
+
+  @override
+  String get libraryPrompt =>
+      'Mag-swipe pakanan o pakaliwa para lumipat ng aytem, at pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye.';
+
+  @override
+  String get libraryNewBooks => 'May mga bagong aklat sa Aklatan.';
+
+  @override
+  String get shelfControls => 'Paghahanap at mga filter';
+
+  @override
+  String get shelfContinue => 'Ituloy ang pagbasa';
+
+  @override
+  String get shelfDocuments => 'Aking mga dokumento';
+
+  @override
+  String get shelfCollections => 'Mga koleksyon';
+
+  @override
+  String get shelfBooks => 'Mga aklat';
+
+  @override
+  String get shelfResults => 'Mga resulta';
+
+  @override
+  String shelfAnnounce(String title, int count) {
+    return '$title, $count aytem';
+  }
+
+  @override
+  String get emptyContinue => 'Wala ka pang sinisimulang basahin.';
+
+  @override
+  String get emptyDocuments =>
+      'Wala ka pang dokumento. Mag-scan o mag-upload para magsimula.';
+
+  @override
+  String get emptyCollections =>
+      'Wala ka pang koleksyon. Sabihin ang “gumawa ng koleksyon” para gumawa.';
+
+  @override
+  String get emptyBooks =>
+      'Wala pang aklat sa ngayon. Kailangan ng internet para makita ang mga aklat.';
+
+  @override
+  String get emptyResults => 'Walang tugma sa napili mo.';
+
+  @override
+  String get emptyCollection => 'Walang laman ang koleksyong ito.';
+
+  @override
+  String get libSearch => 'Hanapin';
+
+  @override
+  String get libFilter => 'Salain';
+
+  @override
+  String get libNewCollection => 'Gumawa ng koleksyon';
+
+  @override
+  String get filterAll => 'Lahat';
+
+  @override
+  String get filterDocuments => 'Aking mga dokumento';
+
+  @override
+  String get filterBooks => 'Mga aklat';
+
+  @override
+  String get filterDownloaded => 'Na-download';
+
+  @override
+  String get filterFinished => 'Tapos na';
+
+  @override
+  String get filterFavorites => 'May paborito';
+
+  @override
+  String filterChanged(String name, int count) {
+    return 'Salain: $name, $count aytem.';
+  }
+
+  @override
+  String get librarySearchPrompt =>
+      'Sabihin ang hinahanap pagkatapos ng tunog.';
+
+  @override
+  String libraryItemTitleAuthor(String title, String author) {
+    return '$title, ni $author';
+  }
+
+  @override
+  String libraryItemTitleType(String title, String type) {
+    return '$title, $type';
+  }
+
+  @override
+  String libraryPercent(int percent) {
+    return '$percent porsiyento';
+  }
+
+  @override
+  String get libraryFinishedWord => 'tapos na';
+
+  @override
+  String get libraryNotStartedWord => 'hindi pa nasisimulan';
+
+  @override
+  String libraryLastRead(String when) {
+    return 'huling binasa $when';
+  }
+
+  @override
+  String get libraryNewLabel => 'Bago';
+
+  @override
+  String get libraryDownloadedWord => 'naka-download';
+
+  @override
+  String get libraryUnavailableWord => 'hindi na available';
+
+  @override
+  String get whenToday => 'ngayon';
+
+  @override
+  String get whenYesterday => 'kahapon';
+
+  @override
+  String whenDaysAgo(int days) {
+    return '$days araw na ang nakalipas';
+  }
+
+  @override
+  String get formatEpub => 'EPUB';
+
+  @override
+  String libraryCollectionLine(String name, int count) {
+    return 'Koleksyon: $name, $count aytem';
+  }
+
+  @override
+  String get libraryNeedsInternet =>
+      'Kailangan ng internet para mabasa ito. I-download ito kapag may internet.';
+
+  @override
+  String libraryOpening(String title) {
+    return 'Binubuksan ang $title.';
+  }
+
+  @override
+  String libraryNotFound(String query) {
+    return 'Hindi ko nahanap ang “$query” sa Aklatan.';
+  }
+
+  @override
+  String get collectionNamePrompt =>
+      'Sabihin ang pangalan ng koleksyon pagkatapos ng tunog.';
+
+  @override
+  String collectionCreated(String name) {
+    return 'Nagawa ang koleksyon na $name.';
+  }
+
+  @override
+  String collectionOptions(String name) {
+    return 'Mga opsyon para sa koleksyong $name. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin.';
+  }
+
+  @override
+  String collectionRenamed(String name) {
+    return 'Pinalitan ang pangalan ng koleksyon: $name.';
+  }
+
+  @override
+  String collectionDeleteConfirm(String name) {
+    return 'Burahin ang koleksyong $name? Hindi mabubura ang mga laman nito.';
+  }
+
+  @override
+  String collectionDeleted(String name) {
+    return 'Nabura ang koleksyong $name.';
+  }
+
+  @override
+  String collectionOpened(String name, int count) {
+    return 'Koleksyon: $name, $count aytem.';
+  }
+
+  @override
+  String bookRemovedNotice(String title) {
+    return 'Inalis na ang $title sa Aklatan. Nasa iyo pa rin ang iyong progreso.';
+  }
+
+  @override
+  String get screenItemDetails => 'Detalye';
+
+  @override
+  String get detailsNotStarted => 'Hindi pa nasisimulan.';
+
+  @override
+  String get detailsFinished => 'Tapos mo nang basahin.';
+
+  @override
+  String detailsProgress(int percent) {
+    return '$percent porsiyento ang nabasa.';
+  }
+
+  @override
+  String detailsMinutesLeft(int minutes) {
+    return 'Mga $minutes minuto pa ang natitira.';
+  }
+
+  @override
+  String get detailsLessThanMinute => 'Wala pang isang minuto ang natitira.';
+
+  @override
+  String get actContinue => 'Ituloy';
+
+  @override
+  String get actRead => 'Basahin';
+
+  @override
+  String get actFromStart => 'Basahin mula sa simula';
+
+  @override
+  String get actFavorites => 'Mga paborito';
+
+  @override
+  String get actChapters => 'Mga kabanata';
+
+  @override
+  String get actAddToCollection => 'Idagdag sa koleksyon';
+
+  @override
+  String get actDownload => 'I-download';
+
+  @override
+  String actDownloadSized(String size) {
+    return 'I-download, $size';
+  }
+
+  @override
+  String get actRemoveDownload => 'Alisin ang download';
+
+  @override
+  String get actMarkFinished => 'Markahan bilang tapos na';
+
+  @override
+  String get actMarkUnfinished => 'Markahan bilang hindi pa tapos';
+
+  @override
+  String sizeMegabytes(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String sizeKilobytes(String size) {
+    return '$size KB';
+  }
+
+  @override
+  String get bookLoading => 'Kinukuha ang aklat…';
+
+  @override
+  String bookLoadingPercent(int percent) {
+    return '$percent porsiyento na.';
+  }
+
+  @override
+  String get bookPreparing => 'Inihahanda ang aklat…';
+
+  @override
+  String downloadDone(String title) {
+    return 'Na-download ang $title.';
+  }
+
+  @override
+  String downloadRemoved(String title) {
+    return 'Naalis ang download ng $title.';
+  }
+
+  @override
+  String downloadLowStorage(String size) {
+    return 'Kaunti na lang ang espasyo ng phone. Mga $size ang kailangan para dito. Gusto mo bang ituloy pa rin?';
+  }
+
+  @override
+  String bookUnavailable(String title) {
+    return 'Hindi na available ang $title.';
+  }
+
+  @override
+  String get bookDrm =>
+      'Protektado ng DRM ang EPUB na ito, kaya hindi ito mabubuksan ng app.';
+
+  @override
+  String get bookInvalid => 'Sira o hindi wastong aklat ang file na ito.';
+
+  @override
+  String get bookEmpty => 'Walang nabasang teksto sa aklat na ito.';
+
+  @override
+  String get bookFailed =>
+      'May problema sa pagkuha ng aklat. Subukan ulit mamaya.';
+
+  @override
+  String bookUpdateOffer(String title) {
+    return 'May bagong bersyon ang $title. I-update ang download? Mananatili ang iyong progreso.';
+  }
+
+  @override
+  String bookUpdated(String title) {
+    return 'Na-update ang $title.';
+  }
+
+  @override
+  String markedFinished(String title) {
+    return 'Minarkahan na tapos na ang $title.';
+  }
+
+  @override
+  String markedUnfinished(String title) {
+    return 'Minarkahan na hindi pa tapos ang $title.';
+  }
+
+  @override
+  String collectionPickIntro(String title) {
+    return 'Idagdag ang $title sa aling koleksyon? Mag-swipe para pumili, i-double tap para idagdag o alisin.';
+  }
+
+  @override
+  String get collectionPickNone =>
+      'Wala ka pang koleksyon. Gumawa muna ng isa sa Aklatan.';
+
+  @override
+  String collectionPickIn(String name) {
+    return '$name, nandito na';
+  }
+
+  @override
+  String collectionAdded(String title, String name) {
+    return 'Naidagdag ang $title sa $name.';
+  }
+
+  @override
+  String collectionItemRemoved(String title, String name) {
+    return 'Naalis ang $title sa $name.';
+  }
+
+  @override
+  String get guestDownloadWarning =>
+      'Paalala: Naka-save lang ang iyong mga aklat sa phone na ito. Kapag nabura ang app, mawawala ang mga ito. Mag-register para ma-save ang iyong Aklatan at mabuksan ito sa ibang device. Gusto mo bang mag-register ngayon?';
+
+  @override
+  String get guestDocumentsStayHere =>
+      'Ang mga dokumentong sinu-scan o ina-upload mo ay mananatili sa phone na ito at hindi ipinapadala sa server, para sa iyong privacy.';
+
+  @override
+  String get screenFavorites => 'Mga paborito';
+
+  @override
+  String favoritesIntro(String title, int count) {
+    return 'Mga paborito sa $title. $count ang naka-save. Mag-swipe para pumili, i-double tap para pumunta roon.';
+  }
+
+  @override
+  String favoritesEmpty(String title) {
+    return 'Wala ka pang paborito sa $title. Sabihin ang “paborito” habang nagbabasa.';
+  }
+
+  @override
+  String favoriteLine(String chapter, String label) {
+    return '$chapter: $label';
+  }
+
+  @override
+  String get optGoHere => 'Pumunta dito';
+
+  @override
+  String get favoriteOptions =>
+      'Mga opsyon: Pumunta dito, o Burahin. Mag-swipe para pumili.';
+
+  @override
+  String favoriteDeleteConfirm(String label) {
+    return 'Burahin ang paborito na “$label”?';
+  }
+
+  @override
+  String get favoriteDeleted => 'Nabura ang paborito.';
+
+  @override
+  String get readerFavorite => 'Paborito';
+
+  @override
+  String get readerFavoriteSaved => 'Na-save bilang paborito';
+
+  @override
+  String readerChapter(String title) {
+    return '$title.';
+  }
+
+  @override
+  String get readerNoChapters => 'Walang kabanata ang dokumentong ito.';
+
+  @override
+  String readerFinishedTitle(String title) {
+    return 'Tapos mo nang basahin ang $title.';
+  }
+
+  @override
+  String get screenChapters => 'Mga kabanata';
+
+  @override
+  String chaptersIntro(String title, int count) {
+    return 'Mga kabanata ng $title. $count lahat. Mag-swipe para pumili, i-double tap para pumunta roon.';
+  }
+
+  @override
+  String get chaptersNone => 'Walang kabanata ang aytem na ito.';
+
+  @override
+  String chapterLine(int number, String title) {
+    return '$number. $title';
+  }
+
+  @override
+  String chapterFallback(int number) {
+    return 'Kabanata $number';
+  }
+
+  @override
+  String get helpHome =>
+      'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.';
+
+  @override
+  String get helpLibrary =>
+      'Mag-swipe pakanan o pakaliwa para lumipat ng aytem. Mag-swipe pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye. Sabihin ang “ituloy ang” at ang pamagat para ituloy agad, o “hanapin” para maghanap.';
+
+  @override
+  String get helpItemDetails =>
+      'Mag-swipe pakanan o pakaliwa para pumili ng aksyon, at i-double tap para gawin ito. Ang una ay ang pagbasa.';
+
+  @override
+  String get helpFavorites =>
+      'Mag-swipe pakanan o pakaliwa para pumili ng paborito. I-double tap para pumunta roon. Mag-swipe pataas para sa mga opsyon.';
+
+  @override
+  String get helpChapters =>
+      'Mag-swipe pakanan o pakaliwa para pumili ng kabanata, at i-double tap para pumunta roon.';
+
+  @override
+  String get libraryEdgeSide => 'Dulo ng istante.';
+
+  @override
+  String get libraryEdgeTop => 'Nasa pinakaitaas ka na.';
+
+  @override
+  String get libraryEdgeBottom => 'Nasa pinakababa ka na.';
 }

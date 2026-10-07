@@ -114,12 +114,12 @@ class DefaultDocumentExtractor implements DocumentExtractor {
     void Function(int page, int pageCount)? onPage,
   }) async {
     if (!await File(file.path).exists()) {
-      throw const ExtractionException(ExtractionFailure.unreadable, 'missing');
+      throw const ExtractionException(ExtractionFailure.missing, 'missing');
     }
     try {
       switch (file.kind) {
         case DocumentKind.image:
-          final page = await _ocr.recognizeFile(file.path);
+          final page = await recognizeOrThrow(_ocr, file.path);
           final text = await cleanTextAsync(page.text);
           return ExtractionResult(
             text: text,
@@ -148,9 +148,13 @@ class DefaultDocumentExtractor implements DocumentExtractor {
             usedOcr: pdf.ocrPageCount > 0,
           );
       }
-    } on ExtractionException {
+    } on ExtractionException catch (e, stack) {
+      debugPrint('[CAPTURE] extraction failed (${file.kind.name}): $e');
+      debugPrint('[CAPTURE] $stack');
       rethrow;
-    } on Object catch (e) {
+    } on Object catch (e, stack) {
+      debugPrint('[CAPTURE] extraction failed (${file.kind.name}): $e');
+      debugPrint('[CAPTURE] $stack');
       throw ExtractionException(ExtractionFailure.unreadable, '$e');
     }
   }

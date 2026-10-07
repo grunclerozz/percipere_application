@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../config/voice_config.dart';
 import '../tts/speech_language.dart';
 import '../tts/tts_service.dart';
 import 'action_registry.dart';
@@ -135,6 +137,26 @@ class Announcer extends Notifier<SpeechState> {
     if (ref.mounted && state.reading != reading) {
       state = state.withReading(reading);
     }
+  }
+
+  final List<(DateTime, String)> _readAloud = [];
+
+  /// Records a document sentence the Reader is about to read aloud, so voice
+  /// input can recognize the app's own voice (barge-in).
+  void noteReadAloud(String sentence) {
+    _readAloud.add((DateTime.now(), sentence));
+    while (_readAloud.length > VoiceConfig.echoSentences) {
+      _readAloud.removeAt(0);
+    }
+  }
+
+  /// Sentences read aloud since [since], plus the one before it (it may
+  /// still have been playing then).
+  List<String> readAloudSince(DateTime since) {
+    final start = _readAloud.indexWhere((e) => !e.$1.isBefore(since));
+    final from = start < 0 ? _readAloud.length - 1 : math.max(0, start - 1);
+    if (from < 0) return const [];
+    return [for (final e in _readAloud.skip(from)) e.$2];
   }
 
   /// Completes once no prompt is being spoken or queued.

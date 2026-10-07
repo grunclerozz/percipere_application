@@ -66,4 +66,4 @@ Mockups: `docs/ui/welcome screen.png`, `registration_form.png`, `register_confir
 
 ## After auth
 - After **registering** → profiling.
-- After **logging in** → Capture, or profiling if this account never completed it.
+- After **logging in** → Home, or profiling if this account never completed it.

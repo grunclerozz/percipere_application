@@ -524,6 +524,30 @@ abstract class AppLocalizations {
   /// **'Walang napiling file.'**
   String get uploadCancelled;
 
+  /// A file was chosen but could not be read or copied (not a cancel).
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko makuha ang file na pinili mo. Subukan ulit, o pumili ng ibang file.'**
+  String get uploadFailed;
+
+  /// The chosen file or photo no longer exists when reading starts.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nawala ang file bago ko ito nabasa. Pakisubukan ulit.'**
+  String get readerFileMissing;
+
+  /// The OCR engine failed; the file itself is fine.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi gumana ang pagbasa ng teksto sa phone na ito ngayon. Hindi sira ang file. Pakisubukan ulit.'**
+  String get readerOcrFailed;
+
+  /// The text was read but saving it to the Library failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mababasa mo ito, pero hindi ko ito na-save sa Aklatan.'**
+  String get readerSaveFailed;
+
   /// Progress while reading a multi-page PDF.
   ///
   /// In fil, this message translates to:
@@ -641,7 +665,7 @@ abstract class AppLocalizations {
   /// Caption after saving (documents are also auto-saved).
   ///
   /// In fil, this message translates to:
-  /// **'Na-save sa kasaysayan.'**
+  /// **'Na-save sa Aklatan.'**
   String get readerSaved;
 
   /// Previous sentence/paragraph at the start.
@@ -671,7 +695,7 @@ abstract class AppLocalizations {
   /// Spoken help on the Reader.
   ///
   /// In fil, this message translates to:
-  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.'**
+  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area para huminto agad at makinig.'**
   String get helpReader;
 
   /// Capture button: describe what is in a picture.
@@ -853,12 +877,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Hindi pinapayagan'**
   String get valueConsentDeclined;
-
-  /// Capture screen: open Reading History.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kasaysayan'**
-  String get captureHistory;
 
   /// Capture screen: open Settings.
   ///
@@ -1064,30 +1082,6 @@ abstract class AppLocalizations {
   /// **'Buksan'**
   String get actionOpen;
 
-  /// Spoken name of Reading History.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kasaysayan ng Pagbasa'**
-  String get screenHistory;
-
-  /// History entry prompt (count > 0). No plural form on purpose.
-  ///
-  /// In fil, this message translates to:
-  /// **'May {count} na dokumento. Mag-swipe pakanan para marinig ang bawat isa, at i-double tap para buksan.'**
-  String historyIntro(int count);
-
-  /// History has no documents.
-  ///
-  /// In fil, this message translates to:
-  /// **'Wala pang nababasang dokumento. Magbasa muna gamit ang Mag-upload o ang Camera.'**
-  String get historyEmpty;
-
-  /// A history entry as spoken and shown.
-  ///
-  /// In fil, this message translates to:
-  /// **'{title}, {source}, {date}'**
-  String historyItem(String title, String source, String date);
-
   /// Source type: camera photo.
   ///
   /// In fil, this message translates to:
@@ -1130,12 +1124,6 @@ abstract class AppLocalizations {
   /// **'Ipinapakita muli ang lahat.'**
   String get historyShowAll;
 
-  /// Options for a document (after swipe up).
-  ///
-  /// In fil, this message translates to:
-  /// **'Mga opsyon para sa {title}. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin. I-double tap para piliin.'**
-  String historyOptions(String title);
-
   /// History option.
   ///
   /// In fil, this message translates to:
@@ -1177,18 +1165,6 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Nabura ang “{title}”.'**
   String historyDeleted(String title);
-
-  /// Search field hint and voice keyword.
-  ///
-  /// In fil, this message translates to:
-  /// **'Hanapin'**
-  String get historySearch;
-
-  /// Spoken help in History.
-  ///
-  /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
-  String get helpHistory;
 
   /// Field (mockup).
   ///
@@ -2138,6 +2114,12 @@ abstract class AppLocalizations {
   /// **'Awtomatikong pagbasa'**
   String get setAutoRead;
 
+  /// Setting name: in voice mode, keep the microphone on while a document is read aloud so reading commands work at once.
+  ///
+  /// In fil, this message translates to:
+  /// **'Makinig habang nagbabasa'**
+  String get setListenWhileReading;
+
   /// Setting name.
   ///
   /// In fil, this message translates to:
@@ -2197,6 +2179,744 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Ganito ang tono ng boses.'**
   String get setupPitchSample;
+
+  /// Spoken name of the Home screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Home'**
+  String get screenHome;
+
+  /// Home screen question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang gusto mong gawin?'**
+  String get homePrompt;
+
+  /// Home button: read something new (Capture).
+  ///
+  /// In fil, this message translates to:
+  /// **'Magbasa ng bago'**
+  String get homeRead;
+
+  /// Home button: open the Library.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aklatan'**
+  String get homeLibrary;
+
+  /// Spoken name of the Library.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aklatan'**
+  String get screenLibrary;
+
+  /// Library entry prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para lumipat ng aytem, at pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye.'**
+  String get libraryPrompt;
+
+  /// Said when the catalog has books the user has not seen. No number on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'May mga bagong aklat sa Aklatan.'**
+  String get libraryNewBooks;
+
+  /// Name of the top row (search, filter, new collection).
+  ///
+  /// In fil, this message translates to:
+  /// **'Paghahanap at mga filter'**
+  String get shelfControls;
+
+  /// Shelf: items started but not finished.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ituloy ang pagbasa'**
+  String get shelfContinue;
+
+  /// Shelf: the user's own documents.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aking mga dokumento'**
+  String get shelfDocuments;
+
+  /// Shelf: the user's collections.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga koleksyon'**
+  String get shelfCollections;
+
+  /// Shelf: admin books (category name is used when grouped).
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga aklat'**
+  String get shelfBooks;
+
+  /// Shelf: search or filter results.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga resulta'**
+  String get shelfResults;
+
+  /// Entering a shelf. No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'{title}, {count} aytem'**
+  String shelfAnnounce(String title, int count);
+
+  /// Empty shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang sinisimulang basahin.'**
+  String get emptyContinue;
+
+  /// Empty shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang dokumento. Mag-scan o mag-upload para magsimula.'**
+  String get emptyDocuments;
+
+  /// Empty shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang koleksyon. Sabihin ang “gumawa ng koleksyon” para gumawa.'**
+  String get emptyCollections;
+
+  /// Empty shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang aklat sa ngayon. Kailangan ng internet para makita ang mga aklat.'**
+  String get emptyBooks;
+
+  /// Filter or search found nothing.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang tugma sa napili mo.'**
+  String get emptyResults;
+
+  /// Empty collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang laman ang koleksyong ito.'**
+  String get emptyCollection;
+
+  /// Library control: search.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hanapin'**
+  String get libSearch;
+
+  /// Library control: change the filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Salain'**
+  String get libFilter;
+
+  /// Library control: new collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gumawa ng koleksyon'**
+  String get libNewCollection;
+
+  /// Filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lahat'**
+  String get filterAll;
+
+  /// Filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aking mga dokumento'**
+  String get filterDocuments;
+
+  /// Filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga aklat'**
+  String get filterBooks;
+
+  /// Filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-download'**
+  String get filterDownloaded;
+
+  /// Filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na'**
+  String get filterFinished;
+
+  /// Filter: items with favorites.
+  ///
+  /// In fil, this message translates to:
+  /// **'May paborito'**
+  String get filterFavorites;
+
+  /// Filter changed. No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'Salain: {name}, {count} aytem.'**
+  String filterChanged(String name, int count);
+
+  /// Before dictating a search.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang hinahanap pagkatapos ng tunog.'**
+  String get librarySearchPrompt;
+
+  /// Item line start for a book.
+  ///
+  /// In fil, this message translates to:
+  /// **'{title}, ni {author}'**
+  String libraryItemTitleAuthor(String title, String author);
+
+  /// Item line start for an own document.
+  ///
+  /// In fil, this message translates to:
+  /// **'{title}, {type}'**
+  String libraryItemTitleType(String title, String type);
+
+  /// Progress, spoken.
+  ///
+  /// In fil, this message translates to:
+  /// **'{percent} porsiyento'**
+  String libraryPercent(int percent);
+
+  /// Item is finished.
+  ///
+  /// In fil, this message translates to:
+  /// **'tapos na'**
+  String get libraryFinishedWord;
+
+  /// Item not started.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi pa nasisimulan'**
+  String get libraryNotStartedWord;
+
+  /// When the item was last opened.
+  ///
+  /// In fil, this message translates to:
+  /// **'huling binasa {when}'**
+  String libraryLastRead(String when);
+
+  /// New book label.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bago'**
+  String get libraryNewLabel;
+
+  /// Book is on the phone.
+  ///
+  /// In fil, this message translates to:
+  /// **'naka-download'**
+  String get libraryDownloadedWord;
+
+  /// Book removed by the admin.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi na available'**
+  String get libraryUnavailableWord;
+
+  /// Relative date.
+  ///
+  /// In fil, this message translates to:
+  /// **'ngayon'**
+  String get whenToday;
+
+  /// Relative date.
+  ///
+  /// In fil, this message translates to:
+  /// **'kahapon'**
+  String get whenYesterday;
+
+  /// Relative date (2 or more days). No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'{days} araw na ang nakalipas'**
+  String whenDaysAgo(int days);
+
+  /// Type of a book.
+  ///
+  /// In fil, this message translates to:
+  /// **'EPUB'**
+  String get formatEpub;
+
+  /// A collection tile, spoken.
+  ///
+  /// In fil, this message translates to:
+  /// **'Koleksyon: {name}, {count} aytem'**
+  String libraryCollectionLine(String name, int count);
+
+  /// A book that is not on the phone, while offline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ng internet para mabasa ito. I-download ito kapag may internet.'**
+  String get libraryNeedsInternet;
+
+  /// Opening an item by voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Binubuksan ang {title}.'**
+  String libraryOpening(String title);
+
+  /// Voice command named an item that is not there.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko nahanap ang “{query}” sa Aklatan.'**
+  String libraryNotFound(String query);
+
+  /// Before dictating a collection name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang pangalan ng koleksyon pagkatapos ng tunog.'**
+  String get collectionNamePrompt;
+
+  /// Collection created.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagawa ang koleksyon na {name}.'**
+  String collectionCreated(String name);
+
+  /// Options for a collection (swipe up).
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga opsyon para sa koleksyong {name}. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin.'**
+  String collectionOptions(String name);
+
+  /// Collection renamed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinalitan ang pangalan ng koleksyon: {name}.'**
+  String collectionRenamed(String name);
+
+  /// Confirm deleting a collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang koleksyong {name}? Hindi mabubura ang mga laman nito.'**
+  String collectionDeleteConfirm(String name);
+
+  /// Collection deleted.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nabura ang koleksyong {name}.'**
+  String collectionDeleted(String name);
+
+  /// Collection opened as a filter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Koleksyon: {name}, {count} aytem.'**
+  String collectionOpened(String name, int count);
+
+  /// Told at a catalog refresh.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inalis na ang {title} sa Aklatan. Nasa iyo pa rin ang iyong progreso.'**
+  String bookRemovedNotice(String title);
+
+  /// Spoken name of the item details screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Detalye'**
+  String get screenItemDetails;
+
+  /// Details: progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pa nasisimulan.'**
+  String get detailsNotStarted;
+
+  /// Details: progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos mo nang basahin.'**
+  String get detailsFinished;
+
+  /// Details: progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'{percent} porsiyento ang nabasa.'**
+  String detailsProgress(int percent);
+
+  /// Details: estimated time left. No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga {minutes} minuto pa ang natitira.'**
+  String detailsMinutesLeft(int minutes);
+
+  /// Details: almost done.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang isang minuto ang natitira.'**
+  String get detailsLessThanMinute;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ituloy'**
+  String get actContinue;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Basahin'**
+  String get actRead;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Basahin mula sa simula'**
+  String get actFromStart;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga paborito'**
+  String get actFavorites;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga kabanata'**
+  String get actChapters;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Idagdag sa koleksyon'**
+  String get actAddToCollection;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-download'**
+  String get actDownload;
+
+  /// Details action with the file size.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-download, {size}'**
+  String actDownloadSized(String size);
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Alisin ang download'**
+  String get actRemoveDownload;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Markahan bilang tapos na'**
+  String get actMarkFinished;
+
+  /// Details action.
+  ///
+  /// In fil, this message translates to:
+  /// **'Markahan bilang hindi pa tapos'**
+  String get actMarkUnfinished;
+
+  /// File size.
+  ///
+  /// In fil, this message translates to:
+  /// **'{size} MB'**
+  String sizeMegabytes(String size);
+
+  /// File size.
+  ///
+  /// In fil, this message translates to:
+  /// **'{size} KB'**
+  String sizeKilobytes(String size);
+
+  /// Fetching a book to read online.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kinukuha ang aklat…'**
+  String get bookLoading;
+
+  /// Book fetch progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'{percent} porsiyento na.'**
+  String bookLoadingPercent(int percent);
+
+  /// Reading the downloaded file into text.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inihahanda ang aklat…'**
+  String get bookPreparing;
+
+  /// Download finished.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-download ang {title}.'**
+  String downloadDone(String title);
+
+  /// Download removed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naalis ang download ng {title}.'**
+  String downloadRemoved(String title);
+
+  /// Low storage warning (offer).
+  ///
+  /// In fil, this message translates to:
+  /// **'Kaunti na lang ang espasyo ng phone. Mga {size} ang kailangan para dito. Gusto mo bang ituloy pa rin?'**
+  String downloadLowStorage(String size);
+
+  /// Book removed by the admin.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi na available ang {title}.'**
+  String bookUnavailable(String title);
+
+  /// DRM-protected EPUB.
+  ///
+  /// In fil, this message translates to:
+  /// **'Protektado ng DRM ang EPUB na ito, kaya hindi ito mabubuksan ng app.'**
+  String get bookDrm;
+
+  /// Invalid EPUB or PDF.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sira o hindi wastong aklat ang file na ito.'**
+  String get bookInvalid;
+
+  /// Book has no readable text.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang nabasang teksto sa aklat na ito.'**
+  String get bookEmpty;
+
+  /// Book fetch or read failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'May problema sa pagkuha ng aklat. Subukan ulit mamaya.'**
+  String get bookFailed;
+
+  /// Offer to update a downloaded book.
+  ///
+  /// In fil, this message translates to:
+  /// **'May bagong bersyon ang {title}. I-update ang download? Mananatili ang iyong progreso.'**
+  String bookUpdateOffer(String title);
+
+  /// Download updated.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-update ang {title}.'**
+  String bookUpdated(String title);
+
+  /// Marked finished.
+  ///
+  /// In fil, this message translates to:
+  /// **'Minarkahan na tapos na ang {title}.'**
+  String markedFinished(String title);
+
+  /// Marked unfinished.
+  ///
+  /// In fil, this message translates to:
+  /// **'Minarkahan na hindi pa tapos ang {title}.'**
+  String markedUnfinished(String title);
+
+  /// Choosing a collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Idagdag ang {title} sa aling koleksyon? Mag-swipe para pumili, i-double tap para idagdag o alisin.'**
+  String collectionPickIntro(String title);
+
+  /// No collections to pick.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang koleksyon. Gumawa muna ng isa sa Aklatan.'**
+  String get collectionPickNone;
+
+  /// A collection that already holds the item.
+  ///
+  /// In fil, this message translates to:
+  /// **'{name}, nandito na'**
+  String collectionPickIn(String name);
+
+  /// Item added to a collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naidagdag ang {title} sa {name}.'**
+  String collectionAdded(String title, String name);
+
+  /// Item removed from a collection.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naalis ang {title} sa {name}.'**
+  String collectionItemRemoved(String title, String name);
+
+  /// First time a guest downloads a book (offer).
+  ///
+  /// In fil, this message translates to:
+  /// **'Paalala: Naka-save lang ang iyong mga aklat sa phone na ito. Kapag nabura ang app, mawawala ang mga ito. Mag-register para ma-save ang iyong Aklatan at mabuksan ito sa ibang device. Gusto mo bang mag-register ngayon?'**
+  String get guestDownloadWarning;
+
+  /// Privacy note about own documents.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang mga dokumentong sinu-scan o ina-upload mo ay mananatili sa phone na ito at hindi ipinapadala sa server, para sa iyong privacy.'**
+  String get guestDocumentsStayHere;
+
+  /// Spoken name of the favorites list.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga paborito'**
+  String get screenFavorites;
+
+  /// Favorites prompt. No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga paborito sa {title}. {count} ang naka-save. Mag-swipe para pumili, i-double tap para pumunta roon.'**
+  String favoritesIntro(String title, int count);
+
+  /// No favorites.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang paborito sa {title}. Sabihin ang “paborito” habang nagbabasa.'**
+  String favoritesEmpty(String title);
+
+  /// A favorite with its chapter.
+  ///
+  /// In fil, this message translates to:
+  /// **'{chapter}: {label}'**
+  String favoriteLine(String chapter, String label);
+
+  /// Favorite option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pumunta dito'**
+  String get optGoHere;
+
+  /// Options for a favorite (swipe up).
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga opsyon: Pumunta dito, o Burahin. Mag-swipe para pumili.'**
+  String get favoriteOptions;
+
+  /// Confirm deleting a favorite.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang paborito na “{label}”?'**
+  String favoriteDeleteConfirm(String label);
+
+  /// Favorite deleted.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nabura ang paborito.'**
+  String get favoriteDeleted;
+
+  /// Reader button: save this spot as a favorite.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paborito'**
+  String get readerFavorite;
+
+  /// Favorite saved.
+  ///
+  /// In fil, this message translates to:
+  /// **'Na-save bilang paborito'**
+  String get readerFavoriteSaved;
+
+  /// Chapter title announced when a chapter starts.
+  ///
+  /// In fil, this message translates to:
+  /// **'{title}.'**
+  String readerChapter(String title);
+
+  /// Next/previous chapter on a document without chapters.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang kabanata ang dokumentong ito.'**
+  String get readerNoChapters;
+
+  /// Last sentence read.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos mo nang basahin ang {title}.'**
+  String readerFinishedTitle(String title);
+
+  /// Spoken name of the chapters list.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga kabanata'**
+  String get screenChapters;
+
+  /// Chapters prompt. No plural on purpose.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga kabanata ng {title}. {count} lahat. Mag-swipe para pumili, i-double tap para pumunta roon.'**
+  String chaptersIntro(String title, int count);
+
+  /// No chapters.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang kabanata ang aytem na ito.'**
+  String get chaptersNone;
+
+  /// A chapter in the list.
+  ///
+  /// In fil, this message translates to:
+  /// **'{number}. {title}'**
+  String chapterLine(int number, String title);
+
+  /// Name of a chapter that has no title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kabanata {number}'**
+  String chapterFallback(int number);
+
+  /// Help for Home.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.'**
+  String get helpHome;
+
+  /// Help for the Library.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para lumipat ng aytem. Mag-swipe pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye. Sabihin ang “ituloy ang” at ang pamagat para ituloy agad, o “hanapin” para maghanap.'**
+  String get helpLibrary;
+
+  /// Help for item details.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para pumili ng aksyon, at i-double tap para gawin ito. Ang una ay ang pagbasa.'**
+  String get helpItemDetails;
+
+  /// Help for favorites.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para pumili ng paborito. I-double tap para pumunta roon. Mag-swipe pataas para sa mga opsyon.'**
+  String get helpFavorites;
+
+  /// Help for chapters.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa para pumili ng kabanata, at i-double tap para pumunta roon.'**
+  String get helpChapters;
+
+  /// Swiped past the last item of a shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Dulo ng istante.'**
+  String get libraryEdgeSide;
+
+  /// Swiped up from the first shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nasa pinakaitaas ka na.'**
+  String get libraryEdgeTop;
+
+  /// Swiped down from the last shelf.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nasa pinakababa ka na.'**
+  String get libraryEdgeBottom;
 }
 
 class _AppLocalizationsDelegate

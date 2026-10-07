@@ -64,6 +64,7 @@ class ScreenRegistration {
     this.includeModeHint = true,
     this.autoListen = false,
     this.onUtterance,
+    this.freeTextPrefixes,
     this.hasUnsavedInput,
     this.beforeBack,
   });
@@ -109,6 +110,14 @@ class ScreenRegistration {
   /// Return true if handled — for free-form commands like
   /// "hanapin resibo" that the phrase matcher can't express.
   final FutureOr<bool> Function(String text, CommandBus bus)? onUtterance;
+
+  /// How the free-text commands that [onUtterance] reads begin ("hanapin",
+  /// "ituloy ang"), so a partial result that is only their start doesn't run
+  /// as a command before the user finishes ("ituloy" → "ituloy ang Liham").
+  ///
+  /// A screen with [onUtterance] but no list waits for the final result for
+  /// every command; an empty list says [onUtterance] reads no free text.
+  final List<String>? freeTextPrefixes;
 
   /// Focusable actions, in order.
   List<A11yAction> get focusables =>

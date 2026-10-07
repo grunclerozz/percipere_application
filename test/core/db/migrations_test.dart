@@ -34,7 +34,11 @@ void main() {
     expect(rows.map((r) => r['name']).toSet(), {
       'users',
       'preferences',
-      'documents',
+      'documents_legacy',
+      'library_items',
+      'library_favorites',
+      'library_collections',
+      'library_collection_items',
       'usage_logs',
       'outbox',
       'sus_responses',
@@ -54,38 +58,44 @@ void main() {
       'created_at': now,
       'updated_at': now,
     });
-    await db.insert('documents', {
-      'user_id': 'u1',
+    Map<String, Object?> item(String id, String? user, String source) => {
+      'id': id,
+      'user_id': user,
+      'source': source,
+      'format': 'pdf',
       'title': 'Liham',
       'full_text': 'Magandang araw.',
-      'source_type': 'camera',
+      'created_at': now,
+      'updated_at': now,
+    };
+    await db.insert('library_items', item('i1', 'u1', 'camera'));
+    await db.insert('library_favorites', {
+      'id': 'f1',
+      'item_id': 'i1',
+      'sentence_index': 0,
+      'label': 'Magandang',
       'created_at': now,
       'updated_at': now,
     });
 
     await expectLater(
-      db.insert('documents', {
-        'user_id': 'missing',
-        'title': 'x',
-        'full_text': 'x',
-        'source_type': 'pdf',
-        'created_at': now,
-        'updated_at': now,
-      }),
+      db.insert('library_items', item('i2', 'missing', 'upload')),
       throwsA(isA<DatabaseException>()),
     );
 
     await db.delete('users', where: 'id = ?', whereArgs: ['u1']);
-    expect(await db.query('documents'), isEmpty);
+    expect(await db.query('library_items'), isEmpty);
+    expect(await db.query('library_favorites'), isEmpty);
   });
 
   test('check constraints reject invalid enum values', () async {
     const now = 1700000000000;
     await expectLater(
-      database.db.insert('documents', {
+      database.db.insert('library_items', {
+        'id': 'x',
         'title': 'x',
-        'full_text': 'x',
-        'source_type': 'fax',
+        'source': 'fax',
+        'format': 'pdf',
         'created_at': now,
         'updated_at': now,
       }),
@@ -250,6 +260,77 @@ void main() {
         }),
         throwsA(isA<DatabaseException>()),
       );
+    },
+  );
+
+  test(
+    'v3 → v4: every history entry becomes a library item, nothing lost',
+    () async {
+      final db = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: 3,
+          singleInstance: false,
+          onCreate: (db, _) => Migrations.migrate(db, 0, 3),
+        ),
+      );
+      addTearDown(db.close);
+      const now = 1700000000000;
+      await db.insert('users', {
+        'id': 'u1',
+        'display_name': 'Ana',
+        'secret_hash': 'h',
+        'secret_salt': 's',
+        'created_at': now,
+        'updated_at': now,
+      });
+      final types = ['camera', 'image', 'pdf', 'docx', 'description'];
+      for (var i = 0; i < types.length; i++) {
+        await db.insert('documents', {
+          'user_id': i == 4 ? null : 'u1',
+          'title': 'Title $i',
+          'full_text': 'Text $i.',
+          'source_type': types[i],
+          'language': i.isEven ? 'fil' : 'en',
+          'created_at': now + i,
+          'updated_at': now + i,
+          'last_opened_at': i == 1 ? now + 99 : null,
+          'last_position': i * 2,
+          'thumbnail_path': i == 4 ? 'thumbs/t.jpg' : null,
+        });
+      }
+
+      await db.transaction((txn) => Migrations.migrate(txn, 3, 4));
+
+      final items = await db.query('library_items', orderBy: 'legacy_id');
+      expect(items, hasLength(5), reason: 'no entry lost');
+      expect(await db.query('documents_legacy'), hasLength(5));
+      final expectedSource = [
+        'camera',
+        'upload',
+        'upload',
+        'upload',
+        'description',
+      ];
+      final expectedFormat = ['image', 'image', 'pdf', 'docx', 'image'];
+      for (var i = 0; i < 5; i++) {
+        final r = items[i];
+        expect(r['title'], 'Title $i');
+        expect(r['full_text'], 'Text $i.');
+        expect(r['source'], expectedSource[i]);
+        expect(r['format'], expectedFormat[i]);
+        expect(r['language'], i.isEven ? 'fil' : 'en');
+        expect(r['created_at'], now + i);
+        expect(r['sentence_index'], i * 2);
+        expect(r['chapter_index'], 0);
+        expect(r['text_ref'], 'db');
+        expect(r['local_only'], 1);
+        expect(r['user_id'], i == 4 ? null : 'u1');
+        expect((r['id']! as String).length, 36, reason: 'a real uuid');
+      }
+      expect(items[1]['last_opened_at'], now + 99);
+      expect(items[4]['cover_path'], 'thumbs/t.jpg');
+      expect(items.map((r) => r['id']).toSet(), hasLength(5));
     },
   );
 }

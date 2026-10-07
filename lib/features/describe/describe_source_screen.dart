@@ -43,6 +43,9 @@ class DescribeSourceScreen extends ConsumerWidget {
         case PickUnsupported():
           await bus.notAvailable();
           await bus.say(l.readerUnsupported);
+        case PickFailed():
+          await bus.notAvailable();
+          await bus.say(l.uploadFailed);
       }
     }
 

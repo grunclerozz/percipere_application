@@ -262,6 +262,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadCancelled => 'No file was chosen.';
 
   @override
+  String get uploadFailed =>
+      'I couldn\'t get the file you chose. Please try again, or choose another file.';
+
+  @override
+  String get readerFileMissing =>
+      'The file was gone before I could read it. Please try again.';
+
+  @override
+  String get readerOcrFailed =>
+      'The text reader on this phone didn\'t work just now. The file isn\'t damaged. Please try again.';
+
+  @override
+  String get readerSaveFailed =>
+      'You can read it, but I couldn\'t save it to the Library.';
+
+  @override
   String readerExtractingPage(int page, int total) {
     return 'Reading page $page of $total.';
   }
@@ -340,7 +356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerTextSmaller => 'Make the text smaller';
 
   @override
-  String get readerSaved => 'Saved to history.';
+  String get readerSaved => 'Saved to the Library.';
 
   @override
   String get readerAtStart => 'This is the beginning.';
@@ -357,7 +373,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back.';
+      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back. While reading, you can say pause, stop, faster, slower, bigger, smaller, favorite, repeat, or back at any time. This works best with earphones. Long-press the gesture area to stop at once and listen.';
 
   @override
   String get captureDescribe => 'Describe';
@@ -461,9 +477,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get valueConsentDeclined => 'Not allowed';
-
-  @override
-  String get captureHistory => 'History';
 
   @override
   String get captureSettings => 'Settings';
@@ -575,29 +588,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionOpen => 'Open';
 
   @override
-  String get screenHistory => 'Reading History';
-
-  @override
-  String historyIntro(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count documents.',
-      one: 'One document.',
-    );
-    return '$_temp0 Swipe right to hear each one, and double-tap to open it.';
-  }
-
-  @override
-  String get historyEmpty =>
-      'No documents yet. Read one first with Upload or the Camera.';
-
-  @override
-  String historyItem(String title, String source, String date) {
-    return '$title, $source, $date';
-  }
-
-  @override
   String get sourceCamera => 'photo';
 
   @override
@@ -629,11 +619,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyShowAll => 'Showing everything again.';
 
   @override
-  String historyOptions(String title) {
-    return 'Options for $title. Swipe to choose: Open, Rename, or Delete. Double-tap to select.';
-  }
-
-  @override
   String get optOpen => 'Open';
 
   @override
@@ -659,13 +644,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyDeleted(String title) {
     return 'Deleted “$title”.';
   }
-
-  @override
-  String get historySearch => 'Search';
-
-  @override
-  String get helpHistory =>
-      'Swipe right or left: move between documents. Double-tap: open and continue reading. Swipe up: options, such as rename and delete. Say “search” and a word to search. Two-finger swipe right: go back.';
 
   @override
   String get fieldEmail => 'Email Address';
@@ -1272,6 +1250,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setAutoRead => 'Auto-read documents';
 
   @override
+  String get setListenWhileReading => 'Listen while reading';
+
+  @override
   String get setStayLoggedIn => 'Stay logged in';
 
   @override
@@ -1301,4 +1282,514 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupPitchSample => 'This is how the voice sounds.';
+
+  @override
+  String get screenHome => 'Home';
+
+  @override
+  String get homePrompt => 'What would you like to do?';
+
+  @override
+  String get homeRead => 'Read something new';
+
+  @override
+  String get homeLibrary => 'Library';
+
+  @override
+  String get screenLibrary => 'Library';
+
+  @override
+  String get libraryPrompt =>
+      'Swipe right or left to move between items, and up or down to move between shelves. Double-tap to open the details.';
+
+  @override
+  String get libraryNewBooks => 'There are new books in the Library.';
+
+  @override
+  String get shelfControls => 'Search and filters';
+
+  @override
+  String get shelfContinue => 'Continue reading';
+
+  @override
+  String get shelfDocuments => 'My documents';
+
+  @override
+  String get shelfCollections => 'Collections';
+
+  @override
+  String get shelfBooks => 'Books';
+
+  @override
+  String get shelfResults => 'Results';
+
+  @override
+  String shelfAnnounce(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$title, $_temp0';
+  }
+
+  @override
+  String get emptyContinue => 'You have not started reading anything yet.';
+
+  @override
+  String get emptyDocuments =>
+      'You have no documents yet. Scan or upload one to begin.';
+
+  @override
+  String get emptyCollections =>
+      'You have no collections yet. Say “create a collection” to make one.';
+
+  @override
+  String get emptyBooks =>
+      'There are no books right now. You need internet to see the books.';
+
+  @override
+  String get emptyResults => 'Nothing matches your choice.';
+
+  @override
+  String get emptyCollection => 'This collection is empty.';
+
+  @override
+  String get libSearch => 'Search';
+
+  @override
+  String get libFilter => 'Filter';
+
+  @override
+  String get libNewCollection => 'Create a collection';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterDocuments => 'My documents';
+
+  @override
+  String get filterBooks => 'Books';
+
+  @override
+  String get filterDownloaded => 'Downloaded';
+
+  @override
+  String get filterFinished => 'Finished';
+
+  @override
+  String get filterFavorites => 'Has favorites';
+
+  @override
+  String filterChanged(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Filter: $name, $_temp0.';
+  }
+
+  @override
+  String get librarySearchPrompt =>
+      'Say what you are looking for after the beep.';
+
+  @override
+  String libraryItemTitleAuthor(String title, String author) {
+    return '$title, by $author';
+  }
+
+  @override
+  String libraryItemTitleType(String title, String type) {
+    return '$title, $type';
+  }
+
+  @override
+  String libraryPercent(int percent) {
+    return '$percent percent';
+  }
+
+  @override
+  String get libraryFinishedWord => 'finished';
+
+  @override
+  String get libraryNotStartedWord => 'not started';
+
+  @override
+  String libraryLastRead(String when) {
+    return 'last read $when';
+  }
+
+  @override
+  String get libraryNewLabel => 'New';
+
+  @override
+  String get libraryDownloadedWord => 'downloaded';
+
+  @override
+  String get libraryUnavailableWord => 'no longer available';
+
+  @override
+  String get whenToday => 'today';
+
+  @override
+  String get whenYesterday => 'yesterday';
+
+  @override
+  String whenDaysAgo(int days) {
+    return '$days days ago';
+  }
+
+  @override
+  String get formatEpub => 'EPUB';
+
+  @override
+  String libraryCollectionLine(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Collection: $name, $_temp0';
+  }
+
+  @override
+  String get libraryNeedsInternet =>
+      'You need internet to read this. Download it when you are online.';
+
+  @override
+  String libraryOpening(String title) {
+    return 'Opening $title.';
+  }
+
+  @override
+  String libraryNotFound(String query) {
+    return 'I could not find “$query” in the Library.';
+  }
+
+  @override
+  String get collectionNamePrompt =>
+      'Say the name of the collection after the beep.';
+
+  @override
+  String collectionCreated(String name) {
+    return 'Created the collection $name.';
+  }
+
+  @override
+  String collectionOptions(String name) {
+    return 'Options for the collection $name. Swipe to choose: Open, Rename, or Delete.';
+  }
+
+  @override
+  String collectionRenamed(String name) {
+    return 'Collection renamed: $name.';
+  }
+
+  @override
+  String collectionDeleteConfirm(String name) {
+    return 'Delete the collection $name? Its items will not be deleted.';
+  }
+
+  @override
+  String collectionDeleted(String name) {
+    return 'Deleted the collection $name.';
+  }
+
+  @override
+  String collectionOpened(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Collection: $name, $_temp0.';
+  }
+
+  @override
+  String bookRemovedNotice(String title) {
+    return '$title was removed from the Library. Your progress is still yours.';
+  }
+
+  @override
+  String get screenItemDetails => 'Details';
+
+  @override
+  String get detailsNotStarted => 'Not started yet.';
+
+  @override
+  String get detailsFinished => 'You have finished reading this.';
+
+  @override
+  String detailsProgress(int percent) {
+    return '$percent percent read.';
+  }
+
+  @override
+  String detailsMinutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return 'About $_temp0 left.';
+  }
+
+  @override
+  String get detailsLessThanMinute => 'Less than a minute left.';
+
+  @override
+  String get actContinue => 'Continue';
+
+  @override
+  String get actRead => 'Read';
+
+  @override
+  String get actFromStart => 'Read from the beginning';
+
+  @override
+  String get actFavorites => 'Favorites';
+
+  @override
+  String get actChapters => 'Chapters';
+
+  @override
+  String get actAddToCollection => 'Add to collection';
+
+  @override
+  String get actDownload => 'Download';
+
+  @override
+  String actDownloadSized(String size) {
+    return 'Download, $size';
+  }
+
+  @override
+  String get actRemoveDownload => 'Remove download';
+
+  @override
+  String get actMarkFinished => 'Mark as finished';
+
+  @override
+  String get actMarkUnfinished => 'Mark as unfinished';
+
+  @override
+  String sizeMegabytes(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String sizeKilobytes(String size) {
+    return '$size KB';
+  }
+
+  @override
+  String get bookLoading => 'Getting the book…';
+
+  @override
+  String bookLoadingPercent(int percent) {
+    return '$percent percent done.';
+  }
+
+  @override
+  String get bookPreparing => 'Preparing the book…';
+
+  @override
+  String downloadDone(String title) {
+    return '$title was downloaded.';
+  }
+
+  @override
+  String downloadRemoved(String title) {
+    return 'The download of $title was removed.';
+  }
+
+  @override
+  String downloadLowStorage(String size) {
+    return 'The phone is low on space. This needs about $size. Do you still want to go on?';
+  }
+
+  @override
+  String bookUnavailable(String title) {
+    return '$title is no longer available.';
+  }
+
+  @override
+  String get bookDrm =>
+      'This EPUB is protected by DRM, so the app cannot open it.';
+
+  @override
+  String get bookInvalid => 'This file is damaged or is not a valid book.';
+
+  @override
+  String get bookEmpty => 'No text could be read in this book.';
+
+  @override
+  String get bookFailed =>
+      'There was a problem getting the book. Please try again later.';
+
+  @override
+  String bookUpdateOffer(String title) {
+    return 'There is a new version of $title. Update the download? Your progress will be kept.';
+  }
+
+  @override
+  String bookUpdated(String title) {
+    return '$title was updated.';
+  }
+
+  @override
+  String markedFinished(String title) {
+    return '$title was marked as finished.';
+  }
+
+  @override
+  String markedUnfinished(String title) {
+    return '$title was marked as not finished.';
+  }
+
+  @override
+  String collectionPickIntro(String title) {
+    return 'Add $title to which collection? Swipe to choose, double-tap to add or remove.';
+  }
+
+  @override
+  String get collectionPickNone =>
+      'You have no collections yet. Create one in the Library first.';
+
+  @override
+  String collectionPickIn(String name) {
+    return '$name, already in';
+  }
+
+  @override
+  String collectionAdded(String title, String name) {
+    return '$title was added to $name.';
+  }
+
+  @override
+  String collectionItemRemoved(String title, String name) {
+    return '$title was removed from $name.';
+  }
+
+  @override
+  String get guestDownloadWarning =>
+      'Reminder: your books are only saved on this phone. If the app is erased, they will be lost. Register to save your Library and open it on another device. Do you want to register now?';
+
+  @override
+  String get guestDocumentsStayHere =>
+      'The documents you scan or upload stay on this phone and are never sent to the server, for your privacy.';
+
+  @override
+  String get screenFavorites => 'Favorites';
+
+  @override
+  String favoritesIntro(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count are saved',
+      one: '1 is saved',
+    );
+    return 'Favorites in $title. $_temp0. Swipe to choose, double-tap to go there.';
+  }
+
+  @override
+  String favoritesEmpty(String title) {
+    return 'You have no favorites in $title yet. Say “favorite” while reading.';
+  }
+
+  @override
+  String favoriteLine(String chapter, String label) {
+    return '$chapter: $label';
+  }
+
+  @override
+  String get optGoHere => 'Go here';
+
+  @override
+  String get favoriteOptions => 'Options: Go here, or Delete. Swipe to choose.';
+
+  @override
+  String favoriteDeleteConfirm(String label) {
+    return 'Delete the favorite “$label”?';
+  }
+
+  @override
+  String get favoriteDeleted => 'Favorite deleted.';
+
+  @override
+  String get readerFavorite => 'Favorite';
+
+  @override
+  String get readerFavoriteSaved => 'Saved as a favorite';
+
+  @override
+  String readerChapter(String title) {
+    return '$title.';
+  }
+
+  @override
+  String get readerNoChapters => 'This document has no chapters.';
+
+  @override
+  String readerFinishedTitle(String title) {
+    return 'You have finished reading $title.';
+  }
+
+  @override
+  String get screenChapters => 'Chapters';
+
+  @override
+  String chaptersIntro(String title, int count) {
+    return 'Chapters of $title. $count in all. Swipe to choose, double-tap to go there.';
+  }
+
+  @override
+  String get chaptersNone => 'This item has no chapters.';
+
+  @override
+  String chapterLine(int number, String title) {
+    return '$number. $title';
+  }
+
+  @override
+  String chapterFallback(int number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String get helpHome =>
+      'Swipe right or left to choose, and double-tap to open. Say “read something new” or “library”.';
+
+  @override
+  String get helpLibrary =>
+      'Swipe right or left to move between items. Swipe up or down to move between shelves. Double-tap to open the details. Say “continue” and the title to resume at once, or “search” to look for something.';
+
+  @override
+  String get helpItemDetails =>
+      'Swipe right or left to choose an action, and double-tap to do it. The first one is reading.';
+
+  @override
+  String get helpFavorites =>
+      'Swipe right or left to choose a favorite. Double-tap to go there. Swipe up for options.';
+
+  @override
+  String get helpChapters =>
+      'Swipe right or left to choose a chapter, and double-tap to go there.';
+
+  @override
+  String get libraryEdgeSide => 'End of the shelf.';
+
+  @override
+  String get libraryEdgeTop => 'You are at the top.';
+
+  @override
+  String get libraryEdgeBottom => 'You are at the bottom.';
 }

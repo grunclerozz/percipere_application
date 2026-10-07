@@ -334,6 +334,22 @@
   "@uploadCancelled": {
     "description": "File picker closed without a file."
   },
+  "uploadFailed": "Hindi ko makuha ang file na pinili mo. Subukan ulit, o pumili ng ibang file.",
+  "@uploadFailed": {
+    "description": "A file was chosen but could not be read or copied (not a cancel)."
+  },
+  "readerFileMissing": "Nawala ang file bago ko ito nabasa. Pakisubukan ulit.",
+  "@readerFileMissing": {
+    "description": "The chosen file or photo no longer exists when reading starts."
+  },
+  "readerOcrFailed": "Hindi gumana ang pagbasa ng teksto sa phone na ito ngayon. Hindi sira ang file. Pakisubukan ulit.",
+  "@readerOcrFailed": {
+    "description": "The OCR engine failed; the file itself is fine."
+  },
+  "readerSaveFailed": "Mababasa mo ito, pero hindi ko ito na-save sa Aklatan.",
+  "@readerSaveFailed": {
+    "description": "The text was read but saving it to the Library failed."
+  },
   "readerExtractingPage": "Binabasa ang pahina {page} sa {total}.",
   "@readerExtractingPage": {
     "description": "Progress while reading a multi-page PDF.",
@@ -442,7 +458,7 @@
   "@readerTextSmaller": {
     "description": "Spoken label of the A- button above the Document Box."
   },
-  "readerSaved": "Na-save sa kasaysayan.",
+  "readerSaved": "Na-save sa Aklatan.",
   "@readerSaved": {
     "description": "Caption after saving (documents are also auto-saved)."
   },
@@ -462,7 +478,7 @@
   "@readerFilipinoNoVoice": {
     "description": "Intentionally English in every locale: only spoken when no Filipino voice exists."
   },
-  "helpReader": "I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik.",
+  "helpReader": "I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area para huminto agad at makinig.",
   "@helpReader": {
     "description": "Spoken help on the Reader."
   },
@@ -590,10 +606,6 @@
   "valueConsentDeclined": "Hindi pinapayagan",
   "@valueConsentDeclined": {
     "description": "Sending images is not allowed."
-  },
-  "captureHistory": "Kasaysayan",
-  "@captureHistory": {
-    "description": "Capture screen: open Reading History."
   },
   "captureSettings": "Mga Setting",
   "@captureSettings": {
@@ -744,38 +756,6 @@
   "@actionOpen": {
     "description": "Settings row button (open)."
   },
-  "screenHistory": "Kasaysayan ng Pagbasa",
-  "@screenHistory": {
-    "description": "Spoken name of Reading History."
-  },
-  "historyIntro": "May {count} na dokumento. Mag-swipe pakanan para marinig ang bawat isa, at i-double tap para buksan.",
-  "@historyIntro": {
-    "description": "History entry prompt (count > 0). No plural form on purpose.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "historyEmpty": "Wala pang nababasang dokumento. Magbasa muna gamit ang Mag-upload o ang Camera.",
-  "@historyEmpty": {
-    "description": "History has no documents."
-  },
-  "historyItem": "{title}, {source}, {date}",
-  "@historyItem": {
-    "description": "A history entry as spoken and shown.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "source": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "sourceCamera": "litrato",
   "@sourceCamera": {
     "description": "Source type: camera photo."
@@ -816,15 +796,6 @@
   "historyShowAll": "Ipinapakita muli ang lahat.",
   "@historyShowAll": {
     "description": "Search cleared."
-  },
-  "historyOptions": "Mga opsyon para sa {title}. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin. I-double tap para piliin.",
-  "@historyOptions": {
-    "description": "Options for a document (after swipe up).",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
   },
   "optOpen": "Buksan",
   "@optOpen": {
@@ -868,14 +839,6 @@
         "type": "String"
       }
     }
-  },
-  "historySearch": "Hanapin",
-  "@historySearch": {
-    "description": "Search field hint and voice keyword."
-  },
-  "helpHistory": "Mag-swipe pakanan o pakaliwa: lumipat ng dokumento. I-double tap: buksan at ituloy ang pagbasa. Mag-swipe pataas: mga opsyon, gaya ng palitan ang pangalan at burahin. Sabihin ang “hanapin” at ang salita para maghanap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
-  "@helpHistory": {
-    "description": "Spoken help in History."
   },
   "fieldEmail": "Email Address",
   "@fieldEmail": {
@@ -1694,6 +1657,10 @@
   "@setAutoRead": {
     "description": "Setting name."
   },
+  "setListenWhileReading": "Makinig habang nagbabasa",
+  "@setListenWhileReading": {
+    "description": "Setting name: in voice mode, keep the microphone on while a document is read aloud so reading commands work at once."
+  },
   "setStayLoggedIn": "Manatiling naka-login",
   "@setStayLoggedIn": {
     "description": "Setting name."
@@ -1733,5 +1700,252 @@
   "setupPitchSample": "Ganito ang tono ng boses.",
   "@setupPitchSample": {
     "description": "Spoken after a tone change."
-  }
+  },
+  "screenHome": "Home",
+  "@screenHome": {"description": "Spoken name of the Home screen."},
+  "homePrompt": "Ano ang gusto mong gawin?",
+  "@homePrompt": {"description": "Home screen question."},
+  "homeRead": "Magbasa ng bago",
+  "@homeRead": {"description": "Home button: read something new (Capture)."},
+  "homeLibrary": "Aklatan",
+  "@homeLibrary": {"description": "Home button: open the Library."},
+  "screenLibrary": "Aklatan",
+  "@screenLibrary": {"description": "Spoken name of the Library."},
+  "libraryPrompt": "Mag-swipe pakanan o pakaliwa para lumipat ng aytem, at pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye.",
+  "@libraryPrompt": {"description": "Library entry prompt."},
+  "libraryNewBooks": "May mga bagong aklat sa Aklatan.",
+  "@libraryNewBooks": {"description": "Said when the catalog has books the user has not seen. No number on purpose."},
+  "shelfControls": "Paghahanap at mga filter",
+  "@shelfControls": {"description": "Name of the top row (search, filter, new collection)."},
+  "shelfContinue": "Ituloy ang pagbasa",
+  "@shelfContinue": {"description": "Shelf: items started but not finished."},
+  "shelfDocuments": "Aking mga dokumento",
+  "@shelfDocuments": {"description": "Shelf: the user's own documents."},
+  "shelfCollections": "Mga koleksyon",
+  "@shelfCollections": {"description": "Shelf: the user's collections."},
+  "shelfBooks": "Mga aklat",
+  "@shelfBooks": {"description": "Shelf: admin books (category name is used when grouped)."},
+  "shelfResults": "Mga resulta",
+  "@shelfResults": {"description": "Shelf: search or filter results."},
+  "shelfAnnounce": "{title}, {count} aytem",
+  "@shelfAnnounce": {"description": "Entering a shelf. No plural on purpose.", "placeholders": {"title": {"type": "String"}, "count": {"type": "int"}}},
+  "emptyContinue": "Wala ka pang sinisimulang basahin.",
+  "@emptyContinue": {"description": "Empty shelf."},
+  "emptyDocuments": "Wala ka pang dokumento. Mag-scan o mag-upload para magsimula.",
+  "@emptyDocuments": {"description": "Empty shelf."},
+  "emptyCollections": "Wala ka pang koleksyon. Sabihin ang “gumawa ng koleksyon” para gumawa.",
+  "@emptyCollections": {"description": "Empty shelf."},
+  "emptyBooks": "Wala pang aklat sa ngayon. Kailangan ng internet para makita ang mga aklat.",
+  "@emptyBooks": {"description": "Empty shelf."},
+  "emptyResults": "Walang tugma sa napili mo.",
+  "@emptyResults": {"description": "Filter or search found nothing."},
+  "emptyCollection": "Walang laman ang koleksyong ito.",
+  "@emptyCollection": {"description": "Empty collection."},
+  "libSearch": "Hanapin",
+  "@libSearch": {"description": "Library control: search."},
+  "libFilter": "Salain",
+  "@libFilter": {"description": "Library control: change the filter."},
+  "libNewCollection": "Gumawa ng koleksyon",
+  "@libNewCollection": {"description": "Library control: new collection."},
+  "filterAll": "Lahat",
+  "@filterAll": {"description": "Filter."},
+  "filterDocuments": "Aking mga dokumento",
+  "@filterDocuments": {"description": "Filter."},
+  "filterBooks": "Mga aklat",
+  "@filterBooks": {"description": "Filter."},
+  "filterDownloaded": "Na-download",
+  "@filterDownloaded": {"description": "Filter."},
+  "filterFinished": "Tapos na",
+  "@filterFinished": {"description": "Filter."},
+  "filterFavorites": "May paborito",
+  "@filterFavorites": {"description": "Filter: items with favorites."},
+  "filterChanged": "Salain: {name}, {count} aytem.",
+  "@filterChanged": {"description": "Filter changed. No plural on purpose.", "placeholders": {"name": {"type": "String"}, "count": {"type": "int"}}},
+  "librarySearchPrompt": "Sabihin ang hinahanap pagkatapos ng tunog.",
+  "@librarySearchPrompt": {"description": "Before dictating a search."},
+  "libraryItemTitleAuthor": "{title}, ni {author}",
+  "@libraryItemTitleAuthor": {"description": "Item line start for a book.", "placeholders": {"title": {"type": "String"}, "author": {"type": "String"}}},
+  "libraryItemTitleType": "{title}, {type}",
+  "@libraryItemTitleType": {"description": "Item line start for an own document.", "placeholders": {"title": {"type": "String"}, "type": {"type": "String"}}},
+  "libraryPercent": "{percent} porsiyento",
+  "@libraryPercent": {"description": "Progress, spoken.", "placeholders": {"percent": {"type": "int"}}},
+  "libraryFinishedWord": "tapos na",
+  "@libraryFinishedWord": {"description": "Item is finished."},
+  "libraryNotStartedWord": "hindi pa nasisimulan",
+  "@libraryNotStartedWord": {"description": "Item not started."},
+  "libraryLastRead": "huling binasa {when}",
+  "@libraryLastRead": {"description": "When the item was last opened.", "placeholders": {"when": {"type": "String"}}},
+  "libraryNewLabel": "Bago",
+  "@libraryNewLabel": {"description": "New book label."},
+  "libraryDownloadedWord": "naka-download",
+  "@libraryDownloadedWord": {"description": "Book is on the phone."},
+  "libraryUnavailableWord": "hindi na available",
+  "@libraryUnavailableWord": {"description": "Book removed by the admin."},
+  "whenToday": "ngayon",
+  "@whenToday": {"description": "Relative date."},
+  "whenYesterday": "kahapon",
+  "@whenYesterday": {"description": "Relative date."},
+  "whenDaysAgo": "{days} araw na ang nakalipas",
+  "@whenDaysAgo": {"description": "Relative date (2 or more days). No plural on purpose.", "placeholders": {"days": {"type": "int"}}},
+  "formatEpub": "EPUB",
+  "@formatEpub": {"description": "Type of a book."},
+  "libraryCollectionLine": "Koleksyon: {name}, {count} aytem",
+  "@libraryCollectionLine": {"description": "A collection tile, spoken.", "placeholders": {"name": {"type": "String"}, "count": {"type": "int"}}},
+  "libraryNeedsInternet": "Kailangan ng internet para mabasa ito. I-download ito kapag may internet.",
+  "@libraryNeedsInternet": {"description": "A book that is not on the phone, while offline."},
+  "libraryOpening": "Binubuksan ang {title}.",
+  "@libraryOpening": {"description": "Opening an item by voice.", "placeholders": {"title": {"type": "String"}}},
+  "libraryNotFound": "Hindi ko nahanap ang “{query}” sa Aklatan.",
+  "@libraryNotFound": {"description": "Voice command named an item that is not there.", "placeholders": {"query": {"type": "String"}}},
+  "collectionNamePrompt": "Sabihin ang pangalan ng koleksyon pagkatapos ng tunog.",
+  "@collectionNamePrompt": {"description": "Before dictating a collection name."},
+  "collectionCreated": "Nagawa ang koleksyon na {name}.",
+  "@collectionCreated": {"description": "Collection created.", "placeholders": {"name": {"type": "String"}}},
+  "collectionOptions": "Mga opsyon para sa koleksyong {name}. Mag-swipe para pumili: Buksan, Palitan ang pangalan, o Burahin.",
+  "@collectionOptions": {"description": "Options for a collection (swipe up).", "placeholders": {"name": {"type": "String"}}},
+  "collectionRenamed": "Pinalitan ang pangalan ng koleksyon: {name}.",
+  "@collectionRenamed": {"description": "Collection renamed.", "placeholders": {"name": {"type": "String"}}},
+  "collectionDeleteConfirm": "Burahin ang koleksyong {name}? Hindi mabubura ang mga laman nito.",
+  "@collectionDeleteConfirm": {"description": "Confirm deleting a collection.", "placeholders": {"name": {"type": "String"}}},
+  "collectionDeleted": "Nabura ang koleksyong {name}.",
+  "@collectionDeleted": {"description": "Collection deleted.", "placeholders": {"name": {"type": "String"}}},
+  "collectionOpened": "Koleksyon: {name}, {count} aytem.",
+  "@collectionOpened": {"description": "Collection opened as a filter.", "placeholders": {"name": {"type": "String"}, "count": {"type": "int"}}},
+  "bookRemovedNotice": "Inalis na ang {title} sa Aklatan. Nasa iyo pa rin ang iyong progreso.",
+  "@bookRemovedNotice": {"description": "Told at a catalog refresh.", "placeholders": {"title": {"type": "String"}}},
+  "screenItemDetails": "Detalye",
+  "@screenItemDetails": {"description": "Spoken name of the item details screen."},
+  "detailsNotStarted": "Hindi pa nasisimulan.",
+  "@detailsNotStarted": {"description": "Details: progress."},
+  "detailsFinished": "Tapos mo nang basahin.",
+  "@detailsFinished": {"description": "Details: progress."},
+  "detailsProgress": "{percent} porsiyento ang nabasa.",
+  "@detailsProgress": {"description": "Details: progress.", "placeholders": {"percent": {"type": "int"}}},
+  "detailsMinutesLeft": "Mga {minutes} minuto pa ang natitira.",
+  "@detailsMinutesLeft": {"description": "Details: estimated time left. No plural on purpose.", "placeholders": {"minutes": {"type": "int"}}},
+  "detailsLessThanMinute": "Wala pang isang minuto ang natitira.",
+  "@detailsLessThanMinute": {"description": "Details: almost done."},
+  "actContinue": "Ituloy",
+  "@actContinue": {"description": "Details action."},
+  "actRead": "Basahin",
+  "@actRead": {"description": "Details action."},
+  "actFromStart": "Basahin mula sa simula",
+  "@actFromStart": {"description": "Details action."},
+  "actFavorites": "Mga paborito",
+  "@actFavorites": {"description": "Details action."},
+  "actChapters": "Mga kabanata",
+  "@actChapters": {"description": "Details action."},
+  "actAddToCollection": "Idagdag sa koleksyon",
+  "@actAddToCollection": {"description": "Details action."},
+  "actDownload": "I-download",
+  "@actDownload": {"description": "Details action."},
+  "actDownloadSized": "I-download, {size}",
+  "@actDownloadSized": {"description": "Details action with the file size.", "placeholders": {"size": {"type": "String"}}},
+  "actRemoveDownload": "Alisin ang download",
+  "@actRemoveDownload": {"description": "Details action."},
+  "actMarkFinished": "Markahan bilang tapos na",
+  "@actMarkFinished": {"description": "Details action."},
+  "actMarkUnfinished": "Markahan bilang hindi pa tapos",
+  "@actMarkUnfinished": {"description": "Details action."},
+  "sizeMegabytes": "{size} MB",
+  "@sizeMegabytes": {"description": "File size.", "placeholders": {"size": {"type": "String"}}},
+  "sizeKilobytes": "{size} KB",
+  "@sizeKilobytes": {"description": "File size.", "placeholders": {"size": {"type": "String"}}},
+  "bookLoading": "Kinukuha ang aklat…",
+  "@bookLoading": {"description": "Fetching a book to read online."},
+  "bookLoadingPercent": "{percent} porsiyento na.",
+  "@bookLoadingPercent": {"description": "Book fetch progress.", "placeholders": {"percent": {"type": "int"}}},
+  "bookPreparing": "Inihahanda ang aklat…",
+  "@bookPreparing": {"description": "Reading the downloaded file into text."},
+  "downloadDone": "Na-download ang {title}.",
+  "@downloadDone": {"description": "Download finished.", "placeholders": {"title": {"type": "String"}}},
+  "downloadRemoved": "Naalis ang download ng {title}.",
+  "@downloadRemoved": {"description": "Download removed.", "placeholders": {"title": {"type": "String"}}},
+  "downloadLowStorage": "Kaunti na lang ang espasyo ng phone. Mga {size} ang kailangan para dito. Gusto mo bang ituloy pa rin?",
+  "@downloadLowStorage": {"description": "Low storage warning (offer).", "placeholders": {"size": {"type": "String"}}},
+  "bookUnavailable": "Hindi na available ang {title}.",
+  "@bookUnavailable": {"description": "Book removed by the admin.", "placeholders": {"title": {"type": "String"}}},
+  "bookDrm": "Protektado ng DRM ang EPUB na ito, kaya hindi ito mabubuksan ng app.",
+  "@bookDrm": {"description": "DRM-protected EPUB."},
+  "bookInvalid": "Sira o hindi wastong aklat ang file na ito.",
+  "@bookInvalid": {"description": "Invalid EPUB or PDF."},
+  "bookEmpty": "Walang nabasang teksto sa aklat na ito.",
+  "@bookEmpty": {"description": "Book has no readable text."},
+  "bookFailed": "May problema sa pagkuha ng aklat. Subukan ulit mamaya.",
+  "@bookFailed": {"description": "Book fetch or read failed."},
+  "bookUpdateOffer": "May bagong bersyon ang {title}. I-update ang download? Mananatili ang iyong progreso.",
+  "@bookUpdateOffer": {"description": "Offer to update a downloaded book.", "placeholders": {"title": {"type": "String"}}},
+  "bookUpdated": "Na-update ang {title}.",
+  "@bookUpdated": {"description": "Download updated.", "placeholders": {"title": {"type": "String"}}},
+  "markedFinished": "Minarkahan na tapos na ang {title}.",
+  "@markedFinished": {"description": "Marked finished.", "placeholders": {"title": {"type": "String"}}},
+  "markedUnfinished": "Minarkahan na hindi pa tapos ang {title}.",
+  "@markedUnfinished": {"description": "Marked unfinished.", "placeholders": {"title": {"type": "String"}}},
+  "collectionPickIntro": "Idagdag ang {title} sa aling koleksyon? Mag-swipe para pumili, i-double tap para idagdag o alisin.",
+  "@collectionPickIntro": {"description": "Choosing a collection.", "placeholders": {"title": {"type": "String"}}},
+  "collectionPickNone": "Wala ka pang koleksyon. Gumawa muna ng isa sa Aklatan.",
+  "@collectionPickNone": {"description": "No collections to pick."},
+  "collectionPickIn": "{name}, nandito na",
+  "@collectionPickIn": {"description": "A collection that already holds the item.", "placeholders": {"name": {"type": "String"}}},
+  "collectionAdded": "Naidagdag ang {title} sa {name}.",
+  "@collectionAdded": {"description": "Item added to a collection.", "placeholders": {"title": {"type": "String"}, "name": {"type": "String"}}},
+  "collectionItemRemoved": "Naalis ang {title} sa {name}.",
+  "@collectionItemRemoved": {"description": "Item removed from a collection.", "placeholders": {"title": {"type": "String"}, "name": {"type": "String"}}},
+  "guestDownloadWarning": "Paalala: Naka-save lang ang iyong mga aklat sa phone na ito. Kapag nabura ang app, mawawala ang mga ito. Mag-register para ma-save ang iyong Aklatan at mabuksan ito sa ibang device. Gusto mo bang mag-register ngayon?",
+  "@guestDownloadWarning": {"description": "First time a guest downloads a book (offer)."},
+  "guestDocumentsStayHere": "Ang mga dokumentong sinu-scan o ina-upload mo ay mananatili sa phone na ito at hindi ipinapadala sa server, para sa iyong privacy.",
+  "@guestDocumentsStayHere": {"description": "Privacy note about own documents."},
+  "screenFavorites": "Mga paborito",
+  "@screenFavorites": {"description": "Spoken name of the favorites list."},
+  "favoritesIntro": "Mga paborito sa {title}. {count} ang naka-save. Mag-swipe para pumili, i-double tap para pumunta roon.",
+  "@favoritesIntro": {"description": "Favorites prompt. No plural on purpose.", "placeholders": {"title": {"type": "String"}, "count": {"type": "int"}}},
+  "favoritesEmpty": "Wala ka pang paborito sa {title}. Sabihin ang “paborito” habang nagbabasa.",
+  "@favoritesEmpty": {"description": "No favorites.", "placeholders": {"title": {"type": "String"}}},
+  "favoriteLine": "{chapter}: {label}",
+  "@favoriteLine": {"description": "A favorite with its chapter.", "placeholders": {"chapter": {"type": "String"}, "label": {"type": "String"}}},
+  "optGoHere": "Pumunta dito",
+  "@optGoHere": {"description": "Favorite option."},
+  "favoriteOptions": "Mga opsyon: Pumunta dito, o Burahin. Mag-swipe para pumili.",
+  "@favoriteOptions": {"description": "Options for a favorite (swipe up)."},
+  "favoriteDeleteConfirm": "Burahin ang paborito na “{label}”?",
+  "@favoriteDeleteConfirm": {"description": "Confirm deleting a favorite.", "placeholders": {"label": {"type": "String"}}},
+  "favoriteDeleted": "Nabura ang paborito.",
+  "@favoriteDeleted": {"description": "Favorite deleted."},
+  "readerFavorite": "Paborito",
+  "@readerFavorite": {"description": "Reader button: save this spot as a favorite."},
+  "readerFavoriteSaved": "Na-save bilang paborito",
+  "@readerFavoriteSaved": {"description": "Favorite saved."},
+  "readerChapter": "{title}.",
+  "@readerChapter": {"description": "Chapter title announced when a chapter starts.", "placeholders": {"title": {"type": "String"}}},
+  "readerNoChapters": "Walang kabanata ang dokumentong ito.",
+  "@readerNoChapters": {"description": "Next/previous chapter on a document without chapters."},
+  "readerFinishedTitle": "Tapos mo nang basahin ang {title}.",
+  "@readerFinishedTitle": {"description": "Last sentence read.", "placeholders": {"title": {"type": "String"}}},
+  "screenChapters": "Mga kabanata",
+  "@screenChapters": {"description": "Spoken name of the chapters list."},
+  "chaptersIntro": "Mga kabanata ng {title}. {count} lahat. Mag-swipe para pumili, i-double tap para pumunta roon.",
+  "@chaptersIntro": {"description": "Chapters prompt. No plural on purpose.", "placeholders": {"title": {"type": "String"}, "count": {"type": "int"}}},
+  "chaptersNone": "Walang kabanata ang aytem na ito.",
+  "@chaptersNone": {"description": "No chapters."},
+  "chapterLine": "{number}. {title}",
+  "@chapterLine": {"description": "A chapter in the list.", "placeholders": {"number": {"type": "int"}, "title": {"type": "String"}}},
+  "chapterFallback": "Kabanata {number}",
+  "@chapterFallback": {"description": "Name of a chapter that has no title.", "placeholders": {"number": {"type": "int"}}},
+  "helpHome": "Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.",
+  "@helpHome": {"description": "Help for Home."},
+  "helpLibrary": "Mag-swipe pakanan o pakaliwa para lumipat ng aytem. Mag-swipe pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye. Sabihin ang “ituloy ang” at ang pamagat para ituloy agad, o “hanapin” para maghanap.",
+  "@helpLibrary": {"description": "Help for the Library."},
+  "helpItemDetails": "Mag-swipe pakanan o pakaliwa para pumili ng aksyon, at i-double tap para gawin ito. Ang una ay ang pagbasa.",
+  "@helpItemDetails": {"description": "Help for item details."},
+  "helpFavorites": "Mag-swipe pakanan o pakaliwa para pumili ng paborito. I-double tap para pumunta roon. Mag-swipe pataas para sa mga opsyon.",
+  "@helpFavorites": {"description": "Help for favorites."},
+  "helpChapters": "Mag-swipe pakanan o pakaliwa para pumili ng kabanata, at i-double tap para pumunta roon."
+,
+  "@helpChapters": {"description": "Help for chapters."},
+  "libraryEdgeSide": "Dulo ng istante.",
+  "@libraryEdgeSide": {"description": "Swiped past the last item of a shelf."},
+  "libraryEdgeTop": "Nasa pinakaitaas ka na.",
+  "@libraryEdgeTop": {"description": "Swiped up from the first shelf."},
+  "libraryEdgeBottom": "Nasa pinakababa ka na.",
+  "@libraryEdgeBottom": {"description": "Swiped down from the last shelf."}
 }

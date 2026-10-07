@@ -11,18 +11,27 @@ syncing with a separate web admin app (later).
 - Phases 1–6 and **6B (Registration, Login, Profiling): ✅ done and approved.**
   Tests: `bash tool/test_each.sh`. Since 6B: Reader text size (A−/A+, pinch,
   voice) and the voice listening-loop fix (logging, backoff, fallbacks).
-- **Phase 6C — Maglarawan (image recognition): ✅ built 2026-10-04, awaiting review.**
-  Offline labels + OCR text check, optional detailed description via the web app (mocked),
-  consent, Description screen, History type "Larawan". 361 tests pass. Checklist:
-  `docs/testing/phase-6c-checklist.md`. Spec: `docs/specs/image-recognition.md`. Existing
-  command matcher, camera guidance and OCR logic unchanged.
-- Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ postponed
-  (`docs/specs/algorithms.md`).
+- **Phase 6C — Maglarawan (image recognition): ✅ done, reviewed and approved.**
+  Checklist: `docs/testing/phase-6c-checklist.md`. Spec: `docs/specs/image-recognition.md`.
+- **Phase 6E — Aklatan (Library): Part A ✅ built 2026-10-06, awaiting the user's tablet test; Part B (describing EPUB images) NOT started — wait for approval.** Two parts: **Part A**
+  (Library replaces Reading History, Home screen, details, favorites, collections, progress,
+  admin books mocked, PDF + EPUB) is built first; **Part B** (describing images inside EPUB
+  books) only after the user has tested and approved Part A. Spec: `docs/specs/library.md`.
+- **Voice response time (2026-10-07):** partial-result commands, 1.2 s command pause, 4 s
+  dictation, earcon + pulse, listening while reading (barge-in), stale-result discard. Values in
+  `lib/config/voice_config.dart`; tablet checklist `docs/testing/voice-response-checklist.md`.
+  Awaiting the user's tablet test.
+- Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
+  (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
 
 ## Where things are written
 - `docs/specs/auth.md`, `profiling.md`, `guest-mode.md`, `navigation.md` — 6B requirements.
 - `docs/specs/image-recognition.md`, `algorithms.md` — Phase 6C requirements / postponed 6D requirements.
+- `docs/specs/library.md` — Phase 6E Library (Aklatan) requirements; `docs/api-contract.md` — endpoints the web app must provide (written in 6E).
+- `docs/testing/phase-6e-checklist.md` — manual checklist for the Library (Part A).
+- `docs/testing/voice-response-checklist.md` — voice response time and barge-in (tablet).
+- `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).
 - `docs/ui/` — mockups. **Mockup layout and wording win** over prompt text.
@@ -31,7 +40,7 @@ syncing with a separate web admin app (later).
 Riverpod 3 (hand-written providers, no codegen) · go_router · sqflite (versioned
 migrations, `lib/core/db/migrations.dart`) · ML Kit OCR · speech_to_text · flutter_tts ·
 camera · file_picker (SAF, no storage permission) · pdfrx · archive+xml (DOCX) · dio ·
-bundled fonts (no google_fonts). minSdk 24, compileSdk 37.0, id `ph.bataan.percipere`.
+bundled fonts (no google_fonts). minSdk 24, compileSdk 37.0, application id `ph.bataan.percipere.app` (was `ph.bataan.percipere` until 2026-10-07; Kotlin package and namespace unchanged).
 
 ## Layout
 `lib/app` (app, router, bootstrap, theme) · `lib/config` · `lib/core/{accessibility,
@@ -61,6 +70,10 @@ and tests it themselves.**
    Every test must pass. Add tests for any new feature or fixed bug.
 3. **Build:** make sure a release build compiles (`flutter build apk --release`), not
    only debug. (If Gradle says "Unable to establish loopback connection", see Environment.)
+   Release builds shrink code (R8) and can break plugins that debug runs and tests never
+   exercise: when a phase touches camera, OCR, image labeling, file picking or other
+   native plugins, install the release APK on the `Percipere_Light` emulator and try one
+   input of each kind (see `docs/specs/decisions.md`, 2026-10-07).
 4. **Crash review:** read through all code changed in this phase for possible crashes:
    unhandled exceptions, null values, async errors, `setState` or context use after a
    screen is closed, missing `try/catch` around camera, microphone, TTS, file and

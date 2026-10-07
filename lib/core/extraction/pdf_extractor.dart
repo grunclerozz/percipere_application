@@ -18,6 +18,8 @@ class PdfExtraction {
     required this.pageCount,
     required this.ocrPageCount,
     this.ocrConfidence,
+    this.pageTexts = const [],
+    this.outline = const [],
   });
 
   /// Raw text, pages separated by a blank line.
@@ -31,6 +33,12 @@ class PdfExtraction {
 
   /// Mean OCR confidence over OCR'd pages, if any.
   final double? ocrConfidence;
+
+  /// Raw text of each page, in order.
+  final List<String> pageTexts;
+
+  /// Top-level outline entries (title, 1-based page), for chapters.
+  final List<({String title, int page})> outline;
 }
 
 /// Reads PDFs. Abstract so tests don't need the native PDF engine.
@@ -90,7 +98,20 @@ class PdfrxReader implements PdfReader {
         parts.add(scanned.text);
         if (scanned.confidence != null) confidences.add(scanned.confidence!);
       }
+      final outline = <({String title, int page})>[];
+      try {
+        for (final node in await doc.loadOutline()) {
+          final page = node.dest?.pageNumber;
+          if (page != null && node.title.trim().isNotEmpty) {
+            outline.add((title: node.title.trim(), page: page));
+          }
+        }
+      } on Object catch (e) {
+        debugPrint('PDF outline failed: $e');
+      }
       return PdfExtraction(
+        pageTexts: parts,
+        outline: outline,
         text: parts.join('\n\n'),
         pageCount: pages.length,
         ocrPageCount: ocrPages,
@@ -130,7 +151,7 @@ class PdfrxReader implements PdfReader {
         ),
       );
       await file.writeAsBytes(png.buffer.asUint8List(), flush: true);
-      return await ocr.recognizeFile(file.path);
+      return await recognizeOrThrow(ocr, file.path);
     } finally {
       image?.dispose();
       rendered.dispose();

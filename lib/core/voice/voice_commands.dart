@@ -39,7 +39,22 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
   NavIntent.capture: ['kunan', 'capture', 'take picture'],
   NavIntent.upload: ['mag-upload', 'upload', 'i-upload'],
   NavIntent.save: ['i-save', 'save', 'itago'],
-  NavIntent.history: ['kasaysayan', 'history'],
+  NavIntent.library: [
+    'aklatan',
+    'library',
+    'mga aklat',
+    'kasaysayan',
+    'history',
+  ],
+  NavIntent.nextChapter: ['susunod na kabanata', 'next chapter'],
+  NavIntent.previousChapter: ['nakaraang kabanata', 'previous chapter'],
+  NavIntent.favorite: [
+    'favorite',
+    'paborito',
+    'i-favorite ito',
+    'ifavorite ito',
+  ],
+  NavIntent.favorites: ['mga paborito ko', 'mga paborito', 'my favorites'],
   NavIntent.settings: ['settings', 'setting', 'ayos', 'mga setting'],
   NavIntent.help: ['tulong', 'help'],
   NavIntent.home: ['home', 'simula', 'umpisa'],
@@ -65,3 +80,18 @@ const List<String> yesWords = [
 
 /// Negative answers.
 const List<String> noWords = ['hindi', 'huwag', 'no', 'mali', 'ayoko'];
+
+/// The only commands accepted while a document is being read aloud
+/// (barge-in): the microphone also hears the app's own voice, so the list is
+/// kept to what controls the reading.
+const Set<NavIntent> readingControlIntents = {
+  NavIntent.pause,
+  NavIntent.stopSpeech,
+  NavIntent.back,
+  NavIntent.faster,
+  NavIntent.slower,
+  NavIntent.textBigger,
+  NavIntent.textSmaller,
+  NavIntent.favorite,
+  NavIntent.repeat,
+};

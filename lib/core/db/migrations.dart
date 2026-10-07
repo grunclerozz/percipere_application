@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1, _v2, _v3];
+  static const List<Migration> all = [_v1, _v2, _v3, _v4];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -233,3 +233,124 @@ const Migration _v3 = Migration(3, 'Image descriptions in history (Phase 6C)', [
   'ALTER TABLE documents_v3 RENAME TO documents',
   'CREATE INDEX idx_documents_user_created ON documents (user_id, created_at DESC)',
 ]);
+
+// A random UUID v4, generated in SQL so migrated rows get real ids.
+const String _sqlUuid =
+    "lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || "
+    "substr(hex(randomblob(2)), 2) || '-' || "
+    "substr('89ab', abs(random()) % 4 + 1, 1) || "
+    "substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)))";
+
+const Migration _v4 = Migration(
+  4,
+  'Library replaces Reading History (Phase 6E)',
+  [
+    // One row per thing on the shelves: the user's own documents and the admin
+    // books (one row per user per catalog book, so progress and "new" are
+    // per user). Every row has a UUID, `synced` and `updated_at` for Phase 7.
+    // `local_only` = 1 keeps the user's own documents off the server.
+    '''
+  CREATE TABLE library_items (
+    id              TEXT PRIMARY KEY,
+    user_id         TEXT REFERENCES users(id) ON DELETE CASCADE,
+    source          TEXT NOT NULL
+                    CHECK (source IN ('camera', 'upload', 'description', 'book')),
+    format          TEXT NOT NULL
+                    CHECK (format IN ('image', 'pdf', 'docx', 'epub')),
+    language        TEXT NOT NULL DEFAULT 'fil',
+    title           TEXT NOT NULL,
+    author          TEXT,
+    cover_path      TEXT,
+    file_path       TEXT,
+    text_ref        TEXT NOT NULL DEFAULT 'db',
+    full_text       TEXT,
+    text_path       TEXT,
+    chapters        TEXT,
+    total_sentences INTEGER,
+    word_count      INTEGER,
+    chapter_index   INTEGER NOT NULL DEFAULT 0,
+    sentence_index  INTEGER NOT NULL DEFAULT 0,
+    percent         REAL NOT NULL DEFAULT 0,
+    finished        INTEGER NOT NULL DEFAULT 0,
+    last_opened_at  INTEGER,
+    created_at      INTEGER NOT NULL,
+    updated_at      INTEGER NOT NULL,
+    book_id         TEXT,
+    book_version    INTEGER,
+    remote_version  INTEGER,
+    category        TEXT,
+    description     TEXT,
+    cover_url       TEXT,
+    file_size       INTEGER,
+    downloaded      INTEGER NOT NULL DEFAULT 0,
+    is_new          INTEGER NOT NULL DEFAULT 0,
+    unavailable     INTEGER NOT NULL DEFAULT 0,
+    local_only      INTEGER NOT NULL DEFAULT 0,
+    synced          INTEGER NOT NULL DEFAULT 0,
+    legacy_id       INTEGER
+  )
+  ''',
+    'CREATE INDEX idx_library_items_user ON library_items (user_id, last_opened_at DESC)',
+    'CREATE UNIQUE INDEX idx_library_items_book ON library_items (user_id, book_id) '
+        'WHERE book_id IS NOT NULL',
+
+    // Saved spots inside an item.
+    '''
+  CREATE TABLE library_favorites (
+    id             TEXT PRIMARY KEY,
+    item_id        TEXT NOT NULL REFERENCES library_items(id) ON DELETE CASCADE,
+    chapter_index  INTEGER NOT NULL DEFAULT 0,
+    sentence_index INTEGER NOT NULL,
+    label          TEXT NOT NULL,
+    created_at     INTEGER NOT NULL,
+    updated_at     INTEGER NOT NULL,
+    synced         INTEGER NOT NULL DEFAULT 0
+  )
+  ''',
+    'CREATE INDEX idx_library_favorites_item ON library_favorites (item_id)',
+
+    // The user's own groups of items.
+    '''
+  CREATE TABLE library_collections (
+    id         TEXT PRIMARY KEY,
+    user_id    TEXT REFERENCES users(id) ON DELETE CASCADE,
+    name       TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    synced     INTEGER NOT NULL DEFAULT 0
+  )
+  ''',
+    '''
+  CREATE TABLE library_collection_items (
+    collection_id TEXT NOT NULL
+                  REFERENCES library_collections(id) ON DELETE CASCADE,
+    item_id       TEXT NOT NULL REFERENCES library_items(id) ON DELETE CASCADE,
+    added_at      INTEGER NOT NULL,
+    synced        INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (collection_id, item_id)
+  )
+  ''',
+
+    // Every Reading History entry becomes a library item: same title, dates,
+    // type, thumbnail and position. The text stays in the database
+    // (text_ref 'db'); totals/percent are filled in the first time the Library
+    // opens (SQL can't split sentences).
+    '''
+  INSERT INTO library_items (id, user_id, source, format, language, title,
+    cover_path, text_ref, full_text, chapter_index, sentence_index,
+    last_opened_at, created_at, updated_at, local_only, legacy_id)
+  SELECT $_sqlUuid, user_id,
+    CASE source_type WHEN 'camera' THEN 'camera'
+      WHEN 'description' THEN 'description' ELSE 'upload' END,
+    CASE source_type WHEN 'pdf' THEN 'pdf' WHEN 'docx' THEN 'docx'
+      ELSE 'image' END,
+    language, title, thumbnail_path, 'db', full_text, 0, last_position,
+    last_opened_at, created_at, updated_at, 1, id
+  FROM documents
+  ''',
+
+    // Kept as a safety copy until the user confirms nothing was lost; a later
+    // migration drops it.
+    'ALTER TABLE documents RENAME TO documents_legacy',
+  ],
+);

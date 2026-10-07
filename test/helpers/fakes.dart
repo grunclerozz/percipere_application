@@ -1,9 +1,10 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:percipere_app/core/accessibility/earcon.dart';
 import 'package:percipere_app/core/accessibility/haptics.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/auth/account.dart';
@@ -19,12 +20,19 @@ import 'package:percipere_app/core/describe/image_labeler.dart';
 import 'package:percipere_app/core/describe/image_prep.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/core/extraction/extraction_exception.dart';
+import 'package:percipere_app/core/library/admin_book_repository.dart';
+import 'package:percipere_app/core/library/book_content.dart';
+import 'package:percipere_app/core/library/epub_parser.dart';
+import 'package:percipere_app/core/library/library_models.dart';
+import 'package:percipere_app/core/library/library_paths.dart';
+import 'package:percipere_app/core/library/sample_books.dart';
 import 'package:percipere_app/core/network/connectivity.dart';
 import 'package:percipere_app/core/network/image_description_repository.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/platform/app_closer.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
+import 'package:percipere_app/core/platform/storage_info.dart';
 import 'package:percipere_app/core/platform/system_settings.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
@@ -114,12 +122,24 @@ class FakeTts implements TtsService {
 }
 
 /// Records haptic cues.
+/// Counts "heard" earcons.
+class FakeEarcon implements Earcon {
+  /// Times the "heard" sound played.
+  int played = 0;
+
+  @override
+  Future<void> heard() async => played++;
+}
+
 class FakeHaptics implements Haptics {
-  /// Cues in order: `tick`, `confirm`, `error`.
+  /// Cues in order: `tick`, `heard`, `confirm`, `error`.
   final List<String> events = [];
 
   @override
   Future<void> tick() async => events.add('tick');
+
+  @override
+  Future<void> heard() async => events.add('heard');
 
   @override
   Future<void> confirm() async => events.add('confirm');
@@ -193,11 +213,18 @@ class FakeSpeechInput implements SpeechInput {
   Future<void> listen(
     ListenRequest request, {
     required void Function(String words, bool isFinal) onResult,
+    void Function(double level)? onSoundLevel,
   }) async {
     sessions.add(request);
     _onResult = onResult;
     listening = true;
   }
+
+  /// Pause changes made during sessions.
+  final List<Duration> pauseChanges = [];
+
+  @override
+  void changePauseFor(Duration pauseFor) => pauseChanges.add(pauseFor);
 
   @override
   Future<void> stop() async => listening = false;
@@ -409,6 +436,9 @@ class TestEnv {
   /// Fake haptics.
   final FakeHaptics haptics = FakeHaptics();
 
+  /// Earcons played.
+  final FakeEarcon earcon = FakeEarcon();
+
   /// Fake settings launcher.
   final FakeSystemSettings settings = FakeSystemSettings();
 
@@ -426,6 +456,18 @@ class TestEnv {
 
   /// Fake image preparation.
   final FakeImagePrep imagePrep = FakeImagePrep();
+
+  /// The mocked web app with the sample books.
+  final MockAdminBookRepository books = MockAdminBookRepository();
+
+  /// Free space on the phone.
+  final FakeStorageInfo storage = FakeStorageInfo();
+
+  /// Where the Library keeps its files.
+  final TempLibraryPaths libraryPaths = TempLibraryPaths();
+
+  /// Reads books into text.
+  final FakeBookContentLoader bookLoader = FakeBookContentLoader();
 
   /// Fake web app.
   final FakeDescriptionRepository describeRepo = FakeDescriptionRepository();
@@ -459,6 +501,7 @@ class TestEnv {
       permissions.access[AppPermission.microphone] == PermissionAccess.granted,
     ),
     hapticsProvider.overrideWithValue(haptics),
+    earconProvider.overrideWithValue(earcon),
     systemSettingsProvider.overrideWithValue(settings),
     speechInputProvider.overrideWithValue(speech),
     imageLabelerProvider.overrideWithValue(labeler),
@@ -470,6 +513,10 @@ class TestEnv {
     documentExtractorProvider.overrideWithValue(extractor),
     cameraSessionFactoryProvider.overrideWithValue(() => camera),
     permissionServiceProvider.overrideWithValue(permissions),
+    adminBookRepositoryProvider.overrideWithValue(books),
+    storageInfoProvider.overrideWithValue(storage),
+    libraryPathsProvider.overrideWithValue(libraryPaths),
+    bookContentLoaderProvider.overrideWithValue(bookLoader),
   ];
 }
 
@@ -557,6 +604,9 @@ class FakeDocumentExtractor implements DocumentExtractor {
   /// Whether to wait for [release] before finishing.
   bool hold;
 
+  /// When set, extraction is done by this (real) extractor instead.
+  DocumentExtractor? real;
+
   /// Files extracted, in order.
   final List<DocumentFile> extracted = [];
 
@@ -583,6 +633,8 @@ class FakeDocumentExtractor implements DocumentExtractor {
     }
     if (hold && !_released) await (_gate ??= Completer<void>()).future;
     if (failure != null) throw ExtractionException(failure!);
+    final delegate = real;
+    if (delegate != null) return delegate.extract(file, onPage: onPage);
     return result;
   }
 }
@@ -619,10 +671,13 @@ class FakeCameraSession implements CameraSession {
   @override
   Widget preview() => const ColoredBox(color: Color(0xFF333333));
 
+  /// A real file to hand back from [takePicture] (default: a fake name).
+  String? photoPath;
+
   @override
   Future<String> takePicture() async {
     pictures++;
-    return 'camera_$pictures.jpg';
+    return photoPath ?? 'camera_$pictures.jpg';
   }
 
   @override
@@ -776,5 +831,76 @@ class FakeDescriptionRepository implements ImageDescriptionRepository {
     userIds.add(userId);
     if (fail) throw const DescriptionException('offline');
     return result;
+  }
+}
+
+/// Free space on the phone, set by the test.
+class FakeStorageInfo implements StorageInfo {
+  /// Free bytes reported (null = unknown).
+  int? free = 10 * 1024 * 1024 * 1024;
+
+  @override
+  Future<int?> freeBytes() async => free;
+}
+
+/// The Library's folders in a temporary directory (created at once, so no
+/// directory work happens inside a widget test's fake-async zone).
+class TempLibraryPaths implements LibraryPaths {
+  /// Creates the folders.
+  TempLibraryPaths() : root = Directory.systemTemp.createTempSync('percipere_');
+
+  /// Base directory.
+  final Directory root;
+
+  Directory _dir(String name) =>
+      Directory('${root.path}/$name')..createSync(recursive: true);
+
+  @override
+  Future<Directory> books() async => _dir('books');
+
+  @override
+  Future<Directory> texts() async => _dir('texts');
+
+  @override
+  Future<Directory> covers() async => _dir('covers');
+
+  @override
+  Future<Directory> cache() async => _dir('cache');
+}
+
+/// Reads sample EPUBs for real (without an isolate) and gives scripted text
+/// for PDFs, which need the native PDF engine.
+class FakeBookContentLoader implements BookContentLoader {
+  /// When set, every load throws this.
+  BookReadProblem? problem;
+
+  /// Files loaded.
+  final List<String> loaded = [];
+
+  @override
+  Future<LoadedBook> load(
+    String path,
+    LibraryFormat format, {
+    required String Function(int number) chapterTitle,
+    void Function(int page, int pageCount)? onPage,
+  }) async {
+    loaded.add(path);
+    if (problem != null) throw BookReadException(problem!);
+    if (format == LibraryFormat.epub) {
+      final book = EpubParser.parse(
+        File(path).readAsBytesSync(),
+        fallbackTitle: chapterTitle,
+      );
+      return LoadedBook(book.text, title: book.title, author: book.author);
+    }
+    final chapters = path.contains('bk-crow')
+        ? [SampleBooks.kindness[1]]
+        : SampleBooks.hare;
+    return LoadedBook(
+      BookText([
+        for (final c in chapters)
+          ChapterText(c.title, c.paragraphs.join('\n\n')),
+      ]),
+    );
   }
 }

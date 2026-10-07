@@ -64,6 +64,7 @@ class AppSettings {
     this.verbosity = Verbosity.normal,
     this.autoCapture = true,
     this.autoRead = true,
+    this.listenWhileReading = true,
     this.stayLoggedIn = true,
     this.describeConsent = DescribeConsent.ask,
   });
@@ -106,6 +107,10 @@ class AppSettings {
 
   /// Start reading as soon as a new document's text is ready.
   final bool autoRead;
+
+  /// Voice mode: keep listening while a document is read aloud, so
+  /// "i-pause" works at once (barge-in).
+  final bool listenWhileReading;
 
   /// Keep the session between launches.
   final bool stayLoggedIn;
@@ -154,6 +159,7 @@ class AppSettings {
     Verbosity? verbosity,
     bool? autoCapture,
     bool? autoRead,
+    bool? listenWhileReading,
     bool? stayLoggedIn,
     DescribeConsent? describeConsent,
   }) => AppSettings(
@@ -172,6 +178,7 @@ class AppSettings {
     verbosity: verbosity ?? this.verbosity,
     autoCapture: autoCapture ?? this.autoCapture,
     autoRead: autoRead ?? this.autoRead,
+    listenWhileReading: listenWhileReading ?? this.listenWhileReading,
     stayLoggedIn: stayLoggedIn ?? this.stayLoggedIn,
     describeConsent: describeConsent ?? this.describeConsent,
   );
@@ -191,6 +198,7 @@ class AppSettings {
     PrefKeys.verbosity: verbosity.name,
     PrefKeys.autoCapture: autoCapture,
     PrefKeys.autoRead: autoRead,
+    PrefKeys.listenWhileReading: listenWhileReading,
     PrefKeys.stayLoggedIn: stayLoggedIn,
     PrefKeys.describeConsent: describeConsent.name,
   };
@@ -232,6 +240,7 @@ class AppSettings {
       verbosity: byName(Verbosity.values, p[PrefKeys.verbosity]),
       autoCapture: bool_(p[PrefKeys.autoCapture]),
       autoRead: bool_(p[PrefKeys.autoRead]),
+      listenWhileReading: bool_(p[PrefKeys.listenWhileReading]),
       stayLoggedIn: bool_(p[PrefKeys.stayLoggedIn]),
       describeConsent: byName(
         DescribeConsent.values,
@@ -256,6 +265,7 @@ class AppSettings {
       other.verbosity == verbosity &&
       other.autoCapture == autoCapture &&
       other.autoRead == autoRead &&
+      other.listenWhileReading == listenWhileReading &&
       other.stayLoggedIn == stayLoggedIn &&
       other.describeConsent == describeConsent;
 
@@ -274,6 +284,7 @@ class AppSettings {
     verbosity,
     autoCapture,
     autoRead,
+    listenWhileReading,
     stayLoggedIn,
     describeConsent,
   );

@@ -69,7 +69,7 @@ If **no**: skip Steps 2–3, keep defaults.
 10. Read the chosen settings back briefly, show them as a list, ask "Tama ba ang lahat?"
     Confirm, or jump back to a step by voice ("bumalik sa bilis") or by swiping the list +
     double-tap. On confirm: save to the user's preferences, mark profiling completed, go
-    to Capture.
+    to Home.
 
 ## Settings integration
 - Every profiling preference is editable in Settings (same color lists, same theme rule).

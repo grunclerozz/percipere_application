@@ -80,6 +80,10 @@ void main() {
         env.tts.transcript,
         contains('Meron ka na bang account? Kung wala pa, mag-register ka.'),
       );
+      // The app waits for an answer before explaining how to answer.
+      expect(env.tts.transcript, isNot(contains('Mag-swipe pakanan')));
+      expect(env.permissions.micRequests, 0);
+      await tester.waitOutQuestion();
       // Gestures are explained before the mic is allowed…
       expect(env.tts.transcript, contains('Mag-swipe pakanan para pumili'));
       // …then the mic is requested after a spoken explanation.
@@ -120,15 +124,16 @@ void main() {
         permissions: FakePermissions(mic: PermissionAccess.granted),
       );
       await pumpApp(tester, env);
-      expect(
-        env.tts.transcript,
-        contains('Sabihin ang “login”, “register”, o “subukan”'),
-      );
+      // The question, then silence: the app listens for the answer.
+      expect(env.tts.transcript, contains('Meron ka na bang account?'));
+      expect(env.tts.transcript, isNot(contains('Sabihin ang “login”')));
       await tester.pump(const Duration(milliseconds: 600));
       expect(env.speech.listening, isTrue);
       env.speech.hear('login');
       await tester.pumpAndSettle();
       expect(find.byType(LoginScreen), findsOneWidget);
+      // Answered, so the held-back instructions were never said.
+      expect(env.tts.transcript, isNot(contains('Sabihin ang “login”')));
     });
 
     testWidgets('tapping a button works for sighted helpers and is not also '

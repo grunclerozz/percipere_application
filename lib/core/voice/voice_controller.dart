@@ -14,6 +14,7 @@ import '../accessibility/earcon.dart';
 import '../accessibility/haptics.dart';
 import '../accessibility/nav_intent.dart';
 import '../accessibility/navigation_mode.dart';
+import '../assistant/assistant_controller.dart';
 import '../platform/permissions.dart';
 import '../platform/system_settings.dart';
 import '../settings/settings_controller.dart';
@@ -179,6 +180,18 @@ class VoiceController extends Notifier<VoiceState> {
           _scheduleAutoListen();
         } else if (!_oneShot) {
           unawaited(stopListening());
+        }
+      })
+      ..listen(assistantActiveProvider, (_, active) {
+        // Percy (the ElevenLabs assistant) has the microphone meanwhile.
+        if (active) {
+          _restartTimer?.cancel();
+          _log('voice assistant started: listening off');
+          unawaited(stopListening());
+        } else {
+          _log('voice assistant ended: listening on again');
+          noteActivity();
+          _scheduleAutoListen();
         }
       })
       ..listen(activeScreenProvider, (previous, next) {
@@ -484,6 +497,7 @@ class VoiceController extends Notifier<VoiceState> {
 
   bool get _wantsAutoListen {
     if (!_micGranted) return false;
+    if (ref.read(assistantActiveProvider)) return false;
     if (ref.read(navigationModeProvider) == NavMode.voice) return true;
     return ref.read(activeScreenProvider)?.autoListen ?? false;
   }
@@ -491,6 +505,7 @@ class VoiceController extends Notifier<VoiceState> {
   /// Voice mode with "Makinig habang nagbabasa" on.
   bool get _bargeInAllowed =>
       _micGranted &&
+      !ref.read(assistantActiveProvider) &&
       ref.read(navigationModeProvider) == NavMode.voice &&
       ref.read(settingsProvider).listenWhileReading;
 
@@ -698,6 +713,10 @@ class VoiceController extends Notifier<VoiceState> {
       '${isFinal ? 'FINAL' : 'partial'} result: ${sensitive ? '•••' : '"$words"'}',
     );
     if (_sessionBargeIn) return _onReadingResult(words, isFinal);
+    if (words.trim().isNotEmpty) {
+      // Answering a question: hold its instructions back while they talk.
+      ref.read(announcerProvider.notifier).userResponding();
+    }
     if (!isFinal) {
       state = VoiceState(
         status: ListenStatus.listening,

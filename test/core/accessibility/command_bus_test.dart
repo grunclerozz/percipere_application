@@ -189,16 +189,15 @@ void main() {
       expect(container.read(focusControllerProvider), isNull);
     });
 
-    test('unknown: polite message listing what can be said', () async {
+    test('unknown with nothing close: says how to hear the commands', () async {
       await setUpWith();
       register(menu());
       await bus().handleUtterance('saging at mangga');
       expect(env.haptics.events, ['error']);
       expect(
         env.tts.transcript,
-        'Pasensya na, hindi ko naintindihan. Maaari mong sabihin: '
-        'Mag-upload, Gamit ang Camera, susunod, nakaraan, piliin, ulitin, '
-        'bumalik, o tulong.',
+        'Hindi kita naintindihan. Sabihin ang “ano ang pwede kong gawin” '
+        'para marinig ang mga utos.',
       );
     });
 
@@ -226,7 +225,8 @@ void main() {
       register(menu());
       var accepted = 0;
       await bus().offer('Buksan?', () => accepted++);
-      expect(env.tts.transcript, contains('I-double tap'));
+      // Speech stops after the question: how to answer waits for silence.
+      expect(env.tts.transcript, isNot(contains('I-double tap')));
       await bus().onGesture(GestureType.doubleTap);
       expect(accepted, 1);
       expect(activated, isEmpty, reason: 'the offer took the double-tap');

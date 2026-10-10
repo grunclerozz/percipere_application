@@ -47,7 +47,7 @@ enum GestureType {
 /// Screens decide what an intent means for them (e.g. on the Reader,
 /// [NavIntent.next] is "next sentence" and [NavIntent.activate] is
 /// read/pause) via `ScreenRegistration.intentHandlers`. Two-finger swipe
-/// left is deliberately unassigned.
+/// left calls Percy, the voice assistant (2026-10-07).
 const Map<GestureType, NavIntent> gestureMap = {
   GestureType.swipeRight: NavIntent.next,
   GestureType.swipeLeft: NavIntent.previous,
@@ -62,6 +62,7 @@ const Map<GestureType, NavIntent> gestureMap = {
   GestureType.longPress: NavIntent.listen,
   GestureType.twoFingerDoubleTap: NavIntent.stopSpeech,
   GestureType.threeFingerTap: NavIntent.help,
+  GestureType.twoFingerSwipeLeft: NavIntent.assistant,
 };
 
 /// Timing and distance thresholds, in logical pixels and milliseconds.

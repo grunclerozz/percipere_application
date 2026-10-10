@@ -18,6 +18,10 @@ enum ExtractionFailure {
 
   /// The file is fine but the text reader (OCR) failed on this phone.
   ocrUnavailable,
+
+  /// Getting the text failed for another, unexpected reason (a bug or a
+  /// plugin error, not a damaged file). The `[CAPTURE]` log has the cause.
+  failed,
 }
 
 /// Thrown by extractors; carries a [failure] the Reader can explain aloud.

@@ -1,23 +1,35 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 import '../../app/ids.dart';
 import '../../app/locale_provider.dart';
 import '../../app/router.dart';
 import '../../config/constants.dart';
 import '../../config/voice_config.dart';
+import '../../features/library/library_actions.dart';
 import '../../l10n/app_localizations.dart';
+import '../assistant/assistant_config.dart';
+import '../assistant/assistant_controller.dart';
+import '../auth/session.dart';
+import '../db/daos/library_dao.dart';
 import '../gestures/gesture_map.dart';
+import '../library/library_models.dart';
+import '../library/library_view.dart';
 import '../platform/app_closer.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_controller.dart';
 import '../tts/speech_language.dart';
 import '../voice/command_matcher.dart';
+import '../voice/understanding.dart';
 import '../voice/voice_commands.dart';
 import '../voice/voice_controller.dart';
 import 'action_registry.dart';
 import 'announcer.dart';
+import 'familiarity.dart';
 import 'focus_controller.dart';
 import 'haptics.dart';
 import 'nav_intent.dart';
@@ -28,10 +40,24 @@ import 'screen_registration.dart';
 /// ("Ang ibig mo bang sabihin ay …?") or an offer ("…open Settings?").
 class _Pending {
   _Pending(this.onYes, [this.onNo])
-    : expires = DateTime.now().add(AppDurations.pendingAnswer);
+    // The instructions after the question come only after the answer wait,
+    // so that wait doesn't eat into the time to answer.
+    : expires = DateTime.now().add(
+        AppDurations.pendingAnswer + VoiceConfig.answerWait,
+      );
 
   final FutureOr<void> Function() onYes;
   final FutureOr<void> Function()? onNo;
+  final DateTime expires;
+
+  bool get valid => DateTime.now().isBefore(expires);
+}
+
+/// "Alin sa dalawa: A, o B?" — waiting for the user to name one.
+class _Choices {
+  _Choices(this.options) : expires = DateTime.now().add(VoiceConfig.choiceWait);
+
+  final List<({String label, Future<void> Function() run})> options;
   final DateTime expires;
 
   bool get valid => DateTime.now().isBefore(expires);
@@ -59,6 +85,13 @@ class CommandBus {
   final Ref _ref;
   final CommandMatcher _matcher = const CommandMatcher();
   _Pending? _pending;
+  _Choices? _choices;
+
+  /// Voice commands misunderstood in a row (reset by any understood one).
+  int _misses = 0;
+
+  /// The user seems stuck: announcements give full help again.
+  bool get struggling => _misses >= 2;
 
   AppLocalizations get _l10n => _ref.read(speechLanguageProvider).strings;
 
@@ -67,6 +100,19 @@ class CommandBus {
   Announcer get _announcer => _ref.read(announcerProvider.notifier);
   Haptics get _haptics => _ref.read(hapticsProvider);
   VoiceController get _voice => _ref.read(voiceControllerProvider.notifier);
+  AssistantController get _assistant =>
+      _ref.read(assistantControllerProvider.notifier);
+
+  /// While Percy is talking with the user, any gesture, tap or command of
+  /// the user's own ends the conversation (and does nothing else), so the
+  /// user can always take back control. Percy's own tools don't count.
+  Future<bool> _userEndsAssistant() async {
+    if (!_ref.read(assistantActiveProvider) || _assistant.runningTool) {
+      return false;
+    }
+    await _assistant.stop();
+    return true;
+  }
 
   /// The active screen, if any.
   ScreenRegistration? get activeScreen => _ref.read(activeScreenProvider);
@@ -80,6 +126,14 @@ class CommandBus {
   /// Handles [intent] on the active screen: a pending question first (for
   /// [NavIntent.activate]), then the screen's override, then the default.
   Future<void> dispatch(NavIntent intent) async {
+    final claimsAssistant =
+        activeScreen?.intentHandlers.containsKey(NavIntent.assistant) ?? false;
+    if (intent == NavIntent.assistant && !claimsAssistant) {
+      _announcer.answered();
+      return _assistant.toggle();
+    }
+    if (await _userEndsAssistant()) return;
+    _announcer.answered();
     _voice
       ..noteActivity()
       ..commandExecuted(intent.name);
@@ -105,7 +159,7 @@ class CommandBus {
       case NavIntent.activate:
         return activateFocused();
       case NavIntent.repeat:
-        return announceScreen(screen);
+        return announceScreen(screen, full: true);
       case NavIntent.back:
         return back();
       case NavIntent.stopSpeech:
@@ -156,20 +210,42 @@ class CommandBus {
       case NavIntent.favorite:
       case NavIntent.favorites:
         return notAvailable();
+      case NavIntent.assistant:
+        return _assistant.toggle();
     }
   }
 
   // ── Voice ────────────────────────────────────────────────────────────────
 
   /// Handles a final speech recognition result.
+  ///
+  /// Order: a pending choice or yes/no answer, the screen's own free-text
+  /// commands, questions the app answers from its state ("nasaan ako?"),
+  /// documents named from anywhere ("basahin ang Liham"), then the phrase
+  /// matcher. Everyday phrasing is cleaned first ([Understanding.clean]).
   Future<void> handleUtterance(String heard) async {
+    if (await _userEndsAssistant()) return;
+    _announcer.answered();
     final text = _stripWakeWord(heard);
     if (text.isEmpty) return say(_l10n.voiceWakeReply);
+    final cleaned = Understanding.clean(text);
+
+    final choices = _takeChoices();
+    if (choices != null) {
+      final picked = _pickChoice(text, choices);
+      if (picked != null) {
+        _understood('choice "${picked.label}"');
+        unawaited(_haptics.confirm());
+        return picked.run();
+      }
+      // Not one of them: treat it as a new command.
+    }
 
     final pending = _takePending();
     if (pending != null) {
-      final answer = _matcher.match(text, _yesNoPhrases);
+      final answer = _matcher.match(cleaned, _yesNoPhrases);
       if (answer is Matched) {
+        _misses = 0;
         _voice.markMatched(answer.phrase);
         if (answer.target == const ValueTarget(true)) {
           unawaited(_haptics.confirm());
@@ -184,23 +260,276 @@ class CommandBus {
 
     final screen = activeScreen;
     final custom = screen?.onUtterance;
-    if (custom != null && await custom(text, this)) {
-      _voice.markMatched('screen command', done: true);
-      return;
+    if (custom != null) {
+      final handled =
+          await custom(text, this) ||
+          (cleaned != CommandMatcher.normalize(text) &&
+              await custom(cleaned, this));
+      if (handled) {
+        _understood('screen command');
+        return;
+      }
     }
-    switch (_matchCommand(text, screen)) {
+
+    final question = Understanding.question(text);
+    if (question != null) {
+      _understood('question ${question.name}');
+      return answer(question);
+    }
+
+    if (await _openByTitle(text, cleaned, screen)) return;
+
+    switch (_matchCommand(cleaned, screen)) {
       case Matched(:final target, :final phrase):
+        _misses = 0;
         _voice.markMatched(phrase);
         return _run(target);
       case Ambiguous(:final target, :final phrase):
+        _misses = 0;
         _voice.markMatched('unsure: "$phrase"', done: true);
         _pending = _Pending(() => _run(target));
-        return say(_l10n.voiceDidYouMean(phrase));
+        return ask(_l10n.voiceDidYouMean(phrase), split: true);
       case NoMatch():
+        if (Understanding.documentQuestion(text) != null) {
+          _understood('document question outside the Reader');
+          return say(_l10n.docNeedsOpenDoc);
+        }
         _voice.markMatched('no command', done: true);
-        unawaited(_haptics.error());
-        return say(_l10n.voiceUnknown(_commandSummary(screen)));
+        return _notUnderstood(cleaned, screen);
     }
+  }
+
+  void _understood(String what) {
+    _misses = 0;
+    _voice.markMatched(what, done: true);
+  }
+
+  /// No command fits: suggest the closest ones on this screen; after a few
+  /// misses in a row, offer the tutorial.
+  Future<void> _notUnderstood(String cleaned, ScreenRegistration? screen) {
+    _misses++;
+    unawaited(_haptics.error());
+    final l = _l10n;
+    final options = _closestActions(cleaned, screen);
+    var message = options.isEmpty
+        ? l.voiceNotUnderstood
+        : l.voiceSuggest(_joinOr(options, l));
+    if (_misses >= VoiceConfig.missesBeforeHelp) {
+      message = '$message ${l.voiceOfferHelp}';
+    }
+    return say(message);
+  }
+
+  /// Labels of up to three screen actions that sound most like [cleaned].
+  List<String> _closestActions(String cleaned, ScreenRegistration? screen) {
+    if (screen == null) return const [];
+    final input = CommandMatcher.tokens(cleaned);
+    if (input.isEmpty) return const [];
+    final fil = lookupAppLocalizations(AppLocales.filipino);
+    final en = lookupAppLocalizations(AppLocales.english);
+    final scored = <(double, String)>[];
+    for (final a in screen.focusables) {
+      var best = 0.0;
+      for (final phrase in {a.label(fil), a.label(en), ...a.voiceSynonyms}) {
+        for (final part in _labelParts(phrase)) {
+          final sc = CommandMatcher.score(input, part);
+          if (sc > best) best = sc;
+        }
+      }
+      if (best >= 0.4) {
+        scored.add((best, a.label(_l10n).split('(').first.trim()));
+      }
+    }
+    scored.sort((a, b) => b.$1.compareTo(a.$1));
+    return [for (final s in scored.take(3)) s.$2];
+  }
+
+  // ── Questions ─────────────────────────────────────────────────────────────
+
+  /// Answers [question] from what the app knows right now.
+  Future<void> answer(Question question) async {
+    final l = _l10n;
+    final screen = activeScreen;
+    switch (question) {
+      case Question.whereAmI:
+        final parts = <String>[];
+        final name =
+            screen?.title?.call(l) ??
+            (screen == null
+                ? null
+                : Announcer.splitSentences(screen.prompt(l)).firstOrNull);
+        if (name != null && name.isNotEmpty) {
+          parts.add(l.whereAmIScreen(name.replaceAll(RegExp(r'[.!?]+$'), '')));
+        }
+        final focused = _ref.read(focusControllerProvider);
+        final action = focused == null ? null : screen?.action(focused);
+        if (action != null) parts.add(l.whereAmIFocused(action.label(l)));
+        final extra = screen?.whereAmI?.call(l) ?? '';
+        if (extra.isNotEmpty) parts.add(extra);
+        return say(parts.join(' '));
+      case Question.whatCanIDo:
+        return say('${l.whatCanIDo(_commandSummary(screen))} ${l.askMeHint}');
+      case Question.time:
+        return say(l.timeNow(await _formatNow(l, (tag) => DateFormat.jm(tag))));
+      case Question.date:
+        return say(
+          l.dateToday(await _formatNow(l, (tag) => DateFormat.yMMMMEEEEd(tag))),
+        );
+      case Question.tutorial:
+        if (screen?.id == Ids.tutorial) return announceScreen(screen!);
+        unawaited(_haptics.confirm());
+        unawaited(
+          _ref.read(routerProvider).push(AppRoutes.tutorial, extra: true),
+        );
+        return;
+      case Question.docType:
+      case Question.total:
+      case Question.due:
+      case Question.expiry:
+      case Question.dosage:
+      case Question.summary:
+      case Question.progress:
+        return say(l.docNeedsOpenDoc);
+    }
+  }
+
+  /// Now, formatted for the prompt language.
+  static Future<String> _formatNow(
+    AppLocalizations l,
+    DateFormat Function(String tag) format,
+  ) async {
+    final now = DateTime.now();
+    try {
+      await initializeDateFormatting(l.localeName);
+      return format(l.localeName).format(now);
+    } on Object catch (e) {
+      debugPrint('Date format for ${l.localeName} failed: $e');
+      return format('en').format(now);
+    }
+  }
+
+  // ── Documents by name ─────────────────────────────────────────────────────
+
+  /// "Basahin ang Liham kay Nanay", "ituloy ang huli": opens a Library
+  /// document from any screen. Returns false when it isn't such a command
+  /// (or the screen handles it), so the phrase matcher gets it.
+  Future<bool> _openByTitle(
+    String text,
+    String cleaned,
+    ScreenRegistration? screen,
+  ) async {
+    final cmd = Understanding.titleCommand(text);
+    if (cmd == null || screen?.id == Ids.library) return false;
+    final local = _matcher.match(cleaned, _screenPhrases(screen));
+    if (cmd.last) {
+      // "Basahin ito" on a screen with its own "Basahin", or on the Reader.
+      if (screen?.id == Ids.reader) return false;
+      if (local is Matched && local.score >= 1) return false;
+      if (local is Ambiguous && local.score >= 1) return false;
+    } else {
+      // "Buksan ang camera", "basahin mula sa simula": a command, not a title.
+      if (_namesCommand(Understanding.clean(cmd.title), screen)) return false;
+    }
+    final account = _ref.read(currentAccountProvider);
+    if (account == null) return false; // no Library before logging in
+    final List<LibraryItem> items;
+    try {
+      items = await _ref.read(libraryDaoProvider).list(account.id);
+    } on Object catch (e) {
+      debugPrint('Library lookup failed: $e');
+      return false;
+    }
+    _understood('document "${cmd.title}"');
+    if (cmd.last) {
+      if (items.isEmpty) {
+        unawaited(_haptics.error());
+        await say(_l10n.libraryNotFound(cmd.title));
+        return true;
+      }
+      await _openItem(items.first, cmd.verb);
+      return true;
+    }
+    final ranked = LibraryView.rankByTitle(items, cmd.title, floor: 0.6);
+    if (ranked.isEmpty) {
+      unawaited(_haptics.error());
+      await say(_l10n.libraryNotFound(cmd.title));
+      return true;
+    }
+    final best = ranked.first;
+    final second = ranked.length > 1 ? ranked[1] : null;
+    final clear =
+        best.score >= 0.75 &&
+        (second == null || second.score < best.score - 0.15);
+    if (clear) {
+      await _openItem(best.item, cmd.verb);
+      return true;
+    }
+    if (second != null) {
+      _choices = _Choices([
+        (label: best.item.title, run: () => _openItem(best.item, cmd.verb)),
+        (label: second.item.title, run: () => _openItem(second.item, cmd.verb)),
+      ]);
+      await ask(
+        _l10n.voiceWhichOne(best.item.title, second.item.title),
+        split: true,
+      );
+      return true;
+    }
+    _pending = _Pending(() => _openItem(best.item, cmd.verb));
+    await ask(_l10n.voiceDidYouMean(best.item.title), split: true);
+    return true;
+  }
+
+  /// Whether [text] contains a command word for word (screen or app-wide).
+  bool _namesCommand(String text, ScreenRegistration? screen) {
+    bool contained(MatchResult r) => switch (r) {
+      Matched(:final score) || Ambiguous(:final score) => score >= 1,
+      NoMatch() => false,
+    };
+    return contained(_matcher.match(text, _screenPhrases(screen))) ||
+        contained(_matcher.match(text, _globalPhrases));
+  }
+
+  Future<void> _openItem(LibraryItem item, TitleVerb verb) async {
+    unawaited(_haptics.confirm());
+    await say(_l10n.libraryOpening(item.title), protect: true);
+    await _ref
+        .read(libraryActionsProvider)
+        .open(item, play: verb == TitleVerb.read);
+  }
+
+  _Choices? _takeChoices() {
+    final c = _choices;
+    _choices = null;
+    return (c != null && c.valid) ? c : null;
+  }
+
+  static const List<List<String>> _ordinals = [
+    ['una', 'unang', 'yung una', 'first', 'the first', 'first one'],
+    ['pangalawa', 'ikalawa', 'yung pangalawa', 'second', 'the second'],
+  ];
+
+  /// The option of [choices] named in [text] (by title or "una/pangalawa").
+  ({String label, Future<void> Function() run})? _pickChoice(
+    String text,
+    _Choices choices,
+  ) {
+    final said = Understanding.clean(text);
+    for (var i = 0; i < choices.options.length && i < _ordinals.length; i++) {
+      if (_ordinals[i].any((o) => CommandMatcher.normalize(o) == said)) {
+        return choices.options[i];
+      }
+    }
+    ({String label, Future<void> Function() run})? best;
+    var bestScore = 0.0;
+    for (final o in choices.options) {
+      final sc = LibraryView.titleScore(o.label, text, floor: 0.6);
+      if (sc > bestScore) {
+        best = o;
+        bestScore = sc;
+      }
+    }
+    return best;
   }
 
   /// Whether the partial result [partial] is already a whole command, so it
@@ -214,12 +543,20 @@ class CommandBus {
   /// question, then the screen's own actions, then app-wide commands. What
   /// runs is still decided by [handleUtterance].
   PartialMatch? judgePartial(String partial) {
-    final input = CommandMatcher.tokens(_stripWakeWord(partial));
+    final input = CommandMatcher.tokens(
+      Understanding.clean(_stripWakeWord(partial)),
+    );
     final screen = activeScreen;
     if (input.isEmpty || screen == null) return null;
+    if (_choices != null) return null; // a title is on its way
     final prefixes = screen.freeTextPrefixes;
     if (screen.onUtterance != null && prefixes == null) return null;
-    for (final prefix in prefixes ?? const <String>[]) {
+    for (final prefix in [
+      ...?prefixes,
+      // "basahin ang …" (a title follows) and questions ("nasaan ako").
+      ...Understanding.titlePrefixes,
+      ..._questionPhrases,
+    ]) {
       final words = CommandMatcher.tokens(prefix);
       final startsWithIt =
           input.length >= words.length &&
@@ -290,15 +627,16 @@ class CommandBus {
     ...noWords,
   ];
 
-  /// Speaks [prompt] and lets the user accept with a double-tap or "oo"
-  /// within [AppDurations.pendingAnswer].
+  /// Asks [prompt] and lets the user accept with a double-tap or "oo"
+  /// within [AppDurations.pendingAnswer]. Speech stops after the question;
+  /// how to answer is said only if no answer comes ([Announcer.ask]).
   Future<void> offer(
     String prompt,
     FutureOr<void> Function() onAccept, {
     FutureOr<void> Function()? onDecline,
   }) {
     _pending = _Pending(onAccept, onDecline);
-    return say('$prompt ${_l10n.offerConfirmHint}');
+    return ask(prompt, then: _l10n.offerConfirmHint);
   }
 
   _Pending? _takePending() {
@@ -312,8 +650,13 @@ class CommandBus {
     final local = _matcher.match(text, _screenPhrases(screen));
     final global = _matcher.match(text, _globalPhrases);
     if (local is Matched) {
-      // Two commands in one phrase: the first one said runs.
-      if (global is Matched && global.at >= 0 && global.at < local.at) {
+      // Two commands in one phrase: the first one said runs — except
+      // "buksan / open / piliin" followed by what to open ("open the
+      // camera"): then the thing named runs.
+      if (global is Matched &&
+          global.at >= 0 &&
+          global.at < local.at &&
+          global.target != const ValueTarget(NavIntent.activate)) {
         return global;
       }
       return local;
@@ -363,6 +706,10 @@ class CommandBus {
   static final List<CommandPhrase> _globalPhrases = [
     for (final e in globalVoiceCommands.entries)
       for (final phrase in e.value) CommandPhrase(phrase, ValueTarget(e.key)),
+  ];
+
+  static final List<String> _questionPhrases = [
+    for (final list in Understanding.questionPhrases.values) ...list,
   ];
 
   static final List<CommandPhrase> _yesNoPhrases = [
@@ -419,6 +766,8 @@ class CommandBus {
   /// short, protected spoken confirmation. Visual taps call this too, so
   /// every path gives the same feedback.
   Future<void> activate(String actionId) async {
+    if (await _userEndsAssistant()) return;
+    _announcer.answered();
     _voice
       ..noteActivity()
       ..commandExecuted(actionId);
@@ -431,43 +780,103 @@ class CommandBus {
   }
 
   /// Speaks the entry announcement of [screen]. With [interrupt] false it
-  /// queues behind whatever is being said.
+  /// queues behind whatever is being said. When the screen asks a question,
+  /// speech stops after the question and its options; the rest waits for
+  /// the answer ([entryParts], [Announcer.ask]).
+  ///
+  /// With [full] (the user asked to hear it again) a familiar screen is
+  /// still announced in full.
   Future<void> announceScreen(
     ScreenRegistration screen, {
     bool interrupt = true,
-  }) => _announcer.say(
-    entryAnnouncement(screen, returning: _consumeReturning()),
-    screenId: screen.id,
-    interrupt: interrupt,
-  );
+    bool full = false,
+  }) {
+    final (:asked, :then) = entryParts(
+      screen,
+      returning: _consumeReturning(),
+      full: full,
+    );
+    return _announcer.ask(
+      asked,
+      then: then,
+      screenId: screen.id,
+      interrupt: interrupt,
+    );
+  }
 
-  /// Builds "Title. Prompt. Options: A or B. Mode hint."
+  /// Builds "Title. Prompt. Options: A or B. Follow-up. Mode hint." as one
+  /// text.
   String entryAnnouncement(
     ScreenRegistration screen, {
     bool returning = false,
   }) {
+    final (:asked, :then) = entryParts(screen, returning: returning);
+    return [asked, ?then].join(' ');
+  }
+
+  /// The entry announcement split where the app waits for an answer:
+  /// [asked] is "Title. Prompt? Options: A or B." and [then] is the screen's
+  /// follow-up (how to answer) plus the mode hint, and help when detailed.
+  /// A prompt with no question is said whole, without waiting ([then]
+  /// null).
+  ///
+  /// "Awtomatiko" ([Verbosity.auto]): a screen opened
+  /// [VoiceConfig.familiarAfter] times or more leaves out the navigation
+  /// hint (unless [full]); when the user seems stuck ([struggling]) the
+  /// screen's help is added.
+  ({String asked, String? then}) entryParts(
+    ScreenRegistration screen, {
+    bool returning = false,
+    bool full = false,
+  }) {
     final l = _l10n;
     final title = screen.title;
-    final parts = <String>[
+    final prompt = screen.prompt(l);
+    final asked = <String>[
       if (title != null)
         returning ? l.backReturnedTo(title(l)) : _asSentence(title(l)),
-      if (screen.prompt(l).isNotEmpty) screen.prompt(l),
+      if (prompt.isNotEmpty) prompt,
     ];
     final items = screen.focusables;
     if (screen.listOptions && items.isNotEmpty) {
-      parts.add(l.optionsList(_joinOr([for (final a in items) a.label(l)], l)));
+      asked.add(l.optionsList(_joinOr([for (final a in items) a.label(l)], l)));
     }
+    final followUp = screen.followUp?.call(l) ?? '';
+    final later = <String>[if (followUp.isNotEmpty) followUp];
     final verbosity = _ref.read(settingsProvider).verbosity;
+    final auto = verbosity == Verbosity.auto;
+    final stuck = auto && struggling;
+    final familiar = auto && !full && !stuck && isFamiliar(screen.id);
     if (verbosity == Verbosity.brief) {
-      // Name and question only.
-      return parts.take(screen.title == null ? 1 : 2).join(' ');
+      // Name and question only (plus how to answer, if no answer comes).
+      final keep = screen.title == null ? 1 : 2;
+      if (asked.length > keep) asked.removeRange(keep, asked.length);
+    } else {
+      if (screen.includeModeHint && !familiar) later.add(modeHint(l));
+      if (verbosity == Verbosity.detailed || stuck) {
+        later.add((screen.help ?? (l) => l.helpGesturesMenu)(l));
+      }
     }
-    if (screen.includeModeHint) parts.add(modeHint(l));
-    if (verbosity == Verbosity.detailed) {
-      parts.add((screen.help ?? (l) => l.helpGesturesMenu)(l));
+    if (later.isEmpty) return (asked: asked.join(' '), then: null);
+    if (!asksQuestion(prompt)) {
+      // Nothing to answer: say it all at once.
+      return (asked: [...asked, ...later].join(' '), then: null);
     }
-    return parts.join(' ');
+    return (asked: asked.join(' '), then: later.join(' '));
   }
+
+  /// Whether [text] contains a question (a sentence ending in "?").
+  static bool asksQuestion(String text) =>
+      Announcer.splitSentences(text).any(RegExp(r'\?["”’)\]]*$').hasMatch);
+
+  /// Whether the user has opened [screenId] often enough to know it.
+  bool isFamiliar(String screenId) =>
+      _ref.read(familiarityProvider.notifier).visits(screenId) >=
+      VoiceConfig.familiarAfter;
+
+  /// Counts a visit to [screenId] (for "Awtomatiko" announcements).
+  void noteVisit(String screenId) =>
+      _ref.read(familiarityProvider.notifier).noteVisit(screenId);
 
   /// The how-to-navigate hint for the current mode.
   String modeHint(AppLocalizations l) {
@@ -530,6 +939,7 @@ class CommandBus {
       (screen.help ?? (l) => l.helpGesturesMenu)(l),
       if (_ref.read(navigationModeProvider) == NavMode.voice)
         l.helpVoiceCommands(_commandSummary(screen)),
+      if (_ref.read(assistantConfigProvider).isSetUp) l.assistantHowToCall,
     ];
     return say(parts.join(' '));
   }
@@ -543,6 +953,12 @@ class CommandBus {
   /// Speaks [text] in the prompt language.
   Future<void> say(String text, {bool protect = false, String? screenId}) =>
       _announcer.say(text, protect: protect, screenId: screenId);
+
+  /// Asks the question in [text] and waits for the answer before saying
+  /// [then] (and, with [split], what follows the question in [text]); see
+  /// [Announcer.ask].
+  Future<void> ask(String text, {String? then, bool split = false}) =>
+      _announcer.ask(text, then: then, split: split);
 
   /// Opens a top-level screen (pushed, so "back" returns here).
   Future<void> _openScreen(String route, String screenId) async {

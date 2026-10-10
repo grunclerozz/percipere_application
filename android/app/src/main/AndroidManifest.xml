@@ -2,6 +2,8 @@
     <!-- Camera capture and voice commands -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Voice assistant (ElevenLabs): audio routing for the conversation -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <!-- Report/feedback sync (optional; the app is offline-first) -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

@@ -80,6 +80,12 @@ abstract final class PrefKeys {
   /// `'brief'`, `'normal'` or `'detailed'`.
   static const String verbosity = 'speech.verbosity';
 
+  /// Times each screen was opened, `{screenId: count}` (per user).
+  static const String screenVisits = 'speech.screenVisits';
+
+  /// The controls tutorial was finished or skipped on this device.
+  static const String tutorialDone = 'tutorial.done';
+
   /// Camera auto-capture on/off.
   static const String autoCapture = 'camera.autoCapture';
 

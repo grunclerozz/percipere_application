@@ -17,6 +17,10 @@ enum Verbosity {
 
   /// Plus the gestures for the screen.
   detailed,
+
+  /// Normal on the first visits to a screen, shorter once it is familiar
+  /// (no navigation hint), more help after the user gets stuck (default).
+  auto,
 }
 
 /// Which voice reads documents.
@@ -61,7 +65,7 @@ class AppSettings {
     this.font = AppFont.montserrat,
     this.themeId = ThemeId.creamNavy,
     this.haptics = true,
-    this.verbosity = Verbosity.normal,
+    this.verbosity = Verbosity.auto,
     this.autoCapture = true,
     this.autoRead = true,
     this.listenWhileReading = true,

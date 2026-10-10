@@ -68,8 +68,12 @@ abstract interface class DocumentPicker {
 /// [DocumentPicker] via `file_picker` (no broad storage permission needed)
 /// and `image_picker`.
 class SystemDocumentPicker implements DocumentPicker {
-  /// Creates the picker.
-  const SystemDocumentPicker();
+  /// Creates the picker. [tempDir] is where copies of picked files go
+  /// (replaced in tests).
+  const SystemDocumentPicker({this.tempDir = getTemporaryDirectory});
+
+  /// The app's temporary directory.
+  final Future<Directory> Function() tempDir;
 
   @override
   Future<PickResult> pickDocument() =>
@@ -86,9 +90,13 @@ class SystemDocumentPicker implements DocumentPicker {
     List<String> extensions, {
     required bool Function(DocumentKind kind) accept,
   }) async {
-    final List<PlatformFile> files;
+    final PlatformFile? file;
     try {
-      files = await FilePicker.pickFiles(
+      // One file only: with multiple selection allowed, a file Android
+      // fails to copy is silently left out and the result is an empty
+      // list, which looks exactly like "cancelled". Single selection
+      // reports that failure as an error instead.
+      file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: extensions,
       );
@@ -96,31 +104,43 @@ class SystemDocumentPicker implements DocumentPicker {
       logCapture('the file picker failed', e, stack);
       return PickFailed(e);
     }
-    if (files.isEmpty) return const PickCancelled();
-    final file = files.first;
+    if (file == null) {
+      debugPrint('[CAPTURE] picker closed without a file (cancelled)');
+      return const PickCancelled();
+    }
     // The kind comes from the name: a content:// address has no extension.
     final kind = DocumentKind.forPath(file.name);
     debugPrint(
       '[CAPTURE] picked "${file.name}" kind=${kind?.name} '
-      'path=${file.path != null} uri=${file.uri.scheme}',
+      'path=${file.path} uri=${file.uri.scheme} size=${file.lengthSync()}',
     );
     if (kind == null || !accept(kind)) return const PickUnsupported();
     try {
-      final path = file.path ?? await _copyToCache(file);
-      return Picked(DocumentFile(path: path, kind: kind));
+      return Picked(DocumentFile(path: await localCopyOf(file), kind: kind));
     } on Object catch (e, stack) {
       logCapture('the picked file could not be read', e, stack);
       return PickFailed(e);
     }
   }
 
-  /// Android may hand back only a content:// address (no copy on disk):
-  /// read its bytes and keep a private copy to extract from.
-  static Future<String> _copyToCache(PlatformFile file) async {
+  /// A readable local path for [file]: its own path when that file is
+  /// really there and not empty, otherwise a private copy of its bytes
+  /// (Android may hand back only a content:// address). Throws if neither
+  /// works (e.g. the cached copy is missing or empty), so a chosen file is
+  /// never treated as "nothing chosen".
+  @visibleForTesting
+  Future<String> localCopyOf(PlatformFile file) async {
+    final path = file.path;
+    if (path != null) {
+      final onDisk = File(path);
+      if (await onDisk.exists() && await onDisk.length() > 0) return path;
+      debugPrint('[CAPTURE] picked path is missing or empty: $path');
+    }
     final bytes = await file.readAsBytes();
-    final dir = Directory(
-      p.join((await getTemporaryDirectory()).path, 'picked'),
-    );
+    if (bytes.isEmpty) {
+      throw FileSystemException('the chosen file is empty', file.name);
+    }
+    final dir = Directory(p.join((await tempDir()).path, 'picked'));
     await dir.create(recursive: true);
     final copy = File(
       p.join(
@@ -129,6 +149,7 @@ class SystemDocumentPicker implements DocumentPicker {
       ),
     );
     await copy.writeAsBytes(bytes, flush: true);
+    debugPrint('[CAPTURE] read the chosen file by its bytes: ${copy.path}');
     return copy.path;
   }
 

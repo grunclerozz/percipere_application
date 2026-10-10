@@ -480,6 +480,10 @@ class DescribeController extends Notifier<DescribeState> {
   /// Pinch, A−/A+ or voice: text size one step bigger ([direction] 1) or
   /// smaller (−1), saved like in the Reader.
   Future<void> changeTextSize(int direction) async {
+    // A pinch reaches here without the command bus: it still counts as the
+    // user acting, so an open question's instructions are dropped and this
+    // confirmation isn't held back behind them.
+    _announcer.answered();
     final before = ref.read(settingsProvider).textSize;
     final after =
         (await ref

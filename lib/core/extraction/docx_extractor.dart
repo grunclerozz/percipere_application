@@ -14,19 +14,26 @@ String extractDocxText(Uint8List bytes) {
   final Archive archive;
   try {
     archive = ZipDecoder().decodeBytes(bytes);
-  } on Object {
-    throw const ExtractionException(ExtractionFailure.unreadable);
+  } on Object catch (e) {
+    // Not a zip: not really a .docx (or damaged).
+    throw ExtractionException(
+      ExtractionFailure.unreadable,
+      'not a zip (${bytes.length} bytes): $e',
+    );
   }
   final entry = archive.findFile('word/document.xml');
   if (entry == null) {
-    throw const ExtractionException(ExtractionFailure.unreadable);
+    throw const ExtractionException(
+      ExtractionFailure.unreadable,
+      'no word/document.xml',
+    );
   }
 
   final XmlDocument xml;
   try {
     xml = XmlDocument.parse(utf8.decode(entry.content));
-  } on Object {
-    throw const ExtractionException(ExtractionFailure.unreadable);
+  } on Object catch (e) {
+    throw ExtractionException(ExtractionFailure.unreadable, 'bad XML: $e');
   }
 
   final out = StringBuffer();

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 
 import '../voice/command_matcher.dart';
@@ -243,29 +245,44 @@ abstract final class LibraryView {
 
   /// Items to "ituloy" (continue) matching [title]: the best title match.
   static LibraryItem? findByTitle(List<LibraryItem> items, String title) {
+    final ranked = rankByTitle(items, title);
+    return ranked.isEmpty ? null : ranked.first.item;
+  }
+
+  /// How well [title] (as said) fits [name]: 2 exact, 1–2 contained, 0.9
+  /// all words present, else edit similarity (0 below [floor]).
+  static double titleScore(String name, String title, {double floor = 0.75}) {
     final words = CommandMatcher.tokens(title);
-    if (words.isEmpty) return null;
+    if (words.isEmpty) return 0;
     final exact = CommandMatcher.normalize(title);
-    LibraryItem? best;
-    var bestScore = 0.0;
-    for (final item in items) {
-      final name = CommandMatcher.normalize(item.title);
-      var score = 0.0;
-      if (name == exact) {
-        score = 2;
-      } else if (name.contains(exact)) {
-        score = 1 + exact.length / name.length;
-      } else if (words.every(name.contains)) {
-        score = 0.9;
-      } else {
-        final s = CommandMatcher.similarity(name, exact);
-        if (s >= 0.75) score = s;
-      }
-      if (score > bestScore) {
-        best = item;
-        bestScore = score;
+    final n = CommandMatcher.normalize(name);
+    if (n == exact) return 2;
+    if (n.contains(exact)) return 1 + exact.length / n.length;
+    if (words.every(n.contains)) return 0.9;
+    // Said a part of a long title: compare with the same number of words.
+    final nameWords = n.split(' ');
+    var best = CommandMatcher.similarity(n, exact);
+    if (nameWords.length > words.length) {
+      for (var i = 0; i + words.length <= nameWords.length; i++) {
+        final part = nameWords.sublist(i, i + words.length).join(' ');
+        best = math.max(best, CommandMatcher.similarity(part, exact) * 0.95);
       }
     }
-    return best;
+    return best >= floor ? best : 0;
+  }
+
+  /// Items whose title fits [title], best first (score > 0).
+  static List<({LibraryItem item, double score})> rankByTitle(
+    List<LibraryItem> items,
+    String title, {
+    double floor = 0.75,
+  }) {
+    final ranked =
+        [
+            for (final item in items)
+              (item: item, score: titleScore(item.title, title, floor: floor)),
+          ].where((r) => r.score > 0).toList()
+          ..sort((a, b) => b.score.compareTo(a.score));
+    return ranked;
   }
 }

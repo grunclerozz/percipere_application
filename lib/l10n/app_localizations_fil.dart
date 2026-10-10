@@ -277,6 +277,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hindi gumana ang pagbasa ng teksto sa phone na ito ngayon. Hindi sira ang file. Pakisubukan ulit.';
 
   @override
+  String get readerExtractFailed =>
+      'Nagkaproblema habang binabasa ko ang file. Malamang hindi ito sira. Pakisubukan ulit.';
+
+  @override
   String get readerSaveFailed =>
       'Mababasa mo ito, pero hindi ko ito na-save sa Aklatan.';
 
@@ -1735,4 +1739,263 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get libraryEdgeBottom => 'Nasa pinakababa ka na.';
+
+  @override
+  String get verbosityAuto => 'Awtomatiko';
+
+  @override
+  String whereAmIScreen(String screen) {
+    return 'Nasa $screen ka.';
+  }
+
+  @override
+  String whereAmIFocused(String item) {
+    return 'Naka-focus: $item.';
+  }
+
+  @override
+  String whatCanIDo(String commands) {
+    return 'Dito, pwede mong sabihin: $commands.';
+  }
+
+  @override
+  String get askMeHint =>
+      'Pwede mo rin akong tanungin, halimbawa: “nasaan ako?” o “anong oras na?”.';
+
+  @override
+  String timeNow(String time) {
+    return '$time na ngayon.';
+  }
+
+  @override
+  String dateToday(String date) {
+    return 'Ngayon ay $date.';
+  }
+
+  @override
+  String voiceSuggest(String options) {
+    return 'Hindi kita naintindihan. Baka ang ibig mo ay: $options.';
+  }
+
+  @override
+  String get voiceNotUnderstood =>
+      'Hindi kita naintindihan. Sabihin ang “ano ang pwede kong gawin” para marinig ang mga utos.';
+
+  @override
+  String get voiceOfferHelp =>
+      'Kung nalilito ka, sabihin ang “paano gamitin” para sa maikling pag-aaral.';
+
+  @override
+  String voiceWhichOne(String first, String second) {
+    return 'Alin sa dalawa: $first, o $second? Sabihin ang pangalan.';
+  }
+
+  @override
+  String get docNeedsOpenDoc =>
+      'Magbukas muna ng dokumento, saka mo ito itanong.';
+
+  @override
+  String get docTypeReceipt => 'Mukhang resibo ito.';
+
+  @override
+  String get docTypeBill => 'Mukhang bill o singilin ito.';
+
+  @override
+  String get docTypeMedicine => 'Mukhang label ng gamot o reseta ito.';
+
+  @override
+  String get docTypeLetter => 'Mukhang liham ito.';
+
+  @override
+  String get docTypeForm => 'Mukhang form ito na may mga pupunan.';
+
+  @override
+  String get docTypeOther =>
+      'Hindi ko matiyak kung anong klaseng dokumento ito.';
+
+  @override
+  String docFrom(String from) {
+    return 'Mula sa: $from.';
+  }
+
+  @override
+  String docLetterTo(String name) {
+    return 'Para kay $name.';
+  }
+
+  @override
+  String docTotal(String amount) {
+    return 'Kabuuan: $amount piso.';
+  }
+
+  @override
+  String docDue(String date) {
+    return 'Dapat bayaran bago o sa $date.';
+  }
+
+  @override
+  String docExpiry(String date) {
+    return 'Mapapaso sa $date.';
+  }
+
+  @override
+  String docDosage(String dosage) {
+    return 'Paano inumin: $dosage';
+  }
+
+  @override
+  String get docNoTotal =>
+      'Wala akong nakitang halaga o total sa dokumentong ito.';
+
+  @override
+  String get docNoDue => 'Wala akong nakitang due date sa dokumentong ito.';
+
+  @override
+  String get docNoExpiry =>
+      'Wala akong nakitang expiry date sa dokumentong ito.';
+
+  @override
+  String get docNoDosage =>
+      'Wala akong nakitang paraan ng pag-inom sa dokumentong ito.';
+
+  @override
+  String docSummary(String text) {
+    return 'Buod: $text';
+  }
+
+  @override
+  String get docNoSummary => 'Masyadong maikli ang dokumento para ibuod.';
+
+  @override
+  String get docAskHint =>
+      'Pwede mo akong tanungin tungkol dito, halimbawa: “magkano?” o “ibuod mo”.';
+
+  @override
+  String readerProgress(String current, String total, String percent) {
+    return 'Nasa pangungusap $current ng $total ka, mga $percent porsiyento.';
+  }
+
+  @override
+  String readerProgressChapter(String chapter, String chapters) {
+    return 'Kabanata $chapter ng $chapters.';
+  }
+
+  @override
+  String get setTutorial => 'Paano gamitin ang app';
+
+  @override
+  String get setTutorialValue => 'Pag-aaral ng mga kontrol';
+
+  @override
+  String get screenTutorial => 'Pag-aaral ng mga kontrol';
+
+  @override
+  String get tutorialSkip => 'Laktawan';
+
+  @override
+  String get tutorialIntro =>
+      'Tuturuan kita kung paano gamitin ang Percipere gamit ang daliri at boses. Mga dalawang minuto lang ito. I-double tap kahit saan sa screen para magsimula. Para laktawan, mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “laktawan”.';
+
+  @override
+  String get tutorialSwipeRight =>
+      'Para lumipat sa susunod na pagpipilian, mag-swipe pakanan gamit ang isang daliri. Subukan mo ngayon.';
+
+  @override
+  String get tutorialSwipeLeft =>
+      'Para bumalik sa nakaraang pagpipilian, mag-swipe pakaliwa. Subukan mo.';
+
+  @override
+  String get tutorialDoubleTap =>
+      'Para piliin ang pagpipilian, mag-double tap kahit saan sa screen. Subukan mo.';
+
+  @override
+  String get tutorialTap =>
+      'Para marinig ulit ang huling sinabi ko, mag-tap nang isang beses. Subukan mo.';
+
+  @override
+  String get tutorialBack =>
+      'Para bumalik sa nakaraang screen, mag-swipe pakanan gamit ang dalawang daliri. Subukan mo.';
+
+  @override
+  String get tutorialHelp =>
+      'Para humingi ng tulong sa kahit anong screen, mag-tap gamit ang tatlong daliri. Subukan mo.';
+
+  @override
+  String get tutorialLongPress =>
+      'Para magsalita ng utos, pindutin nang matagal ang screen hanggang may marinig kang tunog. Subukan mo.';
+
+  @override
+  String get tutorialSay => 'Ngayon, sabihin ang “tulong”.';
+
+  @override
+  String get tutorialVoiceInfo =>
+      'Kapag naka-boses, nakikinig ako pagkatapos kong magsalita, kaya hindi mo na kailangang pumindot. Habang nagbabasa ako, pwede mong sabihin ang “i-pause” o “bilisan”. Pwede mo rin akong tanungin: “nasaan ako?”, “ano ang pwede kong gawin?”, at kapag may bukas na dokumento, “magkano?” o “ibuod mo”. I-double tap para magpatuloy.';
+
+  @override
+  String get tutorialDone =>
+      'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal para magsalita. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.';
+
+  @override
+  String get tutorialGood => 'Magaling!';
+
+  @override
+  String get tutorialGoodAlt => 'Tama!';
+
+  @override
+  String get tutorialWrong => 'Hindi iyon ang hinihintay ko. Subukan ulit.';
+
+  @override
+  String get tutorialMovingOn => 'Ayos lang. Lilipat na tayo sa susunod.';
+
+  @override
+  String get tutorialSkipped =>
+      'Nilaktawan ang pag-aaral. Sabihin ang “paano gamitin” kung gusto mo itong gawin mamaya.';
+
+  @override
+  String get tutorialSkipQuestion => 'Gusto mo bang laktawan ang pag-aaral?';
+
+  @override
+  String get tutorialNoMic =>
+      'Hindi pa pinapayagan ang mikropono, kaya lalaktawan natin ang pagsasanay sa boses.';
+
+  @override
+  String get assistantNotSetUp =>
+      'Hindi pa naka-set up si Percy, ang voice assistant. Gamitin muna ang karaniwang mga utos.';
+
+  @override
+  String get assistantOffline =>
+      'Kailangan ng internet para kay Percy. Gumagana pa rin ang karaniwang mga utos.';
+
+  @override
+  String get assistantConsentAsk =>
+      'Si Percy ay voice assistant na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?';
+
+  @override
+  String get assistantConsentDeclined =>
+      'Sige, hindi muna gagamitin si Percy. Pwede mo siyang tawagin ulit kapag gusto mo.';
+
+  @override
+  String get assistantMicNeeded =>
+      'Kailangan ni Percy ang mikropono. Payagan ito sa settings ng app.';
+
+  @override
+  String get assistantConnecting => 'Tinatawag si Percy.';
+
+  @override
+  String get assistantEnded => 'Tapos na ang usapan kay Percy.';
+
+  @override
+  String get assistantFailed =>
+      'Hindi makakonekta kay Percy ngayon. Subukan ulit mamaya. Gumagana pa rin ang karaniwang mga utos.';
+
+  @override
+  String get assistantFirstMessage =>
+      'Kumusta po! Ako si Percy. Ano po ang maitutulong ko?';
+
+  @override
+  String get assistantHowToCall =>
+      'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o gumawa ng kahit anong galaw.';
+
+  @override
+  String get assistantGuestName => 'kaibigan';
 }

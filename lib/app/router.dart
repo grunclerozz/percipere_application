@@ -25,12 +25,16 @@ import '../features/reader/reader_controller.dart';
 import '../features/reader/reader_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/setup/profiling_screen.dart';
+import '../features/tutorial/tutorial_screen.dart';
 import '../features/welcome/welcome_screen.dart';
 
 /// Route paths. Use these instead of string literals.
 abstract final class AppRoutes {
   /// Welcome: Login, Register, Subukan muna.
   static const String welcome = '/';
+
+  /// Controls tutorial. `extra`: true when replayed (finishing goes back).
+  static const String tutorial = '/tutorial';
 
   /// Register (First/Last Name, Email, Password).
   static const String register = '/register';
@@ -115,6 +119,11 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.tutorial,
+        builder: (context, state) =>
+            TutorialScreen(replay: state.extra == true),
       ),
       GoRoute(
         path: AppRoutes.register,
@@ -226,16 +235,24 @@ GoRouter buildRouter({
   );
 }
 
-/// The app-wide router. Starts where the saved session leads: Welcome with
-/// no session, "log in again" if it expired, otherwise the account's home.
+/// Whether the controls tutorial was already done on this device. Set by
+/// `bootstrap()`; true by default so tests start where they expect.
+final initialTutorialDoneProvider = Provider<bool>((ref) => true);
+
+/// The app-wide router. Starts where the saved session leads: the controls
+/// tutorial on the very first launch, Welcome with no session, "log in
+/// again" if it expired, otherwise the account's home.
 final routerProvider = Provider<GoRouter>((ref) {
   final account = ref.read(initialAccountProvider);
   final expired = ref.read(initialSessionExpiredProvider);
+  final firstLaunch = !ref.read(initialTutorialDoneProvider);
   final router = buildRouter(
     initialLocation: account != null
         ? AppRoutes.landing(account)
         : expired
         ? AppRoutes.authChoice
+        : firstLaunch
+        ? AppRoutes.tutorial
         : AppRoutes.welcome,
     initialExtra: account == null && expired ? true : null,
   );

@@ -152,10 +152,26 @@ class DefaultDocumentExtractor implements DocumentExtractor {
       debugPrint('[CAPTURE] extraction failed (${file.kind.name}): $e');
       debugPrint('[CAPTURE] $stack');
       rethrow;
-    } on Object catch (e, stack) {
-      debugPrint('[CAPTURE] extraction failed (${file.kind.name}): $e');
+    } on FileSystemException catch (e, stack) {
+      // The file vanished or can't be read from storage.
+      debugPrint('[CAPTURE] reading ${file.kind.name} from storage failed: $e');
       debugPrint('[CAPTURE] $stack');
-      throw ExtractionException(ExtractionFailure.unreadable, '$e');
+      final gone = !await File(file.path).exists();
+      throw ExtractionException(
+        gone ? ExtractionFailure.missing : ExtractionFailure.unreadable,
+        '$e',
+      );
+    } on Object catch (e, stack) {
+      // Not the file's fault: say so, and keep the real error in the log.
+      debugPrint(
+        '[CAPTURE] extraction failed (${file.kind.name}) '
+        '${e.runtimeType}: $e',
+      );
+      debugPrint('[CAPTURE] $stack');
+      throw ExtractionException(
+        ExtractionFailure.failed,
+        '${e.runtimeType}: $e',
+      );
     }
   }
 }

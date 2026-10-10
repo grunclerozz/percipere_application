@@ -542,6 +542,12 @@ abstract class AppLocalizations {
   /// **'Hindi gumana ang pagbasa ng teksto sa phone na ito ngayon. Hindi sira ang file. Pakisubukan ulit.'**
   String get readerOcrFailed;
 
+  /// Reading the text failed for an unexpected reason (not a damaged file, not the OCR engine). The real error is in the [CAPTURE] log.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagkaproblema habang binabasa ko ang file. Malamang hindi ito sira. Pakisubukan ulit.'**
+  String get readerExtractFailed;
+
   /// The text was read but saving it to the Library failed.
   ///
   /// In fil, this message translates to:
@@ -2917,6 +2923,402 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Nasa pinakababa ka na.'**
   String get libraryEdgeBottom;
+
+  /// Verbosity that shortens as the user gets used to a screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Awtomatiko'**
+  String get verbosityAuto;
+
+  /// Answer to 'nasaan ako?'.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nasa {screen} ka.'**
+  String whereAmIScreen(String screen);
+
+  /// The focused option, in 'where am I'.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-focus: {item}.'**
+  String whereAmIFocused(String item);
+
+  /// Answer to 'ano ang pwede kong gawin?'.
+  ///
+  /// In fil, this message translates to:
+  /// **'Dito, pwede mong sabihin: {commands}.'**
+  String whatCanIDo(String commands);
+
+  /// Tells the user questions work.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pwede mo rin akong tanungin, halimbawa: “nasaan ako?” o “anong oras na?”.'**
+  String get askMeHint;
+
+  /// Answer to 'anong oras na?'.
+  ///
+  /// In fil, this message translates to:
+  /// **'{time} na ngayon.'**
+  String timeNow(String time);
+
+  /// Answer to 'anong petsa?'.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ngayon ay {date}.'**
+  String dateToday(String date);
+
+  /// No match: the closest commands.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi kita naintindihan. Baka ang ibig mo ay: {options}.'**
+  String voiceSuggest(String options);
+
+  /// No match and nothing close.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi kita naintindihan. Sabihin ang “ano ang pwede kong gawin” para marinig ang mga utos.'**
+  String get voiceNotUnderstood;
+
+  /// After several misses in a row.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kung nalilito ka, sabihin ang “paano gamitin” para sa maikling pag-aaral.'**
+  String get voiceOfferHelp;
+
+  /// Two documents match the name said.
+  ///
+  /// In fil, this message translates to:
+  /// **'Alin sa dalawa: {first}, o {second}? Sabihin ang pangalan.'**
+  String voiceWhichOne(String first, String second);
+
+  /// Document question asked outside the Reader.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magbukas muna ng dokumento, saka mo ito itanong.'**
+  String get docNeedsOpenDoc;
+
+  /// Detected document type.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang resibo ito.'**
+  String get docTypeReceipt;
+
+  /// Detected document type.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang bill o singilin ito.'**
+  String get docTypeBill;
+
+  /// Detected document type.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang label ng gamot o reseta ito.'**
+  String get docTypeMedicine;
+
+  /// Detected document type.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang liham ito.'**
+  String get docTypeLetter;
+
+  /// Detected document type.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang form ito na may mga pupunan.'**
+  String get docTypeForm;
+
+  /// No type detected.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko matiyak kung anong klaseng dokumento ito.'**
+  String get docTypeOther;
+
+  /// Store, company or sender.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mula sa: {from}.'**
+  String docFrom(String from);
+
+  /// Who a letter is for.
+  ///
+  /// In fil, this message translates to:
+  /// **'Para kay {name}.'**
+  String docLetterTo(String name);
+
+  /// Total or amount due.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kabuuan: {amount} piso.'**
+  String docTotal(String amount);
+
+  /// Bill due date.
+  ///
+  /// In fil, this message translates to:
+  /// **'Dapat bayaran bago o sa {date}.'**
+  String docDue(String date);
+
+  /// Medicine expiry date.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mapapaso sa {date}.'**
+  String docExpiry(String date);
+
+  /// Dosage line from a medicine label.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paano inumin: {dosage}'**
+  String docDosage(String dosage);
+
+  /// Asked for a total that isn't there.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala akong nakitang halaga o total sa dokumentong ito.'**
+  String get docNoTotal;
+
+  /// docNoDue
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala akong nakitang due date sa dokumentong ito.'**
+  String get docNoDue;
+
+  /// docNoExpiry
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala akong nakitang expiry date sa dokumentong ito.'**
+  String get docNoExpiry;
+
+  /// docNoDosage
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala akong nakitang paraan ng pag-inom sa dokumentong ito.'**
+  String get docNoDosage;
+
+  /// Offline summary of the document.
+  ///
+  /// In fil, this message translates to:
+  /// **'Buod: {text}'**
+  String docSummary(String text);
+
+  /// docNoSummary
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong maikli ang dokumento para ibuod.'**
+  String get docNoSummary;
+
+  /// After the key facts of a new document.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pwede mo akong tanungin tungkol dito, halimbawa: “magkano?” o “ibuod mo”.'**
+  String get docAskHint;
+
+  /// Reader: how far.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nasa pangungusap {current} ng {total} ka, mga {percent} porsiyento.'**
+  String readerProgress(String current, String total, String percent);
+
+  /// Reader: which chapter.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kabanata {chapter} ng {chapters}.'**
+  String readerProgressChapter(String chapter, String chapters);
+
+  /// Settings link to the controls tutorial.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paano gamitin ang app'**
+  String get setTutorial;
+
+  /// Value text of that link.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pag-aaral ng mga kontrol'**
+  String get setTutorialValue;
+
+  /// Tutorial screen name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pag-aaral ng mga kontrol'**
+  String get screenTutorial;
+
+  /// Skip the tutorial.
+  ///
+  /// In fil, this message translates to:
+  /// **'Laktawan'**
+  String get tutorialSkip;
+
+  /// Tutorial first step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tuturuan kita kung paano gamitin ang Percipere gamit ang daliri at boses. Mga dalawang minuto lang ito. I-double tap kahit saan sa screen para magsimula. Para laktawan, mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “laktawan”.'**
+  String get tutorialIntro;
+
+  /// tutorialSwipeRight
+  ///
+  /// In fil, this message translates to:
+  /// **'Para lumipat sa susunod na pagpipilian, mag-swipe pakanan gamit ang isang daliri. Subukan mo ngayon.'**
+  String get tutorialSwipeRight;
+
+  /// tutorialSwipeLeft
+  ///
+  /// In fil, this message translates to:
+  /// **'Para bumalik sa nakaraang pagpipilian, mag-swipe pakaliwa. Subukan mo.'**
+  String get tutorialSwipeLeft;
+
+  /// tutorialDoubleTap
+  ///
+  /// In fil, this message translates to:
+  /// **'Para piliin ang pagpipilian, mag-double tap kahit saan sa screen. Subukan mo.'**
+  String get tutorialDoubleTap;
+
+  /// tutorialTap
+  ///
+  /// In fil, this message translates to:
+  /// **'Para marinig ulit ang huling sinabi ko, mag-tap nang isang beses. Subukan mo.'**
+  String get tutorialTap;
+
+  /// tutorialBack
+  ///
+  /// In fil, this message translates to:
+  /// **'Para bumalik sa nakaraang screen, mag-swipe pakanan gamit ang dalawang daliri. Subukan mo.'**
+  String get tutorialBack;
+
+  /// tutorialHelp
+  ///
+  /// In fil, this message translates to:
+  /// **'Para humingi ng tulong sa kahit anong screen, mag-tap gamit ang tatlong daliri. Subukan mo.'**
+  String get tutorialHelp;
+
+  /// tutorialLongPress
+  ///
+  /// In fil, this message translates to:
+  /// **'Para magsalita ng utos, pindutin nang matagal ang screen hanggang may marinig kang tunog. Subukan mo.'**
+  String get tutorialLongPress;
+
+  /// Voice practice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ngayon, sabihin ang “tulong”.'**
+  String get tutorialSay;
+
+  /// Voice tips.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kapag naka-boses, nakikinig ako pagkatapos kong magsalita, kaya hindi mo na kailangang pumindot. Habang nagbabasa ako, pwede mong sabihin ang “i-pause” o “bilisan”. Pwede mo rin akong tanungin: “nasaan ako?”, “ano ang pwede kong gawin?”, at kapag may bukas na dokumento, “magkano?” o “ibuod mo”. I-double tap para magpatuloy.'**
+  String get tutorialVoiceInfo;
+
+  /// Tutorial summary.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal para magsalita. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.'**
+  String get tutorialDone;
+
+  /// Correct gesture.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magaling!'**
+  String get tutorialGood;
+
+  /// Correct gesture (variety).
+  ///
+  /// In fil, this message translates to:
+  /// **'Tama!'**
+  String get tutorialGoodAlt;
+
+  /// Wrong gesture in the tutorial.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi iyon ang hinihintay ko. Subukan ulit.'**
+  String get tutorialWrong;
+
+  /// After three wrong tries.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ayos lang. Lilipat na tayo sa susunod.'**
+  String get tutorialMovingOn;
+
+  /// tutorialSkipped
+  ///
+  /// In fil, this message translates to:
+  /// **'Nilaktawan ang pag-aaral. Sabihin ang “paano gamitin” kung gusto mo itong gawin mamaya.'**
+  String get tutorialSkipped;
+
+  /// Back gesture in the middle of the tutorial.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang laktawan ang pag-aaral?'**
+  String get tutorialSkipQuestion;
+
+  /// tutorialNoMic
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pa pinapayagan ang mikropono, kaya lalaktawan natin ang pagsasanay sa boses.'**
+  String get tutorialNoMic;
+
+  /// No ElevenLabs agent id was built into the app.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pa naka-set up si Percy, ang voice assistant. Gamitin muna ang karaniwang mga utos.'**
+  String get assistantNotSetUp;
+
+  /// No description provided for @assistantOffline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ng internet para kay Percy. Gumagana pa rin ang karaniwang mga utos.'**
+  String get assistantOffline;
+
+  /// First use of the voice assistant: privacy consent (yes/no).
+  ///
+  /// In fil, this message translates to:
+  /// **'Si Percy ay voice assistant na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?'**
+  String get assistantConsentAsk;
+
+  /// No description provided for @assistantConsentDeclined.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige, hindi muna gagamitin si Percy. Pwede mo siyang tawagin ulit kapag gusto mo.'**
+  String get assistantConsentDeclined;
+
+  /// No description provided for @assistantMicNeeded.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ni Percy ang mikropono. Payagan ito sa settings ng app.'**
+  String get assistantMicNeeded;
+
+  /// No description provided for @assistantConnecting.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tinatawag si Percy.'**
+  String get assistantConnecting;
+
+  /// No description provided for @assistantEnded.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na ang usapan kay Percy.'**
+  String get assistantEnded;
+
+  /// No description provided for @assistantFailed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi makakonekta kay Percy ngayon. Subukan ulit mamaya. Gumagana pa rin ang karaniwang mga utos.'**
+  String get assistantFailed;
+
+  /// What the ElevenLabs agent says first.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kumusta po! Ako si Percy. Ano po ang maitutulong ko?'**
+  String get assistantFirstMessage;
+
+  /// Added to help: how to start and end the voice assistant.
+  ///
+  /// In fil, this message translates to:
+  /// **'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o gumawa ng kahit anong galaw.'**
+  String get assistantHowToCall;
+
+  /// How the assistant addresses a guest (no name).
+  ///
+  /// In fil, this message translates to:
+  /// **'kaibigan'**
+  String get assistantGuestName;
 }
 
 class _AppLocalizationsDelegate

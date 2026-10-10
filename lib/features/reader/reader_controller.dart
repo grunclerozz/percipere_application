@@ -23,6 +23,7 @@ import '../../core/tts/language_detector.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/tts/tts_service.dart';
+import '../../core/understanding/document_insights.dart';
 import '../../l10n/app_localizations.dart';
 
 /// What the Reader opens.
@@ -74,7 +75,11 @@ final class ItemSource extends ReaderSource {
     this.fromStart = false,
     this.chapter,
     this.sentence,
+    this.play = false,
   });
+
+  /// Start reading as soon as it is open ("basahin ang …").
+  final bool play;
 
   /// `library_items.id`.
   final String itemId;
@@ -94,10 +99,11 @@ final class ItemSource extends ReaderSource {
       other.itemId == itemId &&
       other.fromStart == fromStart &&
       other.chapter == chapter &&
-      other.sentence == sentence;
+      other.sentence == sentence &&
+      other.play == play;
 
   @override
-  int get hashCode => Object.hash(itemId, fromStart, chapter, sentence);
+  int get hashCode => Object.hash(itemId, fromStart, chapter, sentence, play);
 }
 
 /// Reader lifecycle.
@@ -134,7 +140,12 @@ class ReaderState {
     this.caption,
     this.chapterStarts = const [],
     this.chapterTitles = const [],
+    this.insights = DocumentInsights.none,
   });
+
+  /// What kind of document a new one looks like, and its key facts (said
+  /// before reading). Only filled in for new documents (camera / upload).
+  final DocumentInsights insights;
 
   /// Lifecycle phase.
   final ReaderPhase phase;
@@ -230,6 +241,7 @@ class ReaderState {
     List<int>? chapterStarts,
     List<String>? chapterTitles,
     int? resumedFrom,
+    DocumentInsights? insights,
     Object? caption = _keep,
   }) => ReaderState(
     phase: phase ?? this.phase,
@@ -248,6 +260,7 @@ class ReaderState {
     chapterStarts: chapterStarts ?? this.chapterStarts,
     chapterTitles: chapterTitles ?? this.chapterTitles,
     resumedFrom: resumedFrom ?? this.resumedFrom,
+    insights: insights ?? this.insights,
     caption: identical(caption, _keep) ? this.caption : caption as String?,
   );
 }
@@ -364,10 +377,14 @@ class ReaderController extends Notifier<ReaderState> {
             },
           );
       if (!ref.mounted) return;
+      final insights = result.quality == TextQuality.empty
+          ? DocumentInsights.none
+          : await _analyze(result.text);
+      if (!ref.mounted) return;
       final ready = _ready(
         result.text,
         result.quality,
-        base: state.copyWith(pageCount: result.pageCount),
+        base: state.copyWith(pageCount: result.pageCount, insights: insights),
       );
       state = ready;
       if (result.quality != TextQuality.empty) {
@@ -383,18 +400,25 @@ class ReaderController extends Notifier<ReaderState> {
         }
       }
     } on ExtractionException catch (e) {
-      debugPrint('[CAPTURE] reading ${file.kind.name} failed: $e');
+      debugPrint(
+        '[CAPTURE] reading ${file.kind.name} failed: $e '
+        '(path ${file.path})',
+      );
       if (ref.mounted) {
         state = state.copyWith(phase: ReaderPhase.failed, failure: e.failure);
       }
     } on Object catch (e, stack) {
-      // Anything else must not leave the Reader stuck on "loading".
-      debugPrint('[CAPTURE] reading ${file.kind.name} failed: $e');
+      // Anything else (preparing the sentences, the Library…) must not
+      // leave the Reader stuck on "loading", nor blame the file.
+      debugPrint(
+        '[CAPTURE] reading ${file.kind.name} failed after extraction '
+        '${e.runtimeType}: $e',
+      );
       debugPrint('[CAPTURE] $stack');
       if (ref.mounted) {
         state = state.copyWith(
           phase: ReaderPhase.failed,
-          failure: ExtractionFailure.unreadable,
+          failure: ExtractionFailure.failed,
         );
       }
     } finally {
@@ -415,12 +439,14 @@ class ReaderController extends Notifier<ReaderState> {
     try {
       item = await _dao.get(src.itemId);
       chapters = item == null ? const [] : await _dao.loadText(item);
-    } on Object catch (e) {
-      debugPrint('Loading item failed: $e');
+    } on Object catch (e, stack) {
+      // The Library database, not the document.
+      debugPrint('[CAPTURE] loading Library item ${src.itemId} failed: $e');
+      debugPrint('[CAPTURE] $stack');
       if (ref.mounted) {
         state = state.copyWith(
           phase: ReaderPhase.failed,
-          failure: ExtractionFailure.unreadable,
+          failure: ExtractionFailure.failed,
         );
       }
       return;
@@ -479,6 +505,27 @@ class ReaderController extends Notifier<ReaderState> {
     );
   }
 
+  DocumentInsights? _insights;
+
+  /// What kind of document this is and its key facts (computed once).
+  Future<DocumentInsights> insights() async {
+    final known = _insights;
+    if (known != null) return known;
+    if (!state.canRead) return DocumentInsights.none;
+    return _analyze(state.text);
+  }
+
+  Future<DocumentInsights> _analyze(String text) async {
+    try {
+      return _insights = await DocumentAnalyzer.analyzeAsync(text);
+    } on Object catch (e, stack) {
+      // A nicety: never let it stop the reading.
+      debugPrint('[CAPTURE] document analysis failed: $e');
+      debugPrint('[CAPTURE] $stack');
+      return _insights = DocumentInsights.none;
+    }
+  }
+
   /// Stores a newly read document in the Library (once).
   Future<void> _saveNew(
     ReaderState s,
@@ -501,7 +548,7 @@ class ReaderController extends Notifier<ReaderState> {
         cover = await ref.read(imagePrepProvider).saveThumbnail(photo.path);
       } on Object catch (e) {
         // The document matters more than its picture.
-        debugPrint('Cover failed: $e');
+        debugPrint('[CAPTURE] cover failed (document still saved): $e');
       }
     }
     final (source, format) = switch (sourceType) {

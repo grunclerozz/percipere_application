@@ -17,6 +17,25 @@ void main() {
     );
   });
 
+  test('the release build keeps the native plugins of every input', () {
+    final rules = File('android/app/proguard-rules.pro').readAsStringSync();
+    for (final package in [
+      'com.mr.flutter.plugin.filepicker', // file_picker
+      'io.flutter.plugins.imagepicker', // phone camera app
+      'io.flutter.plugins.camerax', // in-app camera
+      'com.eyedeadevelopment.fluttertts', // flutter_tts
+      'com.google_mlkit_text_recognition',
+      'com.google_mlkit_image_labeling',
+    ]) {
+      expect(rules, contains('-keep class $package.** { *; }'));
+    }
+  });
+
+  test('shrinking is not switched off as a workaround', () {
+    final gradle = File('android/app/build.gradle.kts').readAsStringSync();
+    expect(gradle, isNot(contains('isMinifyEnabled = false')));
+  });
+
   test('the release build type uses that rules file', () {
     final gradle = File('android/app/build.gradle.kts').readAsStringSync();
     expect(gradle, contains('proguardFiles("proguard-rules.pro")'));

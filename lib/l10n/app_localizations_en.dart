@@ -274,6 +274,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The text reader on this phone didn\'t work just now. The file isn\'t damaged. Please try again.';
 
   @override
+  String get readerExtractFailed =>
+      'Something went wrong while I was reading the file. It\'s probably not damaged. Please try again.';
+
+  @override
   String get readerSaveFailed =>
       'You can read it, but I couldn\'t save it to the Library.';
 
@@ -1792,4 +1796,259 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get libraryEdgeBottom => 'You are at the bottom.';
+
+  @override
+  String get verbosityAuto => 'Automatic';
+
+  @override
+  String whereAmIScreen(String screen) {
+    return 'You\'re on $screen.';
+  }
+
+  @override
+  String whereAmIFocused(String item) {
+    return 'Selected: $item.';
+  }
+
+  @override
+  String whatCanIDo(String commands) {
+    return 'Here you can say: $commands.';
+  }
+
+  @override
+  String get askMeHint =>
+      'You can also ask me, for example “where am I?” or “what time is it?”.';
+
+  @override
+  String timeNow(String time) {
+    return 'It\'s $time.';
+  }
+
+  @override
+  String dateToday(String date) {
+    return 'Today is $date.';
+  }
+
+  @override
+  String voiceSuggest(String options) {
+    return 'I didn\'t catch that. Did you mean: $options?';
+  }
+
+  @override
+  String get voiceNotUnderstood =>
+      'I didn\'t catch that. Say “what can I do” to hear the commands.';
+
+  @override
+  String get voiceOfferHelp =>
+      'If you\'re stuck, say “how to use” for a short tutorial.';
+
+  @override
+  String voiceWhichOne(String first, String second) {
+    return 'Which one: $first, or $second? Say its name.';
+  }
+
+  @override
+  String get docNeedsOpenDoc => 'Open a document first, then ask me that.';
+
+  @override
+  String get docTypeReceipt => 'This looks like a receipt.';
+
+  @override
+  String get docTypeBill => 'This looks like a bill.';
+
+  @override
+  String get docTypeMedicine =>
+      'This looks like a medicine label or prescription.';
+
+  @override
+  String get docTypeLetter => 'This looks like a letter.';
+
+  @override
+  String get docTypeForm => 'This looks like a form to fill in.';
+
+  @override
+  String get docTypeOther => 'I\'m not sure what kind of document this is.';
+
+  @override
+  String docFrom(String from) {
+    return 'From: $from.';
+  }
+
+  @override
+  String docLetterTo(String name) {
+    return 'Addressed to $name.';
+  }
+
+  @override
+  String docTotal(String amount) {
+    return 'Total: $amount pesos.';
+  }
+
+  @override
+  String docDue(String date) {
+    return 'Due on $date.';
+  }
+
+  @override
+  String docExpiry(String date) {
+    return 'Expires on $date.';
+  }
+
+  @override
+  String docDosage(String dosage) {
+    return 'How to take it: $dosage';
+  }
+
+  @override
+  String get docNoTotal =>
+      'I couldn\'t find a total or amount in this document.';
+
+  @override
+  String get docNoDue => 'I couldn\'t find a due date in this document.';
+
+  @override
+  String get docNoExpiry => 'I couldn\'t find an expiry date in this document.';
+
+  @override
+  String get docNoDosage =>
+      'I couldn\'t find dosage instructions in this document.';
+
+  @override
+  String docSummary(String text) {
+    return 'Summary: $text';
+  }
+
+  @override
+  String get docNoSummary => 'The document is too short to summarize.';
+
+  @override
+  String get docAskHint =>
+      'You can ask me about it, for example “how much?” or “summarize”.';
+
+  @override
+  String readerProgress(String current, String total, String percent) {
+    return 'You\'re at sentence $current of $total, about $percent percent.';
+  }
+
+  @override
+  String readerProgressChapter(String chapter, String chapters) {
+    return 'Chapter $chapter of $chapters.';
+  }
+
+  @override
+  String get setTutorial => 'How to use the app';
+
+  @override
+  String get setTutorialValue => 'Controls tutorial';
+
+  @override
+  String get screenTutorial => 'Learning the controls';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialIntro =>
+      'I\'ll show you how to use Percipere with your fingers and your voice. It takes about two minutes. Double-tap anywhere on the screen to start. To skip, swipe right with two fingers, or say “skip”.';
+
+  @override
+  String get tutorialSwipeRight =>
+      'To move to the next option, swipe right with one finger. Try it now.';
+
+  @override
+  String get tutorialSwipeLeft =>
+      'To go back to the previous option, swipe left. Try it.';
+
+  @override
+  String get tutorialDoubleTap =>
+      'To choose an option, double-tap anywhere on the screen. Try it.';
+
+  @override
+  String get tutorialTap => 'To hear what I said again, tap once. Try it.';
+
+  @override
+  String get tutorialBack =>
+      'To go back to the previous screen, swipe right with two fingers. Try it.';
+
+  @override
+  String get tutorialHelp =>
+      'To get help on any screen, tap with three fingers. Try it.';
+
+  @override
+  String get tutorialLongPress =>
+      'To say a command, press and hold the screen until you hear a sound. Try it.';
+
+  @override
+  String get tutorialSay => 'Now say “help”.';
+
+  @override
+  String get tutorialVoiceInfo =>
+      'In voice mode I listen after I finish talking, so you don\'t need to press anything. While I\'m reading you can say “pause” or “faster”. You can also ask me: “where am I?”, “what can I do?”, and with a document open, “how much?” or “summarize”. Double-tap to continue.';
+
+  @override
+  String get tutorialDone =>
+      'All done! Remember: swipe to move, double-tap to choose, two fingers right to go back, and press and hold to talk. Say “how to use” any time to do this again. Double-tap to continue.';
+
+  @override
+  String get tutorialGood => 'Well done!';
+
+  @override
+  String get tutorialGoodAlt => 'That\'s right!';
+
+  @override
+  String get tutorialWrong => 'That wasn\'t the one. Try again.';
+
+  @override
+  String get tutorialMovingOn => 'That\'s okay. Let\'s move on.';
+
+  @override
+  String get tutorialSkipped =>
+      'Tutorial skipped. Say “how to use” if you want to do it later.';
+
+  @override
+  String get tutorialSkipQuestion => 'Do you want to skip the tutorial?';
+
+  @override
+  String get tutorialNoMic =>
+      'The microphone isn\'t allowed yet, so we\'ll skip the voice practice.';
+
+  @override
+  String get assistantNotSetUp =>
+      'Percy, the voice assistant, isn\'t set up yet. Use the usual commands for now.';
+
+  @override
+  String get assistantOffline =>
+      'Percy needs the internet. The usual commands still work.';
+
+  @override
+  String get assistantConsentAsk =>
+      'Percy is a voice assistant that uses the internet. What you say, and the text of a document when you ask about it, is sent to ElevenLabs to understand you. Is that okay?';
+
+  @override
+  String get assistantConsentDeclined =>
+      'Okay, Percy won\'t be used for now. You can call Percy again whenever you like.';
+
+  @override
+  String get assistantMicNeeded =>
+      'Percy needs the microphone. Allow it in the app\'s settings.';
+
+  @override
+  String get assistantConnecting => 'Calling Percy.';
+
+  @override
+  String get assistantEnded => 'The conversation with Percy has ended.';
+
+  @override
+  String get assistantFailed =>
+      'I can\'t reach Percy right now. Please try again later. The usual commands still work.';
+
+  @override
+  String get assistantFirstMessage => 'Hi! I\'m Percy. How can I help you?';
+
+  @override
+  String get assistantHowToCall =>
+      'To call Percy, the voice assistant, swipe left with two fingers, or say “Percy”. To finish, say “goodbye” or make any gesture.';
+
+  @override
+  String get assistantGuestName => 'friend';
 }

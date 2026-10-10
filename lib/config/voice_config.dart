@@ -39,6 +39,28 @@ abstract final class VoiceConfig {
   /// matched in two partial results in a row.
   static const double partialRepeatScore = 0.8;
 
+  // ── Questions ────────────────────────────────────────────────────────────
+
+  /// After asking a question the app stops talking and waits this long for
+  /// an answer (voice, gesture or tap) before giving the instructions that
+  /// follow it (how to answer, the mode hint). Speaking restarts the wait.
+  /// Longer than [waitForSpeech] plus [afterSpeechGap], so a full listening
+  /// session fits in it.
+  static const Duration answerWait = Duration(seconds: 6);
+
+  // ── Getting smarter with use ─────────────────────────────────────────────
+
+  /// With "Awtomatiko" announcements, a screen opened this many times is
+  /// familiar: its navigation hint and how-to-answer lines are left out.
+  static const int familiarAfter = 3;
+
+  /// Misunderstood commands in a row before the app offers the tutorial
+  /// (and announcements go back to full detail).
+  static const int missesBeforeHelp = 3;
+
+  /// How long "Alin sa dalawa: …?" waits for the user to name one.
+  static const Duration choiceWait = Duration(seconds: 20);
+
   // ── Gaps between listening sessions ──────────────────────────────────────
 
   /// Wait after the app stops speaking before listening again, so the

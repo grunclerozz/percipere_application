@@ -88,10 +88,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     return ScreenRegistration(
       id: WelcomeScreen.screenId,
       title: (l) => l.screenWelcome,
-      // "Say login/register" is only offered once the mic is allowed.
-      prompt: (l) =>
-          '${l.welcomeAccountPrompt} '
-          '${voice.micGranted ? l.welcomeHintVoice : l.welcomeHintGestures}',
+      prompt: (l) => l.welcomeAccountPrompt,
+      // How to answer, only if no answer comes. "Say login/register" is
+      // only offered once the mic is allowed.
+      followUp: (l) =>
+          voice.micGranted ? l.welcomeHintVoice : l.welcomeHintGestures,
       autoListen: true,
       listOptions: false,
       includeModeHint: false,

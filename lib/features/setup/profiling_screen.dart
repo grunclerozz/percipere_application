@@ -333,9 +333,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         final voice = ref.read(voiceControllerProvider.notifier);
         return _choice(
           title: title,
-          prompt: (l) =>
-              '${l.welcomePrompt} '
-              '${voice.micGranted ? l.setupNavHowVoice : l.setupChoiceHow}',
+          prompt: (l) => l.welcomePrompt,
+          followUp: (l) =>
+              voice.micGranted ? l.setupNavHowVoice : l.setupChoiceHow,
           autoListen: true,
           current: _s.navMode != null,
           options: [
@@ -370,7 +370,8 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       case SetupStep.seesText:
         return _choice(
           title: title,
-          prompt: (l) => '${l.setupSeesQuestion} ${l.setupChoiceHow}',
+          prompt: (l) => l.setupSeesQuestion,
+          followUp: (l) => l.setupChoiceHow,
           current: false,
           answers: true,
           options: [
@@ -394,8 +395,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         return _adjust(
           title: title,
           prompt: (l) =>
-              '${l.setupSizeQuestion} ${l.setupSizeHow} '
+              '${l.setupSizeQuestion} '
               '${l.setupSizeValue(_s.textSize.round())}',
+          followUp: (l) => l.setupSizeHow,
           up: () => _change(
             (s) => s.copyWith(textSize: s.textSize + TextSize.step),
             (l, s) => l.setupSizeValue(s.textSize.round()),
@@ -415,8 +417,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         return _adjust(
           title: title,
           prompt: (l) =>
-              '${l.setupColorQuestion} ${l.setupCycleHow} '
+              '${l.setupColorQuestion} '
               '${l.setupColorValue(colorName(_s.resolvedTextColor, l))}',
+          followUp: (l) => l.setupCycleHow,
           up: () => _cycleColor(1),
           down: () => _cycleColor(-1),
           vertical: false,
@@ -437,7 +440,8 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         }
         return _choice(
           title: title,
-          prompt: (l) => '${l.setupLanguageQuestion} ${l.setupLanguageHow}',
+          prompt: (l) => l.setupLanguageQuestion,
+          followUp: (l) => l.setupLanguageHow,
           current: true,
           options: [
             _Option(
@@ -462,8 +466,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         return _adjust(
           title: title,
           prompt: (l) =>
-              '${l.setupSpeedQuestion} ${l.setupSpeedHow} '
+              '${l.setupSpeedQuestion} '
               '${l.setupSpeedValue(ReadingRate.label(_s.readingRate))}',
+          followUp: (l) => l.setupSpeedHow,
           up: () => _change(
             (s) => s.copyWith(readingRate: s.readingRate + ReadingRate.step),
             (l, s) =>
@@ -487,8 +492,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         return _adjust(
           title: title,
           prompt: (l) =>
-              '${l.setupPitchQuestion} ${l.setupPitchHow} '
+              '${l.setupPitchQuestion} '
               '${l.setupPitchValue(ReadingRate.label(_s.pitch))}',
+          followUp: (l) => l.setupPitchHow,
           up: () => _change(
             (s) => s.copyWith(pitch: s.pitch + ReadingRate.step),
             (l, s) =>
@@ -512,8 +518,9 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         return _adjust(
           title: title,
           prompt: (l) =>
-              '${l.setupThemeQuestion} ${l.setupCycleHow} '
+              '${l.setupThemeQuestion} '
               '${l.setupThemeValue(themeName(_s.themeId, l))}',
+          followUp: (l) => l.setupCycleHow,
           up: () => _cycleTheme(1),
           down: () => _cycleTheme(-1),
           vertical: false,
@@ -524,7 +531,8 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       case SetupStep.vibration:
         return _choice(
           title: title,
-          prompt: (l) => '${l.setupVibrationQuestion} ${l.setupChoiceHow}',
+          prompt: (l) => l.setupVibrationQuestion,
+          followUp: (l) => l.setupChoiceHow,
           current: true,
           answers: true,
           options: [
@@ -557,7 +565,8 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       case SetupStep.autoRead:
         return _choice(
           title: title,
-          prompt: (l) => '${l.setupAutoReadQuestion} ${l.setupChoiceHow}',
+          prompt: (l) => l.setupAutoReadQuestion,
+          followUp: (l) => l.setupChoiceHow,
           current: true,
           answers: true,
           options: [
@@ -587,6 +596,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
   ScreenRegistration _choice({
     required L10nText title,
     required L10nText prompt,
+    L10nText? followUp,
     required List<_Option> options,
     required A11yAction skip,
     required Map<NavIntent, BusHandler> common,
@@ -612,6 +622,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       id: _screenId,
       title: title,
       prompt: prompt,
+      followUp: followUp,
       autoListen: autoListen,
       listOptions: !answers,
       includeModeHint: false,
@@ -647,6 +658,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
   ScreenRegistration _adjust({
     required L10nText title,
     required L10nText prompt,
+    L10nText? followUp,
     required Future<void> Function() up,
     required Future<void> Function() down,
     required bool vertical,
@@ -660,6 +672,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       id: _screenId,
       title: title,
       prompt: prompt,
+      followUp: followUp,
       listOptions: false,
       includeModeHint: false,
       help: (l) =>
@@ -714,9 +727,20 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     return ScreenRegistration(
       id: _screenId,
       title: title,
-      prompt: (l) => l.setupSummaryPrompt(
-        [for (final s in items) summaryLine(s, _s, l)].join('. '),
-      ),
+      // "Is everything right?" — then how to finish or change one, only if
+      // no answer comes.
+      prompt: (l) => Announcer.splitAtQuestion(
+        l.setupSummaryPrompt(
+          [for (final s in items) summaryLine(s, _s, l)].join('. '),
+        ),
+      ).$1,
+      followUp: (l) =>
+          Announcer.splitAtQuestion(
+            l.setupSummaryPrompt(
+              [for (final s in items) summaryLine(s, _s, l)].join('. '),
+            ),
+          ).$2 ??
+          '',
       listOptions: false,
       includeModeHint: false,
       help: (l) => l.helpSetupSummary,

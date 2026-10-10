@@ -188,11 +188,10 @@ void main() {
     });
   });
 
-  test('every gesture but two-finger swipe left has an intent', () {
-    expect(
-      gestureMap.keys.toSet(),
-      GestureType.values.toSet()..remove(GestureType.twoFingerSwipeLeft),
-    );
+  test('every gesture has an intent', () {
+    expect(gestureMap.keys.toSet(), GestureType.values.toSet());
+    // 2026-10-07: two-finger swipe left (unused until then) calls Percy.
+    expect(gestureMap[GestureType.twoFingerSwipeLeft], NavIntent.assistant);
     // Phase 6B: two-finger swipe right is back everywhere.
     expect(gestureMap[GestureType.twoFingerSwipeRight], NavIntent.back);
     expect(gestureMap[GestureType.twoFingerSwipeDown], NavIntent.nextParagraph);

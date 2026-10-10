@@ -7,6 +7,7 @@ import 'package:percipere_app/app/locale_provider.dart';
 import 'package:percipere_app/app/theme/app_palette.dart';
 import 'package:percipere_app/app/theme/app_theme.dart';
 import 'package:percipere_app/app/theme/theme_settings.dart';
+import 'package:percipere_app/config/voice_config.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/l10n/app_localizations.dart';
@@ -91,4 +92,17 @@ Future<void> pumpAppOnCapture(WidgetTester tester, TestEnv env) async {
   await pumpApp(tester, env);
   await tester.tap(find.text('Magbasa ng bago'));
   await tester.pumpAndSettle();
+}
+
+/// Lets the answer wait after a question pass without an answer, so the
+/// instructions held back after it (how to answer, the mode hint, queued
+/// notices) are spoken.
+extension AnswerWait on WidgetTester {
+  Future<void> waitOutQuestion() async {
+    await pump(VoiceConfig.answerWait + const Duration(milliseconds: 100));
+    // Fixed steps, not pumpAndSettle: the listening animation never settles.
+    for (var i = 0; i < 10; i++) {
+      await pump(const Duration(milliseconds: 100));
+    }
+  }
 }

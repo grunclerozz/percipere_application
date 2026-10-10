@@ -35,7 +35,12 @@ class LibraryActions {
   /// Opens [item] in the Reader (or the Description screen for a saved
   /// Maglarawan). A book that is not on the phone is fetched first, with
   /// spoken progress. With [fromStart] the saved position is ignored.
-  Future<void> open(LibraryItem item, {bool fromStart = false}) async {
+  /// With [play] reading starts as soon as the Reader is ready.
+  Future<void> open(
+    LibraryItem item, {
+    bool fromStart = false,
+    bool play = false,
+  }) async {
     final router = _ref.read(routerProvider);
     if (item.source == LibrarySource.description) {
       unawaited(
@@ -50,7 +55,7 @@ class LibraryActions {
     unawaited(
       router.push(
         AppRoutes.reader,
-        extra: ItemSource(item.id, fromStart: fromStart),
+        extra: ItemSource(item.id, fromStart: fromStart, play: play),
       ),
     );
   }

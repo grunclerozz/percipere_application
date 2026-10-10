@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/auth/account.dart';
 import '../core/auth/account_repository.dart';
@@ -13,6 +14,7 @@ import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
 import '../core/tts/tts_service.dart';
 import '../core/voice/voice_controller.dart';
+import 'router.dart';
 
 /// Startup work that must finish before the first frame: open the database,
 /// restore the session, load that account's settings (or the device's),
@@ -20,6 +22,7 @@ import '../core/voice/voice_controller.dart';
 ///
 /// Returns provider overrides for the root `ProviderScope`.
 Future<List<Override>> bootstrap() async {
+  await _logBuild();
   final database = await AppDatabase.open();
   final prefs = PreferencesDao(database.db);
   const sessions = SecureSessionStore();
@@ -38,6 +41,8 @@ Future<List<Override>> bootstrap() async {
   // re-checked on every launch and on resume.
   await prefs.set(PrefKeys.ttsFilipinoFallback, !voices.filipinoReady);
 
+  final tutorialDone = await prefs.get(PrefKeys.tutorialDone) == true;
+
   final micGranted =
       await const DevicePermissionService().status(AppPermission.microphone) ==
       PermissionAccess.granted;
@@ -49,10 +54,28 @@ Future<List<Override>> bootstrap() async {
     initialSettingsScopeProvider.overrideWithValue(restored.scope),
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
+    initialTutorialDoneProvider.overrideWithValue(tutorialDone),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(voices)),
   ];
+}
+
+/// Logs which app and build is running (`adb logcat -s flutter | findstr
+/// CAPTURE`), so a test on the tablet can be matched to the APK it used.
+Future<void> _logBuild() async {
+  try {
+    final info = await PackageInfo.fromPlatform();
+    final mode = kReleaseMode
+        ? 'release'
+        : (kProfileMode ? 'profile' : 'debug');
+    debugPrint(
+      '[CAPTURE] app ${info.packageName} '
+      '${info.version}+${info.buildNumber} ($mode build)',
+    );
+  } on Object catch (e) {
+    debugPrint('[CAPTURE] app build info unavailable: $e');
+  }
 }
 
 /// The session found at startup.

@@ -76,7 +76,9 @@ class _AccessibilityHostState extends ConsumerState<AccessibilityHost>
     final screen = bus.activeScreen;
     if (screen == null || screen.id != screenId) return;
     if (_startupNoticesGiven) {
-      await bus.announceScreen(screen);
+      final announced = bus.announceScreen(screen);
+      bus.noteVisit(screen.id);
+      await announced;
       return;
     }
     // First screen of this launch: notices and the screen prompt are queued
@@ -100,6 +102,7 @@ class _AccessibilityHostState extends ConsumerState<AccessibilityHost>
       );
     }
     unawaited(bus.announceScreen(screen, interrupt: false));
+    bus.noteVisit(screen.id);
     if (ref.read(talkBackProvider)) {
       await announcer.say(bus.strings.talkBackNotice, interrupt: false);
     }

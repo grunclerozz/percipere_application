@@ -99,4 +99,7 @@ enum NavIntent {
 
   /// Switch to gesture navigation ("pa-galaw").
   gestureMode,
+
+  /// Starts or ends a conversation with Percy, the voice assistant.
+  assistant,
 }

@@ -123,7 +123,8 @@ void main() {
       await pumpEventQueue();
 
       expect(env.tts.transcript, contains('Walang internet'));
-      expect(env.tts.transcript, contains('I-double tap'));
+      // The offer's "how to answer" is held back until the answer wait.
+      expect(container.read(announcerProvider.notifier).awaitingAnswer, true);
       await container.read(commandBusProvider).dispatch(NavIntent.activate);
       expect(env.settings.voiceInputOpened, 1);
     },

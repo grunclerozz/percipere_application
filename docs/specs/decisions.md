@@ -2,6 +2,87 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-07 (4) — Percy didn't connect: overrides now opt-in
+- Two causes: the PC project never received the update (it still matched the 14:20
+  upload), and the user's agent doesn't allow overrides — tested against the live agent:
+  ElevenLabs connects, then closes with 1008 "Override for field 'first_message' is not
+  allowed by config". The same start without overrides is accepted and Percy greets.
+- Fix: the app sends language/first message/voice only with
+  `--dart-define=ELEVENLABS_USE_OVERRIDES=true` (`AssistantConfig.useOverrides`); by
+  default the dashboard's settings are used. Dynamic variables and the user id are still
+  sent (accepted by the agent).
+
+## 2026-10-07 (3) — Percy, the voice assistant (ElevenLabs)
+**Decided (user):** a Jarvis-like assistant inside the app, built only on ElevenLabs
+Agents; public agent for development (private + token service later); Free plan while
+developing, paid plan before user testing; the app's own offline voice commands stay.
+- Built: Android bridge on the ElevenLabs Android SDK 0.12.2; Dart controller, 12 client
+  tools answered through the command bus (Percy can do only what the user can), spoken
+  first-use consent, hand-over to the app's own voice for reading/camera/picker, app
+  prompts muted (shown) during calls, any user gesture ends the call. Spec:
+  `docs/specs/assistant.md`; setup: `docs/setup/elevenlabs-assistant-setup.md`;
+  checklist: `docs/testing/assistant-checklist.md`.
+- Two-finger swipe left (unassigned until now) calls Percy; the tutorial claims it while
+  practising.
+- Python on the PC only: `assistant/setup_agent.py` configures the agent (tools,
+  instructions, Tagalog + English, voice `EST9Ui6982FZPSi7gCHi`, 5-min/30-a-day limits,
+  overrides); `assistant/server/token_server.py` for a private agent.
+- The SDK's LiveKit needs JitPack (scoped to `com.github.davidliu`); the APK grew from
+  ~147 MB to ~185 MB (WebRTC); `--split-per-abi` gives ~1/4 per phone type.
+- The user's agent `agent_1601m4b0j87se7x8tmtehq4znmas` and voice `EST9Ui6982FZPSi7gCHi`
+  are the built-in defaults (also in `setup_agent.py`).
+- Not verified against the real service in this session (no key, no device): the first
+  live test is the user's.
+- **Found in the project:** "smarter" features (controls tutorial, natural phrasing
+  `core/voice/understanding.dart`, document insights, familiarity) added 2026-10-07
+  17:23–17:40 without a decision-log entry. Kept unchanged except: the tutorial now also
+  claims the assistant gesture, and the test "ordinary text gets no guessed kind" now uses
+  a story (its letter sample was rightly classified as a letter).
+
+## 2026-10-07 (2) — Inputs still failing on the tablet; questions wait for the answer
+**Bug report (user):** every input (image, PDF, DOCX upload and camera) ends with "Hindi
+mabuksan ang file na ito" / "Walang napiling file", on several devices.
+- **Finding:** those two messages are exactly what the code said *before* the first
+  2026-10-07 fix (picker errors → "Walang napiling file", every extraction error →
+  "Hindi mabuksan…"). With the current code a picker error says "Hindi ko makuha ang file
+  na pinili mo" and an OCR failure says "Hindi gumana ang pagbasa ng teksto…". Most likely
+  the tablets run an APK from before that fix — easy to happen because the application id
+  changed the same day (`ph.bataan.percipere` → `ph.bataan.percipere.app`): the new APK
+  installs **next to** the old one instead of replacing it, both called "Percipere". Not
+  reproduced on a device here (no emulator in this session); the release APK was built and
+  R8's output inspected instead.
+- **Real problems still found and fixed:**
+  1. The picker allowed multiple selection. Android's plugin then leaves out a file it
+     fails to copy and returns an empty list — which the app reported as "Walang napiling
+     file" even though a file was chosen. Now one file is picked (`FilePicker.pickFile`), so
+     that failure arrives as an error (`PickFailed`); a `content://`-only answer is read by
+     bytes; a missing or empty copy is a failure, never "cancelled".
+  2. Any unexpected error after picking still said "Maaaring sira ito". New
+     `ExtractionFailure.failed` → "Nagkaproblema habang binabasa ko ang file. Malamang hindi
+     ito sira." (`readerExtractFailed`); storage errors → `missing`/`unreadable`; DOCX parse
+     errors log why; Library-load errors are no longer called a damaged file.
+  3. Startup logs `[CAPTURE] app <package> <version> (release build)` so a tablet log shows
+     which APK ran. Version bumped to 0.1.1+2 (visible in Android Settings → Apps).
+  4. Keep rules added for the native plugins of the inputs (file_picker, image_picker,
+     camera/CameraX, flutter_tts, speech_to_text, ML Kit plugin classes, JNI); shrinking
+     stays on. Checked in the shrunk APK's mapping: those classes keep their names.
+     `test/android_release_rules_test.dart` guards them and that shrinking isn't disabled.
+- **Tests:** `test/features/upload/document_picker_test.dart` (system-picker answers →
+  file), and `capture_regression_test.dart` now also runs uploads through the real picker
+  code (content:// image, cached PDF, content:// DOCX) to the Library and the Reader.
+
+**Questions wait for the answer (user request):** "the voice shouldn't be continuous; when
+asking a question it should wait for the answer first before proceeding with the next
+instructions."
+- After a question the app stops (question + its options/context), listens, and gives the
+  instructions after it (how to answer, mode hint, help, side notes such as the Maglarawan
+  line on Capture, queued notices) only if no answer comes within `VoiceConfig.answerWait`
+  = **6 s** (tunable). Any answer — voice, gesture, tap — drops them. See architecture.md.
+- Instructions moved out of prompts into `followUp`: Welcome hints, every Setup step's
+  "how" (values like "Laki ng teksto: 18" stay with the question), the Setup summary,
+  Capture's Maglarawan line, the Reader's retake offer, the collection picker.
+- Offer answers stay valid 20 s + the 6 s wait.
+
 ## 2026-10-07 — Every document input failed in the release APK (bug fix)
 - **Root cause:** R8 full mode (default with AGP 9) stripped members of Google ML Kit's
   internal classes that ML Kit reads by reflection. In the release APK every OCR call threw

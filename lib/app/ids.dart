@@ -1,4 +1,13 @@
 abstract final class Ids {
+  /// Controls tutorial.
+  static const String tutorial = 'tutorial';
+
+  /// Tutorial: skip.
+  static const String tutorialSkip = 'tutorial.skip';
+
+  /// Settings: replay the controls tutorial.
+  static const String settingTutorial = 'settings.tutorial';
+
   /// Welcome screen.
   static const String welcome = 'welcome';
 

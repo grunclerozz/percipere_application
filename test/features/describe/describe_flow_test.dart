@@ -103,6 +103,9 @@ void main() {
         'is read once, on the first visit only', (tester) async {
       final env = await _startOnCapture(tester);
       await tester.pumpAndSettle();
+      // Both come after the screen's question, once it went unanswered.
+      expect(env.tts.transcript, isNot(contains(_shortLine)));
+      await tester.waitOutQuestion();
       expect(env.tts.transcript, contains(_shortLine));
       expect(_occurrences(env.tts.transcript, _explanation), 1);
 
@@ -114,6 +117,7 @@ void main() {
       await c.read(commandBusProvider).back();
       await tester.pumpAndSettle();
       expect(find.byType(CaptureScreen), findsOneWidget);
+      await tester.waitOutQuestion();
       expect(_occurrences(env.tts.transcript, _shortLine), 2);
       expect(_occurrences(env.tts.transcript, _explanation), 1);
     });

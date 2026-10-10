@@ -56,6 +56,8 @@ class ScreenRegistration {
   const ScreenRegistration({
     required this.id,
     required this.prompt,
+    this.followUp,
+    this.whereAmI,
     this.title,
     this.actions = const [],
     this.intentHandlers = const {},
@@ -84,6 +86,15 @@ class ScreenRegistration {
 
   /// The screen's main question or status.
   final L10nText prompt;
+
+  /// What follows a question in [prompt]: how to answer it, or a side note.
+  /// The app stops after the question (and its options) and says this only
+  /// if no answer comes within `VoiceConfig.answerWait`; any answer drops
+  /// it. Without a question in [prompt] it is said straight after.
+  final L10nText? followUp;
+
+  /// Extra detail for "nasaan ako?" (e.g. the Reader's progress).
+  final L10nText? whereAmI;
 
   /// Actions in focus order.
   final List<A11yAction> actions;

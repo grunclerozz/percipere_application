@@ -21,6 +21,18 @@ syncing with a separate web admin app (later).
   dictation, earcon + pulse, listening while reading (barge-in), stale-result discard. Values in
   `lib/config/voice_config.dart`; tablet checklist `docs/testing/voice-response-checklist.md`.
   Awaiting the user's tablet test.
+- **Input fix + "questions wait for the answer" (2026-10-07, second round):** single-file
+  picking, distinct failure messages, plugin keep rules, build stamp in the log, version
+  0.1.1+2; after a question the app waits `VoiceConfig.answerWait` (6 s) before giving
+  instructions (`ScreenRegistration.followUp`). Checklist
+  `docs/testing/input-fix-checklist.md`. Awaiting the user's tablet test.
+- **Percy, the voice assistant (ElevenLabs Agents), 2026-10-07:** built; online only, the
+  app's own voice stays. Spec `docs/specs/assistant.md`, setup
+  `docs/setup/elevenlabs-assistant-setup.md` (run `assistant/setup_agent.py`; the user's
+  agent `agent_1601m4b0j87se7x8tmtehq4znmas` and voice are built-in defaults in
+  `lib/config/env.dart`), checklist `docs/testing/assistant-checklist.md`.
+  Awaiting the user's first live test. Also in the tree since 17:23 (undocumented work):
+  controls tutorial, natural phrasing, document insights, familiarity.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -31,6 +43,8 @@ syncing with a separate web admin app (later).
 - `docs/specs/library.md` — Phase 6E Library (Aklatan) requirements; `docs/api-contract.md` — endpoints the web app must provide (written in 6E).
 - `docs/testing/phase-6e-checklist.md` — manual checklist for the Library (Part A).
 - `docs/testing/voice-response-checklist.md` — voice response time and barge-in (tablet).
+- `docs/testing/input-fix-checklist.md` — document inputs (debug + release APK) and questions waiting for the answer.
+- `docs/specs/assistant.md`, `docs/setup/elevenlabs-assistant-setup.md`, `docs/testing/assistant-checklist.md` — Percy, the ElevenLabs voice assistant; `assistant/` — its agent config and Python tools (PC/server only).
 - `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).
@@ -40,6 +54,7 @@ syncing with a separate web admin app (later).
 Riverpod 3 (hand-written providers, no codegen) · go_router · sqflite (versioned
 migrations, `lib/core/db/migrations.dart`) · ML Kit OCR · speech_to_text · flutter_tts ·
 camera · file_picker (SAF, no storage permission) · pdfrx · archive+xml (DOCX) · dio ·
+ElevenLabs Android SDK (voice assistant, Kotlin bridge) ·
 bundled fonts (no google_fonts). minSdk 24, compileSdk 37.0, application id `ph.bataan.percipere.app` (was `ph.bataan.percipere` until 2026-10-07; Kotlin package and namespace unchanged).
 
 ## Layout

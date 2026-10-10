@@ -19,6 +19,16 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 - `speechLanguageProvider`: Filipino prompts only if a Filipino voice is installed, else
   English (never Filipino text through an English voice).
 - `CommandBus.offer()` / ask-back: a pending yes/no accepted by "oo" or a double-tap.
+- **Questions stop the speech** (2026-10-07): `Announcer.ask(question, then:)` speaks the
+  question (with its own context and, on entry, its options) and holds `then` back.
+  Entry announcements use `ScreenRegistration.followUp` (how to answer, side notes) plus
+  the mode hint / help as `then`; offers use `offerConfirmHint`. Held text — and any
+  `say(interrupt: false)` queued meanwhile — is spoken only after
+  `VoiceConfig.answerWait` (6 s) without an answer. Any command, gesture or tap
+  (`CommandBus.dispatch/activate/handleUtterance` → `answered()`) or an interrupting
+  prompt drops it; words heard by the recognizer restart the wait (`userResponding()`).
+  A prompt with no "?" is still said in one go. Put instructions in `followUp`, never
+  after the question inside `prompt`.
 
 ## Voice (Phase 3)
 - `core/voice/`: `SpeechInput` (speech_to_text wrapper), `CommandMatcher` (normalize →
@@ -201,3 +211,16 @@ Spec: `library.md`; endpoints: `../api-contract.md`.
 - **Tests:** `TestEnv` has `books` (mock web app), `storage`, `libraryPaths` (temp dir),
   `bookLoader`; `seedDocument` / `seedBook` in `test/helpers/library_seed.dart`;
   `pumpAppOnCapture` opens Capture from Home.
+
+## Percy — voice assistant (2026-10-07)
+- `NavIntent.assistant` (two-finger swipe left, "Percy") → `AssistantController.toggle`.
+  The controller talks to `AssistantBridge.kt` (ElevenLabs SDK) over
+  `ph.bataan.percipere/assistant(_events)`.
+- While active (`assistantActiveProvider`): `VoiceController` doesn't listen,
+  `Announcer` shows but doesn't speak, `CommandBus` ends the call on any user input
+  (Percy's own tool calls excepted via `runningTool`).
+- Tool calls arrive as events and are answered by `AssistantTools` using the command bus,
+  router, Library DAO, settings and `readerSnapshotProvider`. Hand-over tools run after
+  the call (`handOver`). Riverpod note: the assistant must not read `voiceControllerProvider`
+  (the voice controller listens to the assistant → dependency cycle).
+

@@ -8,6 +8,25 @@ import '../helpers/fakes.dart';
 import '../helpers/pump_app.dart';
 
 void main() {
+  testWidgets('voice mode: no answer to the question → the instructions '
+      'come after the wait, then it listens again', (tester) async {
+    final env = await createEnv(
+      tester,
+      mode: NavMode.voice,
+      permissions: FakePermissions(mic: PermissionAccess.granted),
+    );
+    await pumpAppOnCapture(tester, env);
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(env.speech.listening, isTrue, reason: 'listening for the answer');
+    expect(env.tts.transcript, isNot(contains('Sabihin ang utos')));
+
+    env.speech.silence();
+    await tester.waitOutQuestion();
+    expect(env.tts.transcript, contains('Sabihin ang utos'));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(env.speech.listening, isTrue, reason: 'listening again after');
+  });
+
   testWidgets('voice mode: Capture speaks, then listens; "camera" shows as '
       'heard and opens the Reader', (tester) async {
     final env = await createEnv(
@@ -17,7 +36,10 @@ void main() {
     );
     await pumpAppOnCapture(tester, env);
     expect(find.byType(CaptureScreen), findsOneWidget);
-    expect(env.tts.transcript, contains('Sabihin ang utos'));
+    // Stops after the question and its options to listen; the voice hint
+    // only comes if no answer does.
+    expect(env.tts.transcript, contains('Mga pagpipilian: Mag-upload'));
+    expect(env.tts.transcript, isNot(contains('Sabihin ang utos')));
 
     // Auto-listen starts shortly after the announcement ends.
     await tester.pump(const Duration(milliseconds: 600));

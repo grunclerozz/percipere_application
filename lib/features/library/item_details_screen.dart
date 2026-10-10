@@ -195,7 +195,7 @@ class _ItemDetailsScreenState extends ConsumerState<ItemDetailsScreen> {
       return _bus.say(_l.collectionPickNone);
     }
     setState(() => _picking = true);
-    await _bus.say(_l.collectionPickIntro(item.title));
+    await _bus.ask(_l.collectionPickIntro(item.title), split: true);
   }
 
   Future<void> _toggleMembership(
@@ -401,8 +401,14 @@ class _ItemDetailsScreenState extends ConsumerState<ItemDetailsScreen> {
     return ScreenRegistration(
       id: ItemDetailsScreen.screenId,
       title: (l) => l.screenItemDetails,
-      prompt: (l) =>
-          _picking ? l.collectionPickIntro(item.title) : _intro(item, l),
+      // "Add it to which collection?" — how to choose only if no answer.
+      prompt: (l) => _picking
+          ? Announcer.splitAtQuestion(l.collectionPickIntro(item.title)).$1
+          : _intro(item, l),
+      followUp: (l) => _picking
+          ? Announcer.splitAtQuestion(l.collectionPickIntro(item.title)).$2 ??
+                ''
+          : '',
       listOptions: false,
       includeModeHint: false,
       help: (l) => l.helpItemDetails,

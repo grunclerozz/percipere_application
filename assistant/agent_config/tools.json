@@ -1,0 +1,87 @@
+[
+  {
+    "name": "get_screen",
+    "description": "Returns what is on the user's screen right now: the screen name, its question or status, the options, which option is focused, and (in the Reader) the document title and reading position. Call it before telling the user where they are or what they can do.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "go_to",
+    "description": "Opens a part of the app. home = main menu; library = Aklatan (saved documents and books); new_document = Magbasa ng bago (scan or upload a document); settings = Mga Setting; back = the previous screen. Returns the new screen.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "destination": {"type": "string", "enum": ["home", "library", "new_document", "settings", "back"], "description": "Where to go."}
+      },
+      "required": ["destination"]
+    }
+  },
+  {
+    "name": "choose_option",
+    "description": "Chooses one of the options on the current screen by its name, like the user double-tapping it. Use the option names returned by get_screen. Returns what happened.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "option": {"type": "string", "description": "The option's name as get_screen lists it (Tagalog or English)."}
+      },
+      "required": ["option"]
+    }
+  },
+  {
+    "name": "list_library",
+    "description": "Lists the user's saved documents and books in the Aklatan, newest first, with how far they have read each one.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "open_document",
+    "description": "Opens a saved document or book by (part of) its title. The conversation then ends and the app takes over: it reads the document aloud when start_reading is true.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "title": {"type": "string", "description": "The title or a few words of it."},
+        "start_reading": {"type": "boolean", "description": "Start reading aloud right away."}
+      },
+      "required": ["title"]
+    }
+  },
+  {
+    "name": "read_document",
+    "description": "Starts reading the document that is open in the Reader aloud, from where the user left off. The conversation then ends so the app's reading voice can take over.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "scan_document",
+    "description": "Opens the camera to scan a printed document; the app guides the user by voice and reads it. The conversation then ends.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "upload_document",
+    "description": "Opens the phone's file picker to choose a photo, PDF or Word file to read. The conversation then ends.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "get_document_text",
+    "description": "Returns the text of the document open in the Reader (up to about 6000 characters), for answering questions about it or summarising it. Only use what it returns; never guess a document's content.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "reading_settings",
+    "description": "Changes how documents are read or shown: faster or slower reading voice, bigger or smaller text. Returns the new value.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "change": {"type": "string", "enum": ["faster", "slower", "bigger_text", "smaller_text"], "description": "What to change."}
+      },
+      "required": ["change"]
+    }
+  },
+  {
+    "name": "save_favorite",
+    "description": "Saves the current spot of the document open in the Reader as a favorite (bookmark).",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  },
+  {
+    "name": "describe_controls",
+    "description": "Returns how to control the current screen with gestures and the app's own voice commands, to teach the user the controls.",
+    "parameters": {"type": "object", "properties": {}, "required": []}
+  }
+]

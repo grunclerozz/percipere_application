@@ -52,3 +52,10 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // ElevenLabs voice agent ("Percy", the voice assistant). Online only;
+    // the app's own voice commands keep working without it.
+    implementation("io.elevenlabs:elevenlabs-android:0.12.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+}

@@ -2,6 +2,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // LiveKit (WebRTC under the ElevenLabs voice assistant) needs
+        // com.github.davidliu:audioswitch, published only on JitPack. Limited
+        // to that group so nothing else is fetched from there.
+        maven {
+            url = uri("https://jitpack.io")
+            content { includeGroup("com.github.davidliu") }
+        }
     }
 }
 

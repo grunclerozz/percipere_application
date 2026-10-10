@@ -11,13 +11,16 @@ import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/assistant/reader_snapshot.dart';
 import '../../core/extraction/extraction_exception.dart';
 import '../../core/library/library_models.dart';
 import '../../core/ocr/text_cleanup.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
+import '../../core/understanding/document_insights.dart';
 import '../../core/voice/command_matcher.dart';
+import '../../core/voice/understanding.dart';
 import '../../core/widgets/document_box.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../l10n/app_localizations.dart';
@@ -53,10 +56,43 @@ class ReaderScreen extends ConsumerStatefulWidget {
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   late final _provider = readerControllerProvider(widget.source);
 
+  late final ReaderSnapshotNotifier _snapshots = ref.read(
+    readerSnapshotProvider.notifier,
+  );
+  ReaderSnapshot? _lastSnapshot;
+
   @override
   void initState() {
     super.initState();
     ref.listenManual(_provider, _onChange);
+    // What the voice assistant can see (providers can't change mid-build).
+    ref.listenManual(
+      _provider,
+      (_, s) => scheduleMicrotask(() => _publish(s)),
+      fireImmediately: true,
+    );
+  }
+
+  void _publish(ReaderState s) {
+    if (!mounted) return;
+    final snapshot = _lastSnapshot = ReaderSnapshot(
+      title: s.title,
+      text: s.text,
+      sentence: s.index,
+      sentenceCount: s.sentences.length,
+      playing: s.playing,
+      canRead: s.canRead,
+    );
+    _snapshots.set(snapshot);
+  }
+
+  @override
+  void dispose() {
+    final last = _lastSnapshot;
+    final snapshots = _snapshots;
+    // Only clear what this Reader published (a newer Reader may be open).
+    scheduleMicrotask(() => snapshots.clearIf(last));
+    super.dispose();
   }
 
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
@@ -93,11 +129,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   /// New documents (camera or upload) start reading by themselves when
   /// auto-read is on and the text is usable.
-  bool _autoReads(ReaderState s) =>
-      widget.source is FileSource &&
-      s.canRead &&
-      !_offersRetake(s) &&
-      ref.read(settingsProvider).autoRead;
+  bool _autoReads(ReaderState s) {
+    if (!s.canRead || _offersRetake(s)) return false;
+    final source = widget.source;
+    // "Basahin ang …" asked for reading now.
+    if (source is ItemSource && source.play) return true;
+    return source is FileSource && ref.read(settingsProvider).autoRead;
+  }
 
   Future<void> _announceThenRead(String text) async {
     await _bus.say(text);
@@ -124,6 +162,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         ExtractionFailure.passwordProtected => l.readerPasswordProtected,
         ExtractionFailure.missing => l.readerFileMissing,
         ExtractionFailure.ocrUnavailable => l.readerOcrFailed,
+        ExtractionFailure.failed => l.readerExtractFailed,
         ExtractionFailure.unreadable || null => l.readerUnreadable,
       };
     }
@@ -133,6 +172,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           : l.readerNoText;
     }
     return [
+      // A new document's kind and key facts come first.
+      if (widget.source is FileSource && s.quality == TextQuality.good)
+        ...insightLines(s.insights, l),
       if (s.quality == TextQuality.low) l.readerLowQuality,
       if (s.quality == TextQuality.low && s.fromCamera) l.readerPhotoTips,
       l.readerReadyParagraphs(s.paragraphCount),
@@ -145,6 +187,79 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   void _retake() => ref.read(routerProvider).pushReplacement(AppRoutes.camera);
+
+  /// What is said about a new document before reading: its kind, who it is
+  /// from and its key facts (nothing when the kind is unclear).
+  static List<String> insightLines(DocumentInsights d, AppLocalizations l) {
+    if (d.type == DocType.other) return const [];
+    return [
+      typeLine(d.type, l),
+      if (d.from case final from?)
+        d.type == DocType.letter ? l.docLetterTo(from) : l.docFrom(from),
+      if (d.total case final total?) l.docTotal(total),
+      if (d.dueDate case final due?) l.docDue(due),
+      if (d.expiry case final expiry?) l.docExpiry(expiry),
+      if (d.dosage case final dosage?) l.docDosage(dosage),
+      l.docAskHint,
+    ];
+  }
+
+  /// "Mukhang resibo ito." etc.
+  static String typeLine(DocType type, AppLocalizations l) => switch (type) {
+    DocType.receipt => l.docTypeReceipt,
+    DocType.bill => l.docTypeBill,
+    DocType.medicine => l.docTypeMedicine,
+    DocType.letter => l.docTypeLetter,
+    DocType.form => l.docTypeForm,
+    DocType.other => l.docTypeOther,
+  };
+
+  /// "Nasa pangungusap 12 ng 40 ka, mga 30 porsiyento. Kabanata 2 ng 5."
+  String _progress(AppLocalizations l) {
+    final s = ref.read(_provider);
+    if (!s.canRead) return '';
+    final total = s.sentences.length;
+    final current = s.index >= total ? total : s.index + 1;
+    final percent = (current * 100 / total).round();
+    return [
+      l.readerProgress('$current', '$total', '$percent'),
+      if (s.hasChapters)
+        l.readerProgressChapter(
+          '${s.chapter + 1}',
+          '${s.chapterStarts.length}',
+        ),
+    ].join(' ');
+  }
+
+  /// Answers a question about the open document ("magkano?", "ibuod mo").
+  Future<void> _answerDocument(Question q, CommandBus bus) async {
+    final s = ref.read(_provider);
+    if (s.phase == ReaderPhase.loading) return bus.say(_l.readerLoading);
+    if (!s.canRead) return bus.notAvailable();
+    final l = _l;
+    if (q == Question.progress) return bus.say(_progress(l));
+    final d = await _controller.insights();
+    if (!mounted) return;
+    final answer = switch (q) {
+      Question.docType => [
+        typeLine(d.type, l),
+        if (d.from case final from?)
+          d.type == DocType.letter ? l.docLetterTo(from) : l.docFrom(from),
+      ].join(' '),
+      Question.total => d.total == null ? l.docNoTotal : l.docTotal(d.total!),
+      Question.due => d.dueDate == null ? l.docNoDue : l.docDue(d.dueDate!),
+      Question.expiry =>
+        d.expiry == null ? l.docNoExpiry : l.docExpiry(d.expiry!),
+      Question.dosage =>
+        d.dosage == null ? l.docNoDosage : l.docDosage(d.dosage!),
+      Question.summary =>
+        d.summary.isEmpty ? l.docNoSummary : l.docSummary(d.summary.join(' ')),
+      _ => _progress(l),
+    };
+    // Reading pauses for the answer ("ituloy" carries on).
+    await _controller.pause(quiet: true);
+    await bus.say(answer);
+  }
 
   /// "Mga paborito ko": lists the favorites of this item; choosing one jumps
   /// there and carries on reading.
@@ -185,10 +300,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       final s = ref.read(_provider);
       if (s.phase == ReaderPhase.loading) return l.readerLoading;
       final outcome = _outcome(s, l);
-      return _offersRetake(s)
-          ? '$outcome ${l.readerRetakeOffer} ${l.offerConfirmHint}'
-          : outcome;
+      return _offersRetake(s) ? '$outcome ${l.readerRetakeOffer}' : outcome;
     },
+    // How to accept the retake, only if no answer comes.
+    followUp: (l) =>
+        _offersRetake(ref.read(_provider)) ? l.offerConfirmHint : '',
     includeModeHint: false,
     help: (l) => l.helpReader,
     // Stop reading and save the position before leaving.
@@ -203,8 +319,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         await _showFavorites(bus);
         return true;
       }
+      final question = Understanding.documentQuestion(text);
+      if (question != null) {
+        await _answerDocument(question, bus);
+        return true;
+      }
       return false;
     },
+    // "Nasaan ako?" adds how far the reading is.
+    whereAmI: _progress,
     actions: [
       A11yAction(
         id: Ids.readerFavorite,

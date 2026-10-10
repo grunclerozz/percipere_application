@@ -93,8 +93,10 @@ class CaptureScreen extends ConsumerWidget {
     return ScreenRegistration(
       id: screenId,
       title: (l) => l.screenCapture,
-      // The new feature is mentioned after the usual question.
-      prompt: (l) => '${l.capturePrompt} ${l.describeAnnouncement}',
+      prompt: (l) => l.capturePrompt,
+      // The new feature is mentioned after the usual question, once the
+      // user has had time to answer it.
+      followUp: (l) => l.describeAnnouncement,
       onUtterance: (text, bus) => _explainDescribe(ref, text, bus),
       // Its phrases are whole questions, never the start of a longer one.
       freeTextPrefixes: const [],

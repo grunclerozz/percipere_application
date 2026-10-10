@@ -61,6 +61,15 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
   NavIntent.report: ['ulat', 'report', 'feedback', 'puna'],
   NavIntent.voiceMode: ['pa-boses', 'voice mode'],
   NavIntent.gestureMode: ['pa-galaw', 'gesture mode'],
+  NavIntent.assistant: [
+    'percy',
+    'hey percy',
+    'kausapin si percy',
+    'tawagin si percy',
+    'katulong',
+    'assistant',
+    'voice assistant',
+  ],
 };
 
 /// Saying just the app name re-arms listening; as a prefix it is ignored
@@ -94,4 +103,5 @@ const Set<NavIntent> readingControlIntents = {
   NavIntent.textSmaller,
   NavIntent.favorite,
   NavIntent.repeat,
+  NavIntent.assistant,
 };

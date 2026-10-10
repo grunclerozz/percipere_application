@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:percipere_app/core/accessibility/earcon.dart';
 import 'package:percipere_app/core/accessibility/haptics.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
+import 'package:percipere_app/core/assistant/assistant_config.dart';
+import 'package:percipere_app/core/assistant/assistant_platform.dart';
 import 'package:percipere_app/core/auth/account.dart';
 import 'package:percipere_app/core/auth/account_repository.dart';
 import 'package:percipere_app/core/auth/biometrics.dart';
@@ -475,6 +477,15 @@ class TestEnv {
   /// Whether the phone is online.
   bool online = true;
 
+  /// The voice assistant's conversation (scripted).
+  final FakeAssistantPlatform assistant = FakeAssistantPlatform();
+
+  /// The assistant's set-up; not set up unless a test gives an agent id.
+  AssistantConfig assistantConfig = const AssistantConfig(
+    agentId: '',
+    voiceId: 'test-voice',
+  );
+
   /// The camera the next camera screen gets.
   FakeCameraSession camera = FakeCameraSession();
 
@@ -517,7 +528,81 @@ class TestEnv {
     storageInfoProvider.overrideWithValue(storage),
     libraryPathsProvider.overrideWithValue(libraryPaths),
     bookContentLoaderProvider.overrideWithValue(bookLoader),
+    assistantPlatformProvider.overrideWithValue(assistant),
+    assistantConfigProvider.overrideWithValue(assistantConfig),
   ];
+}
+
+/// The ElevenLabs conversation, scripted: records what the app sends and
+/// lets a test play Percy's side ([emit]).
+class FakeAssistantPlatform implements AssistantPlatform {
+  final StreamController<AssistantEvent> _events =
+      StreamController<AssistantEvent>.broadcast(sync: true);
+
+  /// Options of each started conversation.
+  final List<AssistantStartOptions> starts = [];
+
+  /// Tool results sent back: (id, result, isError).
+  final List<(String, String, bool)> results = [];
+
+  /// Times the conversation was ended by the app.
+  int ends = 0;
+
+  /// Thrown by the next [start], if set.
+  Object? startError;
+
+  /// When true, [end] reports the disconnection like the real SDK.
+  bool reportEnd = true;
+
+  @override
+  Stream<AssistantEvent> get events => _events.stream;
+
+  /// Plays an event from Percy's side.
+  void emit(AssistantEvent event) => _events.add(event);
+
+  /// Percy calls tool [name]; completes with the app's answer.
+  Future<(String, bool)> callTool(
+    String name, [
+    Map<String, Object?> parameters = const {},
+  ]) async {
+    final id = 'call-${results.length}-$name';
+    final before = results.length;
+    emit(AssistantToolCall(id: id, name: name, parameters: parameters));
+    for (var i = 0; i < 400 && results.length == before; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    final r = results.lastWhere((r) => r.$1 == id);
+    return (r.$2, r.$3);
+  }
+
+  @override
+  Future<void> start(AssistantStartOptions options) async {
+    final e = startError;
+    if (e != null) throw e;
+    starts.add(options);
+  }
+
+  @override
+  Future<void> end() async {
+    ends++;
+    if (reportEnd) emit(const AssistantDisconnected('user'));
+  }
+
+  @override
+  Future<bool> sendToolResult(
+    String id,
+    String result, {
+    bool isError = false,
+  }) async {
+    results.add((id, result, isError));
+    return true;
+  }
+
+  /// Context updates sent.
+  final List<String> contexts = [];
+
+  @override
+  Future<void> sendContext(String text) async => contexts.add(text);
 }
 
 /// A Filipino paragraph long enough to overflow the Document Box.
@@ -549,10 +634,14 @@ class FakeDocumentPicker implements DocumentPicker {
   /// Times the system camera was opened.
   int photos = 0;
 
+  /// When set, the file picker runs this real picker instead of [nextPick]
+  /// (the full path from the system picker's result to the Reader).
+  DocumentPicker? real;
+
   @override
   Future<PickResult> pickDocument() async {
     picks++;
-    return nextPick;
+    return real?.pickDocument() ?? nextPick;
   }
 
   /// Next result of [pickImage].

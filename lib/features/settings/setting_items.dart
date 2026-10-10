@@ -259,6 +259,7 @@ List<SettingItem> settingItemsFor(Account? account) => [
       Verbosity.brief => c.l.verbosityBrief,
       Verbosity.normal => c.l.verbosityNormal,
       Verbosity.detailed => c.l.verbosityDetailed,
+      Verbosity.auto => c.l.verbosityAuto,
     },
     adjust: (s, d) =>
         s.copyWith(verbosity: _cycle(Verbosity.values, s.verbosity, d)),
@@ -320,6 +321,15 @@ List<SettingItem> settingItemsFor(Account? account) => [
       open: (ref, bus) =>
           unawaited(ref.read(routerProvider).push(AppRoutes.register)),
     ),
+  SettingItem(
+    id: Ids.settingTutorial,
+    kind: SettingKind.link,
+    label: (l) => l.setTutorial,
+    value: (c) => c.l.setTutorialValue,
+    open: (ref, bus) => unawaited(
+      ref.read(routerProvider).push(AppRoutes.tutorial, extra: true),
+    ),
+  ),
   SettingItem(
     id: Ids.settingRedoSetup,
     kind: SettingKind.link,

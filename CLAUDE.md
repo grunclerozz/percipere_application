@@ -26,13 +26,20 @@ syncing with a separate web admin app (later).
   0.1.1+2; after a question the app waits `VoiceConfig.answerWait` (6 s) before giving
   instructions (`ScreenRegistration.followUp`). Checklist
   `docs/testing/input-fix-checklist.md`. Awaiting the user's tablet test.
-- **Percy, the voice assistant (ElevenLabs Agents), 2026-10-07:** built; online only, the
+- **Percy, the voice assistant (ElevenLabs Agents), 2026-10-07** — since Phase 9 only a
+  hidden developer option (off by default): built; online only, the
   app's own voice stays. Spec `docs/specs/assistant.md`, setup
   `docs/setup/elevenlabs-assistant-setup.md` (run `assistant/setup_agent.py`; the user's
   agent `agent_1601m4b0j87se7x8tmtehq4znmas` and voice are built-in defaults in
   `lib/config/env.dart`), checklist `docs/testing/assistant-checklist.md`.
   Awaiting the user's first live test. Also in the tree since 17:23 (undocumented work):
   controls tutorial, natural phrasing, document insights, familiarity.
+- **Phase 9 — Percy (self-built): CURRENT (2026-10-10).** Our own intent classifier
+  (scikit-learn → `assets/percy/model.json` → pure-Dart inference in `lib/core/percy/`),
+  rule-based slots, frame-based dialogue manager, offline; replaces ElevenLabs as default
+  (ElevenLabs = hidden developer setting, off). Spec `docs/specs/percy-local.md`; dataset
+  `data/percy/intents.csv`; training `scripts/percy/` (README has the commands; Python at
+  `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`, venv `scripts/percy/.venv`).
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -45,6 +52,7 @@ syncing with a separate web admin app (later).
 - `docs/testing/voice-response-checklist.md` — voice response time and barge-in (tablet).
 - `docs/testing/input-fix-checklist.md` — document inputs (debug + release APK) and questions waiting for the answer.
 - `docs/specs/assistant.md`, `docs/setup/elevenlabs-assistant-setup.md`, `docs/testing/assistant-checklist.md` — Percy, the ElevenLabs voice assistant; `assistant/` — its agent config and Python tools (PC/server only).
+- `docs/specs/percy-local.md`, `docs/testing/percy-local-checklist.md`, `data/percy/`, `scripts/percy/` — Phase 9 self-built Percy.
 - `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).

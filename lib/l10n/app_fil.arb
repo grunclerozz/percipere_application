@@ -2067,7 +2067,7 @@
     "description": "No ElevenLabs agent id was built into the app."
   },
   "assistantOffline": "Kailangan ng internet para kay Percy. Gumagana pa rin ang karaniwang mga utos.",
-  "assistantConsentAsk": "Si Percy ay voice assistant na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?",
+  "assistantConsentAsk": "Ito ang online na bersyon ni Percy para sa mga developer, na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?",
   "@assistantConsentAsk": {
     "description": "First use of the voice assistant: privacy consent (yes/no)."
   },
@@ -2087,5 +2087,32 @@
   "assistantGuestName": "kaibigan",
   "@assistantGuestName": {
     "description": "How the assistant addresses a guest (no name)."
-  }
+  },
+  "setPercyPoliteness": "Paraan ng pagsalita ni Percy",
+  "@setPercyPoliteness": {"description": "Settings row: Percy's politeness."},
+  "valuePercyPo": "Magalang (may po)",
+  "valuePercyCasual": "Kaswal",
+  "setPercyTalk": "Haba ng sagot ni Percy",
+  "@setPercyTalk": {"description": "Settings row: how much Percy says."},
+  "valuePercyBrief": "Maikli",
+  "valuePercyNormal": "Katamtaman",
+  "valuePercyChatty": "Madaldal",
+  "setPercyLogging": "I-save ang usapan kay Percy (pang-training)",
+  "@setPercyLogging": {"description": "Settings row: keep Percy's turn log on the phone for retraining."},
+  "setPercyElevenLabs": "Percy online (ElevenLabs, developer)",
+  "@setPercyElevenLabs": {"description": "Hidden developer row: use the ElevenLabs Percy instead of the self-built one."},
+  "setPercyExport": "I-export ang log ni Percy (CSV)",
+  "@setPercyExport": {"description": "Hidden developer row: export Percy's turn log."},
+  "percyExportCount": "{count} na pangungusap",
+  "@percyExportCount": {"description": "Value of the export row.", "placeholders": {"count": {"type": "String"}}},
+  "percyExportEmpty": "Wala pang naka-log na usapan kay Percy.",
+  "@percyExportEmpty": {"description": "Export with an empty log."},
+  "percyExportDone": "Inihanda ko na ang CSV. Piliin kung saan ito ipapadala.",
+  "@percyExportDone": {"description": "After the export opened the share sheet."},
+  "percyExportFailed": "Hindi ko ma-export ang log ngayon.",
+  "@percyExportFailed": {"description": "Export failed."},
+  "percyMicNeeded": "Kailangan ni Percy ang mikropono para marinig ka. Payagan ito sa settings ng app.",
+  "@percyMicNeeded": {"description": "Percy can't start without the microphone."},
+  "percyUnavailable": "Hindi ko mabuksan si Percy ngayon. Gumagana pa rin ang karaniwang mga utos.",
+  "@percyUnavailable": {"description": "Percy's model failed to load."}
 }

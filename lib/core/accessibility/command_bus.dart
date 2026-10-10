@@ -9,6 +9,7 @@ import '../../app/ids.dart';
 import '../../app/locale_provider.dart';
 import '../../app/router.dart';
 import '../../config/constants.dart';
+import '../../config/percy_config.dart';
 import '../../config/voice_config.dart';
 import '../../features/library/library_actions.dart';
 import '../../l10n/app_localizations.dart';
@@ -19,6 +20,8 @@ import '../db/daos/library_dao.dart';
 import '../gestures/gesture_map.dart';
 import '../library/library_models.dart';
 import '../library/library_view.dart';
+import '../percy/percy_controller.dart';
+import '../percy/percy_text.dart';
 import '../platform/app_closer.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_controller.dart';
@@ -114,6 +117,103 @@ class CommandBus {
     return true;
   }
 
+  PercyController get _percy => _ref.read(percyControllerProvider.notifier);
+
+  /// While a Percy session runs, a gesture or tap of the user's own ends it
+  /// (and does nothing else); Percy's own actions don't count.
+  Future<bool> _userEndsPercy() async {
+    if (!_ref.read(percyActiveProvider) || _percy.acting) return false;
+    await _percy.stop();
+    return true;
+  }
+
+  /// Two-finger swipe left / "Percy": the self-built Percy, or the online
+  /// ElevenLabs one when the developer setting is on.
+  Future<void> _toggleAssistant() => _ref.read(settingsProvider).percyElevenLabs
+      ? _assistant.toggle()
+      : _percy.toggle();
+
+  // ── For Percy ────────────────────────────────────────────────────────────
+
+  /// Whether the app asked a yes/no question that is still open.
+  bool get hasPendingQuestion => _pending?.valid ?? false;
+
+  /// Answers the app's open yes/no question (Percy heard the answer).
+  Future<void> answerPending({required bool yes}) async {
+    final pending = _takePending();
+    if (pending == null) return;
+    if (yes) {
+      unawaited(_haptics.confirm());
+      return pending.onYes();
+    }
+    final onNo = pending.onNo;
+    if (onNo != null) return onNo();
+    return say(_l10n.voiceCancelled);
+  }
+
+  /// The command [heard] names exactly ("bilisan", "i-pause", "home"), if
+  /// it is a short known command (at most [PercyConfig.exactCommandWords]
+  /// words): Percy runs these with the phrase matcher, not the classifier.
+  CommandTarget? exactCommand(String heard) {
+    final text = Understanding.clean(_stripWakeWord(heard));
+    final words = CommandMatcher.tokens(text);
+    if (words.isEmpty || words.length > PercyConfig.exactCommandWords) {
+      return null;
+    }
+    final result = _matchCommand(text, activeScreen);
+    if (result is! Matched || result.score < 1) return null;
+    if (CommandMatcher.tokens(result.phrase).length != words.length) {
+      return null;
+    }
+    // "Percy" during a session is not a command to end it.
+    if (result.target == const ValueTarget(NavIntent.assistant)) return null;
+    return result.target;
+  }
+
+  /// Runs a matched command (as if it had been said).
+  Future<void> runTarget(CommandTarget target) => _run(target);
+
+  /// App commands that do something only where a screen handles them.
+  static const Set<NavIntent> _screenOnly = {
+    NavIntent.faster,
+    NavIntent.slower,
+    NavIntent.textBigger,
+    NavIntent.textSmaller,
+    NavIntent.nextParagraph,
+    NavIntent.previousParagraph,
+    NavIntent.readFromStart,
+    NavIntent.read,
+    NavIntent.pause,
+    NavIntent.resume,
+    NavIntent.save,
+    NavIntent.nextChapter,
+    NavIntent.previousChapter,
+    NavIntent.favorite,
+    NavIntent.favorites,
+    NavIntent.report,
+  };
+
+  /// Whether [intent] does something on the active screen.
+  bool supports(NavIntent intent) {
+    final screen = activeScreen;
+    if (screen == null) return false;
+    if (screen.intentHandlers.containsKey(intent)) return true;
+    return !_screenOnly.contains(intent);
+  }
+
+  /// "Percy, buksan ang library" said while Percy is off: the rest after
+  /// the wake word, or null.
+  static String? _percyRequest(String heard) {
+    final words = heard.trim().split(RegExp(r'\s+'));
+    var i = 0;
+    if (words.length > 1 && PercyText.preprocess(words[0]) == 'hey') i = 1;
+    if (i >= words.length) return null;
+    final first = words[i].toLowerCase().replaceAll(RegExp('[^a-z]'), '');
+    if (!PercyText.wakeWords.contains(first)) return null;
+    final rest = words.skip(i + 1).join(' ').trim();
+    return rest.isEmpty ? null : rest;
+  }
+
   /// The active screen, if any.
   ScreenRegistration? get activeScreen => _ref.read(activeScreenProvider);
 
@@ -130,9 +230,10 @@ class CommandBus {
         activeScreen?.intentHandlers.containsKey(NavIntent.assistant) ?? false;
     if (intent == NavIntent.assistant && !claimsAssistant) {
       _announcer.answered();
-      return _assistant.toggle();
+      return _toggleAssistant();
     }
     if (await _userEndsAssistant()) return;
+    if (await _userEndsPercy()) return;
     _announcer.answered();
     _voice
       ..noteActivity()
@@ -211,7 +312,7 @@ class CommandBus {
       case NavIntent.favorites:
         return notAvailable();
       case NavIntent.assistant:
-        return _assistant.toggle();
+        return _toggleAssistant();
     }
   }
 
@@ -226,6 +327,13 @@ class CommandBus {
   Future<void> handleUtterance(String heard) async {
     if (await _userEndsAssistant()) return;
     _announcer.answered();
+    // A Percy session gets everything that is said.
+    if (_ref.read(percyActiveProvider)) return _percy.handle(heard);
+    final request = _percyRequest(heard);
+    if (request != null && !_ref.read(settingsProvider).percyElevenLabs) {
+      _voice.markMatched('Percy + request', done: true);
+      return _percy.start(firstUtterance: request);
+    }
     final text = _stripWakeWord(heard);
     if (text.isEmpty) return say(_l10n.voiceWakeReply);
     final cleaned = Understanding.clean(text);
@@ -543,6 +651,8 @@ class CommandBus {
   /// question, then the screen's own actions, then app-wide commands. What
   /// runs is still decided by [handleUtterance].
   PartialMatch? judgePartial(String partial) {
+    // Percy needs the whole sentence.
+    if (_ref.read(percyActiveProvider)) return null;
     final input = CommandMatcher.tokens(
       Understanding.clean(_stripWakeWord(partial)),
     );
@@ -767,6 +877,7 @@ class CommandBus {
   /// every path gives the same feedback.
   Future<void> activate(String actionId) async {
     if (await _userEndsAssistant()) return;
+    if (await _userEndsPercy()) return;
     _announcer.answered();
     _voice
       ..noteActivity()

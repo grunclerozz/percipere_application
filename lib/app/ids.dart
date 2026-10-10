@@ -113,6 +113,21 @@ abstract final class Ids {
   /// Setting row.
   static const String settingDescribeConsent = 'settings.describeConsent';
 
+  /// Settings: Percy's politeness (po / casual).
+  static const String settingPercyPoliteness = 'settings.percyPoliteness';
+
+  /// Settings: how much Percy says.
+  static const String settingPercyTalk = 'settings.percyTalk';
+
+  /// Settings: keep Percy's turn log for retraining.
+  static const String settingPercyLogging = 'settings.percyLogging';
+
+  /// Settings (developer builds): the ElevenLabs Percy instead.
+  static const String settingPercyElevenLabs = 'settings.percyElevenLabs';
+
+  /// Settings (developer builds): export Percy's turn log as CSV.
+  static const String settingPercyExport = 'settings.percyExport';
+
   /// Home: what do you want to do?
   static const String home = 'home';
 

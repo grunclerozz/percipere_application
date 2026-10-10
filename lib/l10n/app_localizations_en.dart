@@ -2022,7 +2022,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assistantConsentAsk =>
-      'Percy is a voice assistant that uses the internet. What you say, and the text of a document when you ask about it, is sent to ElevenLabs to understand you. Is that okay?';
+      'This is the online developer version of Percy, which uses the internet. What you say, and the text of a document when you ask about it, is sent to ElevenLabs to understand you. Is that okay?';
 
   @override
   String get assistantConsentDeclined =>
@@ -2051,4 +2051,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assistantGuestName => 'friend';
+
+  @override
+  String get setPercyPoliteness => 'Percy\'s manner';
+
+  @override
+  String get valuePercyPo => 'Polite (with po)';
+
+  @override
+  String get valuePercyCasual => 'Casual';
+
+  @override
+  String get setPercyTalk => 'Percy\'s answers';
+
+  @override
+  String get valuePercyBrief => 'Short';
+
+  @override
+  String get valuePercyNormal => 'Normal';
+
+  @override
+  String get valuePercyChatty => 'Chatty';
+
+  @override
+  String get setPercyLogging => 'Save talks with Percy (for training)';
+
+  @override
+  String get setPercyElevenLabs => 'Percy online (ElevenLabs, developer)';
+
+  @override
+  String get setPercyExport => 'Export Percy\'s log (CSV)';
+
+  @override
+  String percyExportCount(String count) {
+    return '$count sentences';
+  }
+
+  @override
+  String get percyExportEmpty => 'Nothing has been said to Percy yet.';
+
+  @override
+  String get percyExportDone => 'The CSV is ready. Choose where to send it.';
+
+  @override
+  String get percyExportFailed => 'I can\'t export the log right now.';
+
+  @override
+  String get percyMicNeeded =>
+      'Percy needs the microphone to hear you. Allow it in the app\'s settings.';
+
+  @override
+  String get percyUnavailable =>
+      'I can\'t start Percy right now. The usual commands still work.';
 }

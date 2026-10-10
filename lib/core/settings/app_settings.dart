@@ -5,6 +5,7 @@ import '../../app/theme/theme_settings.dart';
 import '../../config/palette.dart';
 import '../accessibility/navigation_mode.dart';
 import '../db/daos/preferences_dao.dart';
+import '../percy/percy_responses.dart';
 import '../tts/reading_rate.dart';
 
 /// How much the app says when a screen opens.
@@ -71,6 +72,10 @@ class AppSettings {
     this.listenWhileReading = true,
     this.stayLoggedIn = true,
     this.describeConsent = DescribeConsent.ask,
+    this.percyPoliteness = PercyPoliteness.po,
+    this.percyTalk = PercyTalk.normal,
+    this.percyLogging = true,
+    this.percyElevenLabs = false,
   });
 
   /// Voice or gestures; null until chosen (profiling Step 1).
@@ -122,6 +127,19 @@ class AppSettings {
   /// Permission to send images for a detailed description.
   final DescribeConsent describeConsent;
 
+  /// How formally Percy talks (with "po" or casual).
+  final PercyPoliteness percyPoliteness;
+
+  /// How much Percy says around actions.
+  final PercyTalk percyTalk;
+
+  /// Keep a local log of what is said to Percy, for retraining.
+  final bool percyLogging;
+
+  /// Developer option: the online ElevenLabs Percy instead of the
+  /// self-built one. Off by default; nothing goes to ElevenLabs unless on.
+  final bool percyElevenLabs;
+
   /// The theme-related part.
   ThemeSettings get theme => ThemeSettings(
     theme: themeId,
@@ -166,6 +184,10 @@ class AppSettings {
     bool? listenWhileReading,
     bool? stayLoggedIn,
     DescribeConsent? describeConsent,
+    PercyPoliteness? percyPoliteness,
+    PercyTalk? percyTalk,
+    bool? percyLogging,
+    bool? percyElevenLabs,
   }) => AppSettings(
     navMode: identical(navMode, _keep) ? this.navMode : navMode as NavMode?,
     readingRate: ReadingRate.normalize(readingRate ?? this.readingRate),
@@ -185,6 +207,10 @@ class AppSettings {
     listenWhileReading: listenWhileReading ?? this.listenWhileReading,
     stayLoggedIn: stayLoggedIn ?? this.stayLoggedIn,
     describeConsent: describeConsent ?? this.describeConsent,
+    percyPoliteness: percyPoliteness ?? this.percyPoliteness,
+    percyTalk: percyTalk ?? this.percyTalk,
+    percyLogging: percyLogging ?? this.percyLogging,
+    percyElevenLabs: percyElevenLabs ?? this.percyElevenLabs,
   );
 
   /// Preference key → JSON value.
@@ -205,6 +231,10 @@ class AppSettings {
     PrefKeys.listenWhileReading: listenWhileReading,
     PrefKeys.stayLoggedIn: stayLoggedIn,
     PrefKeys.describeConsent: describeConsent.name,
+    PrefKeys.percyPoliteness: percyPoliteness.name,
+    PrefKeys.percyTalk: percyTalk.name,
+    PrefKeys.percyLogging: percyLogging,
+    PrefKeys.percyElevenLabs: percyElevenLabs,
   };
 
   /// Reads settings from stored preferences; anything missing or invalid
@@ -250,6 +280,13 @@ class AppSettings {
         DescribeConsent.values,
         p[PrefKeys.describeConsent],
       ),
+      percyPoliteness: byName(
+        PercyPoliteness.values,
+        p[PrefKeys.percyPoliteness],
+      ),
+      percyTalk: byName(PercyTalk.values, p[PrefKeys.percyTalk]),
+      percyLogging: bool_(p[PrefKeys.percyLogging]),
+      percyElevenLabs: bool_(p[PrefKeys.percyElevenLabs]),
     );
   }
 
@@ -271,10 +308,14 @@ class AppSettings {
       other.autoRead == autoRead &&
       other.listenWhileReading == listenWhileReading &&
       other.stayLoggedIn == stayLoggedIn &&
-      other.describeConsent == describeConsent;
+      other.describeConsent == describeConsent &&
+      other.percyPoliteness == percyPoliteness &&
+      other.percyTalk == percyTalk &&
+      other.percyLogging == percyLogging &&
+      other.percyElevenLabs == percyElevenLabs;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     navMode,
     readingRate,
     pitch,
@@ -291,5 +332,9 @@ class AppSettings {
     listenWhileReading,
     stayLoggedIn,
     describeConsent,
-  );
+    percyPoliteness,
+    percyTalk,
+    percyLogging,
+    percyElevenLabs,
+  ]);
 }

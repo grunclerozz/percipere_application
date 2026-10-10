@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "about": "What Percy says. Keys: intents.<intent> (said before or instead of the action), dialogue.<situation>, actions.<intent> (used in 'Ang ibig mo bang sabihin ay {action}?'), suggestions.<screen id>. Each line: language (fil/en) → politeness (po/casual) → 2–3 variations. Placeholders: {action} {title} {options} {suggestions}.",
+  "intents": {
+    "open_home": {
+      "fil": {"po": ["Sige po, sa Home tayo.", "Pupunta na po tayo sa Home."], "casual": ["Sige, sa Home tayo.", "Punta tayo sa Home."]},
+      "en": {"po": ["Sure, going Home.", "Taking you Home."], "casual": ["Okay, going Home.", "Home it is."]}
+    },
+    "open_library": {
+      "fil": {"po": ["Sige po, bubuksan ko ang Aklatan.", "Pupunta na po tayo sa Aklatan."], "casual": ["Sige, bubuksan ko ang Aklatan.", "Aklatan tayo."]},
+      "en": {"po": ["Sure, opening the Library.", "Taking you to the Library."], "casual": ["Okay, opening the Library.", "Library it is."]}
+    },
+    "open_settings": {
+      "fil": {"po": ["Sige po, bubuksan ko ang Mga Setting.", "Pupunta na po tayo sa Mga Setting."], "casual": ["Sige, bubuksan ko ang Mga Setting.", "Settings tayo."]},
+      "en": {"po": ["Sure, opening Settings.", "Taking you to Settings."], "casual": ["Okay, opening Settings.", "Settings it is."]}
+    },
+    "back": {
+      "fil": {"po": ["Sige po, babalik tayo.", "Bumabalik na po."], "casual": ["Sige, balik tayo.", "Balik tayo."]},
+      "en": {"po": ["Sure, going back.", "Going back now."], "casual": ["Okay, going back.", "Back we go."]}
+    },
+    "next_option": {
+      "fil": {"po": ["Sige po.", "Susunod po."], "casual": ["Sige.", "Susunod."]},
+      "en": {"po": ["Sure.", "Next one."], "casual": ["Okay.", "Next."]}
+    },
+    "previous_option": {
+      "fil": {"po": ["Sige po.", "Nakaraan po."], "casual": ["Sige.", "Nakaraan."]},
+      "en": {"po": ["Sure.", "Previous one."], "casual": ["Okay.", "Previous."]}
+    },
+    "select": {
+      "fil": {"po": ["Sige po, pipiliin ko.", "Sige po."], "casual": ["Sige, pipiliin ko.", "Sige."]},
+      "en": {"po": ["Sure, choosing it.", "Okay."], "casual": ["Okay, choosing it.", "Sure."]}
+    },
+    "help": {
+      "fil": {"po": ["Narito po ang tulong.", "Sige po, ipapaliwanag ko."], "casual": ["Ito ang tulong.", "Sige, ipapaliwanag ko."]},
+      "en": {"po": ["Here's some help.", "Sure, let me explain."], "casual": ["Here's help.", "Okay, let me explain."]}
+    },
+    "where_am_i": {
+      "fil": {"po": [""], "casual": [""]},
+      "en": {"po": [""], "casual": [""]}
+    },
+    "read": {
+      "fil": {"po": ["Sige po, babasahin ko.", "Babasahin ko na po."], "casual": ["Sige, babasahin ko.", "Basahin natin."]},
+      "en": {"po": ["Sure, reading it.", "I'll read it now."], "casual": ["Okay, reading.", "Let's read."]}
+    },
+    "pause": {
+      "fil": {"po": ["Sige po.", "Hihinto muna po."], "casual": ["Sige.", "Hinto muna."]},
+      "en": {"po": ["Sure.", "Pausing."], "casual": ["Okay.", "Paused."]}
+    },
+    "resume": {
+      "fil": {"po": ["Sige po, itutuloy ko.", "Ituloy na po natin."], "casual": ["Sige, tuloy.", "Ituloy natin."]},
+      "en": {"po": ["Sure, continuing.", "Carrying on."], "casual": ["Okay, continuing.", "Back to it."]}
+    },
+    "stop": {
+      "fil": {"po": ["Sige po.", "Titigil na po ako."], "casual": ["Sige.", "Tigil na."]},
+      "en": {"po": ["Sure.", "Stopping."], "casual": ["Okay.", "Stopped."]}
+    },
+    "repeat": {
+      "fil": {"po": ["Sige po, uulitin ko.", "Uulitin ko po."], "casual": ["Sige, uulitin ko.", "Ulitin natin."]},
+      "en": {"po": ["Sure, once more.", "I'll repeat it."], "casual": ["Okay, again.", "Once more."]}
+    },
+    "faster": {
+      "fil": {"po": ["Sige po, bibilisan ko.", "Bibilisan ko po."], "casual": ["Sige, bilisan natin.", "Bibilisan ko."]},
+      "en": {"po": ["Sure, a bit faster.", "Speeding up."], "casual": ["Okay, faster.", "Speeding up."]}
+    },
+    "slower": {
+      "fil": {"po": ["Sige po, babagalan ko.", "Babagalan ko po."], "casual": ["Sige, bagalan natin.", "Babagalan ko."]},
+      "en": {"po": ["Sure, a bit slower.", "Slowing down."], "casual": ["Okay, slower.", "Slowing down."]}
+    },
+    "bigger_text": {
+      "fil": {"po": ["Sige po, palalakihin ko ang letra.", "Palalakihin ko po."], "casual": ["Sige, palakihin natin.", "Palalakihin ko."]},
+      "en": {"po": ["Sure, bigger text.", "Making the text bigger."], "casual": ["Okay, bigger.", "Bigger text."]}
+    },
+    "smaller_text": {
+      "fil": {"po": ["Sige po, paliliitin ko ang letra.", "Paliliitin ko po."], "casual": ["Sige, paliitin natin.", "Paliliitin ko."]},
+      "en": {"po": ["Sure, smaller text.", "Making the text smaller."], "casual": ["Okay, smaller.", "Smaller text."]}
+    },
+    "open_item": {
+      "fil": {"po": ["Sige po, bubuksan ko ang {title}.", "Bubuksan ko na po ang {title}."], "casual": ["Sige, bubuksan ko ang {title}.", "Buksan natin ang {title}."]},
+      "en": {"po": ["Sure, opening {title}.", "Opening {title} now."], "casual": ["Okay, opening {title}.", "Here's {title}."]}
+    },
+    "greeting": {
+      "fil": {"po": ["Hello po! Ano po ang maitutulong ko?", "Magandang araw din po! Ano po ang gagawin natin?"], "casual": ["Hello! Ano ang maitutulong ko?", "Hi! Ano ang gagawin natin?"]},
+      "en": {"po": ["Hello! How may I help?", "Good day to you too! What shall we do?"], "casual": ["Hi! What can I do?", "Hey! What should we do?"]}
+    },
+    "thanks": {
+      "fil": {"po": ["Walang anuman po.", "Walang anuman po, nandito lang ako."], "casual": ["Walang anuman.", "Walang anuman, nandito lang ako."]},
+      "en": {"po": ["You're welcome.", "You're welcome, I'm here if you need me."], "casual": ["No problem.", "Anytime."]}
+    },
+    "goodbye": {
+      "fil": {"po": ["Paalam po! Tawagin lang po ako ulit kung kailangan.", "Sige po, paalam!"], "casual": ["Paalam! Tawagin mo lang ako ulit.", "Sige, bye!"]},
+      "en": {"po": ["Goodbye! Call me again anytime.", "Take care, goodbye!"], "casual": ["Bye! Call me anytime.", "See you!"]}
+    }
+  },
+  "dialogue": {
+    "confirm": {
+      "fil": {"po": ["Ang ibig mo po bang sabihin ay {action}?"], "casual": ["Ang ibig mo bang sabihin ay {action}?"]},
+      "en": {"po": ["Did you mean {action}?"], "casual": ["Did you mean {action}?"]}
+    },
+    "fallback": {
+      "fil": {"po": ["Hindi ko pa po kaya iyan. Pwede mong sabihin: {suggestions}."], "casual": ["Hindi ko pa kaya iyan. Pwede mong sabihin: {suggestions}."]},
+      "en": {"po": ["I can't do that yet. You can say: {suggestions}."], "casual": ["I can't do that yet. Try saying: {suggestions}."]}
+    },
+    "not_here": {
+      "fil": {"po": ["Hindi po iyan magagawa sa screen na ito.", "Wala po iyan dito sa screen na ito."], "casual": ["Hindi iyan magagawa dito.", "Wala iyan sa screen na ito."]},
+      "en": {"po": ["That isn't available on this screen.", "That can't be done here."], "casual": ["That's not available here.", "Can't do that on this screen."]}
+    },
+    "which": {
+      "fil": {"po": ["Alin po sa mga ito: {options}?"], "casual": ["Alin sa mga ito: {options}?"]},
+      "en": {"po": ["Which one: {options}?"], "casual": ["Which one: {options}?"]}
+    },
+    "which_document": {
+      "fil": {"po": ["Aling dokumento po ang bubuksan ko? {options}?"], "casual": ["Aling dokumento ang bubuksan ko? {options}?"]},
+      "en": {"po": ["Which document should I open? {options}?"], "casual": ["Which document? {options}?"]}
+    },
+    "no_match": {
+      "fil": {"po": ["Wala po akong nakitang {title} sa Aklatan. Gusto mo po bang buksan ang Aklatan para maghanap?"], "casual": ["Wala akong nakitang {title} sa Aklatan. Gusto mo bang buksan ang Aklatan para maghanap?"]},
+      "en": {"po": ["I couldn't find {title} in the Library. Shall I open the Library so you can search?"], "casual": ["No {title} in the Library. Open the Library to search?"]}
+    },
+    "library_empty": {
+      "fil": {"po": ["Wala pa pong laman ang Aklatan."], "casual": ["Wala pang laman ang Aklatan."]},
+      "en": {"po": ["The Library is still empty."], "casual": ["The Library is empty."]}
+    },
+    "declined": {
+      "fil": {"po": ["Sige po, hindi ko na gagawin.", "Okay po, hindi na."], "casual": ["Sige, hindi na.", "Okay, hindi na."]},
+      "en": {"po": ["Alright, I won't.", "Okay, never mind."], "casual": ["Okay, never mind.", "Alright, skipping it."]}
+    },
+    "nothing_to_cancel": {
+      "fil": {"po": ["Wala po tayong kinakansela. Ano po ang gusto mong gawin?"], "casual": ["Wala tayong kinakansela. Ano ang gusto mong gawin?"]},
+      "en": {"po": ["There's nothing to cancel. What would you like to do?"], "casual": ["Nothing to cancel. What next?"]}
+    },
+    "nothing_asked": {
+      "fil": {"po": ["Wala po akong itinatanong. Ano po ang gusto mong gawin?"], "casual": ["Wala akong itinatanong. Ano ang gusto mong gawin?"]},
+      "en": {"po": ["I didn't ask anything. What would you like to do?"], "casual": ["I didn't ask anything. What next?"]}
+    },
+    "more": {
+      "fil": {"po": ["May iba pa po ba?", "Ano pa po ang gagawin natin?"], "casual": ["May iba pa ba?", "Ano pa?"]},
+      "en": {"po": ["Anything else?", "What else can I do?"], "casual": ["Anything else?", "What else?"]}
+    },
+    "ended": {
+      "fil": {"po": ["Tapos na po ang usapan natin."], "casual": ["Tapos na ang usapan natin."]},
+      "en": {"po": ["Percy is done for now."], "casual": ["Percy signing off."]}
+    },
+    "idle_end": {
+      "fil": {"po": ["Mukhang tapos na po tayo. Tawagin lang po ako ulit."], "casual": ["Mukhang tapos na tayo. Tawagin mo lang ako ulit."]},
+      "en": {"po": ["Looks like we're done. Call me again anytime."], "casual": ["Seems we're done. Call me anytime."]}
+    },
+    "or": {
+      "fil": {"po": ["o"], "casual": ["o"]},
+      "en": {"po": ["or"], "casual": ["or"]}
+    }
+  },
+  "actions": {
+    "open_home": {"fil": "pumunta sa Home", "en": "going to Home"},
+    "open_library": {"fil": "buksan ang Aklatan", "en": "opening the Library"},
+    "open_settings": {"fil": "buksan ang Mga Setting", "en": "opening Settings"},
+    "back": {"fil": "bumalik", "en": "going back"},
+    "next_option": {"fil": "susunod", "en": "next"},
+    "previous_option": {"fil": "nakaraan", "en": "previous"},
+    "select": {"fil": "piliin ito", "en": "choosing this"},
+    "cancel": {"fil": "huwag na lang", "en": "never mind"},
+    "help": {"fil": "humingi ng tulong", "en": "getting help"},
+    "where_am_i": {"fil": "kung nasaan ka", "en": "where you are"},
+    "read": {"fil": "basahin", "en": "reading"},
+    "pause": {"fil": "i-pause ang pagbasa", "en": "pausing"},
+    "resume": {"fil": "ituloy ang pagbasa", "en": "continuing to read"},
+    "stop": {"fil": "itigil", "en": "stopping"},
+    "repeat": {"fil": "ulitin", "en": "repeating"},
+    "faster": {"fil": "bilisan ang pagbasa", "en": "reading faster"},
+    "slower": {"fil": "bagalan ang pagbasa", "en": "reading slower"},
+    "bigger_text": {"fil": "palakihin ang letra", "en": "bigger text"},
+    "smaller_text": {"fil": "paliitin ang letra", "en": "smaller text"},
+    "open_item": {"fil": "magbukas ng dokumento", "en": "opening a document"},
+    "greeting": {"fil": "bumati", "en": "a greeting"},
+    "thanks": {"fil": "magpasalamat", "en": "thanks"},
+    "goodbye": {"fil": "tapusin ang usapan", "en": "ending our talk"},
+    "yes": {"fil": "oo", "en": "yes"},
+    "no": {"fil": "hindi", "en": "no"},
+    "out_of_scope": {"fil": "iba pa", "en": "something else"}
+  },
+  "suggestions": {
+    "home": {"fil": ["buksan ang Aklatan", "magbasa ng bago", "nasaan ako"], "en": ["open the Library", "read something new", "where am I"]},
+    "capture": {"fil": ["gamitin ang camera", "mag-upload", "bumalik"], "en": ["use the camera", "upload a file", "go back"]},
+    "reader": {"fil": ["i-pause", "bilisan", "ulitin"], "en": ["pause", "faster", "repeat"]},
+    "describe": {"fil": ["ulitin", "bumalik", "nasaan ako"], "en": ["repeat", "go back", "where am I"]},
+    "library": {"fil": ["buksan ang huling dokumento", "bumalik sa Home", "nasaan ako"], "en": ["open my last document", "go Home", "where am I"]},
+    "settings": {"fil": ["susunod", "bumalik", "tulong"], "en": ["next", "go back", "help"]},
+    "default": {"fil": ["buksan ang Aklatan", "bumalik", "tulong"], "en": ["open the Library", "go back", "help"]}
+  }
+}

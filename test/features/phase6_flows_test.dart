@@ -74,7 +74,7 @@ void main() {
       expect(env.tts.transcript, contains('Mga Setting.'));
 
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 21.');
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 24.');
 
       await tester.swipeUp();
       expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.25x');

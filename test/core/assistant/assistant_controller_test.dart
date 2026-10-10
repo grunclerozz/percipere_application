@@ -24,7 +24,7 @@ import 'package:percipere_app/core/voice/voice_controller.dart';
 import '../../helpers/fakes.dart';
 
 const _agent = AssistantConfig(agentId: 'agent_test', voiceId: 'voice_x');
-const _consentQuestion = 'Si Percy ay voice assistant';
+const _consentQuestion = 'online na bersyon ni Percy';
 const _settle = Duration(milliseconds: 600);
 
 void main() {
@@ -69,7 +69,9 @@ void main() {
     );
     env
       ..assistantConfig = config
-      ..online = online;
+      ..online = online
+      // The ElevenLabs Percy is a developer option since Phase 9.
+      ..percyElevenLabs = true;
     container = ProviderContainer(
       overrides: [
         ...env.overrides,
@@ -92,7 +94,7 @@ void main() {
     await bus().dispatch(NavIntent.assistant);
     await pumpEventQueue();
     if (env.tts.transcript.contains(_consentQuestion) ||
-        env.tts.transcript.contains('Percy is a voice assistant')) {
+        env.tts.transcript.contains('online developer version of Percy')) {
       await bus().handleUtterance('oo');
       await pumpEventQueue();
     }

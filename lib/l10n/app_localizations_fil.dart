@@ -1968,7 +1968,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get assistantConsentAsk =>
-      'Si Percy ay voice assistant na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?';
+      'Ito ang online na bersyon ni Percy para sa mga developer, na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?';
 
   @override
   String get assistantConsentDeclined =>
@@ -1998,4 +1998,57 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get assistantGuestName => 'kaibigan';
+
+  @override
+  String get setPercyPoliteness => 'Paraan ng pagsalita ni Percy';
+
+  @override
+  String get valuePercyPo => 'Magalang (may po)';
+
+  @override
+  String get valuePercyCasual => 'Kaswal';
+
+  @override
+  String get setPercyTalk => 'Haba ng sagot ni Percy';
+
+  @override
+  String get valuePercyBrief => 'Maikli';
+
+  @override
+  String get valuePercyNormal => 'Katamtaman';
+
+  @override
+  String get valuePercyChatty => 'Madaldal';
+
+  @override
+  String get setPercyLogging => 'I-save ang usapan kay Percy (pang-training)';
+
+  @override
+  String get setPercyElevenLabs => 'Percy online (ElevenLabs, developer)';
+
+  @override
+  String get setPercyExport => 'I-export ang log ni Percy (CSV)';
+
+  @override
+  String percyExportCount(String count) {
+    return '$count na pangungusap';
+  }
+
+  @override
+  String get percyExportEmpty => 'Wala pang naka-log na usapan kay Percy.';
+
+  @override
+  String get percyExportDone =>
+      'Inihanda ko na ang CSV. Piliin kung saan ito ipapadala.';
+
+  @override
+  String get percyExportFailed => 'Hindi ko ma-export ang log ngayon.';
+
+  @override
+  String get percyMicNeeded =>
+      'Kailangan ni Percy ang mikropono para marinig ka. Payagan ito sa settings ng app.';
+
+  @override
+  String get percyUnavailable =>
+      'Hindi ko mabuksan si Percy ngayon. Gumagana pa rin ang karaniwang mga utos.';
 }

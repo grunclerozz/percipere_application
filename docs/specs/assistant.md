@@ -1,5 +1,10 @@
 # Percy — the voice assistant (ElevenLabs Agents)
 
+> **Since Phase 9 (2026-10-10) this is a hidden developer option, off by default.** The
+> default Percy is self-built and offline: `percy-local.md`. The ElevenLabs path is used only
+> when Settings → "Percy online (ElevenLabs, developer)" is on (shown in builds with
+> `--dart-define=PERCIPERE_DEV=true`).
+
 **Decided (user, 2026-10-07):** a Jarvis-like voice assistant inside the app, built only on
 ElevenLabs; public agent while developing (private later), Free plan for development
 (paid plan before user testing). The app's own offline voice commands stay as the base.

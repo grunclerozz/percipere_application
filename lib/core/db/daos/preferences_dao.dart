@@ -40,6 +40,18 @@ abstract final class PrefKeys {
   /// `ask`, `allowed` or `declined`: detailed image descriptions.
   static const String describeConsent = 'describe.consent';
 
+  /// Percy's politeness: `'po'` or `'casual'`.
+  static const String percyPoliteness = 'percy.politeness';
+
+  /// Percy's talkativeness: `'brief'`, `'normal'` or `'chatty'`.
+  static const String percyTalk = 'percy.talk';
+
+  /// Keep Percy's turn log for retraining (bool).
+  static const String percyLogging = 'percy.logging';
+
+  /// Developer option: the ElevenLabs Percy instead of the self-built one.
+  static const String percyElevenLabs = 'percy.elevenLabs';
+
   /// True once the Maglarawan explanation has been read to this user.
   static const String describeIntroSeen = 'describe.introSeen';
 

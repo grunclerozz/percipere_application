@@ -3269,7 +3269,7 @@ abstract class AppLocalizations {
   /// First use of the voice assistant: privacy consent (yes/no).
   ///
   /// In fil, this message translates to:
-  /// **'Si Percy ay voice assistant na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?'**
+  /// **'Ito ang online na bersyon ni Percy para sa mga developer, na gumagamit ng internet. Ang sasabihin mo, at ang teksto ng dokumento kapag tinanong mo siya tungkol dito, ay ipapadala sa ElevenLabs para maintindihan ka. Payag ka ba?'**
   String get assistantConsentAsk;
 
   /// No description provided for @assistantConsentDeclined.
@@ -3319,6 +3319,102 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'kaibigan'**
   String get assistantGuestName;
+
+  /// Settings row: Percy's politeness.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paraan ng pagsalita ni Percy'**
+  String get setPercyPoliteness;
+
+  /// No description provided for @valuePercyPo.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magalang (may po)'**
+  String get valuePercyPo;
+
+  /// No description provided for @valuePercyCasual.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kaswal'**
+  String get valuePercyCasual;
+
+  /// Settings row: how much Percy says.
+  ///
+  /// In fil, this message translates to:
+  /// **'Haba ng sagot ni Percy'**
+  String get setPercyTalk;
+
+  /// No description provided for @valuePercyBrief.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maikli'**
+  String get valuePercyBrief;
+
+  /// No description provided for @valuePercyNormal.
+  ///
+  /// In fil, this message translates to:
+  /// **'Katamtaman'**
+  String get valuePercyNormal;
+
+  /// No description provided for @valuePercyChatty.
+  ///
+  /// In fil, this message translates to:
+  /// **'Madaldal'**
+  String get valuePercyChatty;
+
+  /// Settings row: keep Percy's turn log on the phone for retraining.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-save ang usapan kay Percy (pang-training)'**
+  String get setPercyLogging;
+
+  /// Hidden developer row: use the ElevenLabs Percy instead of the self-built one.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percy online (ElevenLabs, developer)'**
+  String get setPercyElevenLabs;
+
+  /// Hidden developer row: export Percy's turn log.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-export ang log ni Percy (CSV)'**
+  String get setPercyExport;
+
+  /// Value of the export row.
+  ///
+  /// In fil, this message translates to:
+  /// **'{count} na pangungusap'**
+  String percyExportCount(String count);
+
+  /// Export with an empty log.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang naka-log na usapan kay Percy.'**
+  String get percyExportEmpty;
+
+  /// After the export opened the share sheet.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inihanda ko na ang CSV. Piliin kung saan ito ipapadala.'**
+  String get percyExportDone;
+
+  /// Export failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko ma-export ang log ngayon.'**
+  String get percyExportFailed;
+
+  /// Percy can't start without the microphone.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ni Percy ang mikropono para marinig ka. Payagan ito sa settings ng app.'**
+  String get percyMicNeeded;
+
+  /// Percy's model failed to load.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ko mabuksan si Percy ngayon. Gumagana pa rin ang karaniwang mga utos.'**
+  String get percyUnavailable;
 }
 
 class _AppLocalizationsDelegate

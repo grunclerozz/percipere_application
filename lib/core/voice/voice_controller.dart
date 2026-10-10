@@ -15,6 +15,7 @@ import '../accessibility/haptics.dart';
 import '../accessibility/nav_intent.dart';
 import '../accessibility/navigation_mode.dart';
 import '../assistant/assistant_controller.dart';
+import '../percy/percy_controller.dart';
 import '../platform/permissions.dart';
 import '../platform/system_settings.dart';
 import '../settings/settings_controller.dart';
@@ -316,6 +317,20 @@ class VoiceController extends Notifier<VoiceState> {
     unawaited(_say(_l.voiceRepeatedError));
   }
 
+  /// A Percy session started or ended (called by `PercyController`, which
+  /// reads this controller, so this one must not listen to it). Percy
+  /// talks through the app's own voice and listens after each reply, also
+  /// in gesture mode.
+  void percySessionChanged({required bool active}) {
+    _log(active ? 'Percy started: listening on' : 'Percy ended');
+    noteActivity();
+    if (_wantsAutoListen) {
+      _scheduleAutoListen();
+    } else if (!_oneShot) {
+      unawaited(stopListening());
+    }
+  }
+
   /// Records user activity; resets the auto-listen idle budget.
   void noteActivity() {
     _lastActivity = DateTime.now();
@@ -498,6 +513,7 @@ class VoiceController extends Notifier<VoiceState> {
   bool get _wantsAutoListen {
     if (!_micGranted) return false;
     if (ref.read(assistantActiveProvider)) return false;
+    if (ref.read(percyActiveProvider)) return true;
     if (ref.read(navigationModeProvider) == NavMode.voice) return true;
     return ref.read(activeScreenProvider)?.autoListen ?? false;
   }
@@ -506,7 +522,8 @@ class VoiceController extends Notifier<VoiceState> {
   bool get _bargeInAllowed =>
       _micGranted &&
       !ref.read(assistantActiveProvider) &&
-      ref.read(navigationModeProvider) == NavMode.voice &&
+      (ref.read(navigationModeProvider) == NavMode.voice ||
+          ref.read(percyActiveProvider)) &&
       ref.read(settingsProvider).listenWhileReading;
 
   /// A document is being read aloud (and no prompt is playing).

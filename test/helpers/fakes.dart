@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:percipere_app/config/percy_config.dart';
 import 'package:percipere_app/core/accessibility/earcon.dart';
 import 'package:percipere_app/core/accessibility/haptics.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
@@ -32,6 +34,10 @@ import 'package:percipere_app/core/network/connectivity.dart';
 import 'package:percipere_app/core/network/image_description_repository.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
+import 'package:percipere_app/core/percy/intent_classifier.dart';
+import 'package:percipere_app/core/percy/percy_controller.dart';
+import 'package:percipere_app/core/percy/percy_log_export.dart';
+import 'package:percipere_app/core/percy/percy_responses.dart';
 import 'package:percipere_app/core/platform/app_closer.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/platform/storage_info.dart';
@@ -477,6 +483,13 @@ class TestEnv {
   /// Whether the phone is online.
   bool online = true;
 
+  /// Developer setting: the ElevenLabs Percy instead of the self-built
+  /// one (off by default, as in the app).
+  bool percyElevenLabs = false;
+
+  /// Files handed to the share sheet (Percy log export).
+  final List<String> sharedFiles = [];
+
   /// The voice assistant's conversation (scripted).
   final FakeAssistantPlatform assistant = FakeAssistantPlatform();
 
@@ -495,7 +508,10 @@ class TestEnv {
     ttsServiceProvider.overrideWithValue(tts),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(tts.voices)),
     initialSettingsProvider.overrideWithValue(
-      (appSettings ?? const AppSettings()).copyWith(navMode: mode),
+      (appSettings ?? const AppSettings()).copyWith(
+        navMode: mode,
+        percyElevenLabs: percyElevenLabs,
+      ),
     ),
     if (account != null) ...[
       initialAccountProvider.overrideWithValue(account),
@@ -529,6 +545,10 @@ class TestEnv {
     libraryPathsProvider.overrideWithValue(libraryPaths),
     bookContentLoaderProvider.overrideWithValue(bookLoader),
     assistantPlatformProvider.overrideWithValue(assistant),
+    percyBrainProvider.overrideWith((ref) async => testPercyBrain()),
+    percyCsvSharerProvider.overrideWithValue(
+      (path) async => sharedFiles.add(path),
+    ),
     assistantConfigProvider.overrideWithValue(assistantConfig),
   ];
 }
@@ -993,3 +1013,16 @@ class FakeBookContentLoader implements BookContentLoader {
     );
   }
 }
+
+PercyBrain? _percyBrain;
+
+/// Percy's real bundled model and lines, read once from the project files
+/// (no asset bundle or isolate needed in tests).
+PercyBrain testPercyBrain() => _percyBrain ??= PercyBrain(
+  IntentClassifier.parse(File(PercyConfig.modelAsset).readAsStringSync()),
+  PercyResponses.parse(
+    File(PercyConfig.personaAsset).readAsStringSync(),
+    File(PercyConfig.responsesAsset).readAsStringSync(),
+    random: math.Random(7),
+  ),
+);

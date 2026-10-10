@@ -212,7 +212,7 @@ Spec: `library.md`; endpoints: `../api-contract.md`.
   `bookLoader`; `seedDocument` / `seedBook` in `test/helpers/library_seed.dart`;
   `pumpAppOnCapture` opens Capture from Home.
 
-## Percy — voice assistant (2026-10-07)
+## Percy — ElevenLabs voice assistant (2026-10-07; developer option since Phase 9)
 - `NavIntent.assistant` (two-finger swipe left, "Percy") → `AssistantController.toggle`.
   The controller talks to `AssistantBridge.kt` (ElevenLabs SDK) over
   `ph.bataan.percipere/assistant(_events)`.
@@ -224,3 +224,31 @@ Spec: `library.md`; endpoints: `../api-contract.md`.
   the call (`handOver`). Riverpod note: the assistant must not read `voiceControllerProvider`
   (the voice controller listens to the assistant → dependency cycle).
 
+
+## Percy — self-built assistant (Phase 9)
+- **Model:** `scripts/percy/train.py` trains TF-IDF (word 1–2-grams + per-word char 3–5-grams)
+  + Logistic Regression / Multinomial NB on `data/percy/intents.csv` and exports
+  `assets/percy/model.json`. `lib/core/percy/intent_classifier.dart` (`IntentModel`) runs it in
+  pure Dart; `percy_text.dart` mirrors the Python preprocessing exactly (checked against
+  `scripts/percy/test_vectors.json`). Loaded once (`percyBrainProvider`, parsed with `compute`).
+- **Session:** `PercyController` (`percy_controller.dart`). `NavIntent.assistant` (two-finger
+  swipe left, "Percy") → `CommandBus._toggleAssistant` → local Percy, or ElevenLabs when the
+  developer setting `percyElevenLabs` is on. While active, `CommandBus.handleUtterance` sends
+  every final result to `PercyController.handle`; partial results are not acted on
+  (`judgePartial` returns null). "Percy, …" in one breath starts a session with the rest.
+- **Per sentence:** exact short command (`CommandBus.exactCommand`: ≤ 3 words, a verbatim
+  phrase) → `runTarget`; otherwise `DialogueManager.handle`: Percy's own pending question
+  (confirm / which document / offer Library) → the app's pending yes/no (`hasPendingQuestion`
+  → `answerPending`) → title-first slot rule (`basahin ang <title>`) → thresholds
+  (`PercyConfig`: act ≥ 0.60, ask ≥ 0.30) → `_act`. Replies are spoken through the
+  `Announcer` (one voice), then the `PercyAction` runs through the bus / `LibraryActions`
+  with `PercyController.acting` set, so it doesn't count as the user's own gesture.
+- **Ending:** `_userEndsPercy` in `dispatch`/`activate` (any gesture or tap of the user's),
+  "paalam", or `PercyConfig.idleEnd` (not while reading). The voice controller doesn't listen
+  to Percy's provider (Percy reads the voice controller; a listen would be a provider cycle):
+  `PercyController` calls `VoiceController.percySessionChanged`, and `_wantsAutoListen` /
+  barge-in read `percyActiveProvider`.
+- **Lines:** `assets/percy/persona.json`, `responses.json` (`PercyResponses`); style from
+  Settings (`percyPoliteness`, `percyTalk`) and the speech language.
+- **Log:** migration v5 `percy_turns` (`PercyLogDao`), on by default (`percyLogging`);
+  `exportPercyLog` (developer builds) shares a CSV in the dataset format.

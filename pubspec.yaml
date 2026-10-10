@@ -70,6 +70,11 @@ flutter:
   uses-material-design: true
   generate: true
 
+  assets:
+    - assets/percy/model.json
+    - assets/percy/persona.json
+    - assets/percy/responses.json
+
   fonts:
     - family: Montserrat
       fonts:

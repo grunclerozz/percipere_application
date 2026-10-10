@@ -2,6 +2,30 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-10 — Phase 9: Percy (self-built) replaces ElevenLabs as the default
+**Decided (user):** for the Intelligent Systems class, Percy runs on **our own intent
+classifier** (scikit-learn, trained on the team's `data/percy/intents.csv`, exported to JSON,
+run in pure Dart), fully offline, no external AI API. ElevenLabs moves behind a hidden
+developer setting, off by default. Spec: `percy-local.md`. Build without waiting for plan
+approval; stop only on conflicts with existing code.
+**Implementation choices (this session):**
+- Work continues in the git repository: the latest copy (`percipere_app-main`, incl. the
+  dataset) was committed first (`a4d52a1`).
+- Python 3.12 is installed but not on PATH (`%LOCALAPPDATA%\Programs\Python\Python312`); the
+  training venv is `scripts/percy/.venv` (ignored by git).
+- Preprocessing and feature analyzers are hand-written in both languages (accent folding,
+  hyphens/apostrophes deleted, wake word dropped, word 1–2-grams, per-word char 3–5-grams)
+  instead of scikit-learn's built-in tokenizers, so Dart reproduces them exactly.
+- Local Percy is a voice session on the app's own speech (no muting as with ElevenLabs), so
+  the screens' own confirmations (delete, logout) are spoken and answered by yes/no through
+  Percy — this also closes the "hidden confirmation" gap found in the 2026-10-08 review.
+- Percy's spoken lines live in `assets/percy/responses.json` (as the spec asks), an exception
+  to the ARB rule; Settings labels stay in the ARB files.
+- Developer-only rows (ElevenLabs on/off, export Percy log) appear only in builds with
+  `--dart-define=PERCIPERE_DEV=true`.
+- The dataset is small and lopsided (58 team rows; 16 intents have 8 examples), so test
+  metrics are noisy; the validator warns and the report shows team-only accuracy separately.
+
 ## 2026-10-07 (4) — Percy didn't connect: overrides now opt-in
 - Two causes: the PC project never received the update (it still matched the 14:20
   upload), and the user's agent doesn't allow overrides — tested against the live agent:

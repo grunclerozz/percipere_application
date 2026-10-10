@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1, _v2, _v3, _v4];
+  static const List<Migration> all = [_v1, _v2, _v3, _v4, _v5];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -354,3 +354,24 @@ const Migration _v4 = Migration(
     'ALTER TABLE documents RENAME TO documents_legacy',
   ],
 );
+
+const Migration _v5 = Migration(5, 'Percy turn log for retraining (Phase 9)', [
+  // One row per sentence said to Percy (the self-built assistant), kept on
+  // the phone for retraining the intent classifier. No document content.
+  // `outcome`: acted, confirmed, corrected, declined, asked, fallback, chat,
+  // answered, notAvailable, matcher.
+  '''
+  CREATE TABLE percy_turns (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        TEXT REFERENCES users(id) ON DELETE CASCADE,
+    text           TEXT NOT NULL,
+    intent         TEXT,
+    confidence     REAL,
+    outcome        TEXT NOT NULL,
+    screen         TEXT,
+    model_version  TEXT,
+    created_at     INTEGER NOT NULL
+  )
+  ''',
+  'CREATE INDEX idx_percy_turns_user ON percy_turns (user_id, created_at)',
+]);

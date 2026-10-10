@@ -49,3 +49,7 @@ app.*.map.json
 
 # Stray old project
 /percipere/
+
+# Percy training environment
+scripts/percy/.venv/
+__pycache__/

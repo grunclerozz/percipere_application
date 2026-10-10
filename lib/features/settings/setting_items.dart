@@ -7,6 +7,7 @@ import '../../app/ids.dart';
 import '../../app/locale_provider.dart';
 import '../../app/router.dart';
 import '../../app/theme/theme_settings.dart';
+import '../../config/env.dart';
 import '../../config/palette.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
@@ -16,6 +17,8 @@ import '../../core/auth/account_repository.dart';
 import '../../core/auth/biometrics.dart';
 import '../../core/auth/session.dart';
 import '../../core/auth/session_store.dart';
+import '../../core/percy/percy_log_export.dart';
+import '../../core/percy/percy_responses.dart';
 import '../../core/platform/system_settings.dart';
 import '../../core/settings/app_settings.dart';
 import '../../core/tts/reading_rate.dart';
@@ -284,6 +287,52 @@ List<SettingItem> settingItemsFor(Account? account) => [
       describeConsent: _cycle(DescribeConsent.values, s.describeConsent, d),
     ),
   ),
+  SettingItem(
+    id: Ids.settingPercyPoliteness,
+    kind: SettingKind.toggle,
+    label: (l) => l.setPercyPoliteness,
+    value: (c) => c.settings.percyPoliteness == PercyPoliteness.po
+        ? c.l.valuePercyPo
+        : c.l.valuePercyCasual,
+    adjust: (s, d) => s.copyWith(
+      percyPoliteness: _cycle(PercyPoliteness.values, s.percyPoliteness, d),
+    ),
+  ),
+  SettingItem(
+    id: Ids.settingPercyTalk,
+    kind: SettingKind.choice,
+    label: (l) => l.setPercyTalk,
+    value: (c) => switch (c.settings.percyTalk) {
+      PercyTalk.brief => c.l.valuePercyBrief,
+      PercyTalk.normal => c.l.valuePercyNormal,
+      PercyTalk.chatty => c.l.valuePercyChatty,
+    },
+    adjust: (s, d) =>
+        s.copyWith(percyTalk: _cycle(PercyTalk.values, s.percyTalk, d)),
+  ),
+  SettingItem(
+    id: Ids.settingPercyLogging,
+    kind: SettingKind.toggle,
+    label: (l) => l.setPercyLogging,
+    value: (c) => c.settings.percyLogging ? c.l.valueOn : c.l.valueOff,
+    adjust: (s, d) => s.copyWith(percyLogging: !s.percyLogging),
+  ),
+  if (Env.devTools) ...[
+    SettingItem(
+      id: Ids.settingPercyElevenLabs,
+      kind: SettingKind.toggle,
+      label: (l) => l.setPercyElevenLabs,
+      value: (c) => c.settings.percyElevenLabs ? c.l.valueOn : c.l.valueOff,
+      adjust: (s, d) => s.copyWith(percyElevenLabs: !s.percyElevenLabs),
+    ),
+    SettingItem(
+      id: Ids.settingPercyExport,
+      kind: SettingKind.link,
+      label: (l) => l.setPercyExport,
+      value: (c) => c.l.setPercyExport,
+      open: exportPercyLog,
+    ),
+  ],
   SettingItem(
     id: Ids.settingTtsVoices,
     kind: SettingKind.link,

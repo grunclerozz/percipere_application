@@ -45,6 +45,10 @@ abstract final class Env {
     'ELEVENLABS_APP_KEY',
   );
 
+  /// Developer build: shows hidden Settings rows (the ElevenLabs Percy
+  /// switch, exporting Percy's turn log). `--dart-define=PERCIPERE_DEV=true`.
+  static const bool devTools = bool.fromEnvironment('PERCIPERE_DEV');
+
   /// When true, the network layer uses an in-memory mock instead of [apiBaseUrl].
   static const bool useMockApi = bool.fromEnvironment(
     'USE_MOCK_API',

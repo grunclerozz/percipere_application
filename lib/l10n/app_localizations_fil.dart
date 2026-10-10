@@ -2112,4 +2112,90 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get voicePreviewSample =>
       'Ganito ang tunog ng boses na babasa ng iyong mga dokumento.';
+
+  @override
+  String get screenVerifyEmail => 'I-verify ang email';
+
+  @override
+  String get fieldCode => 'Code';
+
+  @override
+  String get askCode =>
+      'Ano ang 6 na numerong code na ipinadala sa iyong email?';
+
+  @override
+  String verifyIntro(String email) {
+    return 'Nagpadala kami ng 6 na numerong code sa $email. Tingnan ang iyong email.';
+  }
+
+  @override
+  String get codeNotSent =>
+      'Hindi naipadala ang code. Sabihin ang “ipadala ulit” para subukan muli.';
+
+  @override
+  String get actionResendCode => 'Ipadala ulit ang code';
+
+  @override
+  String get codeResent => 'Nagpadala kami ng bagong code.';
+
+  @override
+  String get codeWrong => 'Mali o luma na ang code. Subukan ulit.';
+
+  @override
+  String get codeVoided =>
+      'Masyadong maraming maling code. Sabihin ang “ipadala ulit” para sa bagong code.';
+
+  @override
+  String get codeFormat => 'Ang code ay 6 na numero.';
+
+  @override
+  String get accountPendingApproval =>
+      'Hinihintay pa ang pag-apruba ng administrator sa iyong account.';
+
+  @override
+  String get accountSuspended =>
+      'Naka-suspend ang account na ito. Makipag-ugnayan sa administrator.';
+
+  @override
+  String get accountSuspendedSignedOut =>
+      'Naka-suspend ang iyong account, kaya na-log out ka. Makipag-ugnayan sa administrator.';
+
+  @override
+  String get serverUnreachable =>
+      'Hindi makakonekta sa server. Tiyaking may internet, at subukan ulit.';
+
+  @override
+  String get serverProblem => 'May problema sa server. Subukan ulit mamaya.';
+
+  @override
+  String get loginOffline =>
+      'Walang internet, kaya ang naka-save sa tablet na ito ang ginamit.';
+
+  @override
+  String get loginNeedsInternet =>
+      'Kailangan ng internet sa unang pag-login sa tablet na ito.';
+
+  @override
+  String get accountMoving =>
+      'Inililipat namin sa server ang iyong account. Nagpadala kami ng code sa iyong email.';
+
+  @override
+  String get emailTakenServer =>
+      'May account na ang email na iyan. Mag-login ka, o gumamit ng ibang email.';
+
+  @override
+  String get resetIntro =>
+      'Magpapadala kami ng code sa iyong email para makagawa ka ng bagong password.';
+
+  @override
+  String resetCodeSent(String email) {
+    return 'Kung may account ang $email, nagpadala na kami ng code. Sabihin ang code, pagkatapos ang bagong password.';
+  }
+
+  @override
+  String get resetDone => 'Napalitan na ang password, at naka-login ka na.';
+
+  @override
+  String get helpVerify =>
+      'Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 }

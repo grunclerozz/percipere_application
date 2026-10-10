@@ -14,7 +14,9 @@ import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/auth/account.dart';
+import '../../core/auth/account_api.dart';
 import '../../core/auth/account_repository.dart';
+import '../../core/auth/account_service.dart';
 import '../../core/auth/biometrics.dart';
 import '../../core/auth/login_throttle.dart';
 import '../../core/auth/session.dart';
@@ -25,10 +27,15 @@ import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
 import 'lockout_countdown.dart';
+import 'verify_email_screen.dart';
 import 'voice_form.dart';
 
 /// Login: Email Address and Password, then Submit (double-tap the Gesture
 /// Pad, or "submit" / "tapos na").
+///
+/// With web app accounts ([AccountService.usesServer]) the server checks
+/// the password (offline: the copy kept on this phone); an unverified or
+/// phone-only account goes to the emailed code first.
 ///
 /// If fingerprint login is on for the account last used here, the
 /// fingerprint is tried first; the password is the fallback. After 5 wrong
@@ -185,38 +192,111 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _busy = true);
     try {
+      final service = ref.read(accountServiceProvider);
+      if (service.usesServer) {
+        try {
+          return await _serverLogin(
+            service,
+            AuthRules.normalizeEmail(email),
+            bus,
+          );
+        } on Object catch (e) {
+          debugPrint('Login failed: $e');
+          if (mounted) await bus.say(l.serverProblem);
+          return;
+        }
+      }
       final account = await ref
           .read(accountRepositoryProvider)
           .verifyPassword(email, _password.value);
       if (!mounted) return;
-      if (account == null) {
-        final delay = await throttle.recordFailure(ThrottleKind.login, email);
-        final failures = await throttle.failures(ThrottleKind.login, email);
-        _password.controller.clear();
-        unawaited(ref.read(hapticsProvider).error());
-        if (delay > Duration.zero) {
-          _countdown.start(delay, announce: false);
-          return await reportInvalid(
-            _form,
-            _password,
-            l.lockoutStarted(_countdown.seconds),
-            bus,
-            ref,
-          );
-        }
-        final left = LoginThrottle.freeAttempts - failures;
-        return await reportInvalid(
-          _form,
-          _password,
-          '${l.loginWrong} ${l.loginAttemptsLeft(left)}',
-          bus,
-          ref,
-        );
-      }
+      if (account == null) return await _wrongPassword(email, bus);
       await throttle.reset(ThrottleKind.login, email);
       await _loggedIn(account);
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Counts a wrong password here too (so offline guessing is slowed the
+  /// same way) and says how many tries are left, or starts the lockout.
+  Future<void> _wrongPassword(String email, CommandBus bus) async {
+    final l = bus.strings;
+    final throttle = ref.read(loginThrottleProvider);
+    final delay = await throttle.recordFailure(ThrottleKind.login, email);
+    final failures = await throttle.failures(ThrottleKind.login, email);
+    if (!mounted) return;
+    _password.controller.clear();
+    unawaited(ref.read(hapticsProvider).error());
+    if (delay > Duration.zero) {
+      _countdown.start(delay, announce: false);
+      return reportInvalid(
+        _form,
+        _password,
+        l.lockoutStarted(_countdown.seconds),
+        bus,
+        ref,
+      );
+    }
+    final left = LoginThrottle.freeAttempts - failures;
+    return reportInvalid(
+      _form,
+      _password,
+      '${l.loginWrong} ${l.loginAttemptsLeft(left)}',
+      bus,
+      ref,
+    );
+  }
+
+  Future<void> _serverLogin(
+    AccountService service,
+    String email,
+    CommandBus bus,
+  ) async {
+    final l = bus.strings;
+    final password = _password.value;
+    final outcome = await service.login(email, password);
+    if (!mounted) return;
+    switch (outcome) {
+      case LoggedIn(:final account, :final offline):
+        await ref.read(loginThrottleProvider).reset(ThrottleKind.login, email);
+        if (offline) await bus.say(l.loginOffline);
+        await _loggedIn(account);
+      case NeedsEmailCode(:final moved, :final emailSent):
+        _password.controller.clear();
+        unawaited(
+          ref
+              .read(routerProvider)
+              .push(
+                AppRoutes.verifyEmail,
+                extra: VerifyEmailArgs(
+                  email: email,
+                  password: password,
+                  moved: moved,
+                  emailSent: emailSent,
+                ),
+              ),
+        );
+      case LoginRefused(reason: AccountApiError.invalidCredentials):
+        await _wrongPassword(email, bus);
+      case LoginRefused(:final reason, :final retryAfter):
+        unawaited(ref.read(hapticsProvider).error());
+        switch (reason) {
+          case AccountApiError.tooManyAttempts:
+            _password.controller.clear();
+            _countdown.start(retryAfter, announce: false);
+            await reportInvalid(
+              _form,
+              _password,
+              l.lockoutStarted(_countdown.seconds),
+              bus,
+              ref,
+            );
+          case AccountApiError.offline:
+            await bus.say(l.loginNeedsInternet);
+          default:
+            await bus.say(serverErrorText(AccountApiException(reason), l));
+        }
     }
   }
 
@@ -248,7 +328,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onActivate: (_) => unawaited(
             ref
                 .read(routerProvider)
-                .push(AppRoutes.forgotPassword, extra: _email.value),
+                .push(
+                  ref.read(accountServiceProvider).usesServer
+                      ? AppRoutes.resetPassword
+                      : AppRoutes.forgotPassword,
+                  extra: _email.value,
+                ),
           ),
         ),
         if (fingerprint != null)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/accessibility/accessibility_host.dart';
+import '../core/auth/session_guard.dart';
 import '../l10n/app_localizations.dart';
 import 'locale_provider.dart';
 import 'router.dart';
@@ -28,7 +29,9 @@ class PercipereApp extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: router,
       builder: (context, child) => UiTextScale(
-        child: AccessibilityHost(child: child ?? const SizedBox.shrink()),
+        child: SessionGuard(
+          child: AccessibilityHost(child: child ?? const SizedBox.shrink()),
+        ),
       ),
     );
   }

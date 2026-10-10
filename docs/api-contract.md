@@ -15,6 +15,28 @@ download books too). The sync endpoints need the signed-in account's token (Phas
 
 ---
 
+## Accounts — built 2026-10-10 (dashboard `api/v1/`)
+
+**The full reference is the dashboard repo's `docs/API.md`.**
+
+**How it differs from the rest of this contract:**
+- The paths are plain PHP files under `{API_BASE_URL}/api/v1/`.
+- Errors are `{"ok": false, "code": "...", "error": "..."}`.
+- The app picks its own words from `code`.
+
+**Endpoints:**
+- `register.php`, `verify.php`, `resend.php`
+- `login.php`, `logout.php`, `me.php`
+- `password_forgot.php`, `password_reset.php`
+- `feedback.php` (not used by the app yet)
+
+**Client code:**
+- `lib/core/auth/account_api.dart`: the HTTP client.
+- `lib/core/auth/account_service.dart`: links server accounts to local accounts.
+- Decision log: 2026-10-10 (3).
+
+---
+
 ## Books (admin-managed) — Phase 6E
 
 ### Book object

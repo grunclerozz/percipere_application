@@ -5,6 +5,7 @@ import '../db/daos/preferences_dao.dart';
 import '../settings/settings_controller.dart';
 import 'account.dart';
 import 'account_repository.dart';
+import 'account_service.dart';
 import 'account_sync_repository.dart';
 import 'session_store.dart';
 
@@ -49,9 +50,14 @@ class CurrentAccount extends Notifier<Account?> {
     await ref.read(accountSyncRepositoryProvider).enqueue(account);
   }
 
-  /// Logs out: forgets the session and returns to the device's settings,
-  /// which keep the look and voice the user had.
+  /// Logs out: ends the web app session (without waiting on the network),
+  /// forgets the session and returns to the device's settings, which keep
+  /// the look and voice the user had.
   Future<void> logout() async {
+    final account = state;
+    if (account != null) {
+      await ref.read(accountServiceProvider).signOut(account);
+    }
     await _session.clearUserId();
     await ref
         .read(settingsProvider.notifier)

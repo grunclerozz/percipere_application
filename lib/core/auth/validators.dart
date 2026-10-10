@@ -38,6 +38,35 @@ abstract final class AuthRules {
   static String spokenPassword(String spoken) =>
       spoken.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
+  /// Whether [code] is an emailed 6-digit code.
+  static bool isValidCode(String code) => RegExp(r'^\d{6}$').hasMatch(code);
+
+  /// Digit words the recognizer may write out (Filipino, Spanish-derived
+  /// and English): "isa dalawa tres" → "123".
+  static const Map<String, String> _digitWords = {
+    'sero': '0', 'zero': '0', 'oh': '0', //
+    'isa': '1', 'uno': '1', 'one': '1', //
+    'dalawa': '2', 'dos': '2', 'two': '2', //
+    'tatlo': '3', 'tres': '3', 'three': '3', //
+    'apat': '4', 'kuwatro': '4', 'kwatro': '4', 'four': '4', //
+    'lima': '5', 'singko': '5', 'five': '5', //
+    'anim': '6', 'sais': '6', 'six': '6', //
+    'pito': '7', 'siyete': '7', 'seven': '7', //
+    'walo': '8', 'otso': '8', 'eight': '8', //
+    'siyam': '9', 'nuwebe': '9', 'nine': '9', //
+  };
+
+  /// A dictated code: digits kept, digit words turned into digits,
+  /// everything else (spaces, dashes, filler) dropped.
+  static String spokenCode(String spoken) {
+    final out = StringBuffer();
+    for (final word in spoken.toLowerCase().split(RegExp(r'[\s,.\-]+'))) {
+      final digits = word.replaceAll(RegExp(r'\D'), '');
+      out.write(digits.isNotEmpty ? digits : (_digitWords[word] ?? ''));
+    }
+    return out.toString();
+  }
+
   /// A dictated name: trimmed, single spaces, each word capitalized.
   static String spokenName(String spoken) => spoken
       .trim()

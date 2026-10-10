@@ -43,6 +43,11 @@ syncing with a separate web admin app (later).
 - **Voice latency + speed strip + reading voice (2026-10-10, after Phase 9):** built, awaiting
   the user's tablet test. Checklist `docs/testing/voice-speed-voice-checklist.md`; decision
   log 2026-10-10 (2).
+- **Accounts on the web app (2026-10-10, after the speed strip):** login, register with an
+  emailed code, password reset by code and suspension checks go to the PHP dashboard
+  (`api/v1/`) when built with `API_BASE_URL`; offline login with the copy on the tablet.
+  Checklist `docs/testing/server-accounts-checklist.md`; decision log 2026-10-10 (3).
+  Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -57,6 +62,7 @@ syncing with a separate web admin app (later).
 - `docs/specs/assistant.md`, `docs/setup/elevenlabs-assistant-setup.md`, `docs/testing/assistant-checklist.md` — Percy, the ElevenLabs voice assistant; `assistant/` — its agent config and Python tools (PC/server only).
 - `docs/specs/percy-local.md`, `docs/testing/percy-local-checklist.md`, `data/percy/`, `scripts/percy/` — Phase 9 self-built Percy.
 - `docs/testing/voice-speed-voice-checklist.md` — voice cut-offs, speed strip, reading voice.
+- `docs/testing/server-accounts-checklist.md` — accounts on the web app (build command, tablet checks).
 - `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).

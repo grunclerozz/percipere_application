@@ -3517,6 +3517,144 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Ganito ang tunog ng boses na babasa ng iyong mga dokumento.'**
   String get voicePreviewSample;
+
+  /// Title of the screen where the emailed code is entered.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-verify ang email'**
+  String get screenVerifyEmail;
+
+  /// Field: the 6-digit code from the email.
+  ///
+  /// In fil, this message translates to:
+  /// **'Code'**
+  String get fieldCode;
+
+  /// Question for the code field.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang 6 na numerong code na ipinadala sa iyong email?'**
+  String get askCode;
+
+  /// Verify email screen: where the code went.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagpadala kami ng 6 na numerong code sa {email}. Tingnan ang iyong email.'**
+  String verifyIntro(String email);
+
+  /// The code email failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi naipadala ang code. Sabihin ang “ipadala ulit” para subukan muli.'**
+  String get codeNotSent;
+
+  /// Action: email a new code.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ipadala ulit ang code'**
+  String get actionResendCode;
+
+  /// After a new code was emailed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagpadala kami ng bagong code.'**
+  String get codeResent;
+
+  /// Wrong or expired code.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mali o luma na ang code. Subukan ulit.'**
+  String get codeWrong;
+
+  /// The 5th wrong code cancelled it.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong maraming maling code. Sabihin ang “ipadala ulit” para sa bagong code.'**
+  String get codeVoided;
+
+  /// The code is not 6 digits.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang code ay 6 na numero.'**
+  String get codeFormat;
+
+  /// Login refused: waiting for approval.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hinihintay pa ang pag-apruba ng administrator sa iyong account.'**
+  String get accountPendingApproval;
+
+  /// Login refused: suspended.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-suspend ang account na ito. Makipag-ugnayan sa administrator.'**
+  String get accountSuspended;
+
+  /// Logged out because the dashboard suspended the account.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-suspend ang iyong account, kaya na-log out ka. Makipag-ugnayan sa administrator.'**
+  String get accountSuspendedSignedOut;
+
+  /// No connection to the web app.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi makakonekta sa server. Tiyaking may internet, at subukan ulit.'**
+  String get serverUnreachable;
+
+  /// The web app answered with an error.
+  ///
+  /// In fil, this message translates to:
+  /// **'May problema sa server. Subukan ulit mamaya.'**
+  String get serverProblem;
+
+  /// Logged in offline with the copy on the phone.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang internet, kaya ang naka-save sa tablet na ito ang ginamit.'**
+  String get loginOffline;
+
+  /// Offline and the account was never used on this phone.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kailangan ng internet sa unang pag-login sa tablet na ito.'**
+  String get loginNeedsInternet;
+
+  /// A phone-only account is being registered on the web app.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inililipat namin sa server ang iyong account. Nagpadala kami ng code sa iyong email.'**
+  String get accountMoving;
+
+  /// Register: the web app already has this email.
+  ///
+  /// In fil, this message translates to:
+  /// **'May account na ang email na iyan. Mag-login ka, o gumamit ng ibang email.'**
+  String get emailTakenServer;
+
+  /// Forgot password (server): intro.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magpapadala kami ng code sa iyong email para makagawa ka ng bagong password.'**
+  String get resetIntro;
+
+  /// Forgot password (server): code sent.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kung may account ang {email}, nagpadala na kami ng code. Sabihin ang code, pagkatapos ang bagong password.'**
+  String resetCodeSent(String email);
+
+  /// Forgot password (server): done.
+  ///
+  /// In fil, this message translates to:
+  /// **'Napalitan na ang password, at naka-login ka na.'**
+  String get resetDone;
+
+  /// Help on the code screens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  String get helpVerify;
 }
 
 class _AppLocalizationsDelegate

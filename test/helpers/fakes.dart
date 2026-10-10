@@ -12,7 +12,9 @@ import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/assistant/assistant_config.dart';
 import 'package:percipere_app/core/assistant/assistant_platform.dart';
 import 'package:percipere_app/core/auth/account.dart';
+import 'package:percipere_app/core/auth/account_api.dart';
 import 'package:percipere_app/core/auth/account_repository.dart';
+import 'package:percipere_app/core/auth/account_service.dart';
 import 'package:percipere_app/core/auth/biometrics.dart';
 import 'package:percipere_app/core/auth/login_throttle.dart';
 import 'package:percipere_app/core/auth/password_hasher.dart';
@@ -502,6 +504,10 @@ class TestEnv {
   /// Whether the phone is online.
   bool online = true;
 
+  /// The web app's accounts; null (the default) keeps accounts on the phone
+  /// only, as before the web app existed.
+  FakeAccountApi? accountApi;
+
   /// Developer setting: the ElevenLabs Percy instead of the self-built
   /// one (off by default, as in the app).
   bool percyElevenLabs = false;
@@ -569,6 +575,8 @@ class TestEnv {
       (path) async => sharedFiles.add(path),
     ),
     assistantConfigProvider.overrideWithValue(assistantConfig),
+    accountApiProvider.overrideWithValue(accountApi),
+    deviceLabelProvider.overrideWithValue(() async => 'Test tablet'),
   ];
 }
 
@@ -1045,3 +1053,230 @@ PercyBrain testPercyBrain() => _percyBrain ??= PercyBrain(
     random: math.Random(7),
   ),
 );
+
+/// One account in [FakeAccountApi].
+class FakeServerAccount {
+  /// Creates an account.
+  FakeServerAccount({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    required this.password,
+    this.status = 'active',
+  });
+
+  /// `app_users.user_id`.
+  final int id;
+
+  /// Full name.
+  String fullName;
+
+  /// Email.
+  final String email;
+
+  /// Password (test values only).
+  String password;
+
+  /// `pending_verification`, `pending_approval`, `active`, `suspended`.
+  String status;
+
+  /// The code emailed last, if any.
+  String? code;
+
+  /// Wrong codes in a row.
+  int wrongCodes = 0;
+}
+
+/// The web app's accounts (the dashboard's `api/v1/`), in memory, with the
+/// same rules: codes, statuses, tokens, password reset.
+class FakeAccountApi implements AccountApi {
+  /// Accounts by email.
+  final Map<String, FakeServerAccount> accounts = {};
+
+  /// Live tokens → account email.
+  final Map<String, String> tokens = {};
+
+  /// Every call, by name ("login", "verify", …).
+  final List<String> calls = [];
+
+  /// Tokens ended by logout.
+  final List<String> loggedOut = [];
+
+  /// No connection: every call fails with [AccountApiError.offline].
+  bool offline = false;
+
+  /// New accounts wait for an administrator after verifying.
+  bool approval = false;
+
+  /// Whether code emails "go out".
+  bool emailsWork = true;
+
+  /// The code every email carries (test value).
+  static const String code = '246810';
+
+  int _nextId = 1;
+  int _nextToken = 1;
+
+  /// Adds an account directly (as if registered and verified before).
+  FakeServerAccount add({
+    required String email,
+    required String password,
+    String fullName = 'Ana Cruz',
+    String status = 'active',
+  }) => accounts[email] = FakeServerAccount(
+    id: _nextId++,
+    fullName: fullName,
+    email: email,
+    password: password,
+    status: status,
+  );
+
+  void _call(String name) {
+    calls.add(name);
+    if (offline) throw const AccountApiException(AccountApiError.offline);
+  }
+
+  static Never _fail(AccountApiError error) => throw AccountApiException(error);
+
+  ServerUser _user(FakeServerAccount a) => ServerUser(
+    id: '${a.id}',
+    fullName: a.fullName,
+    email: a.email,
+    status: a.status,
+  );
+
+  ServerSession _session(FakeServerAccount a) {
+    final token = 'token-${_nextToken++}';
+    tokens[token] = a.email;
+    return ServerSession(token: token, user: _user(a));
+  }
+
+  bool _sendCode(FakeServerAccount a) {
+    a
+      ..code = code
+      ..wrongCodes = 0;
+    return emailsWork;
+  }
+
+  FakeServerAccount _checkCode(FakeServerAccount? a, String given) {
+    if (a == null || a.code == null) _fail(AccountApiError.invalidCode);
+    if (a.code != given) {
+      if (++a.wrongCodes >= 5) {
+        a.code = null;
+        _fail(AccountApiError.tooManyAttempts);
+      }
+      _fail(AccountApiError.invalidCode);
+    }
+    a.code = null;
+    return a;
+  }
+
+  @override
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    _call('register');
+    final existing = accounts[email];
+    if (existing != null) {
+      if (existing.status != 'pending_verification' ||
+          existing.password != password) {
+        _fail(AccountApiError.emailTaken);
+      }
+      return _sendCode(existing);
+    }
+    final a = add(
+      email: email,
+      password: password,
+      fullName: fullName,
+      status: 'pending_verification',
+    );
+    return _sendCode(a);
+  }
+
+  @override
+  Future<ServerSession?> verify({
+    required String email,
+    required String code,
+    required String device,
+  }) async {
+    _call('verify');
+    final a = accounts[email];
+    final ok = _checkCode(a?.status == 'pending_verification' ? a : null, code);
+    ok.status = approval ? 'pending_approval' : 'active';
+    return approval ? null : _session(ok);
+  }
+
+  @override
+  Future<void> resend(String email) async {
+    _call('resend');
+    final a = accounts[email];
+    if (a != null && a.status == 'pending_verification') {
+      if (!_sendCode(a)) _fail(AccountApiError.emailUnavailable);
+    }
+  }
+
+  @override
+  Future<ServerSession> login({
+    required String email,
+    required String password,
+    required String device,
+  }) async {
+    _call('login');
+    final a = accounts[email];
+    if (a == null || a.password != password) {
+      _fail(AccountApiError.invalidCredentials);
+    }
+    switch (a.status) {
+      case 'pending_verification':
+        _fail(AccountApiError.verifyEmail);
+      case 'pending_approval':
+        _fail(AccountApiError.pendingApproval);
+      case 'suspended':
+        _fail(AccountApiError.accountSuspended);
+    }
+    return _session(a);
+  }
+
+  @override
+  Future<ServerUser> me(String token) async {
+    _call('me');
+    final a = accounts[tokens[token]];
+    if (a == null) _fail(AccountApiError.unauthorized);
+    if (a.status == 'suspended') _fail(AccountApiError.accountSuspended);
+    if (a.status != 'active') _fail(AccountApiError.unauthorized);
+    return _user(a);
+  }
+
+  @override
+  Future<void> logout(String token) async {
+    _call('logout');
+    if (tokens.remove(token) == null) _fail(AccountApiError.unauthorized);
+    loggedOut.add(token);
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    _call('forgotPassword');
+    final a = accounts[email];
+    if (a != null && a.status == 'active' && !_sendCode(a)) {
+      _fail(AccountApiError.emailUnavailable);
+    }
+  }
+
+  @override
+  Future<ServerSession> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+    required String device,
+  }) async {
+    _call('resetPassword');
+    final a = accounts[email];
+    final ok = _checkCode(a?.status == 'active' ? a : null, code);
+    ok.password = password;
+    tokens.removeWhere((_, e) => e == email);
+    return _session(ok);
+  }
+}

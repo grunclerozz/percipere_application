@@ -2,6 +2,49 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-10 (3) — Accounts on the web app (server login)
+**Decided (user):** the app logs in against the PHP/MySQL dashboard (`percipere_dashboard`,
+`api/v1/`, its `docs/API.md`), so the thesis can show server accounts.
+
+**User's answers:**
+- **Offline login:** allowed for accounts already used on this tablet.
+- **Forgot password:** now uses a code emailed by the server (new endpoints `password_forgot.php` and `password_reset.php`).
+- **Accounts that existed only on the phone:** moved to the server at their next login.
+
+**Implementation:**
+- **On/off switch:** `Env.accountServer` is on when `API_BASE_URL` is set. `USE_ACCOUNT_SERVER=false` brings back accounts kept only on the phone. `USE_MOCK_API` is separate and still controls the Library and Maglarawan mocks.
+- **Code layout:**
+  - `AccountApi` / `HttpAccountApi` (dio) only talks to the server.
+  - `AccountService` keeps the server and the phone in step.
+  - Screens use `AccountService`.
+- **One local account per server account:**
+  - Linked by `users.server_id`; it holds the settings, Library and fingerprint.
+  - It is created at the first login; a phone account with the same email is reused.
+  - Its password hash is replaced at each server login, so offline login uses the newest password.
+- **Sign-in token:** stored in secure storage per local account (`api.token.<id>`), never in SQLite.
+- **Logout:** ends the server session without waiting for the network.
+- **Login outcomes:**
+  - Wrong password: the phone's lockout (30 s, doubling) still counts too, so offline guessing is slowed the same way.
+  - Server 429: the server's `retry_after` drives the spoken countdown.
+  - Unverified account: a fresh code is sent, then the code screen opens.
+  - Phone-only account with the right password: it is registered on the server with the same name and password, then the code screen opens (`NeedsEmailCode.moved`).
+  - Suspended or waiting for approval: the reason is spoken.
+  - No internet: the copy on the phone is used ("Walang internet…"); an account never used here needs the internet.
+- **Registration:**
+  - First and last name are sent as one `full_name`; the local account keeps both.
+  - New `VerifyEmailScreen`: the 6-digit code, dictated or typed. Filipino, Spanish and English digit words count (`AuthRules.spokenCode`). "ipadala ulit" sends a new code.
+  - The security question is skipped for server accounts, because the emailed code replaces it. Fingerprint offer or setup comes next.
+- **Forgot password:** new `ResetPasswordScreen`: email → code + new password → logged in. The old security-question screen stays for phone-only mode.
+- **SessionGuard:** asks the server (`me.php`) at start, after each login and whenever the app comes back to the front.
+  - Suspended: logged out, with "Naka-suspend ang iyong account…".
+  - Token no longer valid: the token is forgotten and the phone stays logged in, since nothing else needs the token yet.
+- **Plain HTTP:** allowed only when the build's `API_BASE_URL` starts with `http://`. `build.gradle.kts` reads it from the Flutter dart-defines and sets `usesCleartextTraffic`.
+- **Not changed:**
+  - Guest mode.
+  - Old PIN accounts. They still upgrade on the phone, then move to the server at their next login.
+  - Library and Maglarawan mocks.
+  - Account sync (Phase 7).
+
 ## 2026-10-10 (2) — Voice latency, speed strip, reading voice
 **Decided (user):** three small additions — faster, more forgiving voice commands; a speed
 strip at the right edge of the Gesture Area; a female/male reading voice in Settings.

@@ -10,12 +10,15 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/account_api.dart';
 import '../../core/auth/account_repository.dart';
+import '../../core/auth/account_service.dart';
 import '../../core/auth/session.dart';
 import '../../core/auth/validators.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
+import 'verify_email_screen.dart';
 import 'voice_form.dart';
 
 /// Register: First Name, Last Name, Email Address, Password, then Submit.
@@ -24,6 +27,9 @@ import 'voice_form.dart';
 /// dictated or typed; values are read back (the password only by length).
 /// Submit with a double-tap on the Gesture Pad or "submit" / "tapos na".
 /// A guest who registers keeps their settings and history.
+///
+/// With web app accounts the account is created on the server, which emails
+/// a code; the code screen ([VerifyEmailScreen]) finishes the registration.
 class RegisterScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const RegisterScreen({super.key});
@@ -111,6 +117,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     setState(() => _busy = true);
     unawaited(bus.say(l.registerWorking));
+    final service = ref.read(accountServiceProvider);
+    if (service.usesServer) {
+      try {
+        return await _registerOnServer(service, bus);
+      } finally {
+        if (mounted) setState(() => _busy = false);
+      }
+    }
     try {
       final account = await repo.register(
         firstName: _first.value,
@@ -129,6 +143,45 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) await reportInvalid(_form, _email, l.emailTaken, bus, ref);
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _registerOnServer(AccountService service, CommandBus bus) async {
+    final l = bus.strings;
+    final email = AuthRules.normalizeEmail(_email.value);
+    try {
+      final sent = await service.register(
+        firstName: _first.value,
+        lastName: _last.value,
+        email: email,
+        password: _password.value,
+      );
+      if (!mounted) return;
+      unawaited(
+        ref
+            .read(routerProvider)
+            .push(
+              AppRoutes.verifyEmail,
+              extra: VerifyEmailArgs(
+                email: email,
+                password: _password.value,
+                firstName: _first.value,
+                lastName: _last.value,
+                registering: true,
+                emailSent: sent,
+              ),
+            ),
+      );
+    } on AccountApiException catch (e) {
+      if (!mounted) return;
+      if (e.error == AccountApiError.emailTaken) {
+        return reportInvalid(_form, _email, l.emailTakenServer, bus, ref);
+      }
+      unawaited(ref.read(hapticsProvider).error());
+      await bus.say(serverErrorText(e, l));
+    } on Object catch (e) {
+      debugPrint('Register failed: $e');
+      if (mounted) await bus.say(l.serverProblem);
     }
   }
 

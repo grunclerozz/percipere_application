@@ -34,6 +34,9 @@ enum FieldKind {
 
   /// Free text (a security answer).
   text,
+
+  /// The 6-digit code from an email (spoken digit by digit).
+  code,
 }
 
 /// One field of a [VoiceForm].
@@ -80,8 +83,11 @@ class VoiceField {
   }
 
   /// The value as it may be spoken: passwords only by length.
-  String spokenValue(AppLocalizations l) =>
-      kind == FieldKind.password ? l.formPasswordLength(value.length) : value;
+  String spokenValue(AppLocalizations l) => switch (kind) {
+    FieldKind.password => l.formPasswordLength(value.length),
+    FieldKind.code => value.split('').join(' '),
+    _ => value,
+  };
 
   /// Cleans up dictated [heard] for this field.
   String fromSpeech(String heard) => switch (kind) {
@@ -89,6 +95,7 @@ class VoiceField {
     FieldKind.email => AuthRules.spokenEmail(heard),
     FieldKind.password => AuthRules.spokenPassword(heard),
     FieldKind.text => heard.trim(),
+    FieldKind.code => AuthRules.spokenCode(heard),
   };
 
   /// Releases the controller and focus node.
@@ -347,6 +354,7 @@ class VoiceTextField extends ConsumerWidget {
           FieldKind.password => TextInputType.visiblePassword,
           FieldKind.name => TextInputType.name,
           FieldKind.text => TextInputType.text,
+          FieldKind.code => TextInputType.number,
         },
         textCapitalization: field.kind == FieldKind.name
             ? TextCapitalization.words

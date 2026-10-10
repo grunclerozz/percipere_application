@@ -61,6 +61,17 @@ class AccountRepository {
     return rows.isEmpty ? null : _from(rows.single);
   }
 
+  /// The account linked to web app account [serverId], or null.
+  Future<Account?> findByServerId(String serverId) async {
+    final rows = await _db.query(
+      'users',
+      where: 'server_id = ? AND is_guest = 0',
+      whereArgs: [serverId],
+      limit: 1,
+    );
+    return rows.isEmpty ? null : _from(rows.single);
+  }
+
   /// Whether [email] is used by an account other than [exceptId].
   Future<bool> emailTaken(String email, {String? exceptId}) async {
     final a = await findByEmail(email);

@@ -1,0 +1,353 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../config/env.dart';
+
+/// Why the web app refused a request (its `code`, see the dashboard's
+/// `docs/API.md`), or why it couldn't be reached.
+enum AccountApiError {
+  /// Wrong email or password.
+  invalidCredentials,
+
+  /// The password is right but the email isn't verified yet.
+  verifyEmail,
+
+  /// Waiting for an administrator.
+  pendingApproval,
+
+  /// Suspended in the dashboard.
+  accountSuspended,
+
+  /// The email belongs to another account.
+  emailTaken,
+
+  /// Wrong or expired email code.
+  invalidCode,
+
+  /// Rate limit or lockout; see [AccountApiException.retryAfter].
+  tooManyAttempts,
+
+  /// Token missing, expired or revoked.
+  unauthorized,
+
+  /// The code email couldn't be sent.
+  emailUnavailable,
+
+  /// A field was refused; see [AccountApiException.fields].
+  validationFailed,
+
+  /// No connection to the web app (no internet, server off, timeout).
+  offline,
+
+  /// Anything else (server error, unexpected reply).
+  server;
+
+  static AccountApiError _fromCode(String? code) => switch (code) {
+    'invalid_credentials' => invalidCredentials,
+    'verify_email' => verifyEmail,
+    'pending_approval' => pendingApproval,
+    'account_suspended' => accountSuspended,
+    'email_taken' => emailTaken,
+    'invalid_code' => invalidCode,
+    'too_many_attempts' => tooManyAttempts,
+    'unauthorized' => unauthorized,
+    'email_unavailable' => emailUnavailable,
+    'validation_failed' => validationFailed,
+    _ => server,
+  };
+}
+
+/// A refused or failed account request.
+class AccountApiException implements Exception {
+  /// Creates the exception.
+  const AccountApiException(
+    this.error, {
+    this.retryAfter = Duration.zero,
+    this.fields = const {},
+    this.message = '',
+  });
+
+  /// What went wrong.
+  final AccountApiError error;
+
+  /// How long to wait ([AccountApiError.tooManyAttempts]).
+  final Duration retryAfter;
+
+  /// Refused fields → the server's (English) reason.
+  final Map<String, String> fields;
+
+  /// The server's English message (logs only; the app speaks its own words).
+  final String message;
+
+  @override
+  String toString() => 'AccountApiException(${error.name}: $message)';
+}
+
+/// An account as the web app knows it.
+@immutable
+class ServerUser {
+  /// Creates a user.
+  const ServerUser({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    required this.status,
+  });
+
+  /// Reads the API's `user` object.
+  factory ServerUser.fromJson(Map<String, dynamic> json) => ServerUser(
+    id: '${json['id']}',
+    fullName: (json['full_name'] as String?) ?? '',
+    email: (json['email'] as String?) ?? '',
+    status: (json['status'] as String?) ?? '',
+  );
+
+  /// `app_users.user_id`, as text (stored in `users.server_id`).
+  final String id;
+
+  /// Full name.
+  final String fullName;
+
+  /// Email (lowercase).
+  final String email;
+
+  /// `active`, `suspended`, …
+  final String status;
+}
+
+/// A signed-in session on the web app.
+@immutable
+class ServerSession {
+  /// Creates a session.
+  const ServerSession({required this.token, required this.user});
+
+  /// Bearer token (kept only in secure storage).
+  final String token;
+
+  /// Who signed in.
+  final ServerUser user;
+}
+
+/// Accounts on the web app (the dashboard's `api/v1/`). Every method throws
+/// [AccountApiException]; nothing here touches the phone's database.
+abstract interface class AccountApi {
+  /// Creates an account and emails a code; returns whether the email went
+  /// out. The same email + password of an unverified account resends.
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+  });
+
+  /// Checks the emailed code. Returns the session, or null when the account
+  /// now waits for an administrator.
+  Future<ServerSession?> verify({
+    required String email,
+    required String code,
+    required String device,
+  });
+
+  /// Emails a new registration code.
+  Future<void> resend(String email);
+
+  /// Signs in.
+  Future<ServerSession> login({
+    required String email,
+    required String password,
+    required String device,
+  });
+
+  /// The signed-in user (checks the token and the account status).
+  Future<ServerUser> me(String token);
+
+  /// Ends [token]'s session.
+  Future<void> logout(String token);
+
+  /// Emails a code for a new password (same reply for every email).
+  Future<void> forgotPassword(String email);
+
+  /// Sets a new password with the emailed code; signs out every other
+  /// device and returns this one's session.
+  Future<ServerSession> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+    required String device,
+  });
+}
+
+/// [AccountApi] over HTTP (dio).
+class HttpAccountApi implements AccountApi {
+  /// Creates the client for the web app at [baseUrl].
+  HttpAccountApi(String baseUrl, {Dio? dio})
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 20),
+              sendTimeout: const Duration(seconds: 20),
+            ),
+          ) {
+    _dio.options
+      ..baseUrl = '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/v1/'
+      ..contentType = Headers.jsonContentType
+      ..responseType = ResponseType.json
+      // Every status is read here: the body carries the error code.
+      ..validateStatus = (_) => true;
+  }
+
+  final Dio _dio;
+
+  Future<Map<String, dynamic>> _call(
+    String method,
+    String path, {
+    Map<String, Object?>? body,
+    String? token,
+  }) async {
+    final Response<dynamic> response;
+    try {
+      response = await _dio.request<dynamic>(
+        path,
+        data: body,
+        options: Options(
+          method: method,
+          headers: {if (token != null) 'Authorization': 'Bearer $token'},
+        ),
+      );
+    } on DioException catch (e) {
+      // Only the kind of failure: never log bodies (they hold passwords).
+      debugPrint('Account API $path: ${e.type.name}');
+      throw AccountApiException(
+        e.type == DioExceptionType.badResponse
+            ? AccountApiError.server
+            : AccountApiError.offline,
+        message: e.type.name,
+      );
+    }
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      debugPrint('Account API $path: HTTP ${response.statusCode}, not JSON');
+      throw AccountApiException(
+        AccountApiError.server,
+        message: 'HTTP ${response.statusCode}',
+      );
+    }
+    if (data['ok'] == true) return data;
+    final fields = data['fields'];
+    throw AccountApiException(
+      AccountApiError._fromCode(data['code'] as String?),
+      retryAfter: Duration(
+        seconds: (data['retry_after'] as num?)?.toInt() ?? 0,
+      ),
+      fields: fields is Map
+          ? {for (final e in fields.entries) '${e.key}': '${e.value}'}
+          : const {},
+      message: (data['error'] as String?) ?? '',
+    );
+  }
+
+  static ServerSession _session(Map<String, dynamic> data) => ServerSession(
+    token: _read(() => data['token']! as String),
+    user: _userOf(data),
+  );
+
+  static ServerUser _userOf(Map<String, dynamic> data) =>
+      _read(() => ServerUser.fromJson(data['user']! as Map<String, dynamic>));
+
+  /// A reply missing what it should hold is a server error, not a crash.
+  static T _read<T>(T Function() read) {
+    try {
+      return read();
+    } on Object {
+      throw const AccountApiException(
+        AccountApiError.server,
+        message: 'unexpected reply',
+      );
+    }
+  }
+
+  @override
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    final data = await _call(
+      'POST',
+      'register.php',
+      body: {'full_name': fullName, 'email': email, 'password': password},
+    );
+    return data['email_sent'] == true;
+  }
+
+  @override
+  Future<ServerSession?> verify({
+    required String email,
+    required String code,
+    required String device,
+  }) async {
+    final data = await _call(
+      'POST',
+      'verify.php',
+      body: {'email': email, 'code': code, 'device': device},
+    );
+    return data['token'] is String ? _session(data) : null;
+  }
+
+  @override
+  Future<void> resend(String email) =>
+      _call('POST', 'resend.php', body: {'email': email});
+
+  @override
+  Future<ServerSession> login({
+    required String email,
+    required String password,
+    required String device,
+  }) async => _session(
+    await _call(
+      'POST',
+      'login.php',
+      body: {'email': email, 'password': password, 'device': device},
+    ),
+  );
+
+  @override
+  Future<ServerUser> me(String token) async {
+    return _userOf(await _call('GET', 'me.php', token: token));
+  }
+
+  @override
+  Future<void> logout(String token) =>
+      _call('POST', 'logout.php', token: token);
+
+  @override
+  Future<void> forgotPassword(String email) =>
+      _call('POST', 'password_forgot.php', body: {'email': email});
+
+  @override
+  Future<ServerSession> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+    required String device,
+  }) async => _session(
+    await _call(
+      'POST',
+      'password_reset.php',
+      body: {
+        'email': email,
+        'code': code,
+        'password': password,
+        'device': device,
+      },
+    ),
+  );
+}
+
+/// The web app's accounts, or null when accounts stay on the phone
+/// ([Env.accountServer] off).
+final accountApiProvider = Provider<AccountApi?>(
+  (ref) => Env.accountServer ? HttpAccountApi(Env.apiBaseUrl) : null,
+);

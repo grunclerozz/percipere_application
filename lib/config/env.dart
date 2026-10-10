@@ -3,10 +3,25 @@
 /// Override at build/run time, e.g.
 /// `flutter run --dart-define=API_BASE_URL=https://admin.example.ph --dart-define=USE_MOCK_API=false`
 abstract final class Env {
-  /// Base URL of the Percipere web admin app (reports, feedback, SUS, usage logs).
+  /// [apiBaseUrl] when no web app is configured.
+  static const String noServer = 'https://percipere-admin.invalid';
+
+  /// Base URL of the Percipere web admin app (the dashboard folder, e.g.
+  /// `http://192.168.1.61/website/percipere_web/percipere_dashboard`).
+  /// An `http://` address also lets the Android build use plain HTTP
+  /// (`android/app/build.gradle.kts`); a public server must use `https://`.
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://percipere-admin.invalid',
+    defaultValue: noServer,
+  );
+
+  /// Whether accounts live on the web app (register with an email code,
+  /// login, password reset; `docs/api-contract.md` → Accounts). On by
+  /// default once [apiBaseUrl] is set; `--dart-define=USE_ACCOUNT_SERVER=false`
+  /// keeps accounts on the phone only (the pre-server behaviour).
+  static const bool accountServer = bool.fromEnvironment(
+    'USE_ACCOUNT_SERVER',
+    defaultValue: apiBaseUrl != noServer,
   );
 
   /// ElevenLabs agent id of the voice assistant ("Percy"); the user's own

@@ -1,8 +1,22 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Plain HTTP is allowed only when the build points at an http:// web app
+// (`--dart-define=API_BASE_URL=http://192.168.1.61/...`, a PC on the same
+// Wi-Fi). An https:// server, or none, keeps Android's default: no
+// cleartext traffic. See lib/config/env.dart.
+val apiBaseUrl: String =
+    (project.findProperty("dart-defines") as String?)
+        ?.split(",")
+        ?.map { String(Base64.getDecoder().decode(it)) }
+        ?.firstOrNull { it.startsWith("API_BASE_URL=") }
+        ?.substringAfter("=")
+        ?: ""
 
 android {
     namespace = "ph.bataan.percipere"
@@ -29,6 +43,8 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["usesCleartextTraffic"] =
+            apiBaseUrl.startsWith("http://").toString()
     }
 
     buildTypes {

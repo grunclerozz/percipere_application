@@ -2164,4 +2164,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get voicePreviewSample =>
       'This is how the voice that reads your documents sounds.';
+
+  @override
+  String get screenVerifyEmail => 'Verify email';
+
+  @override
+  String get fieldCode => 'Code';
+
+  @override
+  String get askCode => 'What is the 6-digit code we emailed you?';
+
+  @override
+  String verifyIntro(String email) {
+    return 'We sent a 6-digit code to $email. Check your email.';
+  }
+
+  @override
+  String get codeNotSent =>
+      'The code could not be sent. Say “send again” to try again.';
+
+  @override
+  String get actionResendCode => 'Send a new code';
+
+  @override
+  String get codeResent => 'We sent a new code.';
+
+  @override
+  String get codeWrong => 'That code is wrong or expired. Try again.';
+
+  @override
+  String get codeVoided =>
+      'Too many wrong codes. Say “send again” for a new code.';
+
+  @override
+  String get codeFormat => 'The code has 6 digits.';
+
+  @override
+  String get accountPendingApproval =>
+      'Your account is waiting for an administrator\'s approval.';
+
+  @override
+  String get accountSuspended =>
+      'This account is suspended. Please contact the administrator.';
+
+  @override
+  String get accountSuspendedSignedOut =>
+      'Your account was suspended, so you were logged out. Please contact the administrator.';
+
+  @override
+  String get serverUnreachable =>
+      'Can\'t reach the server. Check the internet connection and try again.';
+
+  @override
+  String get serverProblem => 'The server had a problem. Try again later.';
+
+  @override
+  String get loginOffline =>
+      'No internet, so the account saved on this tablet was used.';
+
+  @override
+  String get loginNeedsInternet =>
+      'The first login on this tablet needs the internet.';
+
+  @override
+  String get accountMoving =>
+      'We\'re moving your account to the server. We emailed you a code.';
+
+  @override
+  String get emailTakenServer =>
+      'That email already has an account. Log in, or use another email.';
+
+  @override
+  String get resetIntro =>
+      'We\'ll email you a code so you can make a new password.';
+
+  @override
+  String resetCodeSent(String email) {
+    return 'If $email has an account, we\'ve emailed a code. Say the code, then the new password.';
+  }
+
+  @override
+  String get resetDone => 'Your password is changed, and you\'re logged in.';
+
+  @override
+  String get helpVerify =>
+      'Say the 6 digits of the code, or type them. Say “send again”: a new code. Double-tap, or say “submit” or “done”: submit. Two-finger swipe right: go back.';
 }

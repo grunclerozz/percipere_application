@@ -90,6 +90,47 @@ void main() {
     return dm.handle(text, env, style);
   }
 
+  group('report an issue (rule until the model is retrained)', () {
+    test('a sentence about reporting opens the report, even when the '
+        'model is unsure', () async {
+      for (final text in [
+        'gusto kong mag-report ng problema',
+        'may problema sa app',
+        'paano i-report ang sira',
+        'report an issue',
+        'i want to report a bug',
+      ]) {
+        final r = await say(text);
+        expect(r.intent, PercyIntent.reportIssue, reason: text);
+        expect((r.action! as RunIntent).intent, NavIntent.report);
+        expect(r.say, isNotEmpty, reason: 'it moves screens: acknowledged');
+      }
+    });
+
+    test('other sentences are not reports', () {
+      for (final text in [
+        'basahin ang report card',
+        'walang problema',
+        'buksan ang aklatan',
+        'reporter ng balita',
+      ]) {
+        expect(ReportIssueRule.matches(text), isFalse, reason: text);
+      }
+    });
+
+    test('every report_issue row of the dataset is caught by the rule', () {
+      final rows = File('data/percy/intents.csv')
+          .readAsLinesSync()
+          .where((l) => l.contains(',report_issue,'))
+          .map((l) => l.split(',report_issue,').first)
+          .toList();
+      expect(rows.length, greaterThanOrEqualTo(15));
+      for (final text in rows) {
+        expect(ReportIssueRule.matches(text), isTrue, reason: text);
+      }
+    });
+  });
+
   group('confidence thresholds', () {
     test('≥ 0.60 acts', () async {
       final r = await say('dalhin mo ako sa aklatan', (

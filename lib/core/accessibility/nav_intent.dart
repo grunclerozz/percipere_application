@@ -91,7 +91,7 @@ enum NavIntent {
   /// Open Accessibility Settings ("settings", "ayos"). Phase 6.
   settings,
 
-  /// Open Report / Feedback ("ulat"). Phase 7.
+  /// Open "Mag-report ng problema" ("mag-report", "may problema"). Phase 10.
   report,
 
   /// Switch to voice navigation ("pa-boses").

@@ -242,8 +242,8 @@ class AccountRepository {
     return (await get(id))!;
   }
 
-  /// Moves the guest's preferences and Library (documents, downloads, progress,
-  /// favorites, collections) to [accountId], then
+  /// Moves the guest's preferences, Library (documents, downloads, progress,
+  /// favorites, collections) and issue reports to [accountId], then
   /// deletes the guest profile. The account's own preferences are replaced
   /// by the guest's (it was just created from them anyway).
   Future<void> migrateGuest(
@@ -252,7 +252,11 @@ class AccountRepository {
   ) => _db.transaction((txn) async {
     // The whole Library moves: documents, downloaded books and progress,
     // favorites (they follow their items) and collections.
-    for (final table in ['library_items', 'library_collections']) {
+    for (final table in [
+      'library_items',
+      'library_collections',
+      'issue_reports',
+    ]) {
       await txn.update(
         table,
         {'user_id': accountId},

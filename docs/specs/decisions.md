@@ -2,6 +2,28 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-11 — Phase 10: Report an Issue
+**Decided (user):** a one-question-per-page report flow (spec `report-an-issue.md`).
+
+**The owner's choices:**
+- **Endpoint:** extend the dashboard's `api/v1/feedback.php` rather than add a new `/api/reports`. The dashboard got schema v9 (ticket number, source screen), the new modules, the app's field names, and `created_at` for offline reports. A repeated ticket stores nothing new.
+- **Second entry point:** a Home link, because the app has no Help screen.
+
+**Implementation:**
+- **Database version:** the table is migration **v6**, because v5 already existed (Percy's log).
+- **Extra columns:** `user_id`, so "Aking mga report" shows only that account's reports. Reports move with a guest who registers and survive account deletion.
+- **No mock server:** without `API_BASE_URL`, reports honestly wait as pending.
+- **Sending:** right after "Ipadala", at app start, when the app returns to the front, when the connection returns (`IssueReportSyncHost`), and when "Aking mga report" opens.
+  - No connection or a server error leaves the report pending.
+  - A refused report is kept as failed; it is never deleted.
+- **Voice command:** `NavIntent.report` existed as a "not ready" placeholder; it now opens the flow.
+  - Synonyms: "mag-report", "i-report", "report an issue", "may problema", "ulat", and others.
+  - "puna" and "feedback" were removed from the synonyms, because they are answers on page 1 (Percy still understands "feedback" in a sentence).
+- **Percy:** `PercyIntent.reportIssue` plus 18 Starter rows in `intents.csv`. Per the spec, there is no retrain in this phase: `ReportIssueRule` (a keyword rule) finds it until then.
+  - TODO: retrain, then empty `PercyIntent.ruleOnly`.
+  - The classifier test now allows exactly the rule-only intents to be missing from the model.
+- **Severity for non-bugs:** the app sends `null`. The dashboard's NOT NULL column keeps its `Medium` default, so the dashboard shows Medium for feature requests.
+
 ## 2026-10-10 (3) — Accounts on the web app (server login)
 **Decided (user):** the app logs in against the PHP/MySQL dashboard (`percipere_dashboard`,
 `api/v1/`, its `docs/API.md`), so the thesis can show server accounts.

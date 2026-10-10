@@ -2249,4 +2249,295 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpVerify =>
       'Say the 6 digits of the code, or type them. Say “send again”: a new code. Double-tap, or say “submit” or “done”: submit. Two-finger swipe right: go back.';
+
+  @override
+  String get screenReportIssue => 'Report an issue';
+
+  @override
+  String get reportIntro => 'You\'ll answer a few questions, one at a time.';
+
+  @override
+  String get reportAskType => 'What kind of report is this?';
+
+  @override
+  String get reportTypeBug => 'Bug (something is broken)';
+
+  @override
+  String get reportTypeFeature => 'Feature request';
+
+  @override
+  String get reportTypeFeedback => 'General feedback';
+
+  @override
+  String get reportAskModule => 'Which part of the app?';
+
+  @override
+  String get reportModuleOcr => 'Text reading (OCR)';
+
+  @override
+  String get reportModuleCamera => 'Camera';
+
+  @override
+  String get reportModuleVoice => 'Voice commands';
+
+  @override
+  String get reportModuleAccounts => 'Accounts';
+
+  @override
+  String get reportModuleTts => 'Text-to-Speech';
+
+  @override
+  String get reportModuleGestures => 'Gesture Pad';
+
+  @override
+  String get reportModuleLibrary => 'Library (Aklatan)';
+
+  @override
+  String get reportModuleMaglarawan => 'Maglarawan (image description)';
+
+  @override
+  String get reportModulePercy => 'Percy';
+
+  @override
+  String get reportModuleOther => 'Other';
+
+  @override
+  String get reportAskSeverity => 'How bad is the problem?';
+
+  @override
+  String get reportSeverityLow => 'Low';
+
+  @override
+  String get reportSeverityMedium => 'Medium';
+
+  @override
+  String get reportSeverityHigh => 'High';
+
+  @override
+  String get reportSeverityCritical => 'Critical';
+
+  @override
+  String get reportSeverityLowLong => 'Low: a minor annoyance';
+
+  @override
+  String get reportSeverityMediumLong => 'Medium: it works, but wrong';
+
+  @override
+  String get reportSeverityHighLong => 'High: it doesn\'t work';
+
+  @override
+  String get reportSeverityCriticalLong =>
+      'Critical: the app crashes or data is lost';
+
+  @override
+  String get reportAskDescription => 'What happened? Say it, or type it.';
+
+  @override
+  String get reportDescriptionHint => 'At least 10 characters.';
+
+  @override
+  String get fieldDescription => 'What happened';
+
+  @override
+  String get actionSpeak => 'Speak';
+
+  @override
+  String get actionNext => 'Next';
+
+  @override
+  String reportHeard(String v) {
+    return 'I heard: $v. Is that right?';
+  }
+
+  @override
+  String get reportSayAgain => 'Okay, say again what happened.';
+
+  @override
+  String get reportDescriptionShort => 'Too short. At least 10 characters.';
+
+  @override
+  String get reportDescriptionLong => 'Too long. At most 1000 characters.';
+
+  @override
+  String reportAskEmailUse(String v) {
+    return 'Use this email: $v?';
+  }
+
+  @override
+  String get reportAskEmail => 'What is your email? You may skip this.';
+
+  @override
+  String get reportEmailWhy =>
+      'Your email is only used to reply to you about this report.';
+
+  @override
+  String get reportPrivacy =>
+      'The report and email are only used to fix the app and reply to you (RA 10173).';
+
+  @override
+  String get reportEmailInvalid =>
+      'That email looks wrong. Say it again, or say “skip”.';
+
+  @override
+  String reportEmailValue(String v) {
+    return 'Email: $v.';
+  }
+
+  @override
+  String get reportAskReview => 'Review your report. Say “send” or “edit”.';
+
+  @override
+  String reportLineType(String v) {
+    return 'Type: $v';
+  }
+
+  @override
+  String reportLineModule(String v) {
+    return 'Part: $v';
+  }
+
+  @override
+  String reportLineSeverity(String v) {
+    return 'Severity: $v';
+  }
+
+  @override
+  String reportLineDescription(String v) {
+    return 'What happened: $v';
+  }
+
+  @override
+  String reportLineEmail(String v) {
+    return 'Email: $v';
+  }
+
+  @override
+  String get reportNoEmail => 'no email';
+
+  @override
+  String reportLineDetails(
+    String app,
+    String os,
+    String device,
+    String screen,
+    String date,
+  ) {
+    return 'Also attached: app version $app, $os, $device, from $screen, $date.';
+  }
+
+  @override
+  String get actionSendReport => 'Send';
+
+  @override
+  String get actionEditReport => 'Edit';
+
+  @override
+  String get reportAskEdit => 'What do you want to change?';
+
+  @override
+  String get reportPartType => 'Type';
+
+  @override
+  String get reportPartModule => 'Part of the app';
+
+  @override
+  String get reportPartSeverity => 'Severity';
+
+  @override
+  String get reportPartDescription => 'What happened';
+
+  @override
+  String get reportPartEmail => 'Email';
+
+  @override
+  String get reportSending => 'Sending…';
+
+  @override
+  String get reportTicketTitle => 'Your ticket';
+
+  @override
+  String reportTicketLine(String v) {
+    return 'Ticket: $v';
+  }
+
+  @override
+  String reportTicketSpoken(String v) {
+    return 'Your ticket number is $v.';
+  }
+
+  @override
+  String reportLineDate(String v) {
+    return 'Date: $v';
+  }
+
+  @override
+  String reportLineStatus(String v) {
+    return 'Status: $v';
+  }
+
+  @override
+  String get reportStatusSent => 'Sent';
+
+  @override
+  String get reportStatusPending => 'Waiting to send';
+
+  @override
+  String get reportStatusFailed => 'Couldn\'t send';
+
+  @override
+  String get reportSavedOffline =>
+      'The report is saved and will be sent when there\'s internet.';
+
+  @override
+  String get reportThanks => 'Thank you for your report.';
+
+  @override
+  String get actionRepeatTicket => 'Repeat';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionCancelReport => 'Cancel';
+
+  @override
+  String get reportCancelConfirm =>
+      'Cancel the report? Your answers will be lost.';
+
+  @override
+  String get reportCancelled => 'Report cancelled.';
+
+  @override
+  String get helpReport =>
+      'Swipe right or left: move between options. Double-tap, or say its name: choose. Say “back”: previous question. Say “cancel”: stop the report.';
+
+  @override
+  String get helpReportText =>
+      'Speak to answer, or type. Long-press or say “speak”: speak again. Say “next”: go on. Say “back”: previous question. Say “cancel”: stop the report.';
+
+  @override
+  String get screenMyReports => 'My reports';
+
+  @override
+  String myReportsCount(String v) {
+    return 'Reports: $v. Choose one to hear it.';
+  }
+
+  @override
+  String get myReportsEmpty => 'You haven\'t sent a report yet.';
+
+  @override
+  String myReportsRow(String ticket, String type, String date, String status) {
+    return '$ticket: $type, $date, $status';
+  }
+
+  @override
+  String get setReportIssueValue => 'Tell us about a problem or idea';
+
+  @override
+  String get setMyReportsValue => 'Your reports and their status';
+
+  @override
+  String get reportSaveFailed =>
+      'The report couldn\'t be saved. Please try again.';
 }

@@ -58,7 +58,18 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
   NavIntent.settings: ['settings', 'setting', 'ayos', 'mga setting'],
   NavIntent.help: ['tulong', 'help'],
   NavIntent.home: ['home', 'simula', 'umpisa'],
-  NavIntent.report: ['ulat', 'report', 'feedback', 'puna'],
+  // "puna" and "feedback" are answers on the report's first page, so they
+  // aren't here.
+  NavIntent.report: [
+    'mag-report',
+    'mag-report ng problema',
+    'i-report',
+    'report an issue',
+    'report a problem',
+    'report',
+    'may problema',
+    'ulat',
+  ],
   NavIntent.voiceMode: ['pa-boses', 'voice mode'],
   NavIntent.gestureMode: ['pa-galaw', 'gesture mode'],
   NavIntent.assistant: [

@@ -165,6 +165,56 @@ Does the app understand what the person says and does, or does it keep reading?
 
 ---
 
+## 15. Report an Issue (Mag-report ng problema)
+Spec: `docs/specs/report-an-issue.md`. Build with `API_BASE_URL` to send reports to the dashboard.
+
+**Each type:**
+- [ ] Bug: all 7 pages, including "Gaano kalala".
+- [ ] Mungkahi and Puna: the severity page is **skipped**. Step numbers say "ng 5", not "ng 6".
+- [ ] Each page speaks its question and options when it opens; severity options say their explanation.
+- [ ] Options work by name in Filipino and in English ("may sira" / "bug", "kritikal" / "critical", "aklatan" / "library", "iba pa" / "other").
+
+**Dictation:**
+- [ ] The description is read back ("Narinig ko: … Tama ba?").
+- [ ] "oo" keeps it; "hindi" asks again.
+- [ ] "Magsalita" or a long-press dictates again.
+- [ ] Typing works too.
+- [ ] Under 10 characters is refused; over 1000 is refused.
+
+**Email:**
+- [ ] Logged in: "Gamitin ang email na ito: …?" "oo" uses it; "hindi" lets you say or type another.
+- [ ] A wrong email ("juan at example") is caught.
+- [ ] Guest: "laktawan" works and the review says "walang email".
+
+**Review and ticket:**
+- [ ] The review reads all answers, the automatic details (app version, Android, model, screen, date) and the RA 10173 line.
+- [ ] "Baguhin" → choose a part → that page → back to the review with the change.
+- [ ] Ticket `PRC-YYYYMMDD-XXXX`, read character by character, with no 0, O, 1 or I in the last 4.
+- [ ] "Ulitin" repeats the ticket; "Tapos na" returns to the screen it was opened from.
+
+**Offline, then online:**
+- [ ] Wi-Fi off → Ipadala → "Naghihintay ipadala" and "Naka-save ang report…".
+- [ ] Wi-Fi on → within a few seconds the report reaches Dashboard → Feedback & Bugs. The ticket and "Opened from" show in the details, and "Aking mga report" says Naipadala.
+- [ ] Close the app while offline, reopen it online → the report is sent at start.
+- [ ] The same report never appears twice in the dashboard.
+
+**Cancel and back:**
+- [ ] "bumalik" or the two-finger swipe goes to the previous page on every page.
+- [ ] Page 1 with answers asks before leaving.
+- [ ] "kanselahin" on every page asks first; "hindi" stays, "oo" leaves without saving.
+
+**Opening it:**
+- [ ] Settings → "Mag-report ng problema".
+- [ ] Home link.
+- [ ] Saying "mag-report" or "may problema" on any screen.
+- [ ] Percy: "gusto kong mag-report ng problema".
+
+**Robustness and accessibility:**
+- [ ] Spam gestures (fast swipes, double-taps, back) on every page: no crash and no double report.
+- [ ] TalkBack: every option, field and button is read; the text fields have their labels.
+- [ ] Largest text size: everything fits or scrolls; theme colors are used.
+- [ ] "Aking mga report": the list shows ticket, type, date and status; choosing one reads the details.
+
 ## Result log
 | Section | ✅ | ❌ | ⚠️ | Notes / bugs found |
 |---|---|---|---|---|

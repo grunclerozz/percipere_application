@@ -29,11 +29,15 @@ void main() {
     expect(vectors['labels'], model.labels);
   });
 
-  test('every model label is a Percy intent', () {
+  test('every model label is a Percy intent; only rule-only intents are '
+      'missing from the model (until the next retrain)', () {
     for (final label in model.labels) {
       expect(PercyIntent.fromLabel(label), isNotNull, reason: label);
     }
-    expect(model.labels, hasLength(PercyIntent.values.length));
+    final missing = PercyIntent.values
+        .where((i) => !model.labels.contains(i.label))
+        .toSet();
+    expect(missing, PercyIntent.ruleOnly);
   });
 
   test('preprocessing matches Python', () {

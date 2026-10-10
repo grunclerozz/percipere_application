@@ -38,6 +38,10 @@
       "fil": {"po": [""], "casual": [""]},
       "en": {"po": [""], "casual": [""]}
     },
+    "report_issue": {
+      "fil": {"po": ["Sige po, mag-report tayo ng problema.", "Bubuksan ko po ang pag-report."], "casual": ["Sige, mag-report tayo.", "Bubuksan ko ang pag-report."]},
+      "en": {"po": ["Sure, let's report the problem.", "Opening the report form."], "casual": ["Okay, let's report it.", "Opening the report form."]}
+    },
     "read": {
       "fil": {"po": ["Sige po, babasahin ko.", "Babasahin ko na po."], "casual": ["Sige, babasahin ko.", "Basahin natin."]},
       "en": {"po": ["Sure, reading it.", "I'll read it now."], "casual": ["Okay, reading.", "Let's read."]}
@@ -160,6 +164,7 @@
     "cancel": {"fil": "huwag na lang", "en": "never mind"},
     "help": {"fil": "humingi ng tulong", "en": "getting help"},
     "where_am_i": {"fil": "kung nasaan ka", "en": "where you are"},
+    "report_issue": {"fil": "mag-report ng problema", "en": "reporting a problem"},
     "read": {"fil": "basahin", "en": "reading"},
     "pause": {"fil": "i-pause ang pagbasa", "en": "pausing"},
     "resume": {"fil": "ituloy ang pagbasa", "en": "continuing to read"},

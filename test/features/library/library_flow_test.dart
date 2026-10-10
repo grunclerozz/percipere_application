@@ -56,9 +56,9 @@ void main() {
       final env = await libraryEnv(tester);
       await pumpApp(tester, env);
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Magbasa ng bago, 1 sa 3.');
+      expect(env.tts.spoken.last, 'Magbasa ng bago, 1 sa 4.');
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Aklatan, 2 sa 3.');
+      expect(env.tts.spoken.last, 'Aklatan, 2 sa 4.');
       await tester.doubleTapPad();
       expect(find.byType(LibraryScreen), findsOneWidget);
     });

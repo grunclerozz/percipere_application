@@ -79,12 +79,22 @@ enum PercyIntent {
   no('no'),
 
   /// Something Percy can't do.
-  outOfScope('out_of_scope');
+  outOfScope('out_of_scope'),
+
+  /// Open "Mag-report ng problema" (Phase 10). Not in the trained model
+  /// yet: recognized by [ReportIssueRule] until the next retrain.
+  reportIssue('report_issue');
 
   const PercyIntent(this.label);
 
   /// The label in the dataset and the model file.
   final String label;
+
+  /// Intents found by a rule only, because the bundled model was trained
+  /// before they existed.
+  // TODO(percy): retrain with data/percy/intents.csv (report_issue rows are
+  // in it) and empty this set.
+  static const Set<PercyIntent> ruleOnly = {reportIssue};
 
   /// The intent for a model label, or null for an unknown one.
   static PercyIntent? fromLabel(String label) {
@@ -114,6 +124,7 @@ enum PercyIntent {
     slower => NavIntent.slower,
     biggerText => NavIntent.textBigger,
     smallerText => NavIntent.textSmaller,
+    reportIssue => NavIntent.report,
     _ => null,
   };
 
@@ -124,4 +135,18 @@ enum PercyIntent {
     no || cancel => false,
     _ => null,
   };
+}
+
+/// "Mag-report ng problema" said in a sentence ("gusto kong mag-report",
+/// "may problema sa app"). A rule because the bundled model doesn't know
+/// [PercyIntent.reportIssue] yet.
+abstract final class ReportIssueRule {
+  static final RegExp _pattern = RegExp(
+    r'\b(mag-?report|i-?report|ireport|report (an? )?(issue|problem|bug)|'
+    r'may problema|may sira|magreklamo|reklamo|feedback|magbigay ng puna|'
+    r'(mag-?)?ulat ng (problema|sira))\b',
+  );
+
+  /// Whether [text] asks to report a problem.
+  static bool matches(String text) => _pattern.hasMatch(text.toLowerCase());
 }

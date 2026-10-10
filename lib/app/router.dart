@@ -25,6 +25,8 @@ import '../features/library/item_details_screen.dart';
 import '../features/library/library_screen.dart';
 import '../features/reader/reader_controller.dart';
 import '../features/reader/reader_screen.dart';
+import '../features/report/my_reports_screen.dart';
+import '../features/report/report_issue_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/setup/profiling_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
@@ -59,6 +61,13 @@ abstract final class AppRoutes {
 
   /// Forgot password with an emailed code (web app accounts).
   static const String resetPassword = '/login/reset';
+
+  /// "Mag-report ng problema". `extra`: the id of the screen it was opened
+  /// from.
+  static const String reportIssue = '/report';
+
+  /// "Aking mga report".
+  static const String myReports = '/report/mine';
 
   /// Claim an old name + PIN account.
   static const String legacyAccount = '/login/legacy';
@@ -169,6 +178,16 @@ GoRouter buildRouter({
         builder: (context, state) => ResetPasswordScreen(
           email: state.extra is String ? state.extra! as String : null,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.reportIssue,
+        builder: (context, state) => ReportIssueScreen(
+          sourceScreen: state.extra is String ? state.extra! as String : '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.myReports,
+        builder: (context, state) => const MyReportsScreen(),
       ),
       GoRoute(
         path: AppRoutes.legacyAccount,

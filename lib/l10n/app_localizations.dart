@@ -3655,6 +3655,504 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpVerify;
+
+  /// Title of the report flow, Settings row and Home link.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-report ng problema'**
+  String get screenReportIssue;
+
+  /// Said once when the report flow opens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sasagutin mo ang ilang tanong, isa-isa.'**
+  String get reportIntro;
+
+  /// Page 1 question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Anong uri ng report ito?'**
+  String get reportAskType;
+
+  /// Type option.
+  ///
+  /// In fil, this message translates to:
+  /// **'May sira (Bug)'**
+  String get reportTypeBug;
+
+  /// Type option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mungkahi (Feature request)'**
+  String get reportTypeFeature;
+
+  /// Type option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Puna (General feedback)'**
+  String get reportTypeFeedback;
+
+  /// Page 2 question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Saang bahagi ng app?'**
+  String get reportAskModule;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagbasa ng teksto (OCR)'**
+  String get reportModuleOcr;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Camera'**
+  String get reportModuleCamera;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga utos sa boses (Voice commands)'**
+  String get reportModuleVoice;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga account (Accounts)'**
+  String get reportModuleAccounts;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses na nagbabasa (Text-to-Speech)'**
+  String get reportModuleTts;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gesture Pad'**
+  String get reportModuleGestures;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aklatan (Library)'**
+  String get reportModuleLibrary;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Maglarawan'**
+  String get reportModuleMaglarawan;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percy'**
+  String get reportModulePercy;
+
+  /// Module option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Iba pa (Other)'**
+  String get reportModuleOther;
+
+  /// Page 3 question (bugs only).
+  ///
+  /// In fil, this message translates to:
+  /// **'Gaano kalala ang problema?'**
+  String get reportAskSeverity;
+
+  /// Severity, short.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mababa'**
+  String get reportSeverityLow;
+
+  /// Severity, short.
+  ///
+  /// In fil, this message translates to:
+  /// **'Katamtaman'**
+  String get reportSeverityMedium;
+
+  /// Severity, short.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mataas'**
+  String get reportSeverityHigh;
+
+  /// Severity, short.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kritikal'**
+  String get reportSeverityCritical;
+
+  /// Severity option with its explanation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mababa: maliit na abala'**
+  String get reportSeverityLowLong;
+
+  /// Severity option with its explanation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Katamtaman: gumagana pero mali'**
+  String get reportSeverityMediumLong;
+
+  /// Severity option with its explanation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mataas: hindi gumagana'**
+  String get reportSeverityHighLong;
+
+  /// Severity option with its explanation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kritikal: nagsasara ang app o may nawalang data'**
+  String get reportSeverityCriticalLong;
+
+  /// Page 4 question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang nangyari? Ikuwento sa boses, o i-type.'**
+  String get reportAskDescription;
+
+  /// Page 4: after the question, if no answer comes.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi bababa sa 10 titik.'**
+  String get reportDescriptionHint;
+
+  /// Description field label.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang nangyari'**
+  String get fieldDescription;
+
+  /// Button: dictate the field.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magsalita'**
+  String get actionSpeak;
+
+  /// Button: go on to the next page.
+  ///
+  /// In fil, this message translates to:
+  /// **'Susunod'**
+  String get actionNext;
+
+  /// Read-back of the dictated description.
+  ///
+  /// In fil, this message translates to:
+  /// **'Narinig ko: {v}. Tama ba?'**
+  String reportHeard(String v);
+
+  /// After "no" to the read-back.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige, sabihin ulit kung ano ang nangyari.'**
+  String get reportSayAgain;
+
+  /// Description under 10 characters.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong maikli. Hindi bababa sa 10 titik.'**
+  String get reportDescriptionShort;
+
+  /// Description over 1000 characters.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong mahaba. Hanggang 1000 titik lamang.'**
+  String get reportDescriptionLong;
+
+  /// Page 5, logged in: the account email.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gamitin ang email na ito: {v}?'**
+  String reportAskEmailUse(String v);
+
+  /// Page 5 for guests, or after "no".
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang iyong email? Pwede mo itong laktawan.'**
+  String get reportAskEmail;
+
+  /// Page 5 explanation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gagamitin lang ang email para sagutin ka tungkol sa report na ito.'**
+  String get reportEmailWhy;
+
+  /// Privacy notice on the email and review pages.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang report at email ay gagamitin lang para ayusin ang app at sagutin ka (RA 10173).'**
+  String get reportPrivacy;
+
+  /// Invalid email on page 5.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang mali ang email. Ulitin, o sabihin ang “laktawan”.'**
+  String get reportEmailInvalid;
+
+  /// Email read back.
+  ///
+  /// In fil, this message translates to:
+  /// **'Email: {v}.'**
+  String reportEmailValue(String v);
+
+  /// Page 6 question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Repasuhin ang iyong report. Sabihin ang “ipadala” o “baguhin”.'**
+  String get reportAskReview;
+
+  /// Review line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Uri: {v}'**
+  String reportLineType(String v);
+
+  /// Review line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bahagi: {v}'**
+  String reportLineModule(String v);
+
+  /// Review line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kalala: {v}'**
+  String reportLineSeverity(String v);
+
+  /// Review line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nangyari: {v}'**
+  String reportLineDescription(String v);
+
+  /// Review line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Email: {v}'**
+  String reportLineEmail(String v);
+
+  /// Review: no email given.
+  ///
+  /// In fil, this message translates to:
+  /// **'walang email'**
+  String get reportNoEmail;
+
+  /// Review: automatic details.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kasama rin: bersyon ng app {app}, {os}, {device}, mula sa {screen}, {date}.'**
+  String reportLineDetails(
+    String app,
+    String os,
+    String device,
+    String screen,
+    String date,
+  );
+
+  /// Review: submit.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ipadala'**
+  String get actionSendReport;
+
+  /// Review: change an answer.
+  ///
+  /// In fil, this message translates to:
+  /// **'Baguhin'**
+  String get actionEditReport;
+
+  /// Edit page question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Alin ang babaguhin?'**
+  String get reportAskEdit;
+
+  /// Edit option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Uri'**
+  String get reportPartType;
+
+  /// Edit option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bahagi ng app'**
+  String get reportPartModule;
+
+  /// Edit option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kalala'**
+  String get reportPartSeverity;
+
+  /// Edit option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ano ang nangyari'**
+  String get reportPartDescription;
+
+  /// Edit option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Email'**
+  String get reportPartEmail;
+
+  /// While the report is sent.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ipinapadala…'**
+  String get reportSending;
+
+  /// Ticket page title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang iyong ticket'**
+  String get reportTicketTitle;
+
+  /// Ticket page line (shown).
+  ///
+  /// In fil, this message translates to:
+  /// **'Ticket: {v}'**
+  String reportTicketLine(String v);
+
+  /// Ticket number spoken character by character.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang numero ng iyong ticket ay {v}.'**
+  String reportTicketSpoken(String v);
+
+  /// Ticket line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Petsa: {v}'**
+  String reportLineDate(String v);
+
+  /// Ticket line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Katayuan: {v}'**
+  String reportLineStatus(String v);
+
+  /// Report status.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naipadala'**
+  String get reportStatusSent;
+
+  /// Report status.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naghihintay ipadala'**
+  String get reportStatusPending;
+
+  /// Report status.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi naipadala'**
+  String get reportStatusFailed;
+
+  /// Ticket page, not sent yet.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naka-save ang report, at ipapadala ito kapag may internet.'**
+  String get reportSavedOffline;
+
+  /// Ticket page, first line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Salamat sa iyong report.'**
+  String get reportThanks;
+
+  /// Ticket page: read it again.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ulitin'**
+  String get actionRepeatTicket;
+
+  /// Ticket page: leave.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na'**
+  String get actionDone;
+
+  /// Cancel the whole report.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kanselahin'**
+  String get actionCancelReport;
+
+  /// Cancel confirmation.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kanselahin ang report? Mawawala ang iyong mga sagot.'**
+  String get reportCancelConfirm;
+
+  /// After cancelling.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kinansela ang report.'**
+  String get reportCancelled;
+
+  /// Help on the report option pages.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap, o sabihin ang pangalan: piliin. Sabihin ang “bumalik”: nakaraang tanong. Sabihin ang “kanselahin”: itigil ang report.'**
+  String get helpReport;
+
+  /// Help on the report text pages.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magsalita para sumagot, o i-type. Pindutin nang matagal o sabihin ang “magsalita”: magsalita ulit. Sabihin ang “susunod”: magpatuloy. Sabihin ang “bumalik”: nakaraang tanong. Sabihin ang “kanselahin”: itigil ang report.'**
+  String get helpReportText;
+
+  /// Title of the My reports screen and its Settings row.
+  ///
+  /// In fil, this message translates to:
+  /// **'Aking mga report'**
+  String get screenMyReports;
+
+  /// My reports prompt.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilang ng report: {v}. Pumili ng isa para marinig.'**
+  String myReportsCount(String v);
+
+  /// My reports, none.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala ka pang report.'**
+  String get myReportsEmpty;
+
+  /// My reports list row.
+  ///
+  /// In fil, this message translates to:
+  /// **'{ticket}: {type}, {date}, {status}'**
+  String myReportsRow(String ticket, String type, String date, String status);
+
+  /// Settings row value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Magsabi ng sira o mungkahi'**
+  String get setReportIssueValue;
+
+  /// Settings row value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga naipadalang report at katayuan'**
+  String get setMyReportsValue;
+
+  /// Saving the report on the phone failed (database error).
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi na-save ang report. Pakisubukan ulit.'**
+  String get reportSaveFailed;
 }
 
 class _AppLocalizationsDelegate

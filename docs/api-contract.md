@@ -15,6 +15,27 @@ download books too). The sync endpoints need the signed-in account's token (Phas
 
 ---
 
+## Report an issue — built 2026-10-11 (`POST api/v1/feedback.php`)
+
+**The owner chose to extend the existing feedback endpoint** instead of adding `/api/reports`. The full reference is the dashboard repo's `docs/API.md`; the app's spec is `docs/specs/report-an-issue.md`.
+
+**Request:** a JSON body with:
+- `ticket_no` (`PRC-YYYYMMDD-XXXX`), `type`, `module`, `severity` (`null` unless Bug), `description`, `email` (or `null`)
+- `app_version`, `os_version`, `device_model`, `source_screen`, `created_at`
+- optionally `Authorization: Bearer <token>`, which links the report to the account
+
+**Reply:**
+- `201 {"ok": true, "id", "ticket_no", "status": "Open", "linked"}`
+- **The same ticket sent again stores nothing new** (`200`, same `id`), so the app can retry safely.
+
+**Errors:**
+- `422`: refused. The app keeps the report as failed.
+- `429`, `5xx` or no connection: the app keeps it pending and retries later.
+
+**Client:** `lib/core/report/issue_report_api.dart`. Builds without `API_BASE_URL` keep reports pending; there is no mock.
+
+---
+
 ## Accounts — built 2026-10-10 (dashboard `api/v1/`)
 
 **The full reference is the dashboard repo's `docs/API.md`.**

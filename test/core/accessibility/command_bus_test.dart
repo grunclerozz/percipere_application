@@ -210,14 +210,19 @@ void main() {
       expect(container.read(focusControllerProvider), 'a');
     });
 
-    test('not-yet-built screens say so', () async {
+    test('"mag-report" on a report page repeats the page instead of '
+        'opening another report', () async {
       await setUpWith();
-      register(menu());
-      await bus().handleUtterance('ulat');
-      expect(
-        env.tts.spoken.single,
-        'Wala pa ang bahaging iyan sa bersyong ito.',
+      register(
+        ScreenRegistration(
+          id: 'report.type',
+          title: (l) => l.screenReportIssue,
+          prompt: (l) => l.reportAskType,
+        ),
       );
+      await bus().handleUtterance('mag-report');
+      expect(env.tts.transcript, contains('Anong uri ng report ito?'));
+      expect(env.haptics.events, isNot(contains('error')));
     });
 
     test('an offer is accepted by double-tap', () async {

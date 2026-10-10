@@ -146,6 +146,21 @@ abstract final class Ids {
   /// Home: open Settings.
   static const String homeSettings = 'home.settings';
 
+  /// Home: report an issue.
+  static const String homeReport = 'home.report';
+
+  /// "Mag-report ng problema" (each page: `report.<page>`).
+  static const String reportIssue = 'report';
+
+  /// "Aking mga report".
+  static const String myReports = 'myReports';
+
+  /// Setting row: report an issue.
+  static const String settingReportIssue = 'settings.reportIssue';
+
+  /// Setting row: my reports.
+  static const String settingMyReports = 'settings.myReports';
+
   /// Library screen (Aklatan).
   static const String library = 'library';
 

@@ -24,6 +24,7 @@ INTENTS = [
     "previous_option", "select", "cancel", "help", "where_am_i", "read", "pause",
     "resume", "stop", "repeat", "faster", "slower", "bigger_text", "smaller_text",
     "open_item", "greeting", "thanks", "goodbye", "yes", "no", "out_of_scope",
+    "report_issue",  # Phase 10 (not in the bundled model until retrained)
 ]
 COLUMNS = ["text", "intent", "author", "source", "notes"]
 STARTER = "Starter (Claude)"

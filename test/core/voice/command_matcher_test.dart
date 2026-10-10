@@ -59,7 +59,9 @@ void main() {
       'tulong': NavIntent.help,
       'simula': NavIntent.home,
       'ulat': NavIntent.report,
-      'feedback': NavIntent.report,
+      'mag-report': NavIntent.report,
+      'may problema': NavIntent.report,
+      'report an issue': NavIntent.report,
     };
     for (final MapEntry(key: heard, value: intent) in pairs.entries) {
       test(heard, () => expect(intentOf(heard), intent));

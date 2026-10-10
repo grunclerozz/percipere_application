@@ -45,6 +45,7 @@ void main() {
       'wer_results',
       'login_attempts',
       'percy_turns',
+      'issue_reports',
     });
   });
 

@@ -58,6 +58,11 @@ class HomeScreen extends ConsumerWidget {
           voiceSynonyms: const ['settings', 'setting', 'ayos'],
           onActivate: (bus) => bus.dispatch(NavIntent.settings),
         ),
+        A11yAction(
+          id: Ids.homeReport,
+          label: (l) => l.screenReportIssue,
+          onActivate: (bus) => bus.dispatch(NavIntent.report),
+        ),
       ],
     );
   }
@@ -107,6 +112,13 @@ class HomeScreen extends ConsumerWidget {
                       icon: Icons.tune,
                       focused: focused == Ids.homeSettings,
                       onPressed: () => bus.activate(Ids.homeSettings),
+                    ),
+                    const SizedBox(height: AppDimens.buttonGap),
+                    SmallLink(
+                      label: l10n.screenReportIssue,
+                      icon: Icons.report_outlined,
+                      focused: focused == Ids.homeReport,
+                      onPressed: () => bus.activate(Ids.homeReport),
                     ),
                     const Spacer(),
                   ],

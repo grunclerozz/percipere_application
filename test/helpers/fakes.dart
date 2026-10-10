@@ -44,6 +44,9 @@ import 'package:percipere_app/core/platform/app_closer.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/platform/storage_info.dart';
 import 'package:percipere_app/core/platform/system_settings.dart';
+import 'package:percipere_app/core/report/issue_report.dart';
+import 'package:percipere_app/core/report/issue_report_api.dart';
+import 'package:percipere_app/core/report/issue_report_sync.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/tts/tts_service.dart';
@@ -508,6 +511,20 @@ class TestEnv {
   /// only, as before the web app existed.
   FakeAccountApi? accountApi;
 
+  /// The web app's report endpoint; null = no web app (reports wait).
+  FakeIssueReportApi? reportApi;
+
+  /// Fire to say the connection came back.
+  final StreamController<void> connectionRestored =
+      StreamController<void>.broadcast();
+
+  /// App and phone details attached to reports (test values).
+  static const IssueDetails testIssueDetails = IssueDetails(
+    appVersion: '0.1.1+2',
+    osVersion: 'Android 14 (SDK 34)',
+    deviceModel: 'Test Tablet',
+  );
+
   /// Developer setting: the ElevenLabs Percy instead of the self-built
   /// one (off by default, as in the app).
   bool percyElevenLabs = false;
@@ -576,6 +593,9 @@ class TestEnv {
     ),
     assistantConfigProvider.overrideWithValue(assistantConfig),
     accountApiProvider.overrideWithValue(accountApi),
+    issueReportApiProvider.overrideWithValue(reportApi),
+    issueDetailsProvider.overrideWithValue(() async => testIssueDetails),
+    connectionRestoredProvider.overrideWithValue(connectionRestored.stream),
     deviceLabelProvider.overrideWithValue(() async => 'Test tablet'),
   ];
 }
@@ -1278,5 +1298,39 @@ class FakeAccountApi implements AccountApi {
     ok.password = password;
     tokens.removeWhere((_, e) => e == email);
     return _session(ok);
+  }
+}
+
+/// The web app's report endpoint, in memory: stores each ticket once.
+class FakeIssueReportApi implements IssueReportApi {
+  /// Received reports by ticket (JSON body as sent).
+  final Map<String, Map<String, Object?>> received = {};
+
+  /// Tokens sent with each ticket.
+  final Map<String, String?> tokens = {};
+
+  /// No connection: every send fails and may be retried.
+  bool offline = false;
+
+  /// The web app refuses every report (e.g. 422).
+  bool refuse = false;
+
+  /// Sends tried.
+  int calls = 0;
+
+  @override
+  Future<IssueReceipt> send(IssueReport report, {String? token}) async {
+    calls++;
+    if (offline) {
+      throw const IssueSendException('connectionError', refused: false);
+    }
+    if (refuse) {
+      throw const IssueSendException('validation_failed', refused: true);
+    }
+    final body = report.toJson();
+    received.putIfAbsent(report.ticketNo, () => body);
+    tokens[report.ticketNo] = token;
+    final id = received.keys.toList().indexOf(report.ticketNo) + 100;
+    return IssueReceipt(serverId: '$id', status: 'Open');
   }
 }

@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1, _v2, _v3, _v4, _v5];
+  static const List<Migration> all = [_v1, _v2, _v3, _v4, _v5, _v6];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -374,4 +374,34 @@ const Migration _v5 = Migration(5, 'Percy turn log for retraining (Phase 9)', [
   )
   ''',
   'CREATE INDEX idx_percy_turns_user ON percy_turns (user_id, created_at)',
+]);
+
+const Migration _v6 = Migration(6, 'Issue reports (Phase 10)', [
+  // "Mag-report ng problema": every report is saved here first, then sent to
+  // the web app (api/v1/feedback.php). Never document text, pictures or
+  // recordings. `sync_status`: pending, sent, failed. A report outlives the
+  // account that wrote it (user_id becomes NULL), so none is ever lost.
+  '''
+  CREATE TABLE issue_reports (
+    id             TEXT PRIMARY KEY,
+    ticket_no      TEXT NOT NULL UNIQUE,
+    user_id        TEXT REFERENCES users(id) ON DELETE SET NULL,
+    type           TEXT NOT NULL,
+    module         TEXT NOT NULL,
+    severity       TEXT,
+    description    TEXT NOT NULL,
+    email          TEXT,
+    app_version    TEXT NOT NULL,
+    os_version     TEXT NOT NULL,
+    device_model   TEXT NOT NULL,
+    source_screen  TEXT NOT NULL,
+    created_at     INTEGER NOT NULL,
+    sync_status    TEXT NOT NULL DEFAULT 'pending',
+    server_id      TEXT,
+    attempts       INTEGER NOT NULL DEFAULT 0,
+    last_error     TEXT
+  )
+  ''',
+  'CREATE INDEX idx_issue_reports_sync ON issue_reports (sync_status, created_at)',
+  'CREATE INDEX idx_issue_reports_user ON issue_reports (user_id, created_at)',
 ]);

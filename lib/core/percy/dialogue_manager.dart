@@ -308,6 +308,18 @@ class DialogueManager {
       );
     }
 
+    // 2b. Reporting a problem: a rule until the model is retrained.
+    if (ReportIssueRule.matches(text)) {
+      return _act(
+        PercyIntent.reportIssue,
+        text,
+        env,
+        style,
+        TurnOutcome.acted,
+        top.probability,
+      );
+    }
+
     // 3. A document named by title ("basahin ang Liham kay Nanay"): the
     // title words are new to the classifier, so the slot rule goes first —
     // unless the classifier is sure it is another command.
@@ -349,6 +361,7 @@ class DialogueManager {
     PercyIntent.openLibrary,
     PercyIntent.openSettings,
     PercyIntent.back,
+    PercyIntent.reportIssue,
   };
 
   Future<PercyReply> _act(

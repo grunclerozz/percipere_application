@@ -190,7 +190,6 @@ class CommandBus {
     NavIntent.previousChapter,
     NavIntent.favorite,
     NavIntent.favorites,
-    NavIntent.report,
   };
 
   /// Whether [intent] does something on the active screen.
@@ -293,8 +292,7 @@ class CommandBus {
       case NavIntent.settings:
         return _openScreen(AppRoutes.settings, Ids.settings);
       case NavIntent.report:
-        unawaited(_haptics.error());
-        return say(_l10n.featureNotReady);
+        return _openReport();
       case NavIntent.faster:
       case NavIntent.slower:
       case NavIntent.textBigger:
@@ -1076,6 +1074,17 @@ class CommandBus {
     if (activeScreen?.id == screenId) return announceScreen(activeScreen!);
     unawaited(_haptics.confirm());
     unawaited(_ref.read(routerProvider).push(route));
+  }
+
+  /// Opens "Mag-report ng problema" on top of the current screen (whose id
+  /// goes with the report); Back or "Tapos na" returns there.
+  Future<void> _openReport() async {
+    final id = activeScreen?.id ?? '';
+    if (id.startsWith('${Ids.reportIssue}.')) {
+      return announceScreen(activeScreen!);
+    }
+    unawaited(_haptics.confirm());
+    unawaited(_ref.read(routerProvider).push(AppRoutes.reportIssue, extra: id));
   }
 
   Future<void> _goHome() async {

@@ -442,6 +442,23 @@ List<SettingItem> settingItemsFor(
           unawaited(ref.read(routerProvider).push(AppRoutes.register)),
     ),
   SettingItem(
+    id: Ids.settingReportIssue,
+    kind: SettingKind.link,
+    label: (l) => l.screenReportIssue,
+    value: (c) => c.l.setReportIssueValue,
+    open: (ref, bus) => unawaited(
+      ref.read(routerProvider).push(AppRoutes.reportIssue, extra: Ids.settings),
+    ),
+  ),
+  SettingItem(
+    id: Ids.settingMyReports,
+    kind: SettingKind.link,
+    label: (l) => l.screenMyReports,
+    value: (c) => c.l.setMyReportsValue,
+    open: (ref, bus) =>
+        unawaited(ref.read(routerProvider).push(AppRoutes.myReports)),
+  ),
+  SettingItem(
     id: Ids.settingTutorial,
     kind: SettingKind.link,
     label: (l) => l.setTutorial,

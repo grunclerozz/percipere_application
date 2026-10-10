@@ -2198,4 +2198,298 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get helpVerify =>
       'Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+
+  @override
+  String get screenReportIssue => 'Mag-report ng problema';
+
+  @override
+  String get reportIntro => 'Sasagutin mo ang ilang tanong, isa-isa.';
+
+  @override
+  String get reportAskType => 'Anong uri ng report ito?';
+
+  @override
+  String get reportTypeBug => 'May sira (Bug)';
+
+  @override
+  String get reportTypeFeature => 'Mungkahi (Feature request)';
+
+  @override
+  String get reportTypeFeedback => 'Puna (General feedback)';
+
+  @override
+  String get reportAskModule => 'Saang bahagi ng app?';
+
+  @override
+  String get reportModuleOcr => 'Pagbasa ng teksto (OCR)';
+
+  @override
+  String get reportModuleCamera => 'Camera';
+
+  @override
+  String get reportModuleVoice => 'Mga utos sa boses (Voice commands)';
+
+  @override
+  String get reportModuleAccounts => 'Mga account (Accounts)';
+
+  @override
+  String get reportModuleTts => 'Boses na nagbabasa (Text-to-Speech)';
+
+  @override
+  String get reportModuleGestures => 'Gesture Pad';
+
+  @override
+  String get reportModuleLibrary => 'Aklatan (Library)';
+
+  @override
+  String get reportModuleMaglarawan => 'Maglarawan';
+
+  @override
+  String get reportModulePercy => 'Percy';
+
+  @override
+  String get reportModuleOther => 'Iba pa (Other)';
+
+  @override
+  String get reportAskSeverity => 'Gaano kalala ang problema?';
+
+  @override
+  String get reportSeverityLow => 'Mababa';
+
+  @override
+  String get reportSeverityMedium => 'Katamtaman';
+
+  @override
+  String get reportSeverityHigh => 'Mataas';
+
+  @override
+  String get reportSeverityCritical => 'Kritikal';
+
+  @override
+  String get reportSeverityLowLong => 'Mababa: maliit na abala';
+
+  @override
+  String get reportSeverityMediumLong => 'Katamtaman: gumagana pero mali';
+
+  @override
+  String get reportSeverityHighLong => 'Mataas: hindi gumagana';
+
+  @override
+  String get reportSeverityCriticalLong =>
+      'Kritikal: nagsasara ang app o may nawalang data';
+
+  @override
+  String get reportAskDescription =>
+      'Ano ang nangyari? Ikuwento sa boses, o i-type.';
+
+  @override
+  String get reportDescriptionHint => 'Hindi bababa sa 10 titik.';
+
+  @override
+  String get fieldDescription => 'Ano ang nangyari';
+
+  @override
+  String get actionSpeak => 'Magsalita';
+
+  @override
+  String get actionNext => 'Susunod';
+
+  @override
+  String reportHeard(String v) {
+    return 'Narinig ko: $v. Tama ba?';
+  }
+
+  @override
+  String get reportSayAgain => 'Sige, sabihin ulit kung ano ang nangyari.';
+
+  @override
+  String get reportDescriptionShort =>
+      'Masyadong maikli. Hindi bababa sa 10 titik.';
+
+  @override
+  String get reportDescriptionLong =>
+      'Masyadong mahaba. Hanggang 1000 titik lamang.';
+
+  @override
+  String reportAskEmailUse(String v) {
+    return 'Gamitin ang email na ito: $v?';
+  }
+
+  @override
+  String get reportAskEmail => 'Ano ang iyong email? Pwede mo itong laktawan.';
+
+  @override
+  String get reportEmailWhy =>
+      'Gagamitin lang ang email para sagutin ka tungkol sa report na ito.';
+
+  @override
+  String get reportPrivacy =>
+      'Ang report at email ay gagamitin lang para ayusin ang app at sagutin ka (RA 10173).';
+
+  @override
+  String get reportEmailInvalid =>
+      'Mukhang mali ang email. Ulitin, o sabihin ang “laktawan”.';
+
+  @override
+  String reportEmailValue(String v) {
+    return 'Email: $v.';
+  }
+
+  @override
+  String get reportAskReview =>
+      'Repasuhin ang iyong report. Sabihin ang “ipadala” o “baguhin”.';
+
+  @override
+  String reportLineType(String v) {
+    return 'Uri: $v';
+  }
+
+  @override
+  String reportLineModule(String v) {
+    return 'Bahagi: $v';
+  }
+
+  @override
+  String reportLineSeverity(String v) {
+    return 'Kalala: $v';
+  }
+
+  @override
+  String reportLineDescription(String v) {
+    return 'Nangyari: $v';
+  }
+
+  @override
+  String reportLineEmail(String v) {
+    return 'Email: $v';
+  }
+
+  @override
+  String get reportNoEmail => 'walang email';
+
+  @override
+  String reportLineDetails(
+    String app,
+    String os,
+    String device,
+    String screen,
+    String date,
+  ) {
+    return 'Kasama rin: bersyon ng app $app, $os, $device, mula sa $screen, $date.';
+  }
+
+  @override
+  String get actionSendReport => 'Ipadala';
+
+  @override
+  String get actionEditReport => 'Baguhin';
+
+  @override
+  String get reportAskEdit => 'Alin ang babaguhin?';
+
+  @override
+  String get reportPartType => 'Uri';
+
+  @override
+  String get reportPartModule => 'Bahagi ng app';
+
+  @override
+  String get reportPartSeverity => 'Kalala';
+
+  @override
+  String get reportPartDescription => 'Ano ang nangyari';
+
+  @override
+  String get reportPartEmail => 'Email';
+
+  @override
+  String get reportSending => 'Ipinapadala…';
+
+  @override
+  String get reportTicketTitle => 'Ang iyong ticket';
+
+  @override
+  String reportTicketLine(String v) {
+    return 'Ticket: $v';
+  }
+
+  @override
+  String reportTicketSpoken(String v) {
+    return 'Ang numero ng iyong ticket ay $v.';
+  }
+
+  @override
+  String reportLineDate(String v) {
+    return 'Petsa: $v';
+  }
+
+  @override
+  String reportLineStatus(String v) {
+    return 'Katayuan: $v';
+  }
+
+  @override
+  String get reportStatusSent => 'Naipadala';
+
+  @override
+  String get reportStatusPending => 'Naghihintay ipadala';
+
+  @override
+  String get reportStatusFailed => 'Hindi naipadala';
+
+  @override
+  String get reportSavedOffline =>
+      'Naka-save ang report, at ipapadala ito kapag may internet.';
+
+  @override
+  String get reportThanks => 'Salamat sa iyong report.';
+
+  @override
+  String get actionRepeatTicket => 'Ulitin';
+
+  @override
+  String get actionDone => 'Tapos na';
+
+  @override
+  String get actionCancelReport => 'Kanselahin';
+
+  @override
+  String get reportCancelConfirm =>
+      'Kanselahin ang report? Mawawala ang iyong mga sagot.';
+
+  @override
+  String get reportCancelled => 'Kinansela ang report.';
+
+  @override
+  String get helpReport =>
+      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap, o sabihin ang pangalan: piliin. Sabihin ang “bumalik”: nakaraang tanong. Sabihin ang “kanselahin”: itigil ang report.';
+
+  @override
+  String get helpReportText =>
+      'Magsalita para sumagot, o i-type. Pindutin nang matagal o sabihin ang “magsalita”: magsalita ulit. Sabihin ang “susunod”: magpatuloy. Sabihin ang “bumalik”: nakaraang tanong. Sabihin ang “kanselahin”: itigil ang report.';
+
+  @override
+  String get screenMyReports => 'Aking mga report';
+
+  @override
+  String myReportsCount(String v) {
+    return 'Bilang ng report: $v. Pumili ng isa para marinig.';
+  }
+
+  @override
+  String get myReportsEmpty => 'Wala ka pang report.';
+
+  @override
+  String myReportsRow(String ticket, String type, String date, String status) {
+    return '$ticket: $type, $date, $status';
+  }
+
+  @override
+  String get setReportIssueValue => 'Magsabi ng sira o mungkahi';
+
+  @override
+  String get setMyReportsValue => 'Mga naipadalang report at katayuan';
+
+  @override
+  String get reportSaveFailed => 'Hindi na-save ang report. Pakisubukan ulit.';
 }

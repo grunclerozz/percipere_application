@@ -13,9 +13,11 @@ abstract final class VoiceConfig {
   static const Duration waitForSpeech = Duration(seconds: 4);
 
   /// Silence after the user's words that ends a **command** ("i-pause",
-  /// "susunod"). Short, so the command runs soon after the user stops talking. Raise it if commands
-  /// get cut off; lower it for a snappier response.
-  static const Duration commandPause = Duration(milliseconds: 1200);
+  /// "susunod"): the single end-of-speech timeout (0.8–1.2 s is sensible).
+  /// Short, so the command runs soon after the user stops talking; partial
+  /// results usually act before it anyway. Raise it if commands get cut
+  /// off; lower it for a snappier response.
+  static const Duration commandPause = Duration(milliseconds: 1000);
 
   /// Silence that ends **dictation** (names, email, password, collection
   /// names, titles). Longer, so users can stop to think mid-way.
@@ -58,6 +60,21 @@ abstract final class VoiceConfig {
   /// (and announcements go back to full detail).
   static const int missesBeforeHelp = 3;
 
+  // ── Speech that gets cut off ─────────────────────────────────────────────
+
+  /// A session cut off while the user was speaking (recognizer busy, audio
+  /// focus lost, the app starting to talk) is restarted at once, keeping
+  /// the words heard so far. After this many restarts in a row the app
+  /// says "Pasensya na po, pakiulit."
+  static const int cutOffRetries = 3;
+
+  /// How long the restarted session waits for more words before acting on
+  /// what was already heard.
+  static const Duration carryWait = Duration(seconds: 2);
+
+  /// Words kept from a cut-off session older than this are dropped.
+  static const Duration carryFor = Duration(seconds: 8);
+
   /// How long "Alin sa dalawa: …?" waits for the user to name one.
   static const Duration choiceWait = Duration(seconds: 20);
 
@@ -86,6 +103,15 @@ abstract final class VoiceConfig {
 
   /// How many recently read sentences count as the app's own voice.
   static const int echoSentences = 8;
+
+  /// Reading pauses while the user speaks over it (so they can be heard)
+  /// and resumes after this long at most if no command came.
+  static const Duration duckMax = Duration(seconds: 5);
+
+  /// After a pause for speech that turned out not to be a command, reading
+  /// isn't paused for speech again for this long (a misheard echo must not
+  /// make it restart the same sentence over and over).
+  static const Duration duckCooldown = Duration(seconds: 8);
 
   // ── Timing logs ──────────────────────────────────────────────────────────
 

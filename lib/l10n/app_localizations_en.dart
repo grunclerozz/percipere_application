@@ -2103,4 +2103,65 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get percyUnavailable =>
       'I can\'t start Percy right now. The usual commands still work.';
+
+  @override
+  String get voiceSayAgain => 'Sorry, please say that again.';
+
+  @override
+  String get speedStripLabel => 'Speed';
+
+  @override
+  String speedStripValue(String rate) {
+    return 'Speed, $rate times';
+  }
+
+  @override
+  String speedSpoken(String rate) {
+    return 'Speed $rate';
+  }
+
+  @override
+  String get speedIncrease => 'Increase speed';
+
+  @override
+  String get speedDecrease => 'Decrease speed';
+
+  @override
+  String get setReadingVoice => 'Reading voice';
+
+  @override
+  String get valueVoiceDefault => 'Default';
+
+  @override
+  String get valueVoiceFemale => 'Female';
+
+  @override
+  String get valueVoiceMale => 'Male';
+
+  @override
+  String valueVoiceNamed(String number, String name) {
+    return 'Voice $number ($name)';
+  }
+
+  @override
+  String get valueVoiceOnlyOne => 'Only one voice';
+
+  @override
+  String get voiceOnlyOne =>
+      'This phone has only one voice for this language, so it can\'t be changed.';
+
+  @override
+  String voiceChanged(String voice) {
+    return 'Voice changed to $voice.';
+  }
+
+  @override
+  String get setVoicePreview => 'Preview voice';
+
+  @override
+  String get valueVoicePreview => 'Play a sample';
+
+  @override
+  String get voicePreviewSample =>
+      'This is how the voice that reads your documents sounds.';
 }

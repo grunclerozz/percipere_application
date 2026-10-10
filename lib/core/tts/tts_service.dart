@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+import 'reading_voice.dart';
+
+export 'reading_voice.dart' show TtsVoice;
+
 /// Which TTS voices this phone can use offline.
 @immutable
 class VoiceStatus {
@@ -54,6 +58,13 @@ abstract interface class TtsService {
 
   /// Sets pitch (1.0 is normal).
   Future<void> setPitch(double pitch);
+
+  /// The voices installed on the phone (all languages).
+  Future<List<TtsVoice>> listVoices();
+
+  /// Sets the reading voice ([ReadingVoicePref]); used from the next
+  /// utterance on, for documents and prompts alike.
+  Future<void> setVoicePreference(String preference);
 }
 
 /// [TtsService] backed by the Android TTS engine via `flutter_tts`.
@@ -70,6 +81,8 @@ class FlutterTtsService implements TtsService {
   final FlutterTts _tts;
   String? _currentLanguage;
   double? _currentRate;
+  String _voicePreference = ReadingVoicePref.standard;
+  List<TtsVoice>? _voices;
 
   /// Creates and configures the service. Prefers the Google TTS engine when
   /// installed.
@@ -100,8 +113,10 @@ class FlutterTtsService implements TtsService {
     double rate = 1.0,
   }) async {
     if (_currentLanguage != languageTag) {
+      // Also resets the engine to the language's default voice.
       await _tts.setLanguage(languageTag);
       _currentLanguage = languageTag;
+      await _applyVoice(languageTag);
     }
     if (_currentRate != rate) {
       // Android engine scale: 0.5 is normal speed.
@@ -143,6 +158,49 @@ class FlutterTtsService implements TtsService {
 
   @override
   Future<void> setPitch(double pitch) async => _tts.setPitch(pitch);
+
+  @override
+  Future<List<TtsVoice>> listVoices() async {
+    final cached = _voices;
+    if (cached != null) return cached;
+    try {
+      final raw = await _tts.getVoices;
+      return _voices = [
+        if (raw is List)
+          for (final v in raw) ?TtsVoice.fromEngine(v),
+      ];
+    } on Object catch (e) {
+      debugPrint('[TTS] getVoices failed: $e');
+      return const [];
+    }
+  }
+
+  @override
+  Future<void> setVoicePreference(String preference) async {
+    if (preference == _voicePreference) return;
+    _voicePreference = preference;
+    // Voices installed since launch (TTS settings) count too.
+    _voices = null;
+    // The next utterance sets its language again, which resets the voice
+    // to the default and then applies this choice.
+    _currentLanguage = null;
+  }
+
+  /// Switches to the chosen voice for [languageTag], if one fits.
+  Future<void> _applyVoice(String languageTag) async {
+    if (_voicePreference == ReadingVoicePref.standard) return;
+    final voice = ReadingVoicePref.resolve(
+      _voicePreference,
+      languageTag,
+      await listVoices(),
+    );
+    if (voice == null) return;
+    try {
+      await _tts.setVoice({'name': voice.name, 'locale': voice.locale});
+    } on Object catch (e) {
+      debugPrint('[TTS] setVoice ${voice.name} failed: $e');
+    }
+  }
 }
 
 /// The app's TTS service. Overridden at startup by `bootstrap()`.

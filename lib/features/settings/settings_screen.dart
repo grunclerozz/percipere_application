@@ -18,6 +18,7 @@ import '../../core/accessibility/screen_registration.dart';
 import '../../core/auth/session.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/settings/settings_controller.dart';
+import '../../core/tts/reading_voice.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
@@ -50,8 +51,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   final Map<String, GlobalKey> _rowKeys = {};
 
-  List<SettingItem> get _items =>
-      settingItemsFor(ref.read(currentAccountProvider));
+  List<SettingItem> get _items => settingItemsFor(
+    ref.read(currentAccountProvider),
+    voices: ref.read(readingVoiceOptionsProvider).value,
+  );
 
   GlobalKey _keyFor(String id) => _rowKeys.putIfAbsent(id, GlobalKey.new);
 
@@ -98,11 +101,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         item.id == Ids.settingColors &&
         before.textColor != null &&
         after.textColor == null;
+    // A new reading voice introduces itself: "Voice changed to female".
+    final voiceChanged = item.id == Ids.settingReadingVoice && after != before;
+    final options = ref.read(readingVoiceOptionsProvider).value;
     await ref
         .read(announcerProvider.notifier)
         .say(
           [
-            l.settingValue(item.label(l), item.value(_context(l))),
+            if (voiceChanged)
+              l.voiceChanged(
+                options?.byGender ?? false
+                    ? item.value(_context(l)).toLowerCase()
+                    : item.value(_context(l)),
+              )
+            else
+              l.settingValue(item.label(l), item.value(_context(l))),
             if (colorReset) l.textColorReset,
           ].join(' '),
           rate: item.id == Ids.settingReadingRate ? after.readingRate : 1.0,
@@ -171,13 +184,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // Rebuild on any settings change (values, theme) and account change.
     ref.watch(settingsProvider);
     final account = ref.watch(currentAccountProvider);
-    final items = settingItemsFor(account);
+    final voices = ref.watch(readingVoiceOptionsProvider).value;
+    final items = settingItemsFor(account, voices: voices);
     final focused = ref.watch(focusControllerProvider);
     final c = SettingContext(ref.read(settingsProvider), l10n, ref);
 
     return AccessibleScreen(
       registration: _registration,
-      dependencies: [account?.id, account?.isGuest],
+      // The voice row changes kind once the phone's voices are known.
+      dependencies: [account?.id, account?.isGuest, voices],
       child: GuestReminderOnEntry(
         screenId: Ids.settings,
         moment: GuestReminderMoment.settings,
@@ -340,7 +355,11 @@ class _SettingRow extends StatelessWidget {
               ),
             ),
             if (isLink)
-              button(Icons.chevron_right, l10n.actionOpen, onOpen)
+              button(
+                item.icon ?? Icons.chevron_right,
+                item.icon == null ? l10n.actionOpen : label,
+                onOpen,
+              )
             else if (canStep) ...[
               button(Icons.remove, l10n.actionDecrease, () => onChange(-1)),
               button(Icons.add, l10n.actionIncrease, () => onChange(1)),

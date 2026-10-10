@@ -86,6 +86,12 @@ abstract final class Ids {
   /// Setting row.
   static const String settingDocumentVoice = 'settings.documentVoice';
 
+  /// Setting row: female or male reading voice.
+  static const String settingReadingVoice = 'settings.readingVoice';
+
+  /// Setting row: plays a sample in the reading voice.
+  static const String settingVoicePreview = 'settings.voicePreview';
+
   /// Setting row.
   static const String settingTextSize = 'settings.textSize';
 

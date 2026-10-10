@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/core/accessibility/action_registry.dart';
 import 'package:percipere_app/core/accessibility/announcer.dart';
+import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
+import 'package:percipere_app/core/accessibility/screen_registration.dart';
 import 'package:percipere_app/core/db/daos/library_dao.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
@@ -14,6 +17,7 @@ import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/tts/language_detector.dart';
 import 'package:percipere_app/core/tts/reading_rate.dart';
+import 'package:percipere_app/core/tts/speed_control.dart';
 import 'package:percipere_app/core/tts/tts_service.dart';
 import 'package:percipere_app/core/voice/barge_in.dart';
 import 'package:percipere_app/core/voice/voice_controller.dart';
@@ -376,6 +380,71 @@ void main() {
       );
     },
   );
+
+  test('the user talking over the reading pauses it; with no command it '
+      'carries on with that sentence', () async {
+    await setUpWith(mode: NavMode.voice);
+    unawaited(reader().play());
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    expect(env.speech.sessions.last.phrases, BargeIn.phrases);
+    final stops = env.tts.stopCalls;
+    final spoken = env.tts.spoken.length;
+
+    env.speech.partial('ano po iyon');
+    await pumpEventQueue();
+    expect(env.tts.stopCalls, greaterThan(stops), reason: 'voice paused');
+    expect(state().playing, isTrue, reason: 'still reading, just paused');
+
+    env.speech.hear('ano po iyon');
+    await pumpEventQueue();
+    expect(env.tts.spoken.length, spoken + 1);
+    expect(env.tts.spoken.last, s1, reason: 'the paused sentence again');
+  });
+
+  test('…and a reading command heard meanwhile is what happens', () async {
+    await setUpWith(mode: NavMode.voice);
+    container
+        .read(actionRegistryProvider.notifier)
+        .register(
+          ScreenRegistration(
+            id: 'reader',
+            title: (l) => l.screenReader,
+            prompt: (l) => '',
+            intentHandlers: {NavIntent.pause: (_) => reader().pause()},
+          ),
+        );
+    unawaited(reader().play());
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    env.speech.partial('ano');
+    await pumpEventQueue();
+    env.speech.partial('ano i-pause');
+    await pumpEventQueue();
+    await pumpEventQueue();
+    expect(state().playing, isFalse);
+    expect(env.tts.spoken.last, 'Naka-pause.');
+  });
+
+  test('speed strip while reading: the value is spoken once, then reading '
+      'goes on at the new speed', () async {
+    await setUpWith();
+    unawaited(reader().play());
+    await pumpEventQueue();
+    final speed = container.read(speedControlProvider);
+    await speed.step(1);
+    await speed.step(1);
+    expect(env.tts.spoken.where((s) => s.startsWith('Bilis')), isEmpty);
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(env.tts.spoken.last, 'Bilis 1.5');
+    await finish(); // the value has been said
+    expect(state().playing, isTrue);
+    expect(env.tts.spoken.last, s1);
+    expect(env.tts.rates.last, 1.5);
+    expect(
+      env.tts.spoken.where((s) => s.startsWith('Bilis')),
+      hasLength(1),
+      reason: 'fast steps never queue speech',
+    );
+  });
 
   test('quality is kept from extraction', () async {
     await setUpWith(tts: FakeTts());

@@ -573,5 +573,22 @@
   "percyExportDone": "The CSV is ready. Choose where to send it.",
   "percyExportFailed": "I can't export the log right now.",
   "percyMicNeeded": "Percy needs the microphone to hear you. Allow it in the app's settings.",
-  "percyUnavailable": "I can't start Percy right now. The usual commands still work."
+  "percyUnavailable": "I can't start Percy right now. The usual commands still work.",
+  "voiceSayAgain": "Sorry, please say that again.",
+  "speedStripLabel": "Speed",
+  "speedStripValue": "Speed, {rate} times",
+  "speedSpoken": "Speed {rate}",
+  "speedIncrease": "Increase speed",
+  "speedDecrease": "Decrease speed",
+  "setReadingVoice": "Reading voice",
+  "valueVoiceDefault": "Default",
+  "valueVoiceFemale": "Female",
+  "valueVoiceMale": "Male",
+  "valueVoiceNamed": "Voice {number} ({name})",
+  "valueVoiceOnlyOne": "Only one voice",
+  "voiceOnlyOne": "This phone has only one voice for this language, so it can't be changed.",
+  "voiceChanged": "Voice changed to {voice}.",
+  "setVoicePreview": "Preview voice",
+  "valueVoicePreview": "Play a sample",
+  "voicePreviewSample": "This is how the voice that reads your documents sounds."
 }

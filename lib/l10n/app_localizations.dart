@@ -3415,6 +3415,108 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Hindi ko mabuksan si Percy ngayon. Gumagana pa rin ang karaniwang mga utos.'**
   String get percyUnavailable;
+
+  /// Spoken when a command was cut off and listening could not be restarted after a few tries.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pasensya na po, pakiulit.'**
+  String get voiceSayAgain;
+
+  /// Label of the speed strip at the right edge of the Gesture Area.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilis'**
+  String get speedStripLabel;
+
+  /// Screen-reader description of the speed strip.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilis, {rate} na beses'**
+  String speedStripValue(String rate);
+
+  /// Spoken after the speed strip stops moving.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilis {rate}'**
+  String speedSpoken(String rate);
+
+  /// Accessibility action on the speed strip: increase speed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilisan'**
+  String get speedIncrease;
+
+  /// Accessibility action on the speed strip: decrease speed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bagalan'**
+  String get speedDecrease;
+
+  /// Settings row: female or male reading voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses sa pagbasa'**
+  String get setReadingVoice;
+
+  /// Reading voice not chosen yet: the engine's default voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Karaniwan'**
+  String get valueVoiceDefault;
+
+  /// No description provided for @valueVoiceFemale.
+  ///
+  /// In fil, this message translates to:
+  /// **'Babae'**
+  String get valueVoiceFemale;
+
+  /// No description provided for @valueVoiceMale.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lalaki'**
+  String get valueVoiceMale;
+
+  /// A voice whose gender is unknown, shown by its name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses {number} ({name})'**
+  String valueVoiceNamed(String number, String name);
+
+  /// Reading voice row when the phone has only one voice for this language.
+  ///
+  /// In fil, this message translates to:
+  /// **'Iisa lang ang boses'**
+  String get valueVoiceOnlyOne;
+
+  /// Spoken when the reading voice row is opened and only one voice exists.
+  ///
+  /// In fil, this message translates to:
+  /// **'Iisa lang ang boses sa teleponong ito para sa wikang ito, kaya hindi ito mapapalitan.'**
+  String get voiceOnlyOne;
+
+  /// Spoken (in the new voice) after the reading voice changed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Napalitan na ang boses: {voice}.'**
+  String voiceChanged(String voice);
+
+  /// Settings row that plays a sample in the chosen reading voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakinggan ang boses'**
+  String get setVoicePreview;
+
+  /// No description provided for @valueVoicePreview.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-play ang halimbawa'**
+  String get valueVoicePreview;
+
+  /// Sample sentence spoken by the voice preview.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ganito ang tunog ng boses na babasa ng iyong mga dokumento.'**
+  String get voicePreviewSample;
 }
 
 class _AppLocalizationsDelegate

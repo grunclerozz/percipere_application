@@ -74,12 +74,18 @@ void main() {
       expect(env.tts.transcript, contains('Mga Setting.'));
 
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 24.');
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 26.');
 
       await tester.swipeUp();
       expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.25x');
       expect(env.tts.rates.last, 1.25, reason: 'demonstrated at the new speed');
-      expect(find.text('1.25x'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ListView),
+          matching: find.text('1.25x'),
+        ),
+        findsOneWidget,
+      );
       expect(
         await PreferencesDao(env.database.db)
             .get(PrefKeys.readingRate, userId: env.account!.id),
@@ -93,7 +99,7 @@ void main() {
       final env = await _start(tester);
       await tester.tap(find.text('Mga Setting'));
       await tester.pumpAndSettle();
-      for (var i = 0; i < 6; i++) {
+      for (var i = 0; i < 8; i++) {
         await tester.swipeRight(); // … to "Tema"
       }
       expect(env.tts.spoken.last, startsWith('Tema: Cream at Navy'));

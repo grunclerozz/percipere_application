@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show IconData, Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
@@ -9,6 +10,7 @@ import '../../app/router.dart';
 import '../../app/theme/theme_settings.dart';
 import '../../config/env.dart';
 import '../../config/palette.dart';
+import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/navigation_mode.dart';
@@ -21,7 +23,9 @@ import '../../core/percy/percy_log_export.dart';
 import '../../core/percy/percy_responses.dart';
 import '../../core/platform/system_settings.dart';
 import '../../core/settings/app_settings.dart';
+import '../../core/settings/settings_controller.dart';
 import '../../core/tts/reading_rate.dart';
+import '../../core/tts/reading_voice.dart';
 import '../../core/tts/tts_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../setup/profiling_screen.dart';
@@ -69,6 +73,7 @@ class SettingItem {
     required this.value,
     this.adjust,
     this.open,
+    this.icon,
   });
 
   /// Stable action id (`settings.readingRate`, …).
@@ -89,6 +94,53 @@ class SettingItem {
 
   /// For [SettingKind.link]: what activating does.
   final FutureOr<void> Function(WidgetRef ref, CommandBus bus)? open;
+
+  /// For [SettingKind.link]: the button icon (default: an arrow).
+  final IconData? icon;
+}
+
+/// How a reading-voice choice is shown and spoken ("Babae", "Boses 2
+/// (fie)").
+String readingVoiceName(
+  String pref,
+  ReadingVoiceOptions? options,
+  AppLocalizations l,
+) {
+  if (pref == ReadingVoicePref.female) return l.valueVoiceFemale;
+  if (pref == ReadingVoicePref.male) return l.valueVoiceMale;
+  final name = ReadingVoicePref.nameOf(pref);
+  if (name == null) return l.valueVoiceDefault;
+  final number = options?.numberOf(pref) ?? 0;
+  final short = TtsVoice(name: name, locale: '').shortName;
+  return number == 0 ? short : l.valueVoiceNamed('$number', short);
+}
+
+/// The "Reading voice" row: Female / Male (or voices by name) from the
+/// voices on this phone; with one voice it only says so. [voices] is null
+/// while the list is loading.
+SettingItem _readingVoiceItem(ReadingVoiceOptions? voices) {
+  String label(SettingContext c) =>
+      readingVoiceName(c.settings.readingVoice, voices, c.l);
+  if (voices == null || voices.fixed) {
+    return SettingItem(
+      id: Ids.settingReadingVoice,
+      kind: SettingKind.link,
+      label: (l) => l.setReadingVoice,
+      value: (c) => voices == null ? label(c) : c.l.valueVoiceOnlyOne,
+      open: (ref, bus) {
+        if (voices == null) return null;
+        unawaited(ref.read(hapticsProvider).error());
+        return bus.say(bus.strings.voiceOnlyOne);
+      },
+    );
+  }
+  return SettingItem(
+    id: Ids.settingReadingVoice,
+    kind: SettingKind.choice,
+    label: (l) => l.setReadingVoice,
+    value: label,
+    adjust: (s, d) => s.copyWith(readingVoice: voices.next(s.readingVoice, d)),
+  );
 }
 
 T _cycle<T>(List<T> values, T current, int direction) =>
@@ -148,7 +200,12 @@ Future<void> _toggleFingerprint(WidgetRef ref, CommandBus bus) async {
 
 /// The settings offered to [account], in order. Guests get "Mag-register"
 /// instead of the account rows.
-List<SettingItem> settingItemsFor(Account? account) => [
+///
+/// [voices]: the reading voices on this phone (null while loading).
+List<SettingItem> settingItemsFor(
+  Account? account, {
+  ReadingVoiceOptions? voices,
+}) => [
   SettingItem(
     id: Ids.settingReadingRate,
     kind: SettingKind.stepper,
@@ -186,6 +243,20 @@ List<SettingItem> settingItemsFor(Account? account) => [
     adjust: (s, d) => s.copyWith(
       documentVoice: _cycle(DocumentVoice.values, s.documentVoice, d),
     ),
+  ),
+  _readingVoiceItem(voices),
+  SettingItem(
+    id: Ids.settingVoicePreview,
+    kind: SettingKind.link,
+    label: (l) => l.setVoicePreview,
+    value: (c) => c.l.valueVoicePreview,
+    icon: Icons.play_arrow,
+    open: (ref, bus) => ref
+        .read(announcerProvider.notifier)
+        .say(
+          bus.strings.voicePreviewSample,
+          rate: ref.read(settingsProvider).readingRate,
+        ),
   ),
   SettingItem(
     id: Ids.settingTextSize,

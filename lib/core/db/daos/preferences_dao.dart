@@ -16,6 +16,9 @@ abstract final class PrefKeys {
   /// Voice pitch (1.0 = normal).
   static const String pitch = 'tts.pitch';
 
+  /// Reading voice: `''`, `'female'`, `'male'` or `'name:<voice>'`.
+  static const String readingVoice = 'tts.voice';
+
   /// `'fil'` or `'en'`.
   static const String locale = 'ui.locale';
 

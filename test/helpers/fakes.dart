@@ -127,6 +127,19 @@ class FakeTts implements TtsService {
 
   @override
   Future<void> setPitch(double pitch) async => pitches.add(pitch);
+
+  /// What [listVoices] reports.
+  List<TtsVoice> installedVoices = const [];
+
+  /// Reading-voice preferences set, in order.
+  final List<String> voicePreferences = [];
+
+  @override
+  Future<List<TtsVoice>> listVoices() async => installedVoices;
+
+  @override
+  Future<void> setVoicePreference(String preference) async =>
+      voicePreferences.add(preference);
 }
 
 /// Records haptic cues.
@@ -137,6 +150,12 @@ class FakeEarcon implements Earcon {
 
   @override
   Future<void> heard() async => played++;
+
+  /// Times the "listening" cue played.
+  int listeningCues = 0;
+
+  @override
+  Future<void> listening() async => listeningCues++;
 }
 
 class FakeHaptics implements Haptics {

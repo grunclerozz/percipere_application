@@ -32,6 +32,12 @@ abstract final class AppDimens {
 
   /// Height of the Speaking Zone waveform.
   static const double waveformHeight = 48;
+
+  /// Width of the speed strip at the right edge of the Gesture Pad.
+  static const double speedStripWidth = 88;
+
+  /// Finger travel on the speed strip for one 0.25x step.
+  static const double speedStepDistance = 36;
 }
 
 /// Timing constants.
@@ -55,4 +61,8 @@ abstract final class AppDurations {
 
   /// A pending "oo/hindi" question or offer expires after this.
   static const Duration pendingAnswer = Duration(seconds: 20);
+
+  /// The speed strip speaks the new speed once the finger has been still
+  /// this long (fast drags never queue speech).
+  static const Duration speedSpeakDelay = Duration(milliseconds: 450);
 }

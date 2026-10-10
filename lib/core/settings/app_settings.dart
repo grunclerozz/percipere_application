@@ -59,6 +59,7 @@ class AppSettings {
     this.navMode,
     this.readingRate = 1.0,
     this.pitch = 1.0,
+    this.readingVoice = '',
     this.locale = AppLocales.filipino,
     this.documentVoice = DocumentVoice.auto,
     this.textSize = TextSize.standard,
@@ -86,6 +87,10 @@ class AppSettings {
 
   /// Voice pitch (0.5–2.0, steps of 0.25).
   final double pitch;
+
+  /// Reading voice (`ReadingVoicePref`): empty for the engine default,
+  /// `female`, `male`, or `name:<voice>`. Used for documents and prompts.
+  final String readingVoice;
 
   /// UI and prompt language.
   final Locale locale;
@@ -171,6 +176,7 @@ class AppSettings {
     Object? navMode = _keep,
     double? readingRate,
     double? pitch,
+    String? readingVoice,
     Locale? locale,
     DocumentVoice? documentVoice,
     double? textSize,
@@ -192,6 +198,7 @@ class AppSettings {
     navMode: identical(navMode, _keep) ? this.navMode : navMode as NavMode?,
     readingRate: ReadingRate.normalize(readingRate ?? this.readingRate),
     pitch: ReadingRate.normalize(pitch ?? this.pitch),
+    readingVoice: readingVoice ?? this.readingVoice,
     locale: locale ?? this.locale,
     documentVoice: documentVoice ?? this.documentVoice,
     textSize: TextSize.normalize(textSize ?? this.textSize),
@@ -218,6 +225,7 @@ class AppSettings {
     PrefKeys.navigationMode: navMode?.name,
     PrefKeys.readingRate: readingRate,
     PrefKeys.pitch: pitch,
+    PrefKeys.readingVoice: readingVoice,
     PrefKeys.locale: locale.languageCode,
     PrefKeys.documentVoice: documentVoice.name,
     PrefKeys.textSize: textSize,
@@ -260,6 +268,9 @@ class AppSettings {
       navMode: NavMode.tryParse(p[PrefKeys.navigationMode]),
       readingRate: num_(p[PrefKeys.readingRate]),
       pitch: num_(p[PrefKeys.pitch]),
+      readingVoice: p[PrefKeys.readingVoice] is String
+          ? p[PrefKeys.readingVoice]! as String
+          : null,
       locale: p[PrefKeys.locale] == 'en' ? AppLocales.english : null,
       documentVoice: byName(DocumentVoice.values, p[PrefKeys.documentVoice]),
       textSize:
@@ -296,6 +307,7 @@ class AppSettings {
       other.navMode == navMode &&
       other.readingRate == readingRate &&
       other.pitch == pitch &&
+      other.readingVoice == readingVoice &&
       other.locale == locale &&
       other.documentVoice == documentVoice &&
       other.textSize == textSize &&
@@ -319,6 +331,7 @@ class AppSettings {
     navMode,
     readingRate,
     pitch,
+    readingVoice,
     locale,
     documentVoice,
     textSize,

@@ -32,6 +32,7 @@ Future<List<Override>> bootstrap() async {
 
   final tts = await FlutterTtsService.create();
   await tts.setPitch(settings.pitch);
+  await tts.setVoicePreference(settings.readingVoice);
   final voices = await tts.checkVoices();
   debugPrint(
     'Percipere voices: filipinoReady=${voices.filipinoReady}, '

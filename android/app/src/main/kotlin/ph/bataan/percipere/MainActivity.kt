@@ -31,24 +31,30 @@ class MainActivity : FlutterFragmentActivity() {
                 result.notImplemented()
             }
         }
-        // The short "heard you" sound played the moment a voice command is
-        // recognized. ToneGenerator starts at once (no file to load).
+        // Short sounds: "heard you" the moment a voice command is recognized,
+        // and a softer "listening" blip when the microphone opens after the
+        // app has spoken. ToneGenerator starts at once (no file to load).
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "ph.bataan.percipere/sound"
         ).setMethodCallHandler { call, result ->
-            if (call.method == "heard") {
+            val (tone, millis) = when (call.method) {
+                "heard" -> ToneGenerator.TONE_PROP_BEEP to 70
+                "listening" -> ToneGenerator.TONE_PROP_ACK to 40
+                else -> null to 0
+            }
+            if (tone == null) {
+                result.notImplemented()
+            } else {
                 try {
                     val generator = tones
                         ?: ToneGenerator(AudioManager.STREAM_MUSIC, 70).also { tones = it }
-                    generator.startTone(ToneGenerator.TONE_PROP_BEEP, 70)
+                    generator.startTone(tone, millis)
                     result.success(true)
                 } catch (e: RuntimeException) {
                     // No audio right now: the vibration still confirms.
                     result.success(false)
                 }
-            } else {
-                result.notImplemented()
             }
         }
     }

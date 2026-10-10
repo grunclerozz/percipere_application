@@ -22,6 +22,7 @@ import '../settings/settings_controller.dart';
 import '../tts/speech_language.dart';
 import 'barge_in.dart';
 import 'command_matcher.dart';
+import 'reading_duck.dart';
 import 'speech_input.dart';
 
 /// Recognizer state as the UI sees it.
@@ -159,6 +160,23 @@ class VoiceController extends Notifier<VoiceState> {
   Timer? _heardTimer;
   Completer<String?>? _dictation;
 
+  /// Words from a session that was cut off while the user was speaking;
+  /// the next session's words are added to them ([VoiceConfig.carryFor]).
+  String _carry = '';
+  DateTime? _carryAt;
+
+  /// Restarts in a row after cut-offs ([VoiceConfig.cutOffRetries]).
+  int _carryRetries = 0;
+
+  /// Play the "listening" cue when the next session opens (the app has
+  /// just spoken, or the user asked to be heard).
+  bool _cueNext = false;
+
+  /// Reading is paused while the user speaks over it.
+  bool _ducking = false;
+  Timer? _duckTimer;
+  DateTime? _noDuckUntil;
+
   late SpeechInput _stt;
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
 
@@ -171,6 +189,7 @@ class VoiceController extends Notifier<VoiceState> {
       ..onDispose(() {
         _restartTimer?.cancel();
         _heardTimer?.cancel();
+        _duckTimer?.cancel();
         _session++;
         if (_listening) unawaited(_stt.cancel());
       })
@@ -199,6 +218,8 @@ class VoiceController extends Notifier<VoiceState> {
         // A new screen never starts in password privacy.
         if (previous?.id != next?.id) sensitive = false;
         noteActivity();
+        // Have the recognizer ready before the first command.
+        unawaited(warmUp());
       });
     return const VoiceState();
   }
@@ -379,10 +400,13 @@ class VoiceController extends Notifier<VoiceState> {
     required DateTime? action,
     required String what,
   }) {
+    // Latency logs are for tuning on the tablet: debug builds only.
+    if (!kDebugMode) return;
     String gap(DateTime? from, DateTime? to) => from == null || to == null
         ? '–'
         : '${to.difference(from).inMilliseconds}ms';
     final endOfSpeech = t.lastChange ?? t.firstPartial ?? t.decided;
+    final speechStart = t.firstSound ?? t.firstPartial;
     debugPrint(
       '[VOICE TIMING] "${sensitive ? '•••' : t.text}" via ${t.via} → '
       '${t.match ?? what}${action == null ? ' (nothing run)' : ''} | '
@@ -391,7 +415,8 @@ class VoiceController extends Notifier<VoiceState> {
       'last word→result ${gap(endOfSpeech, t.decided)} | '
       'result→match ${gap(t.decided, t.matched)} | '
       'match→action ${gap(t.matched, action)} | '
-      'END OF SPEECH→ACTION ${gap(endOfSpeech, action)}',
+      'END OF SPEECH→ACTION ${gap(endOfSpeech, action)} | '
+      'SPEECH START→ACTION ${gap(speechStart, action)}',
     );
   }
 
@@ -402,8 +427,43 @@ class VoiceController extends Notifier<VoiceState> {
       unawaited(stopListening());
     } else {
       noteActivity();
-      unawaited(_refreshMicStatus());
+      unawaited(_refreshMicStatus().then((_) => warmUp()));
     }
+  }
+
+  /// Creates the recognizer once, ahead of the first command (screen start,
+  /// app back in front), so the first session opens without the setup
+  /// delay. It is reused for every session after that. Silent: problems
+  /// are explained when listening is actually asked for.
+  Future<void> warmUp() async {
+    if (_initialized || !_micGranted || !ref.mounted) return;
+    await _initRecognizer();
+  }
+
+  /// The one recognizer setup; callers that arrive while it runs wait for
+  /// the same one.
+  Future<void>? _initializing;
+  Future<void> _initRecognizer() => _initializing ??= _createRecognizer();
+
+  Future<void> _createRecognizer() async {
+    final watch = Stopwatch()..start();
+    _recognizerAvailable = await _stt.initialize(
+      onError: _onError,
+      onStatus: _onStatus,
+    );
+    // The app may have closed while the recognizer was starting.
+    if (!ref.mounted) return;
+    if (_recognizerAvailable) {
+      _localeId = await _pickLocale();
+      if (!ref.mounted) return;
+      _log(
+        'initialized in ${watch.elapsedMilliseconds}ms; '
+        'picked locale $_localeId',
+      );
+    } else {
+      _log('initialize() returned false: no recognizer');
+    }
+    _initialized = true;
   }
 
   /// Listens once for free speech (a name, a document title) and returns the
@@ -421,6 +481,7 @@ class VoiceController extends Notifier<VoiceState> {
     _oneShot = false;
     _sameFailures = _instantFailures = 0;
     unawaited(ref.read(hapticsProvider).tick());
+    _cueNext = true;
     await _start();
     return result.future;
   }
@@ -446,6 +507,7 @@ class VoiceController extends Notifier<VoiceState> {
     _oneShot = !_wantsAutoListen;
     _sameFailures = _instantFailures = 0; // an explicit retry starts fresh
     unawaited(ref.read(hapticsProvider).tick());
+    _cueNext = true;
     await _start();
   }
 
@@ -468,17 +530,7 @@ class VoiceController extends Notifier<VoiceState> {
     }
 
     if (!_initialized) {
-      _initialized = true;
-      _recognizerAvailable = await _stt.initialize(
-        onError: _onError,
-        onStatus: _onStatus,
-      );
-      if (_recognizerAvailable) {
-        _localeId = await _pickLocale();
-        _log('initialized; picked locale $_localeId');
-      } else {
-        _log('initialize() returned false: no recognizer');
-      }
+      await _initRecognizer();
       if (!ref.mounted) return false;
     }
     if (!_recognizerAvailable) {
@@ -496,6 +548,8 @@ class VoiceController extends Notifier<VoiceState> {
   Future<void> stopListening() async {
     _restartTimer?.cancel();
     _endDictation();
+    _clearCarry();
+    _unduck();
     if (_listening) {
       _log('cancelled by app (stopListening)');
       _session++;
@@ -542,9 +596,10 @@ class VoiceController extends Notifier<VoiceState> {
   }
 
   Future<String> _pickLocale() async {
+    // Read before the wait: the controller may be gone after it.
+    final filipinoUi = ref.read(appLocaleProvider) == AppLocales.filipino;
     final ids = await _stt.localeIds();
     String norm(String s) => s.replaceAll('_', '-').toLowerCase();
-    final filipinoUi = ref.read(appLocaleProvider) == AppLocales.filipino;
     final preferred = filipinoUi
         ? ['fil-ph', 'fil', 'tl-ph', 'en-ph', 'en-us']
         : ['en-ph', 'en-us', 'fil-ph'];
@@ -566,9 +621,14 @@ class VoiceController extends Notifier<VoiceState> {
     }
     if (next.speaking) {
       if (_listening) {
-        // Never listen to our own prompts.
+        // Never listen to our own prompts. What the user had already said
+        // is kept and joined to what the next session hears.
+        final cut = _sessionBargeIn || _dictation != null
+            ? ''
+            : _withCarry(_lastWords).trim();
         _log('speech started ("${next.text}"): cancelling the open session');
         unawaited(stopListening());
+        if (cut.isNotEmpty) _keepCarry(cut, 'the app started talking');
       }
       return;
     }
@@ -589,7 +649,10 @@ class VoiceController extends Notifier<VoiceState> {
       _abandonSession();
       return;
     }
-    if (wasBusy) _scheduleAutoListen();
+    if (wasBusy) {
+      _cueNext = true;
+      _scheduleAutoListen();
+    }
   }
 
   void _scheduleAutoListen({Duration? gap}) {
@@ -645,6 +708,26 @@ class VoiceController extends Notifier<VoiceState> {
     state = VoiceState(status: ListenStatus.listening, heard: state.heard);
     final dictating = _dictation != null;
     _sessionBargeIn = !dictating && _readingNow;
+    final carriedAt = _carryAt;
+    if (_sessionBargeIn ||
+        dictating ||
+        (carriedAt != null &&
+            DateTime.now().difference(carriedAt) > VoiceConfig.carryFor)) {
+      _clearCarry();
+    }
+    final carrying = _carry.isNotEmpty;
+    if (carrying) {
+      state = VoiceState(
+        status: ListenStatus.listening,
+        partial: sensitive ? '•' * _carry.length : _carry,
+        heard: state.heard,
+      );
+    }
+    if (_cueNext && !_sessionBargeIn) {
+      // "Your turn": the moment the microphone opens after the app spoke.
+      unawaited(ref.read(earconProvider).listening());
+    }
+    _cueNext = false;
     final request = ListenRequest(
       localeId: _useDefaultLocale ? null : (_localeId ?? 'fil-PH'),
       onDevice: !_onDeviceUnavailable,
@@ -655,8 +738,12 @@ class VoiceController extends Notifier<VoiceState> {
           : ref.read(commandBusProvider).expectedPhrases(),
       dictation: dictating,
       // Wait for the first words, then the short pause (see onResult).
+      // After a cut-off, a short wait for more: the rest of what was said
+      // may already be over.
       pauseFor: dictating
           ? VoiceConfig.dictationPause
+          : carrying
+          ? VoiceConfig.carryWait
           : VoiceConfig.waitForSpeech,
       pauseAfterSpeech: dictating
           ? VoiceConfig.dictationPause
@@ -673,7 +760,8 @@ class VoiceController extends Notifier<VoiceState> {
       'pauseFor=${request.pauseFor.inMilliseconds}ms'
       '→${request.pauseAfterSpeech.inMilliseconds}ms after speech '
       'partialResults=true '
-      'phrases=${request.phrases.length}',
+      'phrases=${request.phrases.length}'
+      '${carrying ? ' carrying="${sensitive ? '•••' : _carry}"' : ''}',
     );
     try {
       await _stt.listen(
@@ -734,18 +822,20 @@ class VoiceController extends Notifier<VoiceState> {
       // Answering a question: hold its instructions back while they talk.
       ref.read(announcerProvider.notifier).userResponding();
     }
+    // After a cut-off, what was heard before counts too.
+    final said = _withCarry(words);
     if (!isFinal) {
       state = VoiceState(
         status: ListenStatus.listening,
-        partial: sensitive ? '•' * words.length : words,
+        partial: sensitive ? '•' * said.length : said,
         heard: state.heard,
       );
-      if (_dictation == null && !sensitive) _tryPartial(words);
+      if (_dictation == null && !sensitive) _tryPartial(said);
       return;
     }
     _gotFinal = true;
     _listening = false;
-    final text = words.trim();
+    final text = said.trim();
     if (text.isEmpty) {
       if (_failedSession('empty_final')) return;
       return _endEmpty();
@@ -788,9 +878,17 @@ class VoiceController extends Notifier<VoiceState> {
       );
       return;
     }
-    if (!isFinal) return;
+    if (!isFinal) {
+      // The user (not the app's own voice) is talking: pause the reading
+      // so the rest of what they say is heard clearly.
+      if (words.trim().isNotEmpty && !BargeIn.isEcho(words, readAloud)) {
+        _duck();
+      }
+      return;
+    }
     _gotFinal = true;
     _listening = false;
+    _unduck(missed: true);
     if (words.trim().isEmpty) {
       if (_failedSession('empty_final')) return;
       return _endEmpty();
@@ -813,6 +911,7 @@ class VoiceController extends Notifier<VoiceState> {
     _instantFailures = 0;
     _sameFailures = 0;
     _lastFailure = null;
+    _clearCarry();
 
     _oneShot = false;
     noteActivity();
@@ -858,7 +957,11 @@ class VoiceController extends Notifier<VoiceState> {
 
   Future<void> _handleIntent(NavIntent intent) async {
     await ref.read(commandBusProvider).dispatch(intent);
-    if (ref.mounted) _scheduleAutoListen();
+    if (!ref.mounted) return;
+    // The command decided what the Reader does now; if it left reading
+    // alone, the paused sentence goes on.
+    _unduck();
+    _scheduleAutoListen();
   }
 
   /// Ends the open session now because its words were acted on: later
@@ -873,6 +976,8 @@ class VoiceController extends Notifier<VoiceState> {
   /// Drops the open session and listens again shortly.
   void _abandonSession() {
     _restartTimer?.cancel();
+    _clearCarry();
+    _unduck(missed: true);
     if (_listening || _platformOpen) {
       _session++;
       _listening = false;
@@ -918,6 +1023,8 @@ class VoiceController extends Notifier<VoiceState> {
     if (status == 'done' || status == 'notListening') _platformOpen = false;
     if (status == 'done' && _listening && !_gotFinal) {
       _listening = false;
+      if (_salvage('done_without_result')) return;
+      if (_sessionBargeIn) _unduck(missed: true);
       if (_failedSession('done_without_result')) return;
       _endEmpty();
     }
@@ -929,6 +1036,13 @@ class VoiceController extends Notifier<VoiceState> {
     _platformOpen = false;
     if (!_listening) return;
     _listening = false;
+    final setupError =
+        code == 'error_permission' ||
+        code == 'error_insufficient_permissions' ||
+        code == 'error_language_unavailable' ||
+        code == 'error_language_not_supported';
+    if (!setupError && _salvage(code)) return;
+    if (_sessionBargeIn) _unduck(missed: true);
     if (code != 'error_permission' &&
         code != 'error_insufficient_permissions' &&
         code != 'error_language_unavailable' &&
@@ -992,6 +1106,7 @@ class VoiceController extends Notifier<VoiceState> {
 
   void _endEmpty() {
     _listening = false;
+    _unduck(missed: true);
     state = VoiceState(heard: state.heard);
     if (_dictation != null) {
       _endDictation();
@@ -1004,6 +1119,119 @@ class VoiceController extends Notifier<VoiceState> {
     }
     // Nothing was spoken, so there is no echo to wait for.
     _scheduleAutoListen(gap: VoiceConfig.sessionGap);
+  }
+
+  // ── Cut-off speech ──────────────────────────────────────────────────────
+
+  /// Codes that mean the user simply stopped talking.
+  static const Set<String> _quietEnds = {
+    'error_no_match',
+    'error_speech_timeout',
+    'done_without_result',
+    'empty_final',
+  };
+
+  /// A command session ended ([why]) without a final result. If words had
+  /// been heard, they are not dropped: when the user had just stopped
+  /// talking they are acted on now; when the session was cut off (busy,
+  /// audio focus, …) listening restarts at once and keeps them, up to
+  /// [VoiceConfig.cutOffRetries] times, then the user is asked to repeat.
+  /// Returns true if it handled the end of the session.
+  bool _salvage(String why) {
+    if (_dictation != null || _sessionBargeIn) return false;
+    final started = _sessionStart;
+    final lastCommand = _lastCommandAt;
+    if (lastCommand != null &&
+        started != null &&
+        started.isBefore(lastCommand)) {
+      return false; // said before the last command: stale
+    }
+    final said = _withCarry(_lastWords).trim();
+    if (said.isEmpty) return false;
+    if (_quietEnds.contains(why)) {
+      _log(
+        'session ended ($why) without a final result: acting on '
+        '${sensitive ? '•••' : '"$said"'}',
+      );
+      _accept(said, via: _carry.isEmpty ? 'last partial' : 'carried');
+      return true;
+    }
+    if (_carryRetries >= VoiceConfig.cutOffRetries) {
+      _log('cut off ($why) $_carryRetries times in a row: asking to repeat');
+      _clearCarry();
+      state = VoiceState(heard: state.heard);
+      unawaited(ref.read(hapticsProvider).error());
+      unawaited(_say(_l.voiceSayAgain));
+      return true;
+    }
+    _keepCarry(said, why);
+    state = VoiceState(
+      status: ListenStatus.listening,
+      partial: sensitive ? '•' * said.length : said,
+      heard: state.heard,
+    );
+    _restartTimer?.cancel();
+    _restartTimer = Timer(VoiceConfig.sessionGap, () {
+      if (ref.mounted && !_listening) unawaited(_start());
+    });
+    return true;
+  }
+
+  void _keepCarry(String said, String why) {
+    _carry = said;
+    _carryAt = DateTime.now();
+    _carryRetries++;
+    _log(
+      'cut off ($why) mid-speech: keeping ${sensitive ? '•••' : '"$said"'} '
+      'for the next session ($_carryRetries/${VoiceConfig.cutOffRetries})',
+    );
+  }
+
+  void _clearCarry() {
+    _carry = '';
+    _carryAt = null;
+    _carryRetries = 0;
+  }
+
+  /// [words] after the words kept from a cut-off session (once: the
+  /// recognizer may repeat them).
+  String _withCarry(String words) {
+    final carry = _carry;
+    if (carry.isEmpty) return words;
+    final w = words.trim();
+    if (w.isEmpty) return carry;
+    final lower = w.toLowerCase();
+    final kept = carry.toLowerCase();
+    // The user said it again from the start (whole words only: "pa" is
+    // not repeated by "pause").
+    if (lower == kept || lower.startsWith('$kept ')) return w;
+    return '$carry $w';
+  }
+
+  // ── Pausing the reading for the user's voice ────────────────────────────
+
+  void _duck() {
+    if (_ducking) return;
+    final quietUntil = _noDuckUntil;
+    if (quietUntil != null && DateTime.now().isBefore(quietUntil)) return;
+    _ducking = true;
+    _log('user speaking over the reading: pausing it');
+    ref.read(readingDuckProvider.notifier).set(on: true);
+    _duckTimer?.cancel();
+    _duckTimer = Timer(VoiceConfig.duckMax, () => _unduck(missed: true));
+  }
+
+  /// Lets the reading go on. [missed]: no command came of it, so don't
+  /// pause for speech again for a while ([VoiceConfig.duckCooldown]).
+  void _unduck({bool missed = false}) {
+    if (!_ducking) return;
+    _ducking = false;
+    _duckTimer?.cancel();
+    if (missed) {
+      _noDuckUntil = DateTime.now().add(VoiceConfig.duckCooldown);
+    }
+    _log('reading resumes');
+    if (ref.mounted) ref.read(readingDuckProvider.notifier).set(on: false);
   }
 
   Future<void> _explainMicRefused(PermissionAccess access) async {

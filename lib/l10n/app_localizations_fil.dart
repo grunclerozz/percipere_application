@@ -2051,4 +2051,65 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get percyUnavailable =>
       'Hindi ko mabuksan si Percy ngayon. Gumagana pa rin ang karaniwang mga utos.';
+
+  @override
+  String get voiceSayAgain => 'Pasensya na po, pakiulit.';
+
+  @override
+  String get speedStripLabel => 'Bilis';
+
+  @override
+  String speedStripValue(String rate) {
+    return 'Bilis, $rate na beses';
+  }
+
+  @override
+  String speedSpoken(String rate) {
+    return 'Bilis $rate';
+  }
+
+  @override
+  String get speedIncrease => 'Bilisan';
+
+  @override
+  String get speedDecrease => 'Bagalan';
+
+  @override
+  String get setReadingVoice => 'Boses sa pagbasa';
+
+  @override
+  String get valueVoiceDefault => 'Karaniwan';
+
+  @override
+  String get valueVoiceFemale => 'Babae';
+
+  @override
+  String get valueVoiceMale => 'Lalaki';
+
+  @override
+  String valueVoiceNamed(String number, String name) {
+    return 'Boses $number ($name)';
+  }
+
+  @override
+  String get valueVoiceOnlyOne => 'Iisa lang ang boses';
+
+  @override
+  String get voiceOnlyOne =>
+      'Iisa lang ang boses sa teleponong ito para sa wikang ito, kaya hindi ito mapapalitan.';
+
+  @override
+  String voiceChanged(String voice) {
+    return 'Napalitan na ang boses: $voice.';
+  }
+
+  @override
+  String get setVoicePreview => 'Pakinggan ang boses';
+
+  @override
+  String get valueVoicePreview => 'I-play ang halimbawa';
+
+  @override
+  String get voicePreviewSample =>
+      'Ganito ang tunog ng boses na babasa ng iyong mga dokumento.';
 }

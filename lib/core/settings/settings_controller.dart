@@ -44,6 +44,9 @@ class SettingsController extends Notifier<AppSettings> {
     if (after.pitch != before.pitch) {
       await ref.read(ttsServiceProvider).setPitch(after.pitch);
     }
+    if (after.readingVoice != before.readingVoice) {
+      await ref.read(ttsServiceProvider).setVoicePreference(after.readingVoice);
+    }
     final old = before.toPrefs();
     for (final MapEntry(:key, :value) in after.toPrefs().entries) {
       if (old[key] != value) await _dao.set(key, value, userId: _scope);
@@ -70,9 +73,7 @@ class SettingsController extends Notifier<AppSettings> {
       next = AppSettings.fromPrefs(stored);
     }
     _scope = scope;
-    if (next.pitch != state.pitch) {
-      await ref.read(ttsServiceProvider).setPitch(next.pitch);
-    }
+    await _applyVoice(next);
     state = next;
   }
 
@@ -80,10 +81,18 @@ class SettingsController extends Notifier<AppSettings> {
   /// rewrote it, e.g. guest → account migration).
   Future<void> reload() async {
     final next = AppSettings.fromPrefs(await _dao.getAll(userId: _scope));
-    if (next.pitch != state.pitch) {
-      await ref.read(ttsServiceProvider).setPitch(next.pitch);
-    }
+    await _applyVoice(next);
     state = next;
+  }
+
+  /// Gives the TTS engine [next]'s pitch and reading voice, if they differ
+  /// from the current ones.
+  Future<void> _applyVoice(AppSettings next) async {
+    final tts = ref.read(ttsServiceProvider);
+    if (next.pitch != state.pitch) await tts.setPitch(next.pitch);
+    if (next.readingVoice != state.readingVoice) {
+      await tts.setVoicePreference(next.readingVoice);
+    }
   }
 }
 

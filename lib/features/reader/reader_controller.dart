@@ -22,8 +22,10 @@ import '../../core/tts/chunker.dart';
 import '../../core/tts/language_detector.dart';
 import '../../core/tts/reading_rate.dart';
 import '../../core/tts/speech_language.dart';
+import '../../core/tts/speed_control.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/understanding/document_insights.dart';
+import '../../core/voice/reading_duck.dart';
 import '../../l10n/app_localizations.dart';
 
 /// What the Reader opens.
@@ -291,6 +293,9 @@ class ReaderController extends Notifier<ReaderState> {
   late Announcer _announcer;
   int _token = 0;
   bool _playing = false;
+
+  /// Reading is paused because the user is speaking over it.
+  bool _ducked = false;
   String? _itemId;
   Future<void>? _saving;
   bool _finished = false;
@@ -308,7 +313,16 @@ class ReaderController extends Notifier<ReaderState> {
     _tts = ref.read(ttsServiceProvider);
     _dao = ref.read(libraryDaoProvider);
     _announcer = ref.read(announcerProvider.notifier);
+    // The speed strip speaks its value through the Reader, which pauses
+    // around it and goes on at the new speed.
+    final speed = ref.read(speedControlProvider);
+    Future<void> speedNote(String note) => _sayCaption(note);
+    speed.reader = speedNote;
+    // The user talks over the reading: pause it so they can be heard, then
+    // carry on (unless their command changed what the Reader is doing).
+    ref.listen(readingDuckProvider, (_, on) => on ? _duck() : _unduck());
     ref.onDispose(() {
+      if (identical(speed.reader, speedNote)) speed.reader = null;
       _token++;
       _captionTimer?.cancel();
       if (_playing) {
@@ -610,6 +624,7 @@ class ReaderController extends Notifier<ReaderState> {
     final n = state.sentences.length;
     if (state.index >= n) _setIndex(0);
     _playing = true;
+    _ducked = false;
     if (_finished) {
       // Reading a finished item again.
       _finished = false;
@@ -851,8 +866,26 @@ class ReaderController extends Notifier<ReaderState> {
     await _tts.stop();
   }
 
+  /// Stops the voice mid-sentence while the user speaks; stays "playing".
+  void _duck() {
+    if (!_playing || _ducked) return;
+    _ducked = true;
+    unawaited(_halt());
+  }
+
+  /// Reads the interrupted sentence again, if nothing else took over.
+  void _unduck() {
+    if (!_ducked) return;
+    _ducked = false;
+    // After the notification that called this, not during it.
+    scheduleMicrotask(() {
+      if (ref.mounted && _playing && !_ducked) unawaited(play());
+    });
+  }
+
   void _stopped() {
     _playing = false;
+    _ducked = false;
     _pendingNote = null;
     if (!ref.mounted) return;
     state = state.copyWith(playing: false);

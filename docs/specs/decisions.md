@@ -2,6 +2,33 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-10 (2) — Voice latency, speed strip, reading voice
+**Decided (user):** three small additions — faster, more forgiving voice commands; a speed
+strip at the right edge of the Gesture Area; a female/male reading voice in Settings.
+**Implementation choices:**
+- **No rolling audio buffer.** Android's `SpeechRecognizer` (via `speech_to_text`) opens the
+  microphone itself and can't be given audio recorded earlier; doing it would need our own
+  native recognizer pipeline. Instead the recognizer is created once and reused (prepared on
+  the first screen and when the app comes back), and a session cut off mid-speech restarts
+  at once and keeps the words heard so far (up to 3 times, then "Pasensya na po, pakiulit.").
+  Words followed by a quiet end are acted on instead of dropped.
+- The end-of-speech pause is one constant, `VoiceConfig.commandPause`, now 1.0 s.
+- The "listening" blip plays when the microphone opens after the app spoke (or on a
+  long-press), not on silent restarts, so voice mode doesn't beep constantly.
+- Talking over the reading pauses the Reader's voice (TTS can't be ducked mid-sentence);
+  without a command the sentence is read again. After a false alarm it won't pause for
+  speech again for 8 s, so a misheard echo can't loop the same sentence.
+- The latency log (`[VOICE TIMING]`, now with SPEECH START→ACTION) prints in debug builds
+  only; the other `[VOICE]` lines are unchanged.
+- The speed strip sits **beside** the pad's gesture surface (not on it), so the two can never
+  mix. It is on every screen with a Gesture Pad. During reading, the value is spoken between
+  sentences and reading resumes at the new speed. The mockup's Volume strip was not in the
+  request and isn't built.
+- The reading voice is saved as `female` / `male` (or `name:<voice>` when the engine gives no
+  gender) and applies to documents and prompts. A gender choice follows the document's
+  language when that language has a voice of that gender. Google's voices usually don't name
+  their gender, so on many phones the row lists voices by name.
+
 ## 2026-10-10 — Phase 9: Percy (self-built) replaces ElevenLabs as the default
 **Decided (user):** for the Intelligent Systems class, Percy runs on **our own intent
 classifier** (scikit-learn, trained on the team's `data/percy/intents.csv`, exported to JSON,

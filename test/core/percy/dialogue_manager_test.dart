@@ -90,7 +90,7 @@ void main() {
     return dm.handle(text, env, style);
   }
 
-  group('report an issue (rule until the model is retrained)', () {
+  group('report an issue (keyword rule as a backstop to the model)', () {
     test('a sentence about reporting opens the report, even when the '
         'model is unsure', () async {
       for (final text in [

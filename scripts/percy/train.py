@@ -5,7 +5,8 @@ Usage (from the project folder, Windows):
 
 Steps: validate the dataset, preprocess, split 70/15/15 (stratified, seed 42),
 TF-IDF features (word 1–2-grams + per-word char 3–5-grams), compare Multinomial
-Naive Bayes and Logistic Regression (tuned on validation), evaluate on test,
+Naive Bayes and Logistic Regression (tuned by 5-fold cross-validation on
+train + validation), evaluate on test,
 write the report and confusion matrix, export model.json / model_alt.json and
 the test vectors used by the Dart unit test.
 
@@ -51,6 +52,7 @@ REPORTS = ROOT / "data" / "percy" / "reports"
 VECTORS = Path(__file__).resolve().parent / "test_vectors.json"
 
 SEED = 42
+CV_FOLDS = 5
 NB_ALPHAS = [0.01, 0.03, 0.1, 0.3, 1.0]
 LR_CS = [1.0, 3.0, 10.0, 30.0, 100.0]
 DECIMALS = 6  # rounding of exported numbers (keeps model.json small)
@@ -158,24 +160,34 @@ def describe(kind, param, option) -> str:
     return f"Multinomial Naive Bayes (alpha={param}, fit_prior={option})"
 
 
-def tune(kind, train, val):
-    """Best (macro F1 on validation) hyperparameters for [kind]."""
+def tune(kind, data):
+    """Hyperparameters for [kind], best first, by stratified 5-fold
+    cross-validation on [data] (train + validation).
+
+    Each row is (mean macro F1, mean accuracy, SD of macro F1, param,
+    option). Cross-validation replaced the single validation set
+    (2026-10-11): with 77 validation sentences the winner changed by noise.
+    The features are refit inside every fold, so no fold sees its own words.
+    """
     grid = (
         [(c, w) for c in LR_CS for w in (None, "balanced")]
         if kind == "logreg"
         else [(a, p) for a in NB_ALPHAS for p in (True, False)]
     )
+    X, y = np.array(data[0], dtype=object), np.array(data[1])
+    folds = list(
+        StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED).split(X, y)
+    )
     results = []
     for param, option in grid:
-        feat, model = fit(kind, param, option, *train)
-        pred = model.predict(feat.transform(val[0]))
+        f1s, accs = [], []
+        for a, b in folds:
+            feat, model = fit(kind, param, option, list(X[a]), list(y[a]))
+            pred = model.predict(feat.transform(list(X[b])))
+            f1s.append(f1_score(y[b], pred, average="macro", zero_division=0))
+            accs.append(accuracy_score(y[b], pred))
         results.append(
-            (
-                f1_score(val[1], pred, average="macro", zero_division=0),
-                accuracy_score(val[1], pred),
-                param,
-                option,
-            )
+            (float(np.mean(f1s)), float(np.mean(accs)), float(np.std(f1s)), param, option)
         )
     results.sort(key=lambda r: (r[0], r[1]), reverse=True)
     return results
@@ -350,37 +362,30 @@ def main() -> int:
     print(f"{len(data)} sentences ({dropped} repeats dropped): "
           f"train {len(train_i)}, validation {len(val_i)}, test {len(test_i)}")
 
-    # Tune both on validation.
-    tuned = {k: tune(k, train, val) for k in ("multinomial_nb", "logreg")}
+    # Tune both by cross-validation on train + validation.
+    trval = (train[0] + val[0], train[1] + val[1])
+    tuned = {k: tune(k, trval) for k in ("multinomial_nb", "logreg")}
     best = {k: v[0] for k, v in tuned.items()}
-    for k, (f1, acc, p, o) in best.items():
-        print(f"  {describe(k, p, o)}: validation macro F1 {f1:.3f}, accuracy {acc:.3f}")
-    # Higher validation macro F1 wins; a tie goes to Logistic Regression
+    for k, (f1, acc, sd, p, o) in best.items():
+        print(f"  {describe(k, p, o)}: {CV_FOLDS}-fold CV macro F1 {f1:.3f} ± {sd:.3f}, "
+              f"accuracy {acc:.3f}")
+    # Higher CV macro F1 wins; a tie goes to Logistic Regression
     # (its probabilities are better calibrated for the confidence thresholds).
     chosen = max(best, key=lambda k: (best[k][0], best[k][1], k == "logreg"))
     other = "logreg" if chosen == "multinomial_nb" else "multinomial_nb"
 
     # Final models on train + validation; evaluated on test.
-    trval = (train[0] + val[0], train[1] + val[1])
     final = {}
     for k in (chosen, other):
-        _, _, p, o = best[k]
+        _, _, _, p, o = best[k]
         feat, model = fit(k, p, o, *trval)
         pred = model.predict(feat.transform(test[0]))
         proba = model.predict_proba(feat.transform(test[0]))
         final[k] = dict(feat=feat, model=model, pred=pred, proba=proba, p=p, o=o)
 
-    # 5-fold cross-validation (train + validation, chosen settings).
-    cv_scores = {}
-    for k in (chosen, other):
-        _, _, p, o = best[k]
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
-        accs = []
-        X, y = np.array(trval[0], dtype=object), np.array(trval[1])
-        for a, b in skf.split(X, y):
-            feat, model = fit(k, p, o, list(X[a]), list(y[a]))
-            accs.append(accuracy_score(y[b], model.predict(feat.transform(list(X[b])))))
-        cv_scores[k] = (float(np.mean(accs)), float(np.std(accs)))
+    # Cross-validation scores of the chosen settings (from the tuning):
+    # (macro F1 mean, macro F1 SD, accuracy mean).
+    cv_scores = {k: (best[k][0], best[k][2], best[k][1]) for k in (chosen, other)}
 
     today = dt.date.today().isoformat()
     version = f"{today}-{len(data)}"
@@ -475,14 +480,16 @@ def main() -> int:
          f"{report_dict[lab]['f1-score']:.2f}", int(report_dict[lab]["support"])]
         for lab in labels_sorted
     ]
-    nb_rows = [[a, p, f"{f1:.3f}", f"{ac:.3f}"] for f1, ac, a, p in tuned["multinomial_nb"]]
-    lr_rows = [[c, w, f"{f1:.3f}", f"{ac:.3f}"] for f1, ac, c, w in tuned["logreg"]]
+    nb_rows = [[a, p, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"]
+               for f1, ac, sd, a, p in tuned["multinomial_nb"]]
+    lr_rows = [[c, w, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"]
+               for f1, ac, sd, c, w in tuned["logreg"]]
 
     why = (
-        f"{describe(chosen, ch['p'], ch['o'])} had the higher validation macro F1 "
+        f"{describe(chosen, ch['p'], ch['o'])} had the higher {CV_FOLDS}-fold cross-validation macro F1 "
         f"({best[chosen][0]:.3f} vs {best[other][0]:.3f})"
         if best[chosen][0] != best[other][0]
-        else "Both had the same validation macro F1; Logistic Regression is preferred "
+        else "Both had the same cross-validation macro F1; Logistic Regression is preferred "
              "because its probabilities are better calibrated for Percy's confidence "
              "thresholds"
     )
@@ -492,6 +499,8 @@ def main() -> int:
 Dataset: `{args.csv.relative_to(ROOT) if args.csv.is_relative_to(ROOT) else args.csv}` — {len(rows)} rows,
 {len(data)} distinct sentences after preprocessing ({dropped} repeat(s) dropped), {len(INTENTS)} intents.
 Split (stratified, seed {SEED}): train {len(train_i)}, validation {len(val_i)}, test {len(test_i)}.
+Settings are tuned by stratified {CV_FOLDS}-fold cross-validation on train + validation
+({len(trval[0])} sentences); the test set is used only for this report.
 Features: TF-IDF word {WORD_NGRAMS[0]}–{WORD_NGRAMS[1]}-grams + character {CHAR_NGRAMS[0]}–{CHAR_NGRAMS[1]}-grams
 inside words ({len(ch['feat'].features)} features on train + validation).
 Exported models are trained on train + validation; the test set was never seen.
@@ -505,7 +514,8 @@ Why: {why}. The other model is exported as `assets/percy/model_alt.json`.
 |---|---|---|
 | Accuracy | {acc:.3f} | {other_acc:.3f} |
 | Macro F1 | {macro:.3f} | {other_macro:.3f} |
-| 5-fold CV accuracy (train + validation), mean ± SD | {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f} | {cv_scores[other][0]:.3f} ± {cv_scores[other][1]:.3f} |
+| {CV_FOLDS}-fold CV macro F1 (train + validation), mean ± SD | {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f} | {cv_scores[other][0]:.3f} ± {cv_scores[other][1]:.3f} |
+| {CV_FOLDS}-fold CV accuracy (train + validation), mean | {cv_scores[chosen][2]:.3f} | {cv_scores[other][2]:.3f} |
 | Accuracy on team-written test sentences only ({team_n}) | {team_acc:.3f} | — |
 
 Confusion matrix: `{cm_name}` (same folder).
@@ -518,14 +528,14 @@ How often the prediction was right at each of Percy's thresholds.
 ### Per intent (test set)
 {md_table(["Intent", "Precision", "Recall", "F1", "Support"], per_intent)}
 
-## Tuning (validation set)
+## Tuning ({CV_FOLDS}-fold cross-validation on train + validation)
 Naive Bayes:
 
-{md_table(["alpha", "fit_prior", "Macro F1", "Accuracy"], nb_rows)}
+{md_table(["alpha", "fit_prior", "Macro F1 (mean ± SD)", "Accuracy"], nb_rows)}
 
 Logistic Regression:
 
-{md_table(["C", "class_weight", "Macro F1", "Accuracy"], lr_rows)}
+{md_table(["C", "class_weight", "Macro F1 (mean ± SD)", "Accuracy"], lr_rows)}
 
 ## Examples per intent (team vs Starter)
 {md_table(["Intent", "Team", "Starter", "Team examples", "Starter examples"], examples)}
@@ -544,7 +554,7 @@ Logistic Regression:
     print(f"  wrote {out.relative_to(ROOT)}")
     print(f"\nChosen: {describe(chosen, ch['p'], ch['o'])}")
     print(f"Test accuracy {acc:.3f}, macro F1 {macro:.3f}, "
-          f"CV {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f}, "
+          f"CV macro F1 {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f}, "
           f"team-only {team_acc:.3f} ({team_n} sentences)")
     return 0
 

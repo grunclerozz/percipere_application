@@ -37,10 +37,13 @@ phone's TTS (the user's voice, speed and pitch, through the `Announcer`).
    each word padded with spaces (catches "basahen"). Each block L2-normalized, then joined.
    The analyzers are our own functions (not scikit-learn's built-in tokenizers) so the Dart
    copy is exact.
-5. Multinomial Naive Bayes vs Logistic Regression; NB `alpha` and LR `C` tuned on the
-   validation set (macro F1).
+5. Multinomial Naive Bayes vs Logistic Regression; NB `alpha`/`fit_prior` and LR
+   `C`/`class_weight` tuned by stratified 5-fold cross-validation on train + validation
+   (mean macro F1; the features are refit in every fold). Until 2026-10-11 they were tuned
+   on the 15% validation set alone, but with ~77 sentences its winner changed by noise
+   (decision log 2026-10-11 (2)).
 6. Test-set evaluation: accuracy, per-intent precision/recall/F1, macro F1, confusion matrix
-   (PNG), 5-fold stratified cross-validation mean ± SD, and test accuracy on team-written
+   (PNG), the cross-validation mean ± SD of the chosen settings, and test accuracy on team-written
    sentences only.
 7. Report `data/percy/reports/report-<date>.md`: all metrics, examples per intent (team vs
    Starter), chosen model and why, top 10 informative features per intent, misclassified

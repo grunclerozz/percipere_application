@@ -81,8 +81,8 @@ enum PercyIntent {
   /// Something Percy can't do.
   outOfScope('out_of_scope'),
 
-  /// Open "Mag-report ng problema" (Phase 10). Not in the trained model
-  /// yet: recognized by [ReportIssueRule] until the next retrain.
+  /// Open "Mag-report ng problema" (Phase 10). In the model since the
+  /// 2026-10-11 retrain; [ReportIssueRule] still catches the keywords.
   reportIssue('report_issue');
 
   const PercyIntent(this.label);
@@ -91,10 +91,9 @@ enum PercyIntent {
   final String label;
 
   /// Intents found by a rule only, because the bundled model was trained
-  /// before they existed.
-  // TODO(percy): retrain with data/percy/intents.csv (report_issue rows are
-  // in it) and empty this set.
-  static const Set<PercyIntent> ruleOnly = {reportIssue};
+  /// before they existed. Empty since the 2026-10-11 retrain; a new intent
+  /// goes here until the next one.
+  static const Set<PercyIntent> ruleOnly = {};
 
   /// The intent for a model label, or null for an unknown one.
   static PercyIntent? fromLabel(String label) {
@@ -138,8 +137,10 @@ enum PercyIntent {
 }
 
 /// "Mag-report ng problema" said in a sentence ("gusto kong mag-report",
-/// "may problema sa app"). A rule because the bundled model doesn't know
-/// [PercyIntent.reportIssue] yet.
+/// "may problema sa app"). The model knows [PercyIntent.reportIssue] since
+/// the 2026-10-11 retrain; the rule stays as a backstop, because a report
+/// sentence often names another part of the app ("i-report ang camera") and
+/// the keyword is what matters.
 abstract final class ReportIssueRule {
   static final RegExp _pattern = RegExp(
     r'\b(mag-?report|i-?report|ireport|report (an? )?(issue|problem|bug)|'

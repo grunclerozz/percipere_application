@@ -53,8 +53,8 @@ syncing with a separate web admin app (later).
   sent to the dashboard's `api/v1/feedback.php` with a `PRC-YYYYMMDD-XXXX` ticket, retried
   when offline; "Aking mga report" in Settings. Spec `docs/specs/report-an-issue.md`;
   checklist section 15 of `docs/testing/system-test-checklist.md`; decision log 2026-10-11.
-  Percy's `report_issue` is rule-based until the model is retrained (TODO). Awaiting the
-  user's tablet test.
+  Percy retrained the same day (27 intents, tuned by 5-fold cross-validation; decision log
+  2026-10-11 (2)). Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.

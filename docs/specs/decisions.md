@@ -2,6 +2,26 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-11 (2) — Percy retrained; settings chosen by cross-validation
+**Decided (user):** retrain Percy now, and tune by 5-fold cross-validation instead of the validation set.
+
+**Why:** the retrain with the 18 `report_issue` rows (513 sentences, 27 intents) first picked Logistic Regression C=1, balanced, by validation macro F1. Its probabilities were low:
+- only 5 of 77 test sentences reached Percy's 0.60 "act" threshold;
+- 37 fell under 0.30, where Percy says it didn't understand.
+
+The validation set has 77 sentences, so its winner (0.637 vs 0.604 macro F1) was within noise.
+
+**Change:** `train.py` now tunes both models by stratified 5-fold cross-validation on train + validation (mean macro F1, features refit per fold). The split, features and test set are unchanged.
+
+**Result:** Logistic Regression **C=100, balanced** (CV macro F1 0.621 ± 0.067).
+- Test accuracy 0.883, macro F1 0.731.
+- 64 of 77 test sentences act directly, 98% of them right.
+- `report_issue` 3/3.
+- Report: `data/percy/reports/report-2026-10-11.md`.
+- `PercyIntent.ruleOnly` is now empty. `ReportIssueRule` stays as a backstop.
+
+**Still weak:** 16 intents have only 7–8 sentences. More team-written sentences remain the biggest improvement.
+
 ## 2026-10-11 — Phase 10: Report an Issue
 **Decided (user):** a one-question-per-page report flow (spec `report-an-issue.md`).
 

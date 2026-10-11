@@ -30,7 +30,7 @@ void main() {
   });
 
   test('every model label is a Percy intent; only rule-only intents are '
-      'missing from the model (until the next retrain)', () {
+      'missing from the model (none since the 2026-10-11 retrain)', () {
     for (final label in model.labels) {
       expect(PercyIntent.fromLabel(label), isNotNull, reason: label);
     }

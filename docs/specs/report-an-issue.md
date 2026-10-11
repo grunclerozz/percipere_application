@@ -8,9 +8,9 @@ Status: **built 2026-10-11, awaiting the user's tablet test.** Decision log: 202
 - **Voice, from any screen:** "mag-report", "mag-report ng problema", "i-report", "report an issue", "report a problem", "report", "may problema", "ulat". These map to `NavIntent.report`.
   - "puna" and "feedback" are not commands, because they are answers on page 1.
 - **Percy:** the `report_issue` intent, with 18 Starter rows in `data/percy/intents.csv`.
-  - The bundled model was trained before this intent existed, so `ReportIssueRule` (a keyword rule in `lib/core/percy/percy_intent.dart`) finds it in a sentence.
+  - The model learned it in the 2026-10-11 retrain (3 of 3 test sentences right).
+  - `ReportIssueRule` (a keyword rule in `lib/core/percy/percy_intent.dart`) stays as a backstop for sentences that also name another part of the app.
   - The exact short phrases above also work through the phrase matcher.
-  - **TODO:** retrain (`scripts/percy/README.md`) and then empty `PercyIntent.ruleOnly`.
 
 ## Flow
 One page at a time (`lib/features/report/report_issue_screen.dart`; page order in `report_flow.dart`). Each page speaks its question and its options when it opens.

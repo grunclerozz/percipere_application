@@ -308,7 +308,8 @@ class DialogueManager {
       );
     }
 
-    // 2b. Reporting a problem: a rule until the model is retrained.
+    // 2b. Reporting a problem: the keyword wins over another intent the
+    // sentence may name ("may sira ang camera").
     if (ReportIssueRule.matches(text)) {
       return _act(
         PercyIntent.reportIssue,

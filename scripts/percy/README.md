@@ -44,9 +44,10 @@ flutter test test/core/percy/intent_classifier_test.dart
 
 - `source = Starter (Claude)`: generated starter sentences. Anything else (e.g. `Team`) is
   written by the team; `STT log` rows come from the app's Percy log export.
-- Intents (26): open_home, open_library, open_settings, back, next_option, previous_option,
+- Intents (27, `report_issue` since Phase 10): open_home, open_library, open_settings, back, next_option, previous_option,
   select, cancel, help, where_am_i, read, pause, resume, stop, repeat, faster, slower,
-  bigger_text, smaller_text, open_item, greeting, thanks, goodbye, yes, no, out_of_scope.
+  bigger_text, smaller_text, open_item, greeting, thanks, goodbye, yes, no, out_of_scope,
+  report_issue.
 - Rules: "bumalik" alone is `back`; "bumalik sa home/library/settings" is `open_home` /
   `open_library` / `open_settings`. "wag na" / "huwag na" is `cancel`; plain "hindi" /
   "ayoko" is `no`.
@@ -61,7 +62,8 @@ flutter test test/core/percy/intent_classifier_test.dart
    "percy". Negation words (hindi, huwag, wag, ayoko, no, not) are kept.
 2. Features: TF-IDF of word 1–2-grams and of character 3–5-grams inside each word
    (" basahen " shares most 3–5-grams with " basahin "), each block L2-normalized.
-3. Models: Multinomial Naive Bayes and Logistic Regression, hyperparameters tuned on the
-   validation set (macro F1); the better one is exported.
+3. Models: Multinomial Naive Bayes and Logistic Regression, hyperparameters tuned by
+   stratified 5-fold cross-validation on train + validation (mean macro F1); the better one
+   is exported.
 4. Split 70/15/15, stratified, seed 42. Exported models are trained on train + validation;
    the test set is only used for the report.

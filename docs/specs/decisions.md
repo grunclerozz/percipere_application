@@ -2,6 +2,28 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-11 (3) — Aklatan loads its books from the dashboard
+**Decided (user):** once the dashboard's books API works, load Aklatan's admin books from it
+and remove the mocks.
+
+**Done:**
+- `HttpAdminBookRepository` (dio) reads `GET /api/v1/books` page by page, `GET /books/{id}`
+  before a download, `/file` and `/cover`. The Library page of the dashboard is where the
+  admins add books (PDF or EPUB, optional cover) and switch them on or off.
+- **Removed:** `MockAdminBookRepository` and `sample_books.dart` left `lib/`. The mock lives on as
+  `FakeAdminBookRepository` / `SampleBooks` in `test/helpers/` for the existing tests. The spoken
+  testing aid "magdagdag ng bagong aklat" is gone from the Library screen.
+- **Builds without `API_BASE_URL`** have no admin books (`UnconfiguredBookRepository`, like having
+  no internet). There is no mock fallback: it would hide a missing server.
+- **Integrity:** a download is written to `<file>.part`, checked against the server's `file_size`
+  and `checksum` (SHA-256), then renamed. A mismatch deletes it and counts as a failed download.
+- **Removal:** a book an admin switches off is no longer listed; the app treats it as removed (the
+  user is told, progress is kept, the book is unavailable), as before.
+- **Language:** only `en` (code or name English) selects the English voice; every other language
+  reads with the Filipino voice.
+- **Not changed:** accounts and reports still use the older `.php` URLs (kept working, deprecated by
+  the dashboard); moving them to the REST URLs is a separate step.
+
 ## 2026-10-11 (2) — Percy retrained; settings chosen by cross-validation
 **Decided (user):** retrain Percy now, and tune by 5-fold cross-validation instead of the validation set.
 

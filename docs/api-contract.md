@@ -1,10 +1,14 @@
 # Web app API contract — what Percipere needs
 
-Endpoints the web admin app must provide. Today the app talks to a **mock**
-(`MockAdminBookRepository`, `MockLibrarySyncRepository`,
-`MockImageDescriptionRepository`); the real clients replace the mocks behind the same
-interfaces (`lib/core/library/admin_book_repository.dart`,
-`library_sync_repository.dart`, `lib/core/network/image_description_repository.dart`).
+Endpoints the web admin app provides. The **books** and **accounts** and **reports** are real
+(`HttpAdminBookRepository`, `HttpAccountApi`, `HttpIssueReportApi`). Library sync and image
+description still talk to **mocks** (`MockLibrarySyncRepository`,
+`MockImageDescriptionRepository`); the real clients replace them behind the same interfaces
+(`library_sync_repository.dart`, `lib/core/network/image_description_repository.dart`).
+
+> The dashboard now offers REST URLs under `/api/v1` for everything (its `docs/api-contract.md`
+> is the master). Accounts and reports below still use the older `.php` URLs, which keep
+> working (deprecated); the app moves to the REST ones in a later update.
 
 All paths are under the web app's base URL (`Env`). JSON is UTF-8. Dates are ISO 8601
 (UTC). Errors: a JSON body `{"error": "message"}` with a normal HTTP status. The app is
@@ -58,64 +62,44 @@ download books too). The sync endpoints need the signed-in account's token (Phas
 
 ---
 
-## Books (admin-managed) — Phase 6E
+## Books (admin-managed) — built 2026-10-11 (`GET /api/v1/books`, REST)
 
-### Book object
-| Field | Type | Notes |
-|---|---|---|
-| `id` | string | stable id |
-| `title` | string | |
-| `author` | string | |
-| `language` | `"fil"` \| `"en"` | |
-| `category` | string | category name (shelf title in the app) |
-| `description` | string | short, read aloud on the details screen |
-| `format` | `"pdf"` \| `"epub"` | |
-| `fileSize` | integer | bytes; the app announces it before a download |
-| `coverUrl` | string \| null | |
-| `version` | integer | **must increase whenever the file is replaced** |
-| `createdAt` | date-time | |
-| `updatedAt` | date-time | |
-| `active` | boolean | `false` once an admin removed the book |
+**The master document is the dashboard repo's `docs/api-contract.md`** (final REST URLs,
+every field, errors, the report format, what the dashboard does with them). This section is
+what the app's Library uses. Client: `lib/core/library/http_book_repository.dart`
+(`HttpAdminBookRepository`); built without `API_BASE_URL`, the Library has no admin books
+and says it needs internet (`UnconfiguredBookRepository`).
 
-### `GET /api/books`
-The catalog.
+Base: `{API_BASE_URL}/api/v1`. No sign-in: guests read and download too. Errors are
+`{"error": {"code", "message"}}`. Only books the admins switched **on** are listed; a book
+switched off just disappears, which the app treats as "removed" (the user is told, progress
+is kept, the book is marked unavailable).
 
-Query: `page` (default 1), `pageSize` (default 50), `category` (name), `q` (search in
-title/author), `since` (date-time: only books created **or changed** after it, **including
-inactive ones**, so the app learns about removals).
+| Endpoint | The app uses it for |
+|---|---|
+| `GET /books?page=&per_page=50&updated_since=` | the catalog, every page until `total` |
+| `GET /books/{id}` | before a download: does the book still exist, and what are its size and SHA-256 |
+| `GET /books/{id}/file` | the PDF or EPUB (`Content-Length`, `Range` supported) |
+| `GET /books/{id}/cover` | the cover (JPEG or PNG); 404 `no_cover` = none |
+| `GET /categories` | not used yet (the category name comes with each book) |
 
-Response: `{ "items": [Book], "page": 1, "pageSize": 50, "total": 3 }`
+A book: `id` (number, kept as text), `title`, `author`, `description`,
+`category {id, name}`, `language {id, name, code}`, `format` (`pdf`|`epub`), `file_size`,
+`checksum` (`sha256:<hex>`), `version`, `cover_url` (null = none), `file_url`,
+`created_at`, `updated_at`.
 
-The app reads every page, then:
-- books it has not seen → shown as **"Bago"** and announced ("May mga bagong aklat sa
-  Aklatan.", no number);
-- a downloaded book with a higher `version` → offers to update the download, keeping the
-  reading position;
-- `active: false` (or a book that disappears) → the user is told, the progress record is
-  kept and the book is marked unavailable.
+What the app does with them:
+- `language.code` `en` (or an English name) = English reading voice; anything else = Filipino.
+- A book it has not seen → **"Bago"** and "May mga bagong aklat sa Aklatan." (no number).
+- A downloaded book with a higher `version` → offers to update the download, keeping the
+  reading position.
+- A download goes to `<file>.part`, is checked against `file_size` and `checksum`, and only
+  then renamed; a mismatch leaves nothing on the phone and counts as a failed download.
+- The catalog is cached on the phone; offline, the last list stays and not-downloaded books
+  say they need internet.
 
-### `GET /api/books/{id}`
-One book (Book object). 404 if it never existed.
-
-### `GET /api/books/{id}/file`
-The PDF or EPUB bytes (`Content-Type: application/pdf` or `application/epub+zip`), with
-`Content-Length` so the app can announce progress, and `Accept-Ranges` if possible.
-- **PDF**: text layer preferred; scanned pages are OCR'd on the phone. A PDF outline gives
-  the chapters.
-- **EPUB**: EPUB 2 or 3, **no DRM** (DRM-protected files are rejected with a spoken
-  message). The spine gives the chapter order, the nav document or NCX the titles. Images
-  are allowed (Part B describes them on the phone). Prefer `alt` text on images.
-- 404 / 410 if the book was removed.
-
-### `GET /api/books/{id}/cover`
-The cover image (JPEG or PNG, about 300 × 400 px is enough). 404 if none.
-
-### `GET /api/categories`
-`{ "items": [ { "name": "Pabula", "count": 12 } ] }`
-
-### Content rules
-Only public-domain or properly licensed books. The app reads files aloud and stores
-extracted text on the phone.
+Content rules: only public-domain or properly licensed books. PDF text layer preferred (scans
+are OCR'd on the phone); EPUB 2 or 3 without DRM.
 
 ---
 

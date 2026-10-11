@@ -31,7 +31,6 @@ import 'package:percipere_app/core/library/book_content.dart';
 import 'package:percipere_app/core/library/epub_parser.dart';
 import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/library/library_paths.dart';
-import 'package:percipere_app/core/library/sample_books.dart';
 import 'package:percipere_app/core/network/connectivity.dart';
 import 'package:percipere_app/core/network/image_description_repository.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
@@ -55,6 +54,9 @@ import 'package:percipere_app/core/voice/voice_controller.dart';
 import 'package:percipere_app/features/camera/camera_session.dart';
 import 'package:percipere_app/features/upload/document_picker.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'fake_book_repository.dart';
+import 'sample_books.dart';
 
 /// Records what would have been spoken.
 ///
@@ -489,8 +491,8 @@ class TestEnv {
   /// Fake image preparation.
   final FakeImagePrep imagePrep = FakeImagePrep();
 
-  /// The mocked web app with the sample books.
-  final MockAdminBookRepository books = MockAdminBookRepository();
+  /// A stand-in web app with the sample books.
+  final FakeAdminBookRepository books = FakeAdminBookRepository();
 
   /// Free space on the phone.
   final FakeStorageInfo storage = FakeStorageInfo();

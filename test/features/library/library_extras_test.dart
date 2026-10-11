@@ -55,25 +55,6 @@ void main() {
       expect(env.tts.transcript, isNot(contains('bagong aklat')));
       expect(find.text('Bago'), findsNothing);
     });
-
-    testWidgets('the voice test aid adds a book while the web app is mocked', (
-      tester,
-    ) async {
-      final env = await libraryEnv(tester);
-      await tester.runAsync(() async {
-        await LibraryDao(env.database.db)
-            .syncCatalog(env.account!.id, await env.books.catalog());
-      });
-      await pumpApp(tester, env);
-      await tester.tap(find.text('Aklatan').first);
-      await tester.pump();
-      await tester.settleReal();
-      await tester.runAsync(
-        () => tester.bus.handleUtterance('magdagdag ng bagong aklat'),
-      );
-      await tester.settleReal();
-      expect(env.tts.transcript, contains('May mga bagong aklat sa Aklatan.'));
-    });
   });
 
   group('the Reader', () {

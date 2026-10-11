@@ -55,6 +55,11 @@ syncing with a separate web admin app (later).
   checklist section 15 of `docs/testing/system-test-checklist.md`; decision log 2026-10-11.
   Percy retrained the same day (27 intents, tuned by 5-fold cross-validation; decision log
   2026-10-11 (2)). Awaiting the user's tablet test.
+- **Aklatan on the real dashboard (2026-10-11):** the Library's admin books now come from the
+  dashboard's REST API (`HttpAdminBookRepository`, `GET /api/v1/books`, SHA-256-checked downloads);
+  the mock is gone from `lib/` (`FakeAdminBookRepository` is a test helper). Checklist
+  `docs/testing/library-web-checklist.md`; decision log 2026-10-11 (3). Awaiting the user's
+  tablet test with the dashboard running.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.

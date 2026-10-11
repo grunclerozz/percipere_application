@@ -8,7 +8,8 @@ import 'package:percipere_app/core/library/book_content.dart';
 import 'package:percipere_app/core/library/chaptered_text.dart';
 import 'package:percipere_app/core/library/epub_parser.dart';
 import 'package:percipere_app/core/library/library_models.dart';
-import 'package:percipere_app/core/library/sample_books.dart';
+
+import '../../helpers/sample_books.dart';
 
 Uint8List _withExtra(Uint8List epub, Map<String, String> extra) {
   final archive = ZipDecoder().decodeBytes(epub);

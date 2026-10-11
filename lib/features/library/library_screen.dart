@@ -22,7 +22,6 @@ import '../../core/auth/session.dart';
 import '../../core/db/daos/library_dao.dart';
 import '../../core/db/daos/preferences_dao.dart';
 import '../../core/gestures/gesture_surface.dart';
-import '../../core/library/admin_book_repository.dart';
 import '../../core/library/library_models.dart';
 import '../../core/library/library_view.dart';
 import '../../core/tts/speech_language.dart';
@@ -490,14 +489,6 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   Future<bool> _onUtterance(String text, CommandBus bus) async {
     final said = CommandMatcher.normalize(text);
-    // Testing aid while the web app is mocked: "magdagdag ng bagong aklat".
-    final repo = ref.read(adminBookRepositoryProvider);
-    if (repo is MockAdminBookRepository &&
-        (said == 'magdagdag ng bagong aklat' || said == 'simulate new book')) {
-      repo.simulateNewBook();
-      await _refreshCatalog();
-      return true;
-    }
     if (_showAll.any((w) => CommandMatcher.normalize(w) == said)) {
       await _applyFilter(LibraryFilter.all, speak: false);
       await _applySearch('');

@@ -103,13 +103,16 @@ favorites, collections are per user.
 - Reader: "susunod na kabanata"/"next chapter", "nakaraang kabanata"/"previous chapter";
   chapter titles announced when a chapter starts.
 
-## A11. Web app connection (mocked)
-`AdminBookRepository` interface + mock: 3–5 public-domain books (Project Gutenberg), 2
-categories, PDF and EPUB, at least one EPUB with images, and a switch to simulate new
-books. Endpoints documented in `docs/api-contract.md` (`GET /api/books`,
-`/api/books/{id}`, `/file`, `/cover`, `/api/categories`, plus library sync endpoints for
-Phase 7). Book fields: id, title, author, language (fil/en), category, description, format,
-file size, cover URL, version, created_at, updated_at, active.
+## A11. Web app connection (real since 2026-10-11)
+`AdminBookRepository` has two implementations: `HttpAdminBookRepository` (the dashboard's
+REST API, `GET {API_BASE_URL}/api/v1/books`, `/books/{id}`, `/file`, `/cover`) and
+`UnconfiguredBookRepository` for builds without `API_BASE_URL` (no admin books; the Library
+says it needs internet). The admins manage the books in the dashboard's Library page
+(add/edit, PDF/EPUB, cover, activate/deactivate, categories, languages); the app only reads.
+The old mock (3 public-domain sample books, "simulate new book") is now `FakeAdminBookRepository`
+in `test/helpers/`, used by tests only; the spoken "magdagdag ng bagong aklat" testing aid is
+gone. Endpoints and fields: `docs/api-contract.md`. Downloads are checked against the
+server's size and SHA-256.
 
 ## A12. Storage
 SQLite: library items, favorites, collections, collection–item links. Item fields: owner,

@@ -695,5 +695,20 @@
   "myReportsRow": "{ticket}: {type}, {date}, {status}",
   "setReportIssueValue": "Tell us about a problem or idea",
   "setMyReportsValue": "Your reports and their status",
-  "reportSaveFailed": "The report couldn't be saved. Please try again."
+  "reportSaveFailed": "The report couldn't be saved. Please try again.",
+  "reportServerOpen": "Received",
+  "reportServerInProgress": "In progress",
+  "reportServerResolved": "Resolved",
+  "reportServerClosed": "Closed",
+  "setServerAddress": "Server address (developer)",
+  "serverAddressTitle": "Server address",
+  "serverAddressHelp": "The dashboard folder, for example http://192.168.1.61/website/percipere_web/percipere_dashboard",
+  "serverAddressSave": "Save",
+  "serverAddressReset": "Back to the original",
+  "serverAddressCancel": "Cancel",
+  "serverAddressInvalid": "That is not a valid address. It must start with http:// or https://.",
+  "serverAddressCleartext": "This build does not allow http:// to that host. Use https://, or make a new build with API_CLEARTEXT_HOSTS.",
+  "serverAddressSaved": "Server address saved.",
+  "serverAddressResetDone": "Server address set back to the original.",
+  "serverAddressNone": "No server"
 }

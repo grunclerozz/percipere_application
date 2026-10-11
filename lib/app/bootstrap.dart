@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../config/env.dart';
 import '../core/auth/account.dart';
 import '../core/auth/account_repository.dart';
 import '../core/auth/password_hasher.dart';
@@ -9,6 +10,7 @@ import '../core/auth/session.dart';
 import '../core/auth/session_store.dart';
 import '../core/db/app_database.dart';
 import '../core/db/daos/preferences_dao.dart';
+import '../core/network/server_address.dart';
 import '../core/platform/permissions.dart';
 import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
@@ -43,6 +45,16 @@ Future<List<Override>> bootstrap() async {
   await prefs.set(PrefKeys.ttsFilipinoFallback, !voices.filipinoReady);
 
   final tutorialDone = await prefs.get(PrefKeys.tutorialDone) == true;
+  // A developer build can point at another web app address (Settings); a
+  // saved address the build does not allow (plain http to another host) is
+  // ignored.
+  var serverAddress = Env.apiBaseUrl;
+  if (Env.devTools) {
+    final saved = await readSavedServerAddress(prefs);
+    if (saved != null && ServerAddressRules.check(saved).address != null) {
+      serverAddress = saved;
+    }
+  }
 
   final micGranted =
       await const DevicePermissionService().status(AppPermission.microphone) ==
@@ -56,6 +68,7 @@ Future<List<Override>> bootstrap() async {
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
     initialTutorialDoneProvider.overrideWithValue(tutorialDone),
+    initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(voices)),

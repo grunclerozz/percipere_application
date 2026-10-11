@@ -2,6 +2,7 @@
 // connection they stay pending (never lost) and go out later; a report the
 // web app refuses stays as failed. A signed-in user's token goes along.
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:percipere_app/core/auth/account_repository.dart';
 import 'package:percipere_app/core/auth/session_store.dart';
@@ -9,6 +10,8 @@ import 'package:percipere_app/core/db/migrations.dart';
 import 'package:percipere_app/core/report/issue_report.dart';
 import 'package:percipere_app/core/report/issue_report_repository.dart';
 import 'package:percipere_app/core/report/issue_report_sync.dart';
+
+import 'package:percipere_app/l10n/app_localizations.dart';
 
 import '../../helpers/fakes.dart';
 
@@ -42,8 +45,8 @@ void main() {
         userId: userId,
       );
 
-  test('schema 6 has the issue_reports table', () {
-    expect(Migrations.latestVersion, 6);
+  test('schema 7 has the issue_reports table and its server status', () {
+    expect(Migrations.latestVersion, 7);
   });
 
   test('pending → sent, oldest first, with the server id', () async {
@@ -118,6 +121,45 @@ void main() {
     expect((await repo.get(a.id))!.status, IssueSyncStatus.pending);
   });
 
+  test('the dashboard\'s status is kept for sent reports; closed ones are '
+      'not asked again', () async {
+    final a = await add('PRC-20261011-SSSA', minute: 1);
+    final b = await add('PRC-20261011-SSSB', minute: 2);
+    await sync.sendPending();
+    expect((await repo.get(a.id))!.serverStatus, ServerReportStatus.open);
+
+    api.statuses['PRC-20261011-SSSA'] = ServerReportStatus.inProgress;
+    api.statuses['PRC-20261011-SSSB'] = ServerReportStatus.closed;
+    expect(await sync.refreshStatuses(), 2);
+    expect((await repo.get(a.id))!.serverStatus, ServerReportStatus.inProgress);
+    expect((await repo.get(b.id))!.serverStatus, ServerReportStatus.closed);
+
+    api.statusCalls = 0;
+    expect(await sync.refreshStatuses(), 0, reason: 'nothing changed');
+    expect(api.statusCalls, 1, reason: 'the closed one is not asked again');
+  });
+
+  test('status: offline or no web app keeps what the phone has', () async {
+    final a = await add('PRC-20261011-OFFA');
+    await sync.sendPending();
+    api.statuses['PRC-20261011-OFFA'] = ServerReportStatus.resolved;
+    api.offline = true;
+    expect(await sync.refreshStatuses(), 0);
+    expect((await repo.get(a.id))!.serverStatus, ServerReportStatus.open);
+    expect(await IssueReportSync(null, repo, sessions).refreshStatuses(), 0);
+    api.offline = false;
+    expect(await sync.refreshStatuses(), 1);
+    expect((await repo.get(a.id))!.statusLabel(await _labels()), 'Naayos na');
+  });
+
+  test(
+    'a report not sent yet shows the sending status, not the dashboard\'s',
+    () async {
+      final a = await add('PRC-20261011-PEND');
+      expect(a.statusLabel(await _labels()), 'Naghihintay ipadala');
+    },
+  );
+
   test('"Aking mga report" lists one user\'s reports, newest first; a '
       'report outlives its account', () async {
     final user = await accounts.register(
@@ -138,3 +180,6 @@ void main() {
     expect(await repo.ticketExists('PRC-20261011-ZZZZ'), isFalse);
   });
 }
+
+Future<AppLocalizations> _labels() =>
+    AppLocalizations.delegate.load(const Locale('fil'));

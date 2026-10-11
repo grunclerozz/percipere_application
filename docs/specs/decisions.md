@@ -2,6 +2,35 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-11 (5) — First tablet test: cleartext only to the server, server address, report status
+**Decided (user):** write the first-tablet-test guide, lock plain HTTP to the server's host, add a
+server address field to the developer settings, and show the dashboard's ticket status.
+
+**Done:**
+- **Cleartext HTTP only to the server.** The release APK used to allow plain `http://` to every host
+  when built with an `http://` `API_BASE_URL`. Now `android/app/build.gradle.kts` writes
+  `res/xml/network_security_config.xml` for the build: cleartext off, except the host of
+  `API_BASE_URL` (when it is `http://`) and the hosts in `--dart-define=API_CLEARTEXT_HOSTS=a,b`.
+  Checked in the built APK (`aapt2 dump xmltree`): exactly those hosts. **Also enforced in Dart**
+  (`CleartextGuard`, `lib/core/network/api_dio.dart`; same rule in `Env.allowsCleartext`), because
+  Dart's own HTTP client does not obey Android's network security config, so the XML alone would
+  not have stopped the app's requests. https is never blocked.
+- **Server address in the developer settings** (`PERCIPERE_DEV=true`): Settings > "Server address
+  (developer)" saves an address in the device preferences (`dev.serverAddress`); books, accounts and
+  reports follow `serverAddressProvider`, no rebuild needed. A typed `http://` address is refused
+  unless its host is allowed by the build (then the message says to use https or rebuild with
+  `API_CLEARTEXT_HOSTS`). A normal build ignores any saved address.
+- **Ticket status in "Aking mga report"**: `GET /api/v1/reports/{ticket}`; the answer is kept in
+  `issue_reports.server_status` (migration v7) and shown instead of "Naipadala":
+  Natanggap (open) / Ginagawa (in_progress) / Naayos na (resolved) / Sarado (closed). Asked each time
+  the screen opens, for sent reports that are not closed (20 newest); offline keeps the last answer.
+  The ticket page right after sending still says "Naipadala".
+- `docs/testing/first-tablet-test.md`: merge the PR, update the XAMPP folder, health URL in the
+  tablet's browser, build, what to try, and what to do when it fails.
+
+**Why "Natanggap" and not "Bukas" for open:** "Bukas" also means "tomorrow" and "open (a door)";
+read aloud to a blind user it is ambiguous. "Natanggap" (received) says what it means.
+
 ## 2026-10-11 (4) — Accounts and reports move to the REST URLs
 **Decided (user):** after the books, move the app's accounts and reports to the dashboard's REST
 routes.

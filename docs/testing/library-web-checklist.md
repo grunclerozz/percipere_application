@@ -4,6 +4,8 @@ Builds on `docs/testing/phase-6e-checklist.md` (the Library itself). This one is
 coming from the dashboard (Library page) instead of the old sample books.
 
 ## Setup
+(The first time, follow `docs/testing/first-tablet-test.md` first: merge, health check, build.)
+
 1. On the PC: Apache and MySQL running; open the dashboard > **Library**. Add a category, then
    a few books (a PDF, an EPUB with a cover, one with no cover) and leave them **Active**.
    The dashboard's `docs/api-contract.md` explains how to find the PC's address (`ipconfig`)

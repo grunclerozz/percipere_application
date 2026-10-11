@@ -275,6 +275,30 @@ void main() {
         .activate('myReports.${saved.id}');
     await tester.pumpAndSettle();
     expect(env.tts.transcript, contains('Bahagi: Percy.'));
-    expect(env.tts.transcript, contains('Katayuan: Naipadala.'));
+    expect(env.tts.transcript, contains('Katayuan: Natanggap.'));
+  });
+
+  testWidgets('"Aking mga report" shows the status the dashboard now has', (
+    tester,
+  ) async {
+    final (env, _) = await _start(tester);
+    await tester.say('mag-report');
+    await tester.say('mungkahi');
+    await tester.say('percy');
+    await tester.say('sana marunong si percy ng ingles');
+    await tester.say('oo');
+    await tester.say('oo');
+    await tester.say('ipadala');
+    await tester.say('tapos na');
+    final saved = (await _saved(tester, env)).single;
+    env.reportApi!.statuses[saved.ticketNo] = ServerReportStatus.resolved;
+
+    unawaited(tester.scope.read(routerProvider).push(AppRoutes.myReports));
+    await tester.pumpAndSettle();
+    await tester.scope
+        .read(commandBusProvider)
+        .activate('myReports.${saved.id}');
+    await tester.pumpAndSettle();
+    expect(env.tts.transcript, contains('Katayuan: Naayos na.'));
   });
 }

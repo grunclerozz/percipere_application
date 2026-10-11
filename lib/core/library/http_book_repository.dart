@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../network/api_dio.dart';
 import 'admin_book_repository.dart';
 import 'catalog_book.dart';
 
@@ -14,15 +15,7 @@ class HttpAdminBookRepository implements AdminBookRepository {
   /// Creates the client for the web app at [baseUrl] (the dashboard's address,
   /// without `/api/v1`).
   HttpAdminBookRepository(String baseUrl, {Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 30),
-              sendTimeout: const Duration(seconds: 20),
-            ),
-          ) {
+    : _dio = dio ?? apiDio(receive: const Duration(seconds: 30)) {
     _dio.options
       ..baseUrl = '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/v1/'
       ..responseType = ResponseType.json

@@ -69,7 +69,12 @@ enum IssueModule {
   ]),
 
   /// Login, register, password.
-  accounts('accounts', 'Accounts', ['accounts', 'account', 'login', 'password']),
+  accounts('accounts', 'Accounts', [
+    'accounts',
+    'account',
+    'login',
+    'password',
+  ]),
 
   /// The reading voice.
   tts('text_to_speech', 'Text-to-Speech', [
@@ -81,13 +86,23 @@ enum IssueModule {
   ]),
 
   /// The Gesture Pad.
-  gesturePad('gestures', 'Gestures', ['gesture pad', 'gesture', 'galaw', 'swipe']),
+  gesturePad('gestures', 'Gestures', [
+    'gesture pad',
+    'gesture',
+    'galaw',
+    'swipe',
+  ]),
 
   /// Aklatan.
   library('library', 'Library', ['aklatan', 'library', 'aklat', 'libro']),
 
   /// Image description.
-  maglarawan('maglarawan', 'Maglarawan', ['maglarawan', 'larawan', 'describe', 'image']),
+  maglarawan('maglarawan', 'Maglarawan', [
+    'maglarawan',
+    'larawan',
+    'describe',
+    'image',
+  ]),
 
   /// The voice assistant.
   percy('percy', 'Percy', ['percy', 'assistant', 'katulong']),
@@ -137,7 +152,12 @@ enum IssueSeverity {
   high('high', 'High', ['high', 'mataas', 'hindi gumagana']),
 
   /// Crashes or loses data.
-  critical('critical', 'Critical', ['critical', 'kritikal', 'nag-crash', 'crash']);
+  critical('critical', 'Critical', [
+    'critical',
+    'kritikal',
+    'nag-crash',
+    'crash',
+  ]);
 
   const IssueSeverity(this.code, this.server, this.voice);
 
@@ -191,6 +211,42 @@ enum IssueSyncStatus {
     pending => l.reportStatusPending,
     sent => l.reportStatusSent,
     failed => l.reportStatusFailed,
+  };
+}
+
+/// What the dashboard says about a report it has (`status` of
+/// `GET /api/v1/reports/{ticket_no}`).
+enum ServerReportStatus {
+  /// Received, nobody has started.
+  open('open'),
+
+  /// Someone is working on it.
+  inProgress('in_progress'),
+
+  /// Fixed or answered.
+  resolved('resolved'),
+
+  /// Closed (archived).
+  closed('closed');
+
+  const ServerReportStatus(this.code);
+
+  /// The value in the API.
+  final String code;
+
+  /// Parses an API value, or null for anything unknown.
+  static ServerReportStatus? tryParse(String? code) =>
+      values.where((s) => s.code == code).firstOrNull;
+
+  /// A finished report is not asked about again.
+  bool get isFinal => this == closed;
+
+  /// "Natanggap" / "Ginagawa" / "Naayos na" / "Sarado".
+  String label(AppLocalizations l) => switch (this) {
+    open => l.reportServerOpen,
+    inProgress => l.reportServerInProgress,
+    resolved => l.reportServerResolved,
+    closed => l.reportServerClosed,
   };
 }
 
@@ -295,6 +351,7 @@ class IssueReport {
     this.userId,
     this.status = IssueSyncStatus.pending,
     this.serverId,
+    this.serverStatus,
   });
 
   /// Local id (UUID).
@@ -336,6 +393,17 @@ class IssueReport {
 
   /// The web app's id, once sent.
   final String? serverId;
+
+  /// What the dashboard says about it (`open`, `in_progress`, `resolved`,
+  /// `closed`), once asked; null before.
+  final ServerReportStatus? serverStatus;
+
+  /// What to show and read as its status: the dashboard's word once the
+  /// report is there ("Bukas", "Ginagawa", "Naayos na", "Sarado"), else
+  /// whether it was sent.
+  String statusLabel(AppLocalizations l) => status == IssueSyncStatus.sent
+      ? (serverStatus?.label(l) ?? status.label(l))
+      : status.label(l);
 
   /// The request body for `POST /api/v1/reports` (the dashboard's
   /// `docs/api-contract.md`): type, module and severity as `{code, label}`,

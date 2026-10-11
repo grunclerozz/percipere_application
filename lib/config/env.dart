@@ -15,6 +15,31 @@ abstract final class Env {
     defaultValue: noServer,
   );
 
+  /// Extra hosts (comma separated, e.g. `192.168.1.70,192.168.1.71`) that
+  /// may use plain `http://`, besides the host of [apiBaseUrl]. Every other
+  /// host needs `https://`. `--dart-define=API_CLEARTEXT_HOSTS=...`; the
+  /// Android build reads the same value (`android/app/build.gradle.kts`).
+  static const String cleartextHosts = String.fromEnvironment(
+    'API_CLEARTEXT_HOSTS',
+  );
+
+  /// Whether plain `http://` to [host] is allowed: only the host the app
+  /// was built for (when that address is `http://`) and [cleartextHosts].
+  static bool allowsCleartext(String host) {
+    final h = host.toLowerCase();
+    final built = Uri.tryParse(apiBaseUrl);
+    if (built != null &&
+        built.scheme == 'http' &&
+        built.host.toLowerCase() == h) {
+      return true;
+    }
+    return cleartextHosts
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .contains(h);
+  }
+
   /// Whether accounts live on the web app (register with an email code,
   /// login, password reset; `docs/api-contract.md` → Accounts). On by
   /// default once [apiBaseUrl] is set; `--dart-define=USE_ACCOUNT_SERVER=false`
@@ -22,6 +47,13 @@ abstract final class Env {
   static const bool accountServer = bool.fromEnvironment(
     'USE_ACCOUNT_SERVER',
     defaultValue: apiBaseUrl != noServer,
+  );
+
+  /// Whether accounts are kept on the web app when one is configured (false
+  /// only with `--dart-define=USE_ACCOUNT_SERVER=false`).
+  static const bool accountServerAllowed = bool.fromEnvironment(
+    'USE_ACCOUNT_SERVER',
+    defaultValue: true,
   );
 
   /// ElevenLabs agent id of the voice assistant ("Percy"); the user's own

@@ -44,11 +44,16 @@ class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
       final first = await repo.mine(userId);
       if (!mounted) return;
       setState(() => _reports = first);
-      if (!sync || first.every((r) => r.status != IssueSyncStatus.pending)) {
-        return;
+      if (!sync) return;
+      // Waiting reports go out, then the dashboard's status is asked for the
+      // ones it has; the list is shown again if anything changed.
+      final syncer = ref.read(issueReportSyncProvider);
+      var changed = 0;
+      if (first.any((r) => r.status == IssueSyncStatus.pending)) {
+        changed += await syncer.sendPending();
       }
-      final sent = await ref.read(issueReportSyncProvider).sendPending();
-      if (sent > 0 && mounted) {
+      changed += await syncer.refreshStatuses();
+      if (changed > 0 && mounted) {
         final again = await repo.mine(userId);
         if (mounted) setState(() => _reports = again);
       }
@@ -70,7 +75,7 @@ class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
     r.ticketNo,
     r.type.label(l),
     _date(r.createdAt, l),
-    r.status.label(l),
+    r.statusLabel(l),
   );
 
   static String _details(IssueReport r, AppLocalizations l) => [
@@ -80,7 +85,7 @@ class _MyReportsScreenState extends ConsumerState<MyReportsScreen> {
     if (r.severity != null) '${l.reportLineSeverity(r.severity!.short(l))}.',
     '${l.reportLineDescription(r.description)}.',
     '${l.reportLineDate(_date(r.createdAt, l))}.',
-    '${l.reportLineStatus(r.status.label(l))}.',
+    '${l.reportLineStatus(r.statusLabel(l))}.',
   ].join(' ');
 
   ScreenRegistration _registration(WidgetRef ref) {

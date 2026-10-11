@@ -20,12 +20,35 @@ class IssueReportSync {
   final IssueReportRepository _repo;
   final SessionStore _sessions;
   Future<int>? _running;
+  Future<int>? _refreshing;
 
   /// Sends every pending report, oldest first; returns how many went out.
   /// Stops at the first connection problem. Calls made while one runs share
   /// it.
   Future<int> sendPending() =>
       _running ??= _send().whenComplete(() => _running = null);
+
+  /// Asks the dashboard about the status of the sent reports that are not
+  /// closed and keeps its answers; returns how many changed. A report it
+  /// can't answer for now keeps what it had. Calls made while one runs
+  /// share it.
+  Future<int> refreshStatuses() =>
+      _refreshing ??= _refresh().whenComplete(() => _refreshing = null);
+
+  Future<int> _refresh() async {
+    final api = _api;
+    if (api == null) return 0;
+    var changed = 0;
+    for (final report in await _repo.awaitingStatus()) {
+      final status = await api.status(report.ticketNo);
+      if (status == null) continue;
+      if (status != report.serverStatus) {
+        await _repo.setServerStatus(report.id, status);
+        changed++;
+      }
+    }
+    return changed;
+  }
 
   Future<int> _send() async {
     final api = _api;
@@ -38,7 +61,11 @@ class IssueReportSync {
           : await _sessions.readApiToken(userId);
       try {
         final receipt = await api.send(report, token: token);
-        await _repo.markSent(report.id, receipt.serverId);
+        await _repo.markSent(
+          report.id,
+          receipt.serverId,
+          status: receipt.status,
+        );
         sent++;
       } on IssueSendException catch (e) {
         debugPrint('[REPORT] ${report.ticketNo} not sent: ${e.reason}');

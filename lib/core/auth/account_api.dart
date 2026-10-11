@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/env.dart';
+import '../network/api_dio.dart';
+import '../network/server_address.dart';
 
 /// Why the web app refused a request (its `error.code`, see the dashboard's
 /// `docs/api-contract.md`), or why it couldn't be reached.
@@ -181,15 +183,7 @@ abstract interface class AccountApi {
 class HttpAccountApi implements AccountApi {
   /// Creates the client for the web app at [baseUrl].
   HttpAccountApi(String baseUrl, {Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 20),
-              sendTimeout: const Duration(seconds: 20),
-            ),
-          ) {
+    : _dio = dio ?? apiDio(receive: const Duration(seconds: 20)) {
     _dio.options
       ..baseUrl = '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/v1/'
       ..contentType = Headers.jsonContentType
@@ -358,6 +352,9 @@ class HttpAccountApi implements AccountApi {
 
 /// The web app's accounts, or null when accounts stay on the phone
 /// ([Env.accountServer] off).
-final accountApiProvider = Provider<AccountApi?>(
-  (ref) => Env.accountServer ? HttpAccountApi(Env.apiBaseUrl) : null,
-);
+final accountApiProvider = Provider<AccountApi?>((ref) {
+  final address = ref.watch(serverAddressProvider);
+  return Env.accountServerAllowed && hasServer(address)
+      ? HttpAccountApi(address)
+      : null;
+});

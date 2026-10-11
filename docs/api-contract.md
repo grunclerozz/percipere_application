@@ -48,6 +48,11 @@ shows ("Bug", "Voice Commands", "High", …).
 - `4xx` other than 429 (`422` …): refused. The app keeps the report as failed.
 - `429`, `5xx` or no connection: the app keeps it pending and retries later.
 
+**Status:** `GET /api/v1/reports/{ticket_no}` → `{"ticket_no", "status", "updated_at"}`, `status` one
+of `open`, `in_progress`, `resolved`, `closed` (archived). The app asks for it whenever "Aking mga
+report" opens, for sent reports that are not closed, and shows Natanggap / Ginagawa / Naayos na /
+Sarado. Anything unreadable (offline, 404) keeps the last known status.
+
 **Client:** `lib/core/report/issue_report_api.dart`. Builds without `API_BASE_URL` keep reports pending; there is no mock.
 
 ---

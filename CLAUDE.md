@@ -60,6 +60,11 @@ syncing with a separate web admin app (later).
   the mock is gone from `lib/` (`FakeAdminBookRepository` is a test helper). Checklist
   `docs/testing/library-web-checklist.md`; decision log 2026-10-11 (3). Awaiting the user's
   tablet test with the dashboard running.
+- **First tablet test prepared (2026-10-11):** guide `docs/testing/first-tablet-test.md`;
+  plain http only to the `API_BASE_URL` host (+ `API_CLEARTEXT_HOSTS`), enforced by the Android
+  network config and by `CleartextGuard`; developer row "Server address" (`PERCIPERE_DEV=true`);
+  "Aking mga report" shows the dashboard's ticket status (migration v7). Decision log
+  2026-10-11 (5). Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -73,6 +78,8 @@ syncing with a separate web admin app (later).
 - `docs/testing/input-fix-checklist.md` — document inputs (debug + release APK) and questions waiting for the answer.
 - `docs/specs/assistant.md`, `docs/setup/elevenlabs-assistant-setup.md`, `docs/testing/assistant-checklist.md` — Percy, the ElevenLabs voice assistant; `assistant/` — its agent config and Python tools (PC/server only).
 - `docs/specs/percy-local.md`, `docs/testing/percy-local-checklist.md`, `data/percy/`, `scripts/percy/` — Phase 9 self-built Percy.
+- `docs/percy-dataset-guide.md` — what sentences the team writes for Percy, and how to check and retrain.
+- `docs/testing/first-tablet-test.md` — first test with the real dashboard (merge, health check, build, what to try).
 - `docs/testing/voice-speed-voice-checklist.md` — voice cut-offs, speed strip, reading voice.
 - `docs/testing/server-accounts-checklist.md` — accounts on the web app (build command, tablet checks).
 - `docs/specs/report-an-issue.md` — Phase 10 Report an Issue (flow, voice phrases, data, sending).

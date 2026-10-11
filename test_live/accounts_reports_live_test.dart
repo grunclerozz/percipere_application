@@ -33,24 +33,23 @@ void main() {
     fail('no code for $email in $logPath');
   }
 
-  IssueReport report(String ticket, {String? userId}) =>
-      IssueReport(
-        id: 'local-$ticket',
-        ticketNo: ticket,
-        type: IssueType.bug,
-        module: IssueModule.library,
-        severity: IssueSeverity.medium,
-        description: 'Hindi bumubukas ang aklat kapag pinindot',
-        email: null,
-        details: const IssueDetails(
-          appVersion: '0.1.1+2',
-          osVersion: 'Android 14 (SDK 34)',
-          deviceModel: 'Live Test',
-        ),
-        sourceScreen: 'library',
-        createdAt: DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
-        userId: userId,
-      );
+  IssueReport report(String ticket, {String? userId}) => IssueReport(
+    id: 'local-$ticket',
+    ticketNo: ticket,
+    type: IssueType.bug,
+    module: IssueModule.library,
+    severity: IssueSeverity.medium,
+    description: 'Hindi bumubukas ang aklat kapag pinindot',
+    email: null,
+    details: const IssueDetails(
+      appVersion: '0.1.1+2',
+      osVersion: 'Android 14 (SDK 34)',
+      deviceModel: 'Live Test',
+    ),
+    sourceScreen: 'library',
+    createdAt: DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
+    userId: userId,
+  );
 
   group('against the real dashboard', skip: skip, () {
     late HttpAccountApi accounts;
@@ -115,31 +114,37 @@ void main() {
       );
     });
 
-    test('a bad email and a taken email are refused with their reasons',
-        () async {
-      await expectLater(
-        accounts.register(fullName: 'X', email: 'nope', password: 'short'),
-        throwsA(
-          isA<AccountApiException>()
-              .having((e) => e.error, 'error', AccountApiError.validationFailed)
-              .having((e) => e.fields.keys, 'fields', contains('email')),
-        ),
-      );
-      await expectLater(
-        accounts.register(
-          fullName: 'Someone Else',
-          email: email,
-          password: 'Other-Pass-123',
-        ),
-        throwsA(
-          isA<AccountApiException>().having(
-            (e) => e.error,
-            'error',
-            AccountApiError.emailTaken,
+    test(
+      'a bad email and a taken email are refused with their reasons',
+      () async {
+        await expectLater(
+          accounts.register(fullName: 'X', email: 'nope', password: 'short'),
+          throwsA(
+            isA<AccountApiException>()
+                .having(
+                  (e) => e.error,
+                  'error',
+                  AccountApiError.validationFailed,
+                )
+                .having((e) => e.fields.keys, 'fields', contains('email')),
           ),
-        ),
-      );
-    });
+        );
+        await expectLater(
+          accounts.register(
+            fullName: 'Someone Else',
+            email: email,
+            password: 'Other-Pass-123',
+          ),
+          throwsA(
+            isA<AccountApiException>().having(
+              (e) => e.error,
+              'error',
+              AccountApiError.emailTaken,
+            ),
+          ),
+        );
+      },
+    );
 
     test('forgot password: the emailed code sets a new password', () async {
       // The server waits 60 s between emailed codes, as the app does.
@@ -178,62 +183,71 @@ void main() {
           ),
         ),
       );
-    });
+    }, timeout: const Timeout(Duration(minutes: 3)));
 
-    test('a report reaches the dashboard, once, and a refused one says so',
-        () async {
-      final ticket = IssueRules.ticketNumber(DateTime.now());
-      final first = await reports.send(report(ticket));
-      expect(first.status, 'open');
-      final second = await reports.send(report(ticket));
-      expect(second.serverId, first.serverId, reason: 'the same ticket');
+    test(
+      'a report reaches the dashboard, once, and a refused one says so',
+      () async {
+        final ticket = IssueRules.ticketNumber(DateTime.now());
+        final first = await reports.send(report(ticket));
+        expect(first.status, 'open');
+        final second = await reports.send(report(ticket));
+        expect(second.serverId, first.serverId, reason: 'the same ticket');
 
-      final login = await accounts.login(
-        email: email,
-        password: 'New-Pass-456',
-        device: 'd',
-      );
-      final linkedTicket = IssueRules.ticketNumber(DateTime.now());
-      final linked = await reports.send(
-        report(linkedTicket, userId: 'u'),
-        token: login.token,
-      );
-      expect(linked.serverId, isNot(first.serverId));
+        // The status the dashboard shows is what the app asks for.
+        expect(await reports.status(ticket), ServerReportStatus.open);
+        expect(await reports.status('PRC-20200101-ZZZZ'), isNull);
 
-      await expectLater(
-        reports.send(
-          report(IssueRules.ticketNumber(DateTime.now())).copyShort(),
-        ),
-        throwsA(
-          isA<IssueSendException>().having((e) => e.refused, 'refused', true),
-        ),
-      );
-    });
-
-    test('a server that is not there: reports retry later, accounts offline',
-        () async {
-      final nobody = HttpIssueReportApi('http://127.0.0.1:9');
-      await expectLater(
-        nobody.send(report(IssueRules.ticketNumber(DateTime.now()))),
-        throwsA(
-          isA<IssueSendException>().having((e) => e.refused, 'refused', false),
-        ),
-      );
-      await expectLater(
-        HttpAccountApi('http://127.0.0.1:9').login(
+        final login = await accounts.login(
           email: email,
-          password: password,
+          password: 'New-Pass-456',
           device: 'd',
-        ),
-        throwsA(
-          isA<AccountApiException>().having(
-            (e) => e.error,
-            'error',
-            AccountApiError.offline,
+        );
+        final linkedTicket = IssueRules.ticketNumber(DateTime.now());
+        final linked = await reports.send(
+          report(linkedTicket, userId: 'u'),
+          token: login.token,
+        );
+        expect(linked.serverId, isNot(first.serverId));
+
+        await expectLater(
+          reports.send(
+            report(IssueRules.ticketNumber(DateTime.now())).copyShort(),
           ),
-        ),
-      );
-    });
+          throwsA(
+            isA<IssueSendException>().having((e) => e.refused, 'refused', true),
+          ),
+        );
+      },
+    );
+
+    test(
+      'a server that is not there: reports retry later, accounts offline',
+      () async {
+        final nobody = HttpIssueReportApi('http://127.0.0.1:9');
+        await expectLater(
+          nobody.send(report(IssueRules.ticketNumber(DateTime.now()))),
+          throwsA(
+            isA<IssueSendException>().having(
+              (e) => e.refused,
+              'refused',
+              false,
+            ),
+          ),
+        );
+        await expectLater(
+          HttpAccountApi('http://127.0.0.1:9')
+              .login(email: email, password: password, device: 'd'),
+          throwsA(
+            isA<AccountApiException>().having(
+              (e) => e.error,
+              'error',
+              AccountApiError.offline,
+            ),
+          ),
+        );
+      },
+    );
   });
 }
 

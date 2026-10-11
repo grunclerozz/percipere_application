@@ -31,6 +31,7 @@ class IssueReportRepository {
     userId: r['user_id'] as String?,
     status: IssueSyncStatus.parse(r['sync_status'] as String?),
     serverId: r['server_id'] as String?,
+    serverStatus: ServerReportStatus.tryParse(r['server_status'] as String?),
   );
 
   /// Saves a new report as pending and returns it.
@@ -101,17 +102,40 @@ class IssueReportRepository {
     orderBy: 'created_at ASC',
   )).map(_from).toList();
 
-  /// The web app stored [id] as [serverId].
-  Future<void> markSent(String id, String serverId) => _db.update(
-    'issue_reports',
-    {
-      'sync_status': IssueSyncStatus.sent.name,
-      'server_id': serverId,
-      'last_error': null,
-    },
-    where: 'id = ?',
-    whereArgs: [id],
-  );
+  /// The web app stored [id] as [serverId] (with [status] if it said).
+  Future<void> markSent(String id, String serverId, {String? status}) =>
+      _db.update(
+        'issue_reports',
+        {
+          'sync_status': IssueSyncStatus.sent.name,
+          'server_id': serverId,
+          'last_error': null,
+          if (ServerReportStatus.tryParse(status) != null)
+            'server_status': status,
+        },
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+  /// Sent reports whose status on the dashboard may still change (not
+  /// closed), newest first, at most [limit].
+  Future<List<IssueReport>> awaitingStatus({int limit = 20}) async =>
+      (await _db.query(
+        'issue_reports',
+        where: "sync_status = ? AND (server_status IS NULL OR server_status != 'closed')",
+        whereArgs: [IssueSyncStatus.sent.name],
+        orderBy: 'created_at DESC',
+        limit: limit,
+      )).map(_from).toList();
+
+  /// The dashboard says [id] is now [status].
+  Future<void> setServerStatus(String id, ServerReportStatus status) =>
+      _db.update(
+        'issue_reports',
+        {'server_status': status.code},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
 
   /// A send failed; [refused] = the web app rejected it (it stays here as
   /// failed instead of being retried forever).

@@ -1333,6 +1333,19 @@ class FakeIssueReportApi implements IssueReportApi {
     received.putIfAbsent(report.ticketNo, () => body);
     tokens[report.ticketNo] = token;
     final id = received.keys.toList().indexOf(report.ticketNo) + 100;
-    return IssueReceipt(serverId: '$id', status: 'Open');
+    return IssueReceipt(serverId: '$id', status: 'open');
+  }
+
+  /// What the dashboard says per ticket (default `open` once received).
+  final Map<String, ServerReportStatus> statuses = {};
+
+  /// Status questions asked.
+  int statusCalls = 0;
+
+  @override
+  Future<ServerReportStatus?> status(String ticketNo) async {
+    statusCalls++;
+    if (offline || !received.containsKey(ticketNo)) return null;
+    return statuses[ticketNo] ?? ServerReportStatus.open;
   }
 }

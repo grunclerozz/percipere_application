@@ -104,7 +104,8 @@ void main() {
 
   test('a repeated ticket (200, same id) counts as sent', () async {
     final (api, _) = _api(
-      (_) => (200, {'id': 57, 'ticket_no': 'PRC-20261011-K7QM', 'status': 'open'}),
+      (_) =>
+          (200, {'id': 57, 'ticket_no': 'PRC-20261011-K7QM', 'status': 'open'}),
     );
     expect((await api.send(_report)).serverId, '57');
   });
@@ -115,51 +116,102 @@ void main() {
     expect(adapter.sent.single.headers['Authorization'], 'Bearer ${'a' * 64}');
   });
 
-  test('a refused report is final; limits, errors and no connection retry',
-      () async {
-    for (final status in [400, 401, 413, 415, 422]) {
-      final (api, _) = _api(
-        (_) => (status, {'error': {'code': 'validation_failed', 'message': 'x'}}),
-      );
-      await expectLater(api.send(_report), _sendProblem(refused: true));
-    }
-    for (final status in [429, 500, 502, 503]) {
-      final (api, _) = _api(
-        (_) => (status, {'error': {'code': 'too_many_attempts', 'message': 'x'}}),
+  test(
+    'a refused report is final; limits, errors and no connection retry',
+    () async {
+      for (final status in [400, 401, 413, 415, 422]) {
+        final (api, _) = _api(
+          (_) => (
+            status,
+            {
+              'error': {'code': 'validation_failed', 'message': 'x'},
+            },
+          ),
+        );
+        await expectLater(api.send(_report), _sendProblem(refused: true));
+      }
+      for (final status in [429, 500, 502, 503]) {
+        final (api, _) = _api(
+          (_) => (
+            status,
+            {
+              'error': {'code': 'too_many_attempts', 'message': 'x'},
+            },
+          ),
+        );
+        await expectLater(api.send(_report), _sendProblem(refused: false));
+      }
+      final (api, adapter) = _api((_) => (200, {}));
+      adapter.throwError = DioException.connectionError(
+        requestOptions: RequestOptions(),
+        reason: 'refused',
       );
       await expectLater(api.send(_report), _sendProblem(refused: false));
-    }
-    final (api, adapter) = _api((_) => (200, {}));
-    adapter.throwError = DioException.connectionError(
+    },
+  );
+
+  test(
+    'the reason is the server\'s error code, never the report text',
+    () async {
+      final (api, _) = _api(
+        (_) => (
+          422,
+          {
+            'error': {'code': 'validation_failed', 'message': 'Check'},
+          },
+        ),
+      );
+      await expectLater(
+        api.send(_report),
+        throwsA(
+          isA<IssueSendException>().having(
+            (e) => e.reason,
+            'reason',
+            allOf('validation_failed', isNot(contains('camera'))),
+          ),
+        ),
+      );
+      final (api2, _) = _api((_) => (404, '<html>Not found</html>'));
+      await expectLater(
+        api2.send(_report),
+        throwsA(
+          isA<IssueSendException>().having(
+            (e) => e.reason,
+            'reason',
+            'HTTP 404',
+          ),
+        ),
+      );
+    },
+  );
+
+  test('status: GET /reports/{ticket}; anything unreadable is null', () async {
+    final (api, adapter) = _api(
+      (_) => (200, {'ticket_no': 'PRC-20261011-K7QM', 'status': 'resolved'}),
+    );
+    expect(await api.status('PRC-20261011-K7QM'), ServerReportStatus.resolved);
+    expect(adapter.sent.single.method, 'GET');
+    expect(
+      adapter.sent.single.uri.toString(),
+      'http://192.168.1.61/dash/api/v1/reports/PRC-20261011-K7QM',
+    );
+
+    final (unknown, _) = _api((_) => (200, {'status': 'weird'}));
+    expect(await unknown.status('PRC-20261011-K7QM'), isNull);
+    final (missing, _) = _api(
+      (_) => (
+        404,
+        {
+          'error': {'code': 'not_found', 'message': 'x'},
+        },
+      ),
+    );
+    expect(await missing.status('PRC-20261011-K7QM'), isNull);
+    final (down, downAdapter) = _api((_) => (200, {}));
+    downAdapter.throwError = DioException.connectionError(
       requestOptions: RequestOptions(),
       reason: 'refused',
     );
-    await expectLater(api.send(_report), _sendProblem(refused: false));
-  });
-
-  test('the reason is the server\'s error code, never the report text', () async {
-    final (api, _) = _api(
-      (_) => (
-        422,
-        {'error': {'code': 'validation_failed', 'message': 'Check'}},
-      ),
-    );
-    await expectLater(
-      api.send(_report),
-      throwsA(
-        isA<IssueSendException>().having(
-          (e) => e.reason,
-          'reason',
-          allOf('validation_failed', isNot(contains('camera'))),
-        ),
-      ),
-    );
-    final (api2, _) = _api((_) => (404, '<html>Not found</html>'));
-    await expectLater(
-      api2.send(_report),
-      throwsA(
-        isA<IssueSendException>().having((e) => e.reason, 'reason', 'HTTP 404'),
-      ),
-    );
+    expect(await down.status('PRC-20261011-K7QM'), isNull);
   });
 }

@@ -24,7 +24,7 @@ class Migration {
 /// - JSON is stored as TEXT.
 abstract final class Migrations {
   /// All migrations, oldest first.
-  static const List<Migration> all = [_v1, _v2, _v3, _v4, _v5, _v6];
+  static const List<Migration> all = [_v1, _v2, _v3, _v4, _v5, _v6, _v7];
 
   /// Schema version of a fully migrated database.
   static int get latestVersion => all.last.version;
@@ -374,6 +374,13 @@ const Migration _v5 = Migration(5, 'Percy turn log for retraining (Phase 9)', [
   )
   ''',
   'CREATE INDEX idx_percy_turns_user ON percy_turns (user_id, created_at)',
+]);
+
+const Migration _v7 = Migration(7, 'Report status from the web app', [
+  // What the web app says about a sent report (`open`, `in_progress`,
+  // `resolved`, `closed`; GET /api/v1/reports/{ticket_no}). NULL = not asked
+  // yet. `sync_status` stays about sending.
+  'ALTER TABLE issue_reports ADD COLUMN server_status TEXT',
 ]);
 
 const Migration _v6 = Migration(6, 'Issue reports (Phase 10)', [

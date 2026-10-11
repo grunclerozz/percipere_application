@@ -4153,6 +4153,96 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Hindi na-save ang report. Pakisubukan ulit.'**
   String get reportSaveFailed;
+
+  /// Report status from the dashboard: received, nobody started.
+  ///
+  /// In fil, this message translates to:
+  /// **'Natanggap'**
+  String get reportServerOpen;
+
+  /// Report status from the dashboard: being worked on.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ginagawa'**
+  String get reportServerInProgress;
+
+  /// Report status from the dashboard: fixed or answered.
+  ///
+  /// In fil, this message translates to:
+  /// **'Naayos na'**
+  String get reportServerResolved;
+
+  /// Report status from the dashboard: closed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sarado'**
+  String get reportServerClosed;
+
+  /// Hidden developer row: the web app address.
+  ///
+  /// In fil, this message translates to:
+  /// **'Address ng server (developer)'**
+  String get setServerAddress;
+
+  /// Developer dialog title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Address ng server'**
+  String get serverAddressTitle;
+
+  /// Developer dialog help.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard'**
+  String get serverAddressHelp;
+
+  /// Developer dialog button.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-save'**
+  String get serverAddressSave;
+
+  /// Developer dialog button: back to the address the app was built with.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ibalik sa orihinal'**
+  String get serverAddressReset;
+
+  /// Developer dialog button.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kanselahin'**
+  String get serverAddressCancel;
+
+  /// Developer dialog error.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ito tamang address. Dapat nagsisimula ito sa http:// o https://.'**
+  String get serverAddressInvalid;
+
+  /// Developer dialog error.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pinapayagan ng build na ito ang http:// sa host na iyon. Gumamit ng https://, o gumawa ng bagong build na may API_CLEARTEXT_HOSTS.'**
+  String get serverAddressCleartext;
+
+  /// Spoken after saving.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nai-save ang address ng server.'**
+  String get serverAddressSaved;
+
+  /// Spoken after reset.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ibinalik ang address ng server sa orihinal.'**
+  String get serverAddressResetDone;
+
+  /// Value shown when no web app is configured.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang server'**
+  String get serverAddressNone;
 }
 
 class _AppLocalizationsDelegate

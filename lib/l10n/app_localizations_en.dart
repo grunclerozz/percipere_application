@@ -2540,4 +2540,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportSaveFailed =>
       'The report couldn\'t be saved. Please try again.';
+
+  @override
+  String get reportServerOpen => 'Received';
+
+  @override
+  String get reportServerInProgress => 'In progress';
+
+  @override
+  String get reportServerResolved => 'Resolved';
+
+  @override
+  String get reportServerClosed => 'Closed';
+
+  @override
+  String get setServerAddress => 'Server address (developer)';
+
+  @override
+  String get serverAddressTitle => 'Server address';
+
+  @override
+  String get serverAddressHelp =>
+      'The dashboard folder, for example http://192.168.1.61/website/percipere_web/percipere_dashboard';
+
+  @override
+  String get serverAddressSave => 'Save';
+
+  @override
+  String get serverAddressReset => 'Back to the original';
+
+  @override
+  String get serverAddressCancel => 'Cancel';
+
+  @override
+  String get serverAddressInvalid =>
+      'That is not a valid address. It must start with http:// or https://.';
+
+  @override
+  String get serverAddressCleartext =>
+      'This build does not allow http:// to that host. Use https://, or make a new build with API_CLEARTEXT_HOSTS.';
+
+  @override
+  String get serverAddressSaved => 'Server address saved.';
+
+  @override
+  String get serverAddressResetDone =>
+      'Server address set back to the original.';
+
+  @override
+  String get serverAddressNone => 'No server';
 }

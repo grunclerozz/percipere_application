@@ -2492,4 +2492,53 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get reportSaveFailed => 'Hindi na-save ang report. Pakisubukan ulit.';
+
+  @override
+  String get reportServerOpen => 'Natanggap';
+
+  @override
+  String get reportServerInProgress => 'Ginagawa';
+
+  @override
+  String get reportServerResolved => 'Naayos na';
+
+  @override
+  String get reportServerClosed => 'Sarado';
+
+  @override
+  String get setServerAddress => 'Address ng server (developer)';
+
+  @override
+  String get serverAddressTitle => 'Address ng server';
+
+  @override
+  String get serverAddressHelp =>
+      'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard';
+
+  @override
+  String get serverAddressSave => 'I-save';
+
+  @override
+  String get serverAddressReset => 'Ibalik sa orihinal';
+
+  @override
+  String get serverAddressCancel => 'Kanselahin';
+
+  @override
+  String get serverAddressInvalid =>
+      'Hindi ito tamang address. Dapat nagsisimula ito sa http:// o https://.';
+
+  @override
+  String get serverAddressCleartext =>
+      'Hindi pinapayagan ng build na ito ang http:// sa host na iyon. Gumamit ng https://, o gumawa ng bagong build na may API_CLEARTEXT_HOSTS.';
+
+  @override
+  String get serverAddressSaved => 'Nai-save ang address ng server.';
+
+  @override
+  String get serverAddressResetDone =>
+      'Ibinalik ang address ng server sa orihinal.';
+
+  @override
+  String get serverAddressNone => 'Walang server';
 }

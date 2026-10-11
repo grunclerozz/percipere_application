@@ -52,6 +52,7 @@ Every report is saved first, then sent (`IssueReportSync`).
 - Reports appear in Feedback & Bugs, linked to the user (Bearer token).
 - Body: `ticket_no`; `type`, `module`, `severity` as `{code, label}` (severity `null` unless a bug); `description`; `email`; `reporter` (`{kind: account|guest, display_name: null}`); `app_version`, `os_version`, `device_model`, `source_screen`, `created_at`.
 - Reply: `201 {id, ticket_no, status: "open", linked}`. A repeated ticket gets `200` with the same id, so a retry never makes a copy.
+- **Status:** "Aking mga report" asks `GET /api/v1/reports/{ticket_no}` for each sent report that is not closed (20 newest) and keeps the answer in `issue_reports.server_status` (migration v7). The row and the spoken details show Natanggap / Ginagawa / Naayos na / Sarado; a report not sent yet shows Naghihintay ipadala or Hindi naipadala. Offline keeps the last answer.
 
 **When it is sent:**
 - Right after "Ipadala".

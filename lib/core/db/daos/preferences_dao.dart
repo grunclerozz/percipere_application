@@ -104,6 +104,10 @@ abstract final class PrefKeys {
   /// Camera auto-capture on/off.
   static const String autoCapture = 'camera.autoCapture';
 
+  /// Device scope, developer settings: the web app's address typed on the
+  /// tablet (replaces the one the app was built with).
+  static const String serverAddress = 'dev.serverAddress';
+
   /// Device scope, pre-6B only: id of the logged-in PIN profile. The
   /// session now lives in secure storage; read once to migrate it.
   static const String currentUser = 'account.currentUser';

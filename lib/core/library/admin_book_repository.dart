@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../config/env.dart';
+import '../network/server_address.dart';
 import 'catalog_book.dart';
 import 'http_book_repository.dart';
 
@@ -80,7 +80,7 @@ class UnconfiguredBookRepository implements AdminBookRepository {
 /// The web app's books: over HTTP when the app is built with `API_BASE_URL`,
 /// otherwise an empty, offline catalog.
 final adminBookRepositoryProvider = Provider<AdminBookRepository>(
-  (ref) => Env.apiBaseUrl == Env.noServer
+  (ref) => !hasServer(ref.watch(serverAddressProvider))
       ? const UnconfiguredBookRepository()
-      : HttpAdminBookRepository(Env.apiBaseUrl),
+      : HttpAdminBookRepository(ref.watch(serverAddressProvider)),
 );

@@ -1,3 +1,4 @@
+import java.net.URI
 import java.util.Base64
 
 plugins {
@@ -6,17 +7,46 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Plain HTTP is allowed only when the build points at an http:// web app
+// Plain HTTP is allowed only to the host of an http:// web app address
 // (`--dart-define=API_BASE_URL=http://192.168.1.61/...`, a PC on the same
-// Wi-Fi). An https:// server, or none, keeps Android's default: no
-// cleartext traffic. See lib/config/env.dart.
-val apiBaseUrl: String =
+// Wi-Fi) plus any hosts listed in `--dart-define=API_CLEARTEXT_HOSTS=a,b`.
+// Every other host, and a build with an https:// server or none, keeps
+// Android's default: no cleartext traffic. The app checks the same rule for
+// its own requests (lib/core/network/api_dio.dart, lib/config/env.dart).
+fun dartDefine(name: String): String =
     (project.findProperty("dart-defines") as String?)
         ?.split(",")
         ?.map { String(Base64.getDecoder().decode(it)) }
-        ?.firstOrNull { it.startsWith("API_BASE_URL=") }
+        ?.firstOrNull { it.startsWith("$name=") }
         ?.substringAfter("=")
         ?: ""
+
+val cleartextHosts: List<String> = buildList {
+    val uri = runCatching { URI(dartDefine("API_BASE_URL")) }.getOrNull()
+    if (uri?.scheme == "http" && !uri.host.isNullOrBlank()) add(uri.host)
+    addAll(dartDefine("API_CLEARTEXT_HOSTS").split(",").map { it.trim() })
+}.filter { Regex("[A-Za-z0-9.-]+").matches(it) }.distinct()
+
+// res/xml/network_security_config.xml, written for this build only.
+val generatedNetworkConfig = layout.buildDirectory.dir("generated/networkSecurity").get().asFile
+generatedNetworkConfig.resolve("xml").apply {
+    mkdirs()
+    resolve("network_security_config.xml").writeText(
+        buildString {
+            appendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+            appendLine("<network-security-config>")
+            appendLine("    <base-config cleartextTrafficPermitted=\"false\" />")
+            if (cleartextHosts.isNotEmpty()) {
+                appendLine("    <domain-config cleartextTrafficPermitted=\"true\">")
+                cleartextHosts.forEach {
+                    appendLine("        <domain includeSubdomains=\"false\">$it</domain>")
+                }
+                appendLine("    </domain-config>")
+            }
+            appendLine("</network-security-config>")
+        },
+    )
+}
 
 android {
     namespace = "ph.bataan.percipere"
@@ -24,6 +54,8 @@ android {
         version = release(37) { minorApiLevel = 0 }
     }
     ndkVersion = flutter.ndkVersion
+
+    sourceSets.getByName("main").res.srcDir(generatedNetworkConfig)
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -43,8 +75,6 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["usesCleartextTraffic"] =
-            apiBaseUrl.startsWith("http://").toString()
     }
 
     buildTypes {

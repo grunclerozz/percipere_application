@@ -6,7 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../config/env.dart';
+import '../network/api_dio.dart';
+import '../network/server_address.dart';
 import 'issue_report.dart';
 
 /// What the web app answered for a report.
@@ -43,21 +44,18 @@ abstract interface class IssueReportApi {
   /// Sends [report]; [token] links it to the signed-in account. Sending the
   /// same ticket twice stores it once. Throws [IssueSendException].
   Future<IssueReceipt> send(IssueReport report, {String? token});
+
+  /// The dashboard's status for [ticketNo]
+  /// (`GET /api/v1/reports/{ticket_no}`), or null when it can't be read now
+  /// (no connection, unknown ticket, server error).
+  Future<ServerReportStatus?> status(String ticketNo);
 }
 
 /// [IssueReportApi] over HTTP (dio).
 class HttpIssueReportApi implements IssueReportApi {
   /// Creates the client for the web app at [baseUrl].
   HttpIssueReportApi(String baseUrl, {Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 20),
-              sendTimeout: const Duration(seconds: 20),
-            ),
-          ) {
+    : _dio = dio ?? apiDio(receive: const Duration(seconds: 20)) {
     _dio.options
       ..baseUrl = '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/v1/'
       ..contentType = Headers.jsonContentType
@@ -98,15 +96,30 @@ class HttpIssueReportApi implements IssueReportApi {
       refused: status >= 400 && status < 500 && status != 429,
     );
   }
+
+  @override
+  Future<ServerReportStatus?> status(String ticketNo) async {
+    try {
+      final response = await _dio.get<dynamic>(
+        'reports/${Uri.encodeComponent(ticketNo)}',
+      );
+      final data = response.data;
+      if (response.statusCode == 200 && data is Map) {
+        return ServerReportStatus.tryParse(data['status'] as String?);
+      }
+    } on DioException catch (e) {
+      debugPrint('[REPORT] status of $ticketNo unavailable: ${e.type.name}');
+    }
+    return null;
+  }
 }
 
 /// The web app's report endpoint, or null when no web app is configured
 /// (then reports stay "Naghihintay ipadala" on the phone).
-final issueReportApiProvider = Provider<IssueReportApi?>(
-  (ref) => Env.apiBaseUrl == Env.noServer
-      ? null
-      : HttpIssueReportApi(Env.apiBaseUrl),
-);
+final issueReportApiProvider = Provider<IssueReportApi?>((ref) {
+  final address = ref.watch(serverAddressProvider);
+  return hasServer(address) ? HttpIssueReportApi(address) : null;
+});
 
 /// App version, Android version and phone model (attached to reports).
 Future<IssueDetails> readIssueDetails() async {

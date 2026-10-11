@@ -13,7 +13,7 @@ The app logs in against the PHP dashboard
 3. **Check the tablet can reach the PC.** Same Wi-Fi as the PC (PC address `192.168.1.61`; check with `ipconfig` if it changed).
    - In the tablet's browser, open `http://192.168.1.61/website/percipere_web/percipere_dashboard/api/v1/auth/me`. You should see `{"error":{"code":"unauthorized",…}}` (the dashboard must be the version with the REST routes).
    - If it doesn't load: Windows Firewall → allow "Apache HTTP Server" on **Private** networks too (today it is allowed on Public only).
-4. **Build the app pointed at the PC.** An `http://` address also turns on plain HTTP in the build.
+4. **Build the app pointed at the PC.** An `http://` address also turns on plain HTTP, but only for that PC's address (other hosts: `--dart-define=API_CLEARTEXT_HOSTS=...`). The full walk-through is `docs/testing/first-tablet-test.md`.
 
 ```bash
 flutter build apk --release --dart-define=API_BASE_URL=http://192.168.1.61/website/percipere_web/percipere_dashboard

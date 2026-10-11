@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/env.dart';
 
-/// Why the web app refused a request (its `code`, see the dashboard's
-/// `docs/API.md`), or why it couldn't be reached.
+/// Why the web app refused a request (its `error.code`, see the dashboard's
+/// `docs/api-contract.md`), or why it couldn't be reached.
 enum AccountApiError {
   /// Wrong email or password.
   invalidCredentials,
@@ -129,7 +129,7 @@ class ServerSession {
   final ServerUser user;
 }
 
-/// Accounts on the web app (the dashboard's `api/v1/`). Every method throws
+/// Accounts on the web app (the dashboard's REST `api/v1/auth/*`). Every method throws
 /// [AccountApiException]; nothing here touches the phone's database.
 abstract interface class AccountApi {
   /// Creates an account and emails a code; returns whether the email went
@@ -234,17 +234,27 @@ class HttpAccountApi implements AccountApi {
         message: 'HTTP ${response.statusCode}',
       );
     }
-    if (data['ok'] == true) return data;
-    final fields = data['fields'];
+    // A success is the plain resource; a failure is {"error": {code, message,
+    // fields?, retry_after?}} with the HTTP status.
+    final error = data['error'];
+    if (error is! Map) {
+      final status = response.statusCode ?? 0;
+      if (status >= 200 && status < 300) return data;
+      throw AccountApiException(
+        AccountApiError.server,
+        message: 'HTTP $status',
+      );
+    }
+    final fields = error['fields'];
     throw AccountApiException(
-      AccountApiError._fromCode(data['code'] as String?),
+      AccountApiError._fromCode(error['code'] as String?),
       retryAfter: Duration(
-        seconds: (data['retry_after'] as num?)?.toInt() ?? 0,
+        seconds: (error['retry_after'] as num?)?.toInt() ?? 0,
       ),
       fields: fields is Map
           ? {for (final e in fields.entries) '${e.key}': '${e.value}'}
           : const {},
-      message: (data['error'] as String?) ?? '',
+      message: '${error['message'] ?? ''}',
     );
   }
 
@@ -276,7 +286,7 @@ class HttpAccountApi implements AccountApi {
   }) async {
     final data = await _call(
       'POST',
-      'register.php',
+      'auth/register',
       body: {'full_name': fullName, 'email': email, 'password': password},
     );
     return data['email_sent'] == true;
@@ -290,7 +300,7 @@ class HttpAccountApi implements AccountApi {
   }) async {
     final data = await _call(
       'POST',
-      'verify.php',
+      'auth/verify',
       body: {'email': email, 'code': code, 'device': device},
     );
     return data['token'] is String ? _session(data) : null;
@@ -298,7 +308,7 @@ class HttpAccountApi implements AccountApi {
 
   @override
   Future<void> resend(String email) =>
-      _call('POST', 'resend.php', body: {'email': email});
+      _call('POST', 'auth/resend', body: {'email': email});
 
   @override
   Future<ServerSession> login({
@@ -308,23 +318,23 @@ class HttpAccountApi implements AccountApi {
   }) async => _session(
     await _call(
       'POST',
-      'login.php',
+      'auth/login',
       body: {'email': email, 'password': password, 'device': device},
     ),
   );
 
   @override
   Future<ServerUser> me(String token) async {
-    return _userOf(await _call('GET', 'me.php', token: token));
+    return _userOf(await _call('GET', 'auth/me', token: token));
   }
 
   @override
   Future<void> logout(String token) =>
-      _call('POST', 'logout.php', token: token);
+      _call('POST', 'auth/logout', token: token);
 
   @override
   Future<void> forgotPassword(String email) =>
-      _call('POST', 'password_forgot.php', body: {'email': email});
+      _call('POST', 'auth/password-reset/request', body: {'email': email});
 
   @override
   Future<ServerSession> resetPassword({
@@ -335,7 +345,7 @@ class HttpAccountApi implements AccountApi {
   }) async => _session(
     await _call(
       'POST',
-      'password_reset.php',
+      'auth/password-reset',
       body: {
         'email': email,
         'code': code,

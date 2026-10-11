@@ -162,18 +162,19 @@ void main() {
     );
     expect(report.toJson(), {
       'ticket_no': 'PRC-20261011-K7QM',
-      'type': 'Feature Request',
-      'module': 'Maglarawan',
+      'type': {'code': 'feature', 'label': 'Feature Request'},
+      'module': {'code': 'maglarawan', 'label': 'Maglarawan'},
       'severity': null,
       'description': 'Sana mas mahaba ang paglalarawan.',
       'email': null,
+      'reporter': {'kind': 'guest', 'display_name': null},
       'app_version': '0.1.1+2',
       'os_version': 'Android 14 (SDK 34)',
       'device_model': 'Google Pixel 7',
       'source_screen': 'describe',
       'created_at': '2026-10-11T01:30:00.000Z',
     });
-    // The web app's names (the dashboard's feedback.php lists).
+    // The labels the web app stores and shows.
     expect(IssueModule.values.map((m) => m.server), [
       'OCR',
       'Camera',
@@ -185,6 +186,62 @@ void main() {
       'Maglarawan',
       'Percy',
       'Other',
+    ]);
+  });
+
+  test('a bug of a signed-in account: codes and labels, severity, account', () {
+    final report = IssueReport(
+      id: 'local-2',
+      ticketNo: 'PRC-20261011-AB23',
+      type: IssueType.bug,
+      module: IssueModule.voiceCommands,
+      severity: IssueSeverity.critical,
+      description: 'Nag-crash ang app kapag nagsalita ako',
+      email: 'juan@example.com',
+      details: const IssueDetails(
+        appVersion: '0.1.1+2',
+        osVersion: 'Android 14 (SDK 34)',
+        deviceModel: 'Test Tablet',
+      ),
+      sourceScreen: 'home',
+      createdAt: DateTime.utc(2026, 10, 11, 1, 30),
+      userId: 'u-1',
+    );
+    final json = report.toJson();
+    expect(json['type'], {'code': 'bug', 'label': 'Bug'});
+    expect(json['module'], {'code': 'voice_commands', 'label': 'Voice Commands'});
+    expect(json['severity'], {'code': 'critical', 'label': 'Critical'});
+    expect(json['reporter'], {'kind': 'account', 'display_name': null});
+    expect(json['email'], 'juan@example.com');
+  });
+
+  test('every code follows the dashboard contract: lowercase, digits, _', () {
+    final pattern = RegExp(r'^[a-z0-9_]{1,40}$');
+    for (final code in [
+      ...IssueType.values.map((t) => t.code),
+      ...IssueModule.values.map((m) => m.code),
+      ...IssueSeverity.values.map((s) => s.code),
+    ]) {
+      expect(code, matches(pattern));
+    }
+    expect(IssueType.values.map((t) => t.code), ['bug', 'feature', 'feedback']);
+    expect(IssueModule.values.map((m) => m.code), [
+      'ocr',
+      'camera',
+      'voice_commands',
+      'accounts',
+      'text_to_speech',
+      'gestures',
+      'library',
+      'maglarawan',
+      'percy',
+      'other',
+    ]);
+    expect(IssueSeverity.values.map((s) => s.code), [
+      'low',
+      'medium',
+      'high',
+      'critical',
     ]);
   });
 }

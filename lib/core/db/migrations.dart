@@ -378,7 +378,7 @@ const Migration _v5 = Migration(5, 'Percy turn log for retraining (Phase 9)', [
 
 const Migration _v6 = Migration(6, 'Issue reports (Phase 10)', [
   // "Mag-report ng problema": every report is saved here first, then sent to
-  // the web app (api/v1/feedback.php). Never document text, pictures or
+  // the web app (POST /api/v1/reports). Never document text, pictures or
   // recordings. `sync_status`: pending, sent, failed. A report outlives the
   // account that wrote it (user_id becomes NULL), so none is ever lost.
   '''

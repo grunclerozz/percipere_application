@@ -18,7 +18,7 @@ class IssueReceipt {
   /// The web app's id (`feedback_id`).
   final String serverId;
 
-  /// Its status there ("Open", …).
+  /// Its status there (`open`, …).
   final String status;
 }
 
@@ -38,7 +38,7 @@ class IssueSendException implements Exception {
   String toString() => 'IssueSendException($reason, refused: $refused)';
 }
 
-/// Sends a report to the web app (the dashboard's `api/v1/feedback.php`).
+/// Sends a report to the web app (the dashboard's `POST /api/v1/reports`).
 abstract interface class IssueReportApi {
   /// Sends [report]; [token] links it to the signed-in account. Sending the
   /// same ticket twice stores it once. Throws [IssueSendException].
@@ -72,7 +72,7 @@ class HttpIssueReportApi implements IssueReportApi {
     final Response<dynamic> response;
     try {
       response = await _dio.post<dynamic>(
-        'feedback.php',
+        'reports',
         data: report.toJson(),
         options: Options(
           headers: {if (token != null) 'Authorization': 'Bearer $token'},
@@ -83,13 +83,15 @@ class HttpIssueReportApi implements IssueReportApi {
     }
     final status = response.statusCode ?? 0;
     final data = response.data;
-    if (data is Map && data['ok'] == true && data['id'] != null) {
+    // 201 new, 200 the same ticket again (nothing stored twice): both are done.
+    if (status >= 200 && status < 300 && data is Map && data['id'] != null) {
       return IssueReceipt(
         serverId: '${data['id']}',
-        status: (data['status'] as String?) ?? 'Open',
+        status: (data['status'] as String?) ?? 'open',
       );
     }
-    final code = data is Map ? '${data['code']}' : 'HTTP $status';
+    final error = data is Map ? data['error'] : null;
+    final code = error is Map ? '${error['code']}' : 'HTTP $status';
     // 4xx other than 429: the report itself was refused.
     throw IssueSendException(
       code,

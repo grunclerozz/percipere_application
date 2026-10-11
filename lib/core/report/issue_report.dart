@@ -8,10 +8,10 @@ import '../auth/validators.dart';
 /// What kind of report (page 1 of "Mag-report ng problema").
 enum IssueType {
   /// Something is broken ("May sira").
-  bug('Bug', ['bug', 'may sira', 'sira', 'sirang', 'problema', 'error']),
+  bug('bug', 'Bug', ['bug', 'may sira', 'sira', 'sirang', 'problema', 'error']),
 
   /// An idea ("Mungkahi").
-  feature('Feature Request', [
+  feature('feature', 'Feature Request', [
     'feature request',
     'feature',
     'mungkahi',
@@ -20,7 +20,7 @@ enum IssueType {
   ]),
 
   /// Anything else ("Puna").
-  feedback('General Feedback', [
+  feedback('feedback', 'General Feedback', [
     'general feedback',
     'feedback',
     'puna',
@@ -28,9 +28,12 @@ enum IssueType {
     'comment',
   ]);
 
-  const IssueType(this.server, this.voice);
+  const IssueType(this.code, this.server, this.voice);
 
-  /// The value the web app stores (`feedback_category`).
+  /// The app's code for it, sent with the label (`type.code`).
+  final String code;
+
+  /// The English label the web app stores and shows (`feedback_category`).
   final String server;
 
   /// Words that choose it by voice, besides its label.
@@ -51,13 +54,13 @@ enum IssueType {
 /// Which part of the app (page 2).
 enum IssueModule {
   /// Reading text from photos and files.
-  ocr('OCR', ['ocr', 'pagbasa ng teksto', 'text reading', 'pagbasa']),
+  ocr('ocr', 'OCR', ['ocr', 'pagbasa ng teksto', 'text reading', 'pagbasa']),
 
   /// The camera.
-  camera('Camera', ['camera', 'kamera', 'litrato']),
+  camera('camera', 'Camera', ['camera', 'kamera', 'litrato']),
 
   /// Voice commands.
-  voiceCommands('Voice Commands', [
+  voiceCommands('voice_commands', 'Voice Commands', [
     'voice commands',
     'voice',
     'boses',
@@ -66,10 +69,10 @@ enum IssueModule {
   ]),
 
   /// Login, register, password.
-  accounts('Accounts', ['accounts', 'account', 'login', 'password']),
+  accounts('accounts', 'Accounts', ['accounts', 'account', 'login', 'password']),
 
   /// The reading voice.
-  tts('Text-to-Speech', [
+  tts('text_to_speech', 'Text-to-Speech', [
     'text to speech',
     'tts',
     'nagbabasa',
@@ -78,23 +81,26 @@ enum IssueModule {
   ]),
 
   /// The Gesture Pad.
-  gesturePad('Gestures', ['gesture pad', 'gesture', 'galaw', 'swipe']),
+  gesturePad('gestures', 'Gestures', ['gesture pad', 'gesture', 'galaw', 'swipe']),
 
   /// Aklatan.
-  library('Library', ['aklatan', 'library', 'aklat', 'libro']),
+  library('library', 'Library', ['aklatan', 'library', 'aklat', 'libro']),
 
   /// Image description.
-  maglarawan('Maglarawan', ['maglarawan', 'larawan', 'describe', 'image']),
+  maglarawan('maglarawan', 'Maglarawan', ['maglarawan', 'larawan', 'describe', 'image']),
 
   /// The voice assistant.
-  percy('Percy', ['percy', 'assistant', 'katulong']),
+  percy('percy', 'Percy', ['percy', 'assistant', 'katulong']),
 
   /// Anything else.
-  other('Other', ['iba pa', 'iba', 'other', 'others']);
+  other('other', 'Other', ['iba pa', 'iba', 'other', 'others']);
 
-  const IssueModule(this.server, this.voice);
+  const IssueModule(this.code, this.server, this.voice);
 
-  /// The value the web app stores (`feedback_module`).
+  /// The app's code for it, sent with the label (`module.code`).
+  final String code;
+
+  /// The English label the web app stores and shows (`feedback_module`).
   final String server;
 
   /// Words that choose it by voice, besides its label.
@@ -122,20 +128,23 @@ enum IssueModule {
 /// How bad a bug is (page 3, bugs only).
 enum IssueSeverity {
   /// A minor annoyance.
-  low('Low', ['low', 'mababa', 'maliit']),
+  low('low', 'Low', ['low', 'mababa', 'maliit']),
 
   /// Works, but wrong.
-  medium('Medium', ['medium', 'katamtaman', 'katamtamang']),
+  medium('medium', 'Medium', ['medium', 'katamtaman', 'katamtamang']),
 
   /// Doesn't work.
-  high('High', ['high', 'mataas', 'hindi gumagana']),
+  high('high', 'High', ['high', 'mataas', 'hindi gumagana']),
 
   /// Crashes or loses data.
-  critical('Critical', ['critical', 'kritikal', 'nag-crash', 'crash']);
+  critical('critical', 'Critical', ['critical', 'kritikal', 'nag-crash', 'crash']);
 
-  const IssueSeverity(this.server, this.voice);
+  const IssueSeverity(this.code, this.server, this.voice);
 
-  /// The value the web app stores (`feedback_severity`).
+  /// The app's code for it, sent with the label (`severity.code`).
+  final String code;
+
+  /// The English label the web app stores and shows (`feedback_severity`).
   final String server;
 
   /// Words that choose it by voice, besides its label.
@@ -328,14 +337,23 @@ class IssueReport {
   /// The web app's id, once sent.
   final String? serverId;
 
-  /// The request body for the web app (`api/v1/feedback.php`).
+  /// The request body for `POST /api/v1/reports` (the dashboard's
+  /// `docs/api-contract.md`): type, module and severity as `{code, label}`,
+  /// and who sent it. The display name is left out on purpose: a signed-in
+  /// report is linked to its account by the token.
   Map<String, Object?> toJson() => {
     'ticket_no': ticketNo,
-    'type': type.server,
-    'module': module.server,
-    'severity': severity?.server,
+    'type': {'code': type.code, 'label': type.server},
+    'module': {'code': module.code, 'label': module.server},
+    'severity': severity == null
+        ? null
+        : {'code': severity!.code, 'label': severity!.server},
     'description': description,
     'email': email,
+    'reporter': {
+      'kind': userId == null ? 'guest' : 'account',
+      'display_name': null,
+    },
     'app_version': details.appVersion,
     'os_version': details.osVersion,
     'device_model': details.deviceModel,

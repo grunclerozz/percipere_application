@@ -6,9 +6,10 @@ description still talk to **mocks** (`MockLibrarySyncRepository`,
 `MockImageDescriptionRepository`); the real clients replace them behind the same interfaces
 (`library_sync_repository.dart`, `lib/core/network/image_description_repository.dart`).
 
-> The dashboard now offers REST URLs under `/api/v1` for everything (its `docs/api-contract.md`
-> is the master). Accounts and reports below still use the older `.php` URLs, which keep
-> working (deprecated); the app moves to the REST ones in a later update.
+> The dashboard's REST routes under `/api/v1` (its `docs/api-contract.md` is the master) are
+> what the app uses for books, accounts and reports. **The app needs a dashboard that has
+> these routes** (the `fix/webapp-api` branch of the dashboard repo, once merged): the older
+> `.php` URLs are deprecated there and the app no longer calls them.
 
 All paths are under the web app's base URL (`Env`). JSON is UTF-8. Dates are ISO 8601
 (UTC). Errors: a JSON body `{"error": "message"}` with a normal HTTP status. The app is
@@ -19,41 +20,53 @@ download books too). The sync endpoints need the signed-in account's token (Phas
 
 ---
 
-## Report an issue — built 2026-10-11 (`POST api/v1/feedback.php`)
+## Report an issue — `POST /api/v1/reports` (REST since 2026-10-11)
 
-**The owner chose to extend the existing feedback endpoint** instead of adding `/api/reports`. The full reference is the dashboard repo's `docs/API.md`; the app's spec is `docs/specs/report-an-issue.md`.
+The full reference is the dashboard repo's `docs/api-contract.md`; the app's spec is
+`docs/specs/report-an-issue.md`. (Earlier the app used `api/v1/feedback.php`; that URL still
+exists on the dashboard but is deprecated.)
 
 **Request:** a JSON body with:
-- `ticket_no` (`PRC-YYYYMMDD-XXXX`), `type`, `module`, `severity` (`null` unless Bug), `description`, `email` (or `null`)
+- `ticket_no` (`PRC-YYYYMMDD-XXXX`)
+- `type`, `module` as `{code, label}`; `severity` as `{code, label}` (bugs) or `null`
+- `description` (10–1000 characters), `email` (or `null`)
+- `reporter`: `{"kind": "account" | "guest", "display_name": null}` (the name is left out on
+  purpose; a signed-in report is linked by the token)
 - `app_version`, `os_version`, `device_model`, `source_screen`, `created_at`
 - optionally `Authorization: Bearer <token>`, which links the report to the account
 
+Codes: type `bug`, `feature`, `feedback`; module `ocr`, `camera`, `voice_commands`,
+`accounts`, `text_to_speech`, `gestures`, `library`, `maglarawan`, `percy`, `other`;
+severity `low`, `medium`, `high`, `critical`. The labels are the English names the dashboard
+shows ("Bug", "Voice Commands", "High", …).
+
 **Reply:**
-- `201 {"ok": true, "id", "ticket_no", "status": "Open", "linked"}`
+- `201 {"id", "ticket_no", "status": "open", "linked"}`
 - **The same ticket sent again stores nothing new** (`200`, same `id`), so the app can retry safely.
 
-**Errors:**
-- `422`: refused. The app keeps the report as failed.
+**Errors** (`{"error": {"code", "message", "fields"?}}`):
+- `4xx` other than 429 (`422` …): refused. The app keeps the report as failed.
 - `429`, `5xx` or no connection: the app keeps it pending and retries later.
 
 **Client:** `lib/core/report/issue_report_api.dart`. Builds without `API_BASE_URL` keep reports pending; there is no mock.
 
 ---
 
-## Accounts — built 2026-10-10 (dashboard `api/v1/`)
+## Accounts — `/api/v1/auth/*` (REST since 2026-10-11; built 2026-10-10)
 
-**The full reference is the dashboard repo's `docs/API.md`.**
+**The full reference is the dashboard repo's `docs/api-contract.md`.**
 
-**How it differs from the rest of this contract:**
-- The paths are plain PHP files under `{API_BASE_URL}/api/v1/`.
-- Errors are `{"ok": false, "code": "...", "error": "..."}`.
-- The app picks its own words from `code`.
+**How it works:**
+- Paths are under `{API_BASE_URL}/api/v1/auth/`.
+- A success is the plain resource; a failure is `{"error": {"code", "message", "fields"?, "retry_after"?}}`
+  with the HTTP status (no `ok` field).
+- The app picks its own words from `error.code`.
 
 **Endpoints:**
-- `register.php`, `verify.php`, `resend.php`
-- `login.php`, `logout.php`, `me.php`
-- `password_forgot.php`, `password_reset.php`
-- `feedback.php` (not used by the app yet)
+- `POST auth/register`, `POST auth/verify`, `POST auth/resend`
+- `POST auth/login`, `POST auth/logout`, `GET auth/me`
+- `POST auth/password-reset/request`, `POST auth/password-reset`
+- (The old `register.php`, `login.php`, … still exist on the dashboard; deprecated.)
 
 **Client code:**
 - `lib/core/auth/account_api.dart`: the HTTP client.

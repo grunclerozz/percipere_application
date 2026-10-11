@@ -11,7 +11,7 @@ The app logs in against the PHP dashboard
    - Add `define('LOCAL_MAIL_DRIVER', 'log');`. Codes then appear in `C:\xampp\apache\logs\error.log` as `Percipere DEV mail to …: code 123456`.
    - With real SMTP settings, leave the mail driver out instead.
 3. **Check the tablet can reach the PC.** Same Wi-Fi as the PC (PC address `192.168.1.61`; check with `ipconfig` if it changed).
-   - In the tablet's browser, open `http://192.168.1.61/website/percipere_web/percipere_dashboard/api/v1/me.php`. You should see `{"ok":false,"code":"unauthorized",…}`.
+   - In the tablet's browser, open `http://192.168.1.61/website/percipere_web/percipere_dashboard/api/v1/auth/me`. You should see `{"error":{"code":"unauthorized",…}}` (the dashboard must be the version with the REST routes).
    - If it doesn't load: Windows Firewall → allow "Apache HTTP Server" on **Private** networks too (today it is allowed on Public only).
 4. **Build the app pointed at the PC.** An `http://` address also turns on plain HTTP in the build.
 

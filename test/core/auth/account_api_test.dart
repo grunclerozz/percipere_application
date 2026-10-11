@@ -1,5 +1,6 @@
-// HttpAccountApi: requests go to {base}/api/v1/*.php as JSON, the token as
-// a Bearer header; replies and error codes (docs/API.md in the dashboard)
+// HttpAccountApi: requests go to {base}/api/v1/auth/* as JSON, the token as
+// a Bearer header; replies (the plain resource) and errors ({"error": {code,
+// message, fields, retry_after}}, docs/api-contract.md in the dashboard)
 // become ServerSession / AccountApiException; no connection = offline.
 
 import 'dart:convert';
@@ -59,9 +60,9 @@ const _user = {
 }
 
 void main() {
-  test('login: JSON to api/v1/login.php, session read back', () async {
+  test('login: JSON to api/v1/auth/login, session read back', () async {
     final (api, adapter) = _api(
-      (_) => (200, {'ok': true, 'token': 'a' * 64, 'user': _user}),
+      (_) => (200, {'token': 'a' * 64, 'user': _user}),
     );
     final session = await api.login(
       email: 'juan@example.com',
@@ -72,7 +73,7 @@ void main() {
     expect(session.user.id, '7');
     expect(session.user.fullName, 'Juan Dela Cruz');
     final sent = adapter.sent.single;
-    expect(sent.uri.toString(), 'http://192.168.1.61/dash/api/v1/login.php');
+    expect(sent.uri.toString(), 'http://192.168.1.61/dash/api/v1/auth/login');
     expect(sent.method, 'POST');
     expect(adapter.bodies.single, {
       'email': 'juan@example.com',
@@ -98,7 +99,7 @@ void main() {
       };
       for (final MapEntry(:key, :value) in cases.entries) {
         final (api, _) = _api(
-          (_) => (403, {'ok': false, 'code': key, 'error': 'x'}),
+          (_) => (403, {'error': {'code': key, 'message': 'x'}}),
         );
         await expectLater(
           api.login(email: 'a@b.co', password: 'p', device: 'd'),
@@ -112,10 +113,11 @@ void main() {
         (_) => (
           429,
           {
-            'ok': false,
-            'code': 'too_many_attempts',
-            'error': 'wait',
-            'retry_after': 900,
+            'error': {
+              'code': 'too_many_attempts',
+              'message': 'wait',
+              'retry_after': 900,
+            },
           },
         ),
       );
@@ -132,10 +134,11 @@ void main() {
         (_) => (
           422,
           {
-            'ok': false,
-            'code': 'validation_failed',
-            'error': 'Check',
-            'fields': {'email': 'Enter a valid email address.'},
+            'error': {
+              'code': 'validation_failed',
+              'message': 'Check',
+              'fields': {'email': 'Enter a valid email address.'},
+            },
           },
         ),
       );
@@ -151,7 +154,7 @@ void main() {
   );
 
   test('no connection → offline; an HTML page → server error', () async {
-    final (api, adapter) = _api((_) => (200, {'ok': true}));
+    final (api, adapter) = _api((_) => (200, {}));
     adapter.throwError = DioException.connectionError(
       requestOptions: RequestOptions(),
       reason: 'refused',
@@ -184,7 +187,7 @@ void main() {
     final (api, adapter) = _api(
       (o) => (
         200,
-        o.path.endsWith('me.php') ? {'ok': true, 'user': _user} : {'ok': true},
+        o.path.endsWith('auth/me') ? {'user': _user} : {},
       ),
     );
     final user = await api.me('b' * 64);
@@ -200,7 +203,7 @@ void main() {
     final (api, _) = _api(
       (_) => (
         200,
-        {'ok': true, 'status': 'active', 'token': 'c' * 64, 'user': _user},
+        {'status': 'active', 'token': 'c' * 64, 'user': _user},
       ),
     );
     expect(
@@ -212,7 +215,7 @@ void main() {
       'c' * 64,
     );
     final (api2, _) = _api(
-      (_) => (200, {'ok': true, 'status': 'pending_approval'}),
+      (_) => (200, {'status': 'pending_approval'}),
     );
     expect(
       await api2.verify(email: 'juan@example.com', code: '123456', device: 'd'),
@@ -221,13 +224,13 @@ void main() {
   });
 
   test('register reports whether the email went out; reset sends all '
-      'fields to password_reset.php', () async {
+      'fields to auth/password-reset', () async {
     final (api, adapter) = _api(
       (o) => (
         200,
         o.path.contains('register')
-            ? {'ok': true, 'email_sent': false}
-            : {'ok': true, 'token': 'd' * 64, 'user': _user},
+            ? {'email_sent': false}
+            : {'token': 'd' * 64, 'user': _user},
       ),
     );
     expect(
@@ -240,12 +243,80 @@ void main() {
       password: 'bago12345',
       device: 'Tablet',
     );
-    expect(adapter.sent.last.path, 'password_reset.php');
+    expect(adapter.sent.last.path, 'auth/password-reset');
     expect(adapter.bodies.last, {
       'email': 'j@x.co',
       'code': '123456',
       'password': 'bago12345',
       'device': 'Tablet',
     });
+  });
+
+  test('every call goes to its REST address with the right method', () async {
+    final (api, adapter) = _api(
+      (o) => (
+        200,
+        o.path.endsWith('auth/me')
+            ? {'user': _user}
+            : o.path.contains('verify') ||
+                  o.path.endsWith('auth/login') ||
+                  o.path.endsWith('auth/password-reset')
+            ? {'token': 'e' * 64, 'user': _user}
+            : <String, Object?>{},
+      ),
+    );
+    await api.register(fullName: 'J', email: 'j@x.co', password: 'p');
+    await api.verify(email: 'j@x.co', code: '123456', device: 'd');
+    await api.resend('j@x.co');
+    await api.login(email: 'j@x.co', password: 'p', device: 'd');
+    await api.me('t' * 64);
+    await api.logout('t' * 64);
+    await api.forgotPassword('j@x.co');
+    await api.resetPassword(
+      email: 'j@x.co',
+      code: '123456',
+      password: 'p',
+      device: 'd',
+    );
+    expect([for (final o in adapter.sent) '${o.method} ${o.path}'], [
+      'POST auth/register',
+      'POST auth/verify',
+      'POST auth/resend',
+      'POST auth/login',
+      'GET auth/me',
+      'POST auth/logout',
+      'POST auth/password-reset/request',
+      'POST auth/password-reset',
+    ]);
+  });
+
+  test('a 404 or 405 JSON error from an old server is a server error', () async {
+    final (api, _) = _api(
+      (_) => (404, {'error': {'code': 'not_found', 'message': 'x'}}),
+    );
+    await expectLater(
+      api.me('t' * 64),
+      throwsA(
+        isA<AccountApiException>().having(
+          (e) => e.error,
+          'error',
+          AccountApiError.server,
+        ),
+      ),
+    );
+  });
+
+  test('a failure status without the error object is a server error', () async {
+    final (api, _) = _api((_) => (500, {'message': 'oops'}));
+    await expectLater(
+      api.me('t' * 64),
+      throwsA(
+        isA<AccountApiException>().having(
+          (e) => e.error,
+          'error',
+          AccountApiError.server,
+        ),
+      ),
+    );
   });
 }

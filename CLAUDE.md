@@ -50,7 +50,7 @@ syncing with a separate web admin app (later).
   Awaiting the user's tablet test.
 - **Phase 10 — Report an Issue (2026-10-11):** one-question-per-page report flow (Settings,
   Home, "mag-report" from any screen, Percy); saved locally (`issue_reports`, migration v6),
-  sent to the dashboard's `api/v1/feedback.php` with a `PRC-YYYYMMDD-XXXX` ticket, retried
+  sent to the dashboard's `POST api/v1/reports` with a `PRC-YYYYMMDD-XXXX` ticket, retried
   when offline; "Aking mga report" in Settings. Spec `docs/specs/report-an-issue.md`;
   checklist section 15 of `docs/testing/system-test-checklist.md`; decision log 2026-10-11.
   Percy retrained the same day (27 intents, tuned by 5-fold cross-validation; decision log

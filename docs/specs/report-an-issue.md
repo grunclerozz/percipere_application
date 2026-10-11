@@ -48,11 +48,10 @@ A report outlives its account (`ON DELETE SET NULL`), and a guest's reports move
 ## Sending
 Every report is saved first, then sent (`IssueReportSync`).
 
-**Where it goes:** `POST {API_BASE_URL}/api/v1/feedback.php`.
-- The owner chose to extend the dashboard's existing feedback endpoint instead of the spec's `/api/reports`.
+**Where it goes:** `POST {API_BASE_URL}/api/v1/reports` (until 2026-10-11 it was `api/v1/feedback.php`, which the dashboard keeps as a deprecated alias).
 - Reports appear in Feedback & Bugs, linked to the user (Bearer token).
-- Body: `ticket_no`, `type`, `module`, `severity`, `description`, `email`, `app_version`, `os_version`, `device_model`, `source_screen`, `created_at`.
-- Reply: `201 {id, ticket_no, status}`. A repeated ticket gets `200` with the same id, so a retry never makes a copy.
+- Body: `ticket_no`; `type`, `module`, `severity` as `{code, label}` (severity `null` unless a bug); `description`; `email`; `reporter` (`{kind: account|guest, display_name: null}`); `app_version`, `os_version`, `device_model`, `source_screen`, `created_at`.
+- Reply: `201 {id, ticket_no, status: "open", linked}`. A repeated ticket gets `200` with the same id, so a retry never makes a copy.
 
 **When it is sent:**
 - Right after "Ipadala".

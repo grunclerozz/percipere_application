@@ -123,11 +123,12 @@ void main() {
     );
     expect(api.received[saved.ticketNo], {
       'ticket_no': saved.ticketNo,
-      'type': 'Bug',
-      'module': 'Camera',
-      'severity': 'Critical',
+      'type': {'code': 'bug', 'label': 'Bug'},
+      'module': {'code': 'camera', 'label': 'Camera'},
+      'severity': {'code': 'critical', 'label': 'Critical'},
       'description': _what,
       'email': TestEnv.testEmail,
+      'reporter': {'kind': 'account', 'display_name': null},
       'app_version': '0.1.1+2',
       'os_version': 'Android 14 (SDK 34)',
       'device_model': 'Test Tablet',

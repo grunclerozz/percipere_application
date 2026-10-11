@@ -2,6 +2,28 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-11 (4) — Accounts and reports move to the REST URLs
+**Decided (user):** after the books, move the app's accounts and reports to the dashboard's REST
+routes.
+
+**Done:**
+- `HttpAccountApi` calls `auth/register|verify|resend|login|logout|me|password-reset/request|password-reset`.
+  A success is the plain resource; a failure is read from `{"error": {code, message, fields, retry_after}}`.
+- `HttpIssueReportApi` calls `POST reports`. The body has `type`, `module` and `severity` as `{code, label}`
+  and `reporter: {kind, display_name}`; the enums gained their codes (`bug`, `voice_commands`,
+  `text_to_speech`, …). Labels stay the English names the dashboard already shows.
+- `reporter.display_name` is `null` on purpose: a signed-in report is linked to its account by the token,
+  so the name does not need to travel (less personal data on the wire).
+- A repeated ticket (200) counts as sent, as the 201 does.
+
+**Needs:** a dashboard with the REST routes (branch `fix/webapp-api` of the dashboard repo, once merged).
+The app no longer calls the old `.php` URLs, so against an older dashboard accounts would show a server
+error and reports would stay pending.
+
+**Checked** against the real router with `test_live/accounts_reports_live_test.dart` (register, verify, me,
+logout, login, wrong password, taken email, forgot and reset, a report sent twice, a linked report, a refused
+report, a missing server) and `test_live/books_live_test.dart`.
+
 ## 2026-10-11 (3) — Aklatan loads its books from the dashboard
 **Decided (user):** once the dashboard's books API works, load Aklatan's admin books from it
 and remove the mocks.

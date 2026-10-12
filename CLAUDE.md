@@ -64,7 +64,16 @@ syncing with a separate web admin app (later).
   plain http only to the `API_BASE_URL` host (+ `API_CLEARTEXT_HOSTS`), enforced by the Android
   network config and by `CleartextGuard`; developer row "Server address" (`PERCIPERE_DEV=true`);
   "Aking mga report" shows the dashboard's ticket status (migration v7). Decision log
-  2026-10-11 (5). Awaiting the user's tablet test.
+  2026-10-11 (5). Awaiting the user's tablet test. App pushed to `main` (`54b6567`).
+- **Dashboard (repo `batumbakla/percipere_web`, folder `percipere_dashboard`) — state 2026-10-13:**
+  the app only works against the dashboard branch `fix/webapp-api` (REST routes under `/api/v1`),
+  **not merged yet** (the user merges the PR; `main` there is still the old version). On top of it,
+  branch `ui/rounded-no-shadow` is pushed: 8px buttons (`--radius-btn`), no shadows, filters removed
+  (search and paging kept), styled dropdowns, and a fix for the edit-book form opening empty. The
+  user's XAMPP folder is that Git checkout; its real database is at schema 12 and has no books yet.
+  Still open (user): merge the PRs, run `docs/testing/first-tablet-test.md`, decide on dropping the
+  personal columns (`v12_remove_personal_columns.sql`) and on rewriting git history that still holds
+  old personal data. Percy needs the team's sentences, then a retrain (`docs/percy-dataset-guide.md`).
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.

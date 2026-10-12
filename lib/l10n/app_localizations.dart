@@ -3353,7 +3353,7 @@ abstract class AppLocalizations {
   /// No description provided for @assistantEnded.
   ///
   /// In fil, this message translates to:
-  /// **'Tapos na ang usapan kay Percy.'**
+  /// **'Paalam muna kay Percy.'**
   String get assistantEnded;
 
   /// No description provided for @assistantFailed.
@@ -3371,7 +3371,7 @@ abstract class AppLocalizations {
   /// Added to help: how to start and end the voice assistant.
   ///
   /// In fil, this message translates to:
-  /// **'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o gumawa ng kahit anong galaw.'**
+  /// **'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o mag-swipe.'**
   String get assistantHowToCall;
 
   /// How the assistant addresses a guest (no name).
@@ -3433,6 +3433,84 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Percy online (ElevenLabs, developer)'**
   String get setPercyElevenLabs;
+
+  /// Hidden developer row: show the panel with what Percy heard, the language, intents and confidence.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percy analysis (developer)'**
+  String get setPercyAnalysis;
+
+  /// Developer panel title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percy analysis'**
+  String get percyAnalysisTitle;
+
+  /// No description provided for @percyAnalysisEmpty.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang sinabi kay Percy.'**
+  String get percyAnalysisEmpty;
+
+  /// No description provided for @percyAnalysisHeard.
+  ///
+  /// In fil, this message translates to:
+  /// **'Narinig: {text}'**
+  String percyAnalysisHeard(String text);
+
+  /// No description provided for @percyAnalysisLanguage.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wika: {language} (fil {fil} · en {en})'**
+  String percyAnalysisLanguage(String language, int fil, int en);
+
+  /// No description provided for @percyAnalysisLangFilipino.
+  ///
+  /// In fil, this message translates to:
+  /// **'Filipino'**
+  String get percyAnalysisLangFilipino;
+
+  /// No description provided for @percyAnalysisLangEnglish.
+  ///
+  /// In fil, this message translates to:
+  /// **'English'**
+  String get percyAnalysisLangEnglish;
+
+  /// No description provided for @percyAnalysisLangTaglish.
+  ///
+  /// In fil, this message translates to:
+  /// **'Taglish'**
+  String get percyAnalysisLangTaglish;
+
+  /// No description provided for @percyAnalysisIntent.
+  ///
+  /// In fil, this message translates to:
+  /// **'Intent: {intent} · kumpiyansa {confidence}'**
+  String percyAnalysisIntent(String intent, String confidence);
+
+  /// No description provided for @percyAnalysisNoIntent.
+  ///
+  /// In fil, this message translates to:
+  /// **'Intent: — (eksaktong utos)'**
+  String get percyAnalysisNoIntent;
+
+  /// No description provided for @percyAnalysisTop.
+  ///
+  /// In fil, this message translates to:
+  /// **'Top 3: {list}'**
+  String percyAnalysisTop(String list);
+
+  /// No description provided for @percyAnalysisAction.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ginawa: {action}'**
+  String percyAnalysisAction(String action);
+
+  /// No description provided for @percyAnalysisCount.
+  ///
+  /// In fil, this message translates to:
+  /// **'{count} na pangungusap'**
+  String percyAnalysisCount(int count);
 
   /// Hidden developer row: export Percy's turn log.
   ///

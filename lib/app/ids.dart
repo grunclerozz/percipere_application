@@ -131,6 +131,9 @@ abstract final class Ids {
   /// Settings (developer builds): the ElevenLabs Percy instead.
   static const String settingPercyElevenLabs = 'settings.percyElevenLabs';
 
+  /// Settings (developer builds): the Percy analysis panel.
+  static const String settingPercyAnalysis = 'settings.percyAnalysis';
+
   /// Settings (developer builds): export Percy's turn log as CSV.
   static const String settingPercyExport = 'settings.percyExport';
 

@@ -74,13 +74,17 @@ syncing with a separate web admin app (later).
   Still open (user): merge the PRs, run `docs/testing/first-tablet-test.md`, decide on dropping the
   personal columns (`v12_remove_personal_columns.sql`) and on rewriting git history that still holds
   old personal data. Percy needs the team's sentences, then a retrain (`docs/percy-dataset-guide.md`).
-- **Revisions round (2026-10-13), `docs/prompts/revisions.md` items 1, 2, 3, 5, 6 built; items 4
-  (Percy "conversation has ended") and 7 (Percy voice analysis panel) NOT done.** Tutorial now runs
+- **Revisions round (2026-10-13), `docs/prompts/revisions.md`: all 7 items built.** Tutorial now runs
   after the setup (per account; guests once per device) and starts with Percy's introduction; setup
   speed step = Mabagal/Katamtaman/Mabilis with samples, and prompts/Percy now follow the speed;
   passwords visible while typing with an eye button; one shared `PagePadding` (max 640 dp, centered).
-  Checklist section 16 of `docs/testing/system-test-checklist.md`; decision log 2026-10-13.
-  Awaiting the user's tablet test.
+  Second pass (items 4, 7): Percy no longer ends on long-press / single tap / two-finger double tap /
+  barge-in commands (that, plus the old "Tapos na po ang usapan natin" end line, was the "conversation
+  has ended" bug); silence → one reminder after 9 s → goodbye after 9 s more; ElevenLabs only in a
+  `PERCIPERE_DEV` build with its switch on (`elevenLabsActiveProvider`); developer "Percy analysis"
+  panel (transcript, language, intent, confidence, top 3, action; memory only).
+  Checklist section 16 of `docs/testing/system-test-checklist.md`; decision log 2026-10-13 and
+  2026-10-13 (2). Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.

@@ -212,6 +212,9 @@ class DialogueManager {
   /// The last intent acted on or asked about.
   PercyIntent? lastIntent;
 
+  /// The classifier's prediction for the last sentence (analysis panel).
+  IntentPrediction? lastPrediction;
+
   /// The last turns, oldest first.
   List<PercyTurn> get history => List.unmodifiable(_history);
 
@@ -229,6 +232,7 @@ class DialogueManager {
     _pending = null;
     _history.clear();
     lastIntent = null;
+    lastPrediction = null;
   }
 
   /// Records a turn handled outside the manager (an exact command).
@@ -245,7 +249,7 @@ class DialogueManager {
     PercyEnvironment env,
     PercyStyle style,
   ) async {
-    final prediction = model.predict(text);
+    final prediction = lastPrediction = model.predict(text);
     debugPrint(
       '[PERCY] "${PercyText.preprocess(text)}" → ${prediction.topN(3)} '
       'in ${prediction.elapsed.inMicroseconds / 1000} ms',

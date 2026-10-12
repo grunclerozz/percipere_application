@@ -145,6 +145,7 @@ class PercyResponses {
     'more',
     'ended',
     'idle_end',
+    'reprompt',
     'introduction',
     'or',
   ];

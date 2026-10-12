@@ -24,8 +24,13 @@ abstract final class PercyConfig {
   /// "Exact short command": at most this many words, said as a known command.
   static const int exactCommandWords = 3;
 
-  /// Percy ends the session after this long without the user speaking.
-  static const Duration idleEnd = Duration(seconds: 60);
+  /// Silence (counted from when Percy and the app stop talking) before
+  /// Percy asks once "Nandito pa ako. Ano ang maitutulong ko?".
+  static const Duration silenceReprompt = Duration(seconds: 9);
+
+  /// Further silence after that question before Percy says a short goodbye
+  /// and ends the session.
+  static const Duration silenceEnd = Duration(seconds: 9);
 
   /// Percy's pending question stays answerable this long.
   static const Duration questionValid = Duration(seconds: 30);

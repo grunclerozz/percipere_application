@@ -2,6 +2,48 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-13 (2) — Percy stays in the conversation; Percy voice analysis
+**Decided (user):** `docs/prompts/revisions.md` items 4 and 7.
+
+- **Item 4 — what broke.** The ElevenLabs path was *not* what spoke: the self-built Percy's own
+  end line `dialogue.ended` was "Tapos na po ang usapan natin" ("the conversation has ended"),
+  in since Phase 9 (`5db21b0`). It was said whenever `_userEndsPercy` ran, i.e. on **any**
+  gesture or tap of the user's while a session was on. That included **long-press** (the app's
+  "listen now", which the tutorial teaches as the way to talk), an accidental **single tap**
+  (repeat), two-finger double tap (stop speech), and reading commands said over a document
+  (barge-in → `VoiceController._handleIntent` → `dispatch`). So reaching for the screen to
+  talk to Percy ended it at once. Also since `5db21b0`: a flat 60 s idle end, no reminder.
+  ElevenLabs was off by default, but a `percy.elevenLabs = true` saved by a developer build
+  stayed in force in a normal build (the switch was hidden, not the setting) — now ignored.
+- **Fix.** `CommandBus._keepsPercy`: long-press listens now, single tap repeats Percy's last
+  line, two-finger double tap stops speech — the session stays. Other swipes, double-taps and
+  button taps still end it ("user takes back control") but with a goodbye. Barge-in commands
+  run as Percy's own (`runReadingCommand`). Silence: 9 s (counted from when the app stops
+  talking; not while reading, while Percy acts, or while partial words are coming in) → one
+  "Nandito pa po ako. Ano po ang maitutulong ko?" (`dialogue.reprompt`, reopens listening even
+  after recognizer give-ups) → 9 s more → "Paalam muna po…" (`idle_end`). `dialogue.ended` is
+  now "Sige po, paalam! Tawagin lang po ako ulit."; the ElevenLabs `assistantEnded` is "Paalam
+  muna kay Percy." Recognizer errors were already retried by the listening loop; now tested.
+  ElevenLabs only with `elevenLabsActiveProvider` = developer build **and** the switch.
+  Tests: `test/core/percy/percy_session_test.dart`.
+- **Item 7(a) — speech engines Percy uses (both on-device, same as the rest of the app).**
+  STT: `speech_to_text` (Android `SpeechRecognizer`, Google speech services on the tablet),
+  on-device first (`onDevice: true`), locale from the recognizer's list — Filipino UI: `fil-PH`,
+  `fil`, `tl-PH`, `en-PH`, `en-US` (first found); English UI: `en-PH`, `en-US`, `fil-PH`.
+  Fallbacks: missing offline pack → online recognition; repeated errors → the phone's default
+  locale. TTS: `flutter_tts` with the Google engine (`com.google.android.tts`) when installed,
+  else the phone's default engine; language `fil-PH` (English `en-PH`/`en-US`), the "reading
+  voice" setting's voice, speed `0.5 × readingRate` (engine scale), pitch from Settings. Percy
+  has no voice of its own: its lines go `CommandBus.say` → `Announcer` → the same `TtsService`,
+  language tag and `readingRate`, so it speaks with the app's voice and speed. Nothing else
+  (ElevenLabs only in a developer build with its switch on).
+- **Item 7(b) — "Percy analysis" panel.** Developer setting (`percy.analysis`, off; row only in
+  `PERCIPERE_DEV` builds). Per sentence: transcript, language (Filipino/English/Taglish from
+  the function-word `detectLanguage`, with counts), intent, confidence, top 3, action taken
+  (`run:…`, `open:…`, `exact:…`, `asked`, `chat`, …). In memory only (last 20), no audio, no
+  database; "•••" on password fields. Shown over every screen inside `IgnorePointer` so it never
+  blocks gestures. Tests: `percy_session_test.dart` (data), `percy_analysis_panel_test.dart`.
+
 ## 2026-10-13 — Revisions round: tutorial, speech speed, visible password, Percy intro, layout
 **Decided (user):** `docs/prompts/revisions.md` items 1, 2, 3, 5, 6 (items 4 and 7 not in this round).
 

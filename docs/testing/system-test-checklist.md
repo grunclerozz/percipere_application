@@ -216,8 +216,7 @@ Spec: `docs/specs/report-an-issue.md`. Build with `API_BASE_URL` to send reports
 - [ ] "Aking mga report": the list shows ticket, type, date and status; choosing one reads the details.
 
 ## 16. Revisions round (2026-10-13) — `docs/prompts/revisions.md`
-Items 1, 2, 3, 5 and 6 are built. **Items 4 (Percy "conversation has ended") and 7 (Percy voice
-analysis) were not part of this round** and still need to be done and added here.
+All 7 items are built (1, 2, 3, 5, 6 first; 4 and 7 in a second pass the same day).
 
 **Item 1 — Tutorial (after registration / profiling, and guests):**
 - [ ] Register a new account and finish the setup: the tutorial starts by itself (Percy first), then Home.
@@ -242,6 +241,30 @@ analysis) were not part of this round** and still need to be done and added here
 - [ ] Leave the screen and come back: visible again, even if it was hidden before.
 - [ ] The app's voice and Percy never read the password aloud (dictating a password: only "9 titik" is said).
 - [ ] Known: TalkBack itself may speak typed characters; in public, hide the password or use earphones.
+
+**Item 4 — Percy stays in the conversation (no "the conversation has ended"):**
+- [ ] Normal build (no `PERCIPERE_DEV`): Settings has no ElevenLabs row, and Percy works with Wi-Fi off (self-built Percy only).
+- [ ] Start Percy (two fingers left, or "Percy"): greeting, then it listens. Have a 4–5 turn conversation ("sino ka", "buksan ang Aklatan", "bumalik", "salamat"): the session stays on between turns.
+- [ ] Long-press while Percy is on: it listens now and Percy stays on (this used to end Percy at once).
+- [ ] Single tap: Percy repeats its last line. Two-finger double tap: speech stops, Percy stays on.
+- [ ] Stay silent ~9 s after Percy speaks: "Nandito pa po ako. Ano po ang maitutulong ko?" — once.
+- [ ] Stay silent ~9 s more: a short Filipino goodbye ("Paalam muna po. Tawagin lang po ako ulit."), then Percy is off.
+- [ ] Answer after the reminder instead: Percy goes on, and the 9 s count starts over.
+- [ ] Speak a long sentence slowly: Percy doesn't cut in with the reminder while you're talking.
+- [ ] Open a document through Percy and let it read: no reminder while reading; "pause"/"tigil" over the reading keep Percy on.
+- [ ] Turn off Wi-Fi with no offline speech pack (or cause recognizer errors): Percy keeps retrying; the session doesn't end because of an error.
+- [ ] "Paalam na Percy" → goodbye, Percy off. A swipe or double-tap during Percy → "Sige po, paalam! …", Percy off, nothing else happens.
+- [ ] Nowhere, in Filipino or English, is "Tapos na ang usapan" / "The conversation has ended" said or shown.
+
+**Item 7 — Percy voice analysis:**
+- [ ] Percy speaks with the same voice, language and speed as the rest of the app (change the speed in Settings / "bilisan": Percy follows; change the reading voice: Percy follows).
+- [ ] Developer build (`--dart-define=PERCIPERE_DEV=true`): Settings → "Percy analysis (developer)" is off by default; a normal build has no such row.
+- [ ] Turn it on: a panel at the top of every screen says "Wala pang sinabi kay Percy." Touches go through it (gestures and buttons under it still work).
+- [ ] Say something to Percy: the panel shows Narinig (transcript), Wika (Filipino / English / Taglish with counts), Intent and kumpiyansa, Top 3 with percentages, and Ginawa (e.g. `run:library`, `exact:home`, `asked`, `chat`).
+- [ ] An exact short command ("susunod") shows "Intent: — (eksaktong utos)", the classifier's top 3, and `exact:…`.
+- [ ] On a password field the transcript shows as "•••".
+- [ ] Nothing is stored: restart the app → the panel is empty again; no audio files anywhere.
+- [ ] TalkBack reads the panel as one block ("Percy analysis. Narinig: …").
 
 **Item 5 — Percy introduces itself:**
 - [ ] The tutorial starts with Percy's introduction (who, how to call, "basahin mo" / "buksan ang Aklatan" / "bumalik", works offline).

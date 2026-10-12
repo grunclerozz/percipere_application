@@ -71,7 +71,8 @@ void main() {
       ..assistantConfig = config
       ..online = online
       // The ElevenLabs Percy is a developer option since Phase 9.
-      ..percyElevenLabs = true;
+      ..percyElevenLabs = true
+      ..devBuild = true;
     container = ProviderContainer(
       overrides: [
         ...env.overrides,
@@ -284,7 +285,7 @@ void main() {
       expect(env.assistant.ends, 1);
       expect(activated, isEmpty);
       expect(state().active, isFalse);
-      expect(env.tts.spoken.last, 'Tapos na ang usapan kay Percy.');
+      expect(env.tts.spoken.last, 'Paalam muna kay Percy.');
     });
 
     test('two-finger swipe left starts and ends Percy', () async {
@@ -309,7 +310,7 @@ void main() {
       env.assistant.emit(const AssistantDisconnected('agent'));
       await Future<void>.delayed(_settle);
       expect(state().active, isFalse);
-      expect(env.tts.spoken.last, 'Tapos na ang usapan kay Percy.');
+      expect(env.tts.spoken.last, 'Paalam muna kay Percy.');
       await Future<void>.delayed(_settle);
       expect(env.speech.listening, isTrue, reason: 'voice mode listens again');
     });
@@ -431,7 +432,7 @@ void main() {
       await Future<void>.delayed(_settle);
       expect(state().active, isFalse);
       // Handed over: no "the conversation has ended" message.
-      expect(env.tts.transcript, isNot(contains('Tapos na ang usapan')));
+      expect(env.tts.transcript, isNot(contains('Paalam muna kay Percy')));
     });
 
     test('a tool call after the end is refused', () async {

@@ -531,6 +531,10 @@ class TestEnv {
   /// one (off by default, as in the app).
   bool percyElevenLabs = false;
 
+  /// A developer build (`PERCIPERE_DEV=true`): the ElevenLabs switch and
+  /// the Percy analysis panel only work in one.
+  bool devBuild = false;
+
   /// Files handed to the share sheet (Percy log export).
   final List<String> sharedFiles = [];
 
@@ -561,6 +565,7 @@ class TestEnv {
       initialAccountProvider.overrideWithValue(account),
       initialSettingsScopeProvider.overrideWithValue(account!.id),
     ],
+    devBuildProvider.overrideWithValue(devBuild),
     passwordHasherProvider.overrideWithValue(testHasher),
     sessionStoreProvider.overrideWithValue(sessions),
     biometricsProvider.overrideWithValue(biometrics),

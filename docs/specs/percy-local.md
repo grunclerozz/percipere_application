@@ -91,11 +91,14 @@ katamtaman / madaldal). Spoken through the Announcer with the phone's TTS.
 
 ## 8. Calling Percy; ElevenLabs
 - Start: two-finger swipe left or "Percy" (also "Percy, buksan ang library" in one breath).
-  End: `goodbye`, any gesture or tap (which does nothing else), or 60 s without speech.
+  End: `goodbye`; the user's own swipe, double-tap or button tap (which does nothing else and
+  gets a short goodbye) — long-press (listen), single tap (Percy repeats) and two-finger double
+  tap (stop speech) keep the session; or silence: after 9 s Percy asks once "Nandito pa po
+  ako. Ano po ang maitutulong ko?", after 9 s more it says a short goodbye (2026-10-13).
   While Percy is on, the app listens after each reply, also in gesture mode. One voice only:
   Percy speaks through the app's own speech queue.
 - Local Percy is the default and works offline. ElevenLabs is a hidden developer setting
-  (shown only in builds made with `--dart-define=PERCIPERE_DEV=true`), off by default;
+  (shown and used only in builds made with `--dart-define=PERCIPERE_DEV=true`), off by default;
   nothing is sent to ElevenLabs unless it is turned on. The ElevenLabs consent text says it
   is the online developer option.
 

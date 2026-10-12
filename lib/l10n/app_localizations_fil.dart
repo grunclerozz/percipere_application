@@ -2019,7 +2019,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get assistantConnecting => 'Tinatawag si Percy.';
 
   @override
-  String get assistantEnded => 'Tapos na ang usapan kay Percy.';
+  String get assistantEnded => 'Paalam muna kay Percy.';
 
   @override
   String get assistantFailed =>
@@ -2031,7 +2031,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get assistantHowToCall =>
-      'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o gumawa ng kahit anong galaw.';
+      'Para tawagin si Percy, ang voice assistant, mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Para tapusin, sabihin ang “paalam” o mag-swipe.';
 
   @override
   String get assistantGuestName => 'kaibigan';
@@ -2062,6 +2062,57 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get setPercyElevenLabs => 'Percy online (ElevenLabs, developer)';
+
+  @override
+  String get setPercyAnalysis => 'Percy analysis (developer)';
+
+  @override
+  String get percyAnalysisTitle => 'Percy analysis';
+
+  @override
+  String get percyAnalysisEmpty => 'Wala pang sinabi kay Percy.';
+
+  @override
+  String percyAnalysisHeard(String text) {
+    return 'Narinig: $text';
+  }
+
+  @override
+  String percyAnalysisLanguage(String language, int fil, int en) {
+    return 'Wika: $language (fil $fil · en $en)';
+  }
+
+  @override
+  String get percyAnalysisLangFilipino => 'Filipino';
+
+  @override
+  String get percyAnalysisLangEnglish => 'English';
+
+  @override
+  String get percyAnalysisLangTaglish => 'Taglish';
+
+  @override
+  String percyAnalysisIntent(String intent, String confidence) {
+    return 'Intent: $intent · kumpiyansa $confidence';
+  }
+
+  @override
+  String get percyAnalysisNoIntent => 'Intent: — (eksaktong utos)';
+
+  @override
+  String percyAnalysisTop(String list) {
+    return 'Top 3: $list';
+  }
+
+  @override
+  String percyAnalysisAction(String action) {
+    return 'Ginawa: $action';
+  }
+
+  @override
+  String percyAnalysisCount(int count) {
+    return '$count na pangungusap';
+  }
 
   @override
   String get setPercyExport => 'I-export ang log ni Percy (CSV)';

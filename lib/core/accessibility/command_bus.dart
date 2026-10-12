@@ -127,9 +127,30 @@ class CommandBus {
     return true;
   }
 
+  /// During a Percy session, the gestures that belong to talking with Percy
+  /// keep it going instead of ending it (2026-10-13: long-press to speak
+  /// used to end the session at once): long-press listens now, a single
+  /// tap repeats Percy's last line, two-finger double tap stops the speech.
+  Future<bool> _keepsPercy(NavIntent intent) async {
+    if (!_ref.read(percyActiveProvider) || _percy.acting) return false;
+    switch (intent) {
+      case NavIntent.listen:
+        await _voice.listenNow();
+        return true;
+      case NavIntent.repeat:
+        await _percy.repeatLast();
+        return true;
+      case NavIntent.stopSpeech:
+        await stopSpeech();
+        return true;
+      default:
+        return false;
+    }
+  }
+
   /// Two-finger swipe left / "Percy": the self-built Percy, or the online
   /// ElevenLabs one when the developer setting is on.
-  Future<void> _toggleAssistant() => _ref.read(settingsProvider).percyElevenLabs
+  Future<void> _toggleAssistant() => _ref.read(elevenLabsActiveProvider)
       ? _assistant.toggle()
       : _percy.toggle();
 
@@ -232,6 +253,7 @@ class CommandBus {
       return _toggleAssistant();
     }
     if (await _userEndsAssistant()) return;
+    if (await _keepsPercy(intent)) return;
     if (await _userEndsPercy()) return;
     _announcer.answered();
     _voice
@@ -328,7 +350,7 @@ class CommandBus {
     // A Percy session gets everything that is said.
     if (_ref.read(percyActiveProvider)) return _percy.handle(heard);
     final request = _percyRequest(heard);
-    if (request != null && !_ref.read(settingsProvider).percyElevenLabs) {
+    if (request != null && !_ref.read(elevenLabsActiveProvider)) {
       _voice.markMatched('Percy + request', done: true);
       return _percy.start(firstUtterance: request);
     }

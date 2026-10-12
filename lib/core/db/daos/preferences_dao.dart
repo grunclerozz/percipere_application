@@ -55,6 +55,9 @@ abstract final class PrefKeys {
   /// Developer option: the ElevenLabs Percy instead of the self-built one.
   static const String percyElevenLabs = 'percy.elevenLabs';
 
+  /// Developer option: the Percy analysis panel (bool).
+  static const String percyAnalysis = 'percy.analysis';
+
   /// True once the Maglarawan explanation has been read to this user.
   static const String describeIntroSeen = 'describe.introSeen';
 

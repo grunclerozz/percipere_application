@@ -141,12 +141,16 @@
       "en": {"po": ["Anything else?", "What else can I do?"], "casual": ["Anything else?", "What else?"]}
     },
     "ended": {
-      "fil": {"po": ["Tapos na po ang usapan natin."], "casual": ["Tapos na ang usapan natin."]},
-      "en": {"po": ["Percy is done for now."], "casual": ["Percy signing off."]}
+      "fil": {"po": ["Sige po, paalam! Tawagin lang po ako ulit."], "casual": ["Sige, paalam! Tawagin mo lang ako ulit."]},
+      "en": {"po": ["Okay, goodbye! Call me again anytime."], "casual": ["Okay, bye! Call me anytime."]}
     },
     "idle_end": {
-      "fil": {"po": ["Mukhang tapos na po tayo. Tawagin lang po ako ulit."], "casual": ["Mukhang tapos na tayo. Tawagin mo lang ako ulit."]},
-      "en": {"po": ["Looks like we're done. Call me again anytime."], "casual": ["Seems we're done. Call me anytime."]}
+      "fil": {"po": ["Paalam muna po. Tawagin lang po ako ulit."], "casual": ["Paalam muna. Tawagin mo lang ako ulit."]},
+      "en": {"po": ["Goodbye for now. Call me again anytime."], "casual": ["Bye for now. Call me anytime."]}
+    },
+    "reprompt": {
+      "fil": {"po": ["Nandito pa po ako. Ano po ang maitutulong ko?"], "casual": ["Nandito pa ako. Ano ang maitutulong ko?"]},
+      "en": {"po": ["I'm still here. How can I help?"], "casual": ["I'm still here. What can I do?"]}
     },
     "introduction": {
       "fil": {

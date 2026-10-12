@@ -232,8 +232,9 @@ Spec: `library.md`; endpoints: `../api-contract.md`.
   pure Dart; `percy_text.dart` mirrors the Python preprocessing exactly (checked against
   `scripts/percy/test_vectors.json`). Loaded once (`percyBrainProvider`, parsed with `compute`).
 - **Session:** `PercyController` (`percy_controller.dart`). `NavIntent.assistant` (two-finger
-  swipe left, "Percy") → `CommandBus._toggleAssistant` → local Percy, or ElevenLabs when the
-  developer setting `percyElevenLabs` is on. While active, `CommandBus.handleUtterance` sends
+  swipe left, "Percy") → `CommandBus._toggleAssistant` → local Percy, or ElevenLabs only when
+  `elevenLabsActiveProvider` (developer build `devBuildProvider` **and** the `percyElevenLabs`
+  setting; a value saved by an older developer build is ignored). While active, `CommandBus.handleUtterance` sends
   every final result to `PercyController.handle`; partial results are not acted on
   (`judgePartial` returns null). "Percy, …" in one breath starts a session with the rest.
 - **Per sentence:** exact short command (`CommandBus.exactCommand`: ≤ 3 words, a verbatim
@@ -243,8 +244,21 @@ Spec: `library.md`; endpoints: `../api-contract.md`.
   (`PercyConfig`: act ≥ 0.60, ask ≥ 0.30) → `_act`. Replies are spoken through the
   `Announcer` (one voice), then the `PercyAction` runs through the bus / `LibraryActions`
   with `PercyController.acting` set, so it doesn't count as the user's own gesture.
-- **Ending:** `_userEndsPercy` in `dispatch`/`activate` (any gesture or tap of the user's),
-  "paalam", or `PercyConfig.idleEnd` (not while reading). The voice controller doesn't listen
+- **Ending:** `_userEndsPercy` in `dispatch`/`activate` (the user's own swipe, double-tap or
+  button tap; `_keepsPercy` first lets long-press = listen now, single tap = Percy repeats its
+  last line, two-finger double tap = stop speech keep the session), "paalam", or silence:
+  `PercySilence` (`PercyConfig.silenceReprompt` 9 s, counted from when the app stops talking,
+  not while reading or while the user is mid-sentence) → one reminder ("Nandito pa po ako…",
+  `dialogue.reprompt`, and `VoiceController.percyListenAgain` reopens listening after
+  recognizer give-ups) → `silenceEnd` 9 s more → `dialogue.idle_end` goodbye. Reading commands
+  heard during the session (barge-in) run through `PercyController.runReadingCommand`, so they
+  don't count as the user's gesture. The default end line `dialogue.ended` is a goodbye; no
+  "the conversation has ended" line exists any more.
+- **Analysis panel:** `percyAnalysisProvider` (in memory, last 20, no audio) gets one
+  `PercyAnalysisEntry` per sentence (transcript, `detectLanguage`, intent, confidence, top 3
+  from `DialogueManager.lastPrediction`, action) when `percyAnalysisOnProvider` (developer build
+  + `percyAnalysis`) is on; `PercyAnalysisPanel` sits over every screen in `PercipereApp`'s
+  builder, inside `IgnorePointer`. The voice controller doesn't listen
   to Percy's provider (Percy reads the voice controller; a listen would be a provider cycle):
   `PercyController` calls `VoiceController.percySessionChanged`, and `_wantsAutoListen` /
   barge-in read `percyActiveProvider`.

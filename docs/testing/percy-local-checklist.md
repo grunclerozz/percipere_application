@@ -11,9 +11,11 @@ still there), log in, and **turn Wi-Fi off** for the first round (Percy must wor
 - [ ] Gesture mode: after Percy speaks, the app listens without a long-press.
 - [ ] Say "Percy, buksan mo ang library" from Home without starting Percy first → Library opens.
 - [ ] "Paalam na Percy" → goodbye; afterwards a swipe works normally again.
-- [ ] While Percy is on, any swipe or tap ends Percy ("Tapos na po ang usapan natin") and does
+- [ ] While Percy is on, a swipe, double-tap or button tap ends Percy ("Sige po, paalam! …") and does
       nothing else.
-- [ ] Stay silent for a minute → Percy ends by itself (not while a document is being read).
+- [ ] Long-press, single tap and two-finger double tap during Percy keep the session.
+- [ ] Stay silent ~9 s → "Nandito pa po ako…" once; ~9 s more → a short goodbye and Percy ends
+      (not while a document is being read).
 
 ## Understanding (try your own words too)
 - [ ] "dalhin mo ako sa library", "punta tayo sa settings", "bumalik ka" → act.

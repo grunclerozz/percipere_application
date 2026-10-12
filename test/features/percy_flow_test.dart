@@ -1,6 +1,7 @@
 // Percy (self-built, Phase 9) inside the running app: started by gesture or
 // by name, understanding sentences with the real bundled model, acting
-// through the CommandBus, ended by any gesture. ElevenLabs stays off.
+// through the CommandBus, ended by a swipe or tap (long-press, single tap
+// and two-finger double tap keep it). ElevenLabs stays off.
 
 import 'dart:async';
 
@@ -100,7 +101,9 @@ void main() {
     expect(env.tts.transcript, contains('Liham kay Nanay'));
   });
 
-  testWidgets('any gesture ends Percy and does nothing else', (tester) async {
+  testWidgets('a swipe ends Percy with a goodbye and does nothing else', (
+    tester,
+  ) async {
     final env = await _start(tester);
     await tester.twoFingerSwipeLeft();
     await tester.settleReal();
@@ -110,7 +113,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.settleReal();
     final said = env.tts.transcript.substring(before);
-    expect(said, contains('Tapos na po ang usapan natin.'));
+    expect(said, contains('Sige po, paalam! Tawagin lang po ako ulit.'));
+    expect(said, isNot(contains('Tapos na po ang usapan')));
     expect(said, isNot(contains('sa 3')));
     expect(find.byType(HomeScreen), findsOneWidget);
   });

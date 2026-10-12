@@ -77,6 +77,7 @@ class AppSettings {
     this.percyTalk = PercyTalk.normal,
     this.percyLogging = true,
     this.percyElevenLabs = false,
+    this.percyAnalysis = false,
   });
 
   /// Voice or gestures; null until chosen (profiling Step 1).
@@ -145,6 +146,10 @@ class AppSettings {
   /// self-built one. Off by default; nothing goes to ElevenLabs unless on.
   final bool percyElevenLabs;
 
+  /// Developer option: the "Percy analysis" panel (what was heard, the
+  /// language, intents and confidence, the action taken). Off by default.
+  final bool percyAnalysis;
+
   /// The theme-related part.
   ThemeSettings get theme => ThemeSettings(
     theme: themeId,
@@ -194,6 +199,7 @@ class AppSettings {
     PercyTalk? percyTalk,
     bool? percyLogging,
     bool? percyElevenLabs,
+    bool? percyAnalysis,
   }) => AppSettings(
     navMode: identical(navMode, _keep) ? this.navMode : navMode as NavMode?,
     readingRate: ReadingRate.normalize(readingRate ?? this.readingRate),
@@ -218,6 +224,7 @@ class AppSettings {
     percyTalk: percyTalk ?? this.percyTalk,
     percyLogging: percyLogging ?? this.percyLogging,
     percyElevenLabs: percyElevenLabs ?? this.percyElevenLabs,
+    percyAnalysis: percyAnalysis ?? this.percyAnalysis,
   );
 
   /// Preference key → JSON value.
@@ -243,6 +250,7 @@ class AppSettings {
     PrefKeys.percyTalk: percyTalk.name,
     PrefKeys.percyLogging: percyLogging,
     PrefKeys.percyElevenLabs: percyElevenLabs,
+    PrefKeys.percyAnalysis: percyAnalysis,
   };
 
   /// Reads settings from stored preferences; anything missing or invalid
@@ -298,6 +306,7 @@ class AppSettings {
       percyTalk: byName(PercyTalk.values, p[PrefKeys.percyTalk]),
       percyLogging: bool_(p[PrefKeys.percyLogging]),
       percyElevenLabs: bool_(p[PrefKeys.percyElevenLabs]),
+      percyAnalysis: bool_(p[PrefKeys.percyAnalysis]),
     );
   }
 
@@ -324,7 +333,8 @@ class AppSettings {
       other.percyPoliteness == percyPoliteness &&
       other.percyTalk == percyTalk &&
       other.percyLogging == percyLogging &&
-      other.percyElevenLabs == percyElevenLabs;
+      other.percyElevenLabs == percyElevenLabs &&
+      other.percyAnalysis == percyAnalysis;
 
   @override
   int get hashCode => Object.hashAll([
@@ -349,5 +359,6 @@ class AppSettings {
     percyTalk,
     percyLogging,
     percyElevenLabs,
+    percyAnalysis,
   ]);
 }

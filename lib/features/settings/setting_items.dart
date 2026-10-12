@@ -399,6 +399,13 @@ List<SettingItem> settingItemsFor(
       adjust: (s, d) => s.copyWith(percyElevenLabs: !s.percyElevenLabs),
     ),
     SettingItem(
+      id: Ids.settingPercyAnalysis,
+      kind: SettingKind.toggle,
+      label: (l) => l.setPercyAnalysis,
+      value: (c) => c.settings.percyAnalysis ? c.l.valueOn : c.l.valueOff,
+      adjust: (s, d) => s.copyWith(percyAnalysis: !s.percyAnalysis),
+    ),
+    SettingItem(
       id: Ids.settingPercyExport,
       kind: SettingKind.link,
       label: (l) => l.setPercyExport,

@@ -23,7 +23,9 @@ import '../helpers/pump_app.dart';
 Future<TestEnv> _start(WidgetTester tester) async {
   final env = await libraryEnv(tester);
   // The ElevenLabs Percy is a developer option since Phase 9.
-  env.percyElevenLabs = true;
+  env
+    ..percyElevenLabs = true
+    ..devBuild = true;
   env.assistantConfig = const AssistantConfig(
     agentId: 'agent_test',
     voiceId: 'voice_x',

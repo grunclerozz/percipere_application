@@ -352,6 +352,15 @@ class VoiceController extends Notifier<VoiceState> {
     }
   }
 
+  /// Percy asked again after a silence: listen for the answer, also when
+  /// repeated recognizer errors had stopped listening ([_giveUp]).
+  void percyListenAgain() {
+    _log('Percy asked again: listening on');
+    _sameFailures = _instantFailures = _failures = 0;
+    noteActivity();
+    if (_wantsAutoListen && !_listening) _scheduleAutoListen();
+  }
+
   /// Records user activity; resets the auto-listen idle budget.
   void noteActivity() {
     _lastActivity = DateTime.now();
@@ -956,7 +965,14 @@ class VoiceController extends Notifier<VoiceState> {
   }
 
   Future<void> _handleIntent(NavIntent intent) async {
-    await ref.read(commandBusProvider).dispatch(intent);
+    if (ref.read(percyActiveProvider)) {
+      // Said to Percy over the reading: not a gesture that ends the session.
+      await ref
+          .read(percyControllerProvider.notifier)
+          .runReadingCommand(intent);
+    } else {
+      await ref.read(commandBusProvider).dispatch(intent);
+    }
     if (!ref.mounted) return;
     // The command decided what the Reader does now; if it left reading
     // alone, the paused sentence goes on.

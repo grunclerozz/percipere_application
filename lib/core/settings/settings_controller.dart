@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../config/env.dart';
 import '../db/app_database.dart';
 import '../db/daos/preferences_dao.dart';
 import '../tts/tts_service.dart';
@@ -99,4 +100,17 @@ class SettingsController extends Notifier<AppSettings> {
 /// User settings.
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
   SettingsController.new,
+);
+
+/// Whether this is a developer build (`--dart-define=PERCIPERE_DEV=true`).
+/// Overridden in tests.
+final devBuildProvider = Provider<bool>((ref) => Env.devTools);
+
+/// Whether the online ElevenLabs Percy is really used: only in a developer
+/// build with its switch on. A value saved by an older developer build is
+/// ignored by a normal build, so the self-built Percy is always the default.
+final elevenLabsActiveProvider = Provider<bool>(
+  (ref) =>
+      ref.watch(devBuildProvider) &&
+      ref.watch(settingsProvider.select((s) => s.percyElevenLabs)),
 );

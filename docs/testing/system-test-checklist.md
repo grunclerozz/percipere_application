@@ -215,6 +215,43 @@ Spec: `docs/specs/report-an-issue.md`. Build with `API_BASE_URL` to send reports
 - [ ] Largest text size: everything fits or scrolls; theme colors are used.
 - [ ] "Aking mga report": the list shows ticket, type, date and status; choosing one reads the details.
 
+## 16. Revisions round (2026-10-13) — `docs/prompts/revisions.md`
+Items 1, 2, 3, 5 and 6 are built. **Items 4 (Percy "conversation has ended") and 7 (Percy voice
+analysis) were not part of this round** and still need to be done and added here.
+
+**Item 1 — Tutorial (after registration / profiling, and guests):**
+- [ ] Register a new account and finish the setup: the tutorial starts by itself (Percy first), then Home.
+- [ ] "Subukan muna" (guest) → setup → tutorial starts; a guest who did it once does not see it on the next guest visit.
+- [ ] Logging in to an account that has already seen it goes straight to Home.
+- [ ] Settings → "Paano gamitin ang app" plays it again; finishing goes back to Settings.
+- [ ] Saying "tutorial", "turuan mo ako" or "paano gamitin" on Home (and other screens) plays it; Home's help mentions "tutorial".
+- [ ] It is spoken step by step; "laktawan" (or two fingers right) skips it; "ulitin" (or a tap) repeats the current step.
+- [ ] TalkBack on and off: the steps are still announced.
+
+**Item 2 — Bilis ng pagsasalita (setup step 5):**
+- [ ] The step offers Mabagal / Katamtaman / Mabilis; moving between them (swipe right/left) plays a sample sentence at each speed without choosing it.
+- [ ] Double-tap (or saying "mabagal", "katamtaman", "mabilis") chooses it: "Napili: …", the next step is already spoken at the new speed.
+- [ ] The summary says "Bilis: Mabilis" (etc.); "bumalik sa bilis" changes it and returns to the summary.
+- [ ] Skipping ("laktawan") keeps Katamtaman.
+- [ ] After choosing, the reader, prompts and Percy all speak at that speed. Settings → speed and "bilisan"/"bagalan" still change it.
+
+**Item 3 — Password visible while typing (register, login, reset password):**
+- [ ] The password shows as you type (nothing hidden) every time the screen opens.
+- [ ] Focusing the password field says once: "Nakikita ang password habang nagta-type. Pindutin ang mata para itago." (not again on the same screen).
+- [ ] The eye button (large, ≥ 56 dp) hides it; its TalkBack label changes between "Itago ang password" and "Ipakita ang password".
+- [ ] Leave the screen and come back: visible again, even if it was hidden before.
+- [ ] The app's voice and Percy never read the password aloud (dictating a password: only "9 titik" is said).
+- [ ] Known: TalkBack itself may speak typed characters; in public, hide the password or use earphones.
+
+**Item 5 — Percy introduces itself:**
+- [ ] The tutorial starts with Percy's introduction (who, how to call, "basahin mo" / "buksan ang Aklatan" / "bumalik", works offline).
+- [ ] Anytime: "Sino ka?" and "Ano ang kaya mo?" to Percy give the same introduction.
+
+**Item 6 — Padding / centering:**
+- [ ] On the phone and the tablet, every screen has the same side margin and its content is centered (Welcome, Register, Login, Setup, Home, Capture, Camera, Reader, Library, Settings, Tutorial).
+- [ ] On the tablet the content is at most about 640 dp wide, with equal space left and right.
+- [ ] Largest text size: nothing overflows or is cut off, on phone and tablet.
+
 ## Result log
 | Section | ✅ | ❌ | ⚠️ | Notes / bugs found |
 |---|---|---|---|---|
@@ -232,6 +269,7 @@ Spec: `docs/specs/report-an-issue.md`. Build with `API_BASE_URL` to send reports
 | 12 Accessibility | | | | |
 | 13 Performance | | | | |
 | 14 Regression | | | | |
+| 16 Revisions round (items 1, 2, 3, 5, 6) | | | | |
 
 ### Voice accuracy table (section 5)
 | Command | Tries | Understood | Wrong action | Not understood | Notes |

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/voice_config.dart';
 import '../assistant/assistant_controller.dart';
+import '../tts/reading_rate.dart';
 import '../tts/speech_language.dart';
 import '../tts/tts_service.dart';
 import 'action_registry.dart';
@@ -163,7 +164,7 @@ class Announcer extends Notifier<SpeechState> {
     final token = ++_holdToken;
     _afterAnswer.addAll([
       for (final s in splitSentences(follow))
-        _Utterance(s, sid, tag, false, 1.0),
+        _Utterance(s, sid, tag, false, ref.read(readingRateProvider)),
     ]);
     unawaited(
       done.then((_) {
@@ -222,13 +223,15 @@ class Announcer extends Notifier<SpeechState> {
     bool protect = false,
     String? screenId,
     String? languageTag,
-    double rate = 1.0,
+    double? rate,
   }) {
     final sentences = splitSentences(text);
     if (sentences.isEmpty) return Future.value();
 
     final sid = screenId ?? ref.read(activeScreenProvider)?.id;
     final tag = languageTag ?? ref.read(speechLanguageProvider).ttsTag;
+    // Prompts and Percy follow the user's speech speed, like the reader.
+    final double speed = rate ?? ref.read(readingRateProvider);
     // A prompt always takes over from document reading: the engine would
     // drop it while a document sentence is playing.
     if (state.reading) {
@@ -238,7 +241,7 @@ class Announcer extends Notifier<SpeechState> {
     if (interrupt) _interrupt();
 
     final group = [
-      for (final s in sentences) _Utterance(s, sid, tag, protect, rate),
+      for (final s in sentences) _Utterance(s, sid, tag, protect, speed),
     ];
     if (!interrupt && _holding) {
       // A question is waiting for its answer: queued notices come after.

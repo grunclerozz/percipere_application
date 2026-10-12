@@ -151,3 +151,16 @@ abstract final class ReportIssueRule {
   /// Whether [text] asks to report a problem.
   static bool matches(String text) => _pattern.hasMatch(text.toLowerCase());
 }
+
+/// "Sino ka?" / "Ano ang kaya mo?": a keyword rule so Percy introduces
+/// itself anytime, even for wordings the classifier has not seen.
+abstract final class IntroRule {
+  static final RegExp _pattern = RegExp(
+    r'\b(sino ka|sino ka ba|ano ka|ikaw ba si percy|ano ang kaya mo|'
+    r'ano kaya mo|anong kaya mo|ano ang magagawa mo|ano ang maitutulong mo|'
+    r'who are you|what are you|what can you do|what do you do)\b',
+  );
+
+  /// Whether [text] asks who Percy is or what it can do.
+  static bool matches(String text) => _pattern.hasMatch(text.toLowerCase());
+}

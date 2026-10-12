@@ -16,7 +16,6 @@ import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
 import '../core/tts/tts_service.dart';
 import '../core/voice/voice_controller.dart';
-import 'router.dart';
 
 /// Startup work that must finish before the first frame: open the database,
 /// restore the session, load that account's settings (or the device's),
@@ -44,7 +43,6 @@ Future<List<Override>> bootstrap() async {
   // re-checked on every launch and on resume.
   await prefs.set(PrefKeys.ttsFilipinoFallback, !voices.filipinoReady);
 
-  final tutorialDone = await prefs.get(PrefKeys.tutorialDone) == true;
   // A developer build can point at another web app address (Settings); a
   // saved address the build does not allow (plain http to another host) is
   // ignored.
@@ -67,7 +65,6 @@ Future<List<Override>> bootstrap() async {
     initialSettingsScopeProvider.overrideWithValue(restored.scope),
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
-    initialTutorialDoneProvider.overrideWithValue(tutorialDone),
     initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),

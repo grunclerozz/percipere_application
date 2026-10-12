@@ -9,6 +9,13 @@ abstract final class AppDimens {
   /// Horizontal padding of every screen.
   static const double pagePadding = 32;
 
+  /// Vertical padding of every screen.
+  static const double pageVerticalPadding = 24;
+
+  /// Widest the content of a screen gets; on wider screens (tablet) it is
+  /// centered with equal space either side.
+  static const double maxContentWidth = 640;
+
   /// Corner radius of pill buttons (large enough to be fully rounded).
   static const double pillRadius = 40;
 

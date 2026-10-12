@@ -33,14 +33,20 @@ class CatalogBook {
   factory CatalogBook.fromApi(Map<String, dynamic> json) {
     final language = json['language'];
     final category = json['category'];
-    final code = language is Map ? '${language['code'] ?? ''}'.toLowerCase() : '';
-    final name = language is Map ? '${language['name'] ?? ''}'.toLowerCase() : '';
+    final code = language is Map
+        ? '${language['code'] ?? ''}'.toLowerCase()
+        : '';
+    final name = language is Map
+        ? '${language['name'] ?? ''}'.toLowerCase()
+        : '';
     final format = '${json['format']}'.toLowerCase();
     return CatalogBook(
       id: '${json['id']}',
       title: (json['title'] as String?) ?? '',
       author: (json['author'] as String?) ?? '',
-      language: code.startsWith('en') || name.contains('english') ? 'en' : 'fil',
+      language: code.startsWith('en') || name.contains('english')
+          ? 'en'
+          : 'fil',
       category: category is Map ? '${category['name'] ?? ''}' : '',
       description: (json['description'] as String?) ?? '',
       format: format == 'epub' ? LibraryFormat.epub : LibraryFormat.pdf,
@@ -55,7 +61,8 @@ class CatalogBook {
 
   /// The hex SHA-256 from `sha256:<hex>`, or null.
   static String? _sha256Of(Object? value) {
-    final m = RegExp(r'^sha256:([0-9a-f]{64})$').firstMatch('$value'.toLowerCase());
+    final m = RegExp(r'^sha256:([0-9a-f]{64})$')
+        .firstMatch('$value'.toLowerCase());
     return m?.group(1);
   }
 

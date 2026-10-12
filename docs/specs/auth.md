@@ -32,6 +32,9 @@ Mockups: `docs/ui/welcome screen.png`, `registration_form.png`, `register_confir
   for confirmation. **Password: only the number of characters is confirmed, never the text.**
 - Spelled emails by voice: "at" → `@`, "dot" → `.` (also "tuldok").
 - Dictated passwords are lowercased with spaces removed; typed ones are kept exactly.
+- **The password is visible while typing** (adviser/panel requirement; 2026-10-13), with an eye
+  button to hide it; it is visible again each time the screen opens. The app's voice and Percy never
+  speak it. TalkBack itself may speak typed characters — in public, hide it or use earphones.
 - Submit: **double-tap the Gesture Pad** or say **"submit" / "tapos na"** — shown as the
   hint "Pindutin ng dalawang beses ang gesture area o sabihin ang salitang submit or tapos
   na" (mockup), used on every form screen.

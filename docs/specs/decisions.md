@@ -2,6 +2,32 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-13 — Revisions round: tutorial, speech speed, visible password, Percy intro, layout
+**Decided (user):** `docs/prompts/revisions.md` items 1, 2, 3, 5, 6 (items 4 and 7 not in this round).
+
+- **Tutorial (1).** Not a removed route: the tutorial was only reachable on the very first launch of
+  a device, before Welcome, and the `tutorial.done` flag was device-wide, so a second user or a
+  tablet that had already seen/skipped it never saw it again. It now runs after the setup finishes
+  (so the navigation mode is already chosen): registered accounts once per account, guests once per
+  device (`tutorialSeen`). The pre-Welcome route and `initialTutorialDoneProvider` are gone.
+  Replay: Settings, the voice phrases ("tutorial", "turuan mo ako", "paano gamitin") and Home help.
+- **Speech speed (2).** Setup step 5 already existed but as a 1.25x stepper; now three named
+  options (Mabagal 0.75 / Katamtaman 1.0 / Mabilis 1.5, `SpeechSpeed`) that play a sample on focus.
+  The `Announcer` now speaks prompts and Percy at `readingRate` too (before, only the reader and
+  the speed changes did), unless a caller passes its own rate.
+- **Password visible (3).** Required by the adviser/panel. `VoiceForm.passwordHidden` (default
+  visible, reset each time the screen opens), eye button in `VoiceTextField`, a once-per-screen
+  spoken notice. The app's TTS and Percy still never speak the password (only "9 titik"); passwords
+  are not logged. **TalkBack itself may speak typed characters** — in public, hide the password
+  or use earphones.
+- **Percy intro (5).** First step of the tutorial; also `IntroRule` ("sino ka", "ano ang kaya mo",
+  …) answers with `dialogue.introduction` anytime. The same phrases were added to `intents.csv`
+  under `greeting` and Percy was retrained.
+- **Layout (6).** One `PagePadding` (32 dp sides, 24 dp top/bottom, content at most 640 dp and
+  centered on a tablet) used by `GesturePadLayout`, Welcome, Setup, Tutorial and Camera.
+  `test/features/screen_layout_test.dart` checks phone (360x800) and tablet (800x1280) at normal
+  and largest text.
+
 ## 2026-10-11 (5) — First tablet test: cleartext only to the server, server address, report status
 **Decided (user):** write the first-tablet-test guide, lock plain HTTP to the server's host, add a
 server address field to the developer settings, and show the dashboard's ticket status.

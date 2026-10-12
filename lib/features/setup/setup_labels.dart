@@ -48,7 +48,11 @@ String stepValue(SetupStep step, AppSettings s, AppLocalizations l) =>
       ),
       SetupStep.voiceLanguage =>
         s.locale == AppLocales.english ? l.langEnglish : l.langTagalog,
-      SetupStep.speed => l.setupSpeedValue(ReadingRate.label(s.readingRate)),
+      SetupStep.speed => switch (SpeechSpeed.nearest(s.readingRate)) {
+        SpeechSpeed.slow => l.speedSlow,
+        SpeechSpeed.medium => l.speedMedium,
+        SpeechSpeed.fast => l.speedFast,
+      },
       SetupStep.pitch => l.setupPitchValue(ReadingRate.label(s.pitch)),
       SetupStep.theme => l.setupThemeValue(themeName(s.themeId, l)),
       SetupStep.vibration => s.haptics ? l.answerYes : l.answerNo,
@@ -67,6 +71,7 @@ String _summaryLine(SetupStep step, AppSettings s, AppLocalizations l) =>
       SetupStep.voiceLanguage => l.summaryLanguage(stepValue(step, s, l)),
       SetupStep.vibration => l.summaryVibration(stepValue(step, s, l)),
       SetupStep.autoRead => l.summaryAutoRead(stepValue(step, s, l)),
+      SetupStep.speed => l.summarySpeed(stepValue(step, s, l)),
       _ => stepValue(step, s, l),
     };
 

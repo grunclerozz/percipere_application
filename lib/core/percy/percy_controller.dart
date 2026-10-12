@@ -161,9 +161,9 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
     state = const PercyState();
     _manager?.reset();
     debugPrint('[PERCY] session ended');
-    ref.read(voiceControllerProvider.notifier).percySessionChanged(
-      active: false,
-    );
+    ref
+        .read(voiceControllerProvider.notifier)
+        .percySessionChanged(active: false);
     final brain = _brain;
     if (line != null && line.isEmpty) return;
     final s = style;

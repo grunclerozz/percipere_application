@@ -1406,6 +1406,24 @@ abstract class AppLocalizations {
   /// **'{field}: {value}'**
   String formFieldValue(String field, String value);
 
+  /// Spoken once when a password field is focused (the password is shown by default).
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakikita ang password habang nagta-type. Pindutin ang mata para itago.'**
+  String get passwordVisibleNotice;
+
+  /// Eye button label while the password is visible.
+  ///
+  /// In fil, this message translates to:
+  /// **'Itago ang password'**
+  String get passwordHide;
+
+  /// Eye button label while the password is hidden.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ipakita ang password'**
+  String get passwordShow;
+
   /// Password read back by length only. No plural in Filipino.
   ///
   /// In fil, this message translates to:
@@ -1907,14 +1925,44 @@ abstract class AppLocalizations {
   /// Step 5.
   ///
   /// In fil, this message translates to:
-  /// **'Gusto mo bang bilisan ang boses?'**
+  /// **'Bilis ng pagsasalita. Gaano kabilis ang gusto mo?'**
   String get setupSpeedQuestion;
 
   /// Step 5 how.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.'**
+  /// **'Mag-swipe pakanan para marinig ang bawat bilis, at mag-double-tap para pumili. O sabihin ang “mabagal”, “katamtaman” o “mabilis”.'**
   String get setupSpeedHow;
+
+  /// Speech speed option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mabagal'**
+  String get speedSlow;
+
+  /// Speech speed option (default).
+  ///
+  /// In fil, this message translates to:
+  /// **'Katamtaman'**
+  String get speedMedium;
+
+  /// Speech speed option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mabilis'**
+  String get speedFast;
+
+  /// Sample sentence spoken at each speed option.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ganito ang bilis ng aking pagsasalita.'**
+  String get speedSampleSentence;
+
+  /// Step 5 chosen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Napili: {speed}.'**
+  String setupSpeedChosen(String speed);
 
   /// Step 5 value.
   ///
@@ -2023,6 +2071,12 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Awtomatikong pagbasa: {value}'**
   String summaryAutoRead(String value);
+
+  /// Summary line for the speech speed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bilis: {value}'**
+  String summarySpeed(String value);
 
   /// Value at its limit.
   ///
@@ -2879,7 +2933,7 @@ abstract class AppLocalizations {
   /// Help for Home.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.'**
+  /// **'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”. Para ulitin ang pagtuturo, sabihin ang “tutorial”.'**
   String get helpHome;
 
   /// Help for the Library.
@@ -3145,6 +3199,12 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Laktawan'**
   String get tutorialSkip;
+
+  /// Tutorial first step: Percy introduces itself.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kumusta! Ako si Percy, ang voice assistant ng Percipere. Tawagin mo ako sa pag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Subukan ang “basahin mo”, “buksan ang Aklatan” o “bumalik”. Gumagana ako kahit walang internet. I-double tap kahit saan para magpatuloy.'**
+  String get tutorialPercy;
 
   /// Tutorial first step.
   ///

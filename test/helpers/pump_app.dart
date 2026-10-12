@@ -70,8 +70,12 @@ Future<TestEnv> createEnv(
 ))!;
 
 /// Pumps the whole app (router, host, announcements) with [env].
-Future<void> pumpApp(WidgetTester tester, TestEnv env) async {
-  await setSurface(tester, phoneSize);
+Future<void> pumpApp(
+  WidgetTester tester,
+  TestEnv env, {
+  Size size = phoneSize,
+}) async {
+  await setSurface(tester, size);
   await tester.pumpWidget(
     ProviderScope(overrides: env.overrides, child: const PercipereApp()),
   );

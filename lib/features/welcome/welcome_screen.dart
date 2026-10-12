@@ -23,6 +23,7 @@ import '../../core/tts/tts_service.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/eye_logo.dart';
 import '../../core/widgets/live_speaking_zone.dart';
+import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -157,11 +158,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               slivers: [
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.pagePadding,
-                      vertical: 24,
-                    ),
+                  child: PagePadding(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

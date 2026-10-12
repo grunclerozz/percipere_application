@@ -786,6 +786,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get passwordVisibleNotice =>
+      'The password is visible while you type. Press the eye to hide it.';
+
+  @override
+  String get passwordHide => 'Hide password';
+
+  @override
+  String get passwordShow => 'Show password';
+
+  @override
   String formPasswordLength(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1115,11 +1125,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get setupSpeedQuestion => 'Do you want the voice faster?';
+  String get setupSpeedQuestion => 'Speech speed. How fast do you want it?';
 
   @override
   String get setupSpeedHow =>
-      'Swipe up or say “faster”; swipe down or say “slower”. Double-tap or say “okay” when it\'s right.';
+      'Swipe right to hear each speed, and double-tap to choose. Or say “slow”, “medium” or “fast”.';
+
+  @override
+  String get speedSlow => 'Slow';
+
+  @override
+  String get speedMedium => 'Medium';
+
+  @override
+  String get speedFast => 'Fast';
+
+  @override
+  String get speedSampleSentence => 'This is how fast I speak.';
+
+  @override
+  String setupSpeedChosen(String speed) {
+    return 'Chosen: $speed.';
+  }
 
   @override
   String setupSpeedValue(String rate) {
@@ -1193,6 +1220,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String summaryAutoRead(String value) {
     return 'Auto-read: $value';
+  }
+
+  @override
+  String summarySpeed(String value) {
+    return 'Speed: $value';
   }
 
   @override
@@ -1770,7 +1802,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpHome =>
-      'Swipe right or left to choose, and double-tap to open. Say “read something new” or “library”.';
+      'Swipe right or left to choose, and double-tap to open. Say “read something new” or “library”. To hear the tutorial again, say “tutorial”.';
 
   @override
   String get helpLibrary =>
@@ -1946,6 +1978,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialPercy =>
+      'Hello! I\'m Percy, the voice assistant of Percipere. Call me by swiping left with two fingers, or by saying “Percy”. Try “read it”, “open the Library” or “go back”. I work offline. Double-tap anywhere to continue.';
 
   @override
   String get tutorialIntro =>

@@ -779,6 +779,16 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
+  String get passwordVisibleNotice =>
+      'Nakikita ang password habang nagta-type. Pindutin ang mata para itago.';
+
+  @override
+  String get passwordHide => 'Itago ang password';
+
+  @override
+  String get passwordShow => 'Ipakita ang password';
+
+  @override
   String formPasswordLength(int count) {
     return '$count titik';
   }
@@ -1094,11 +1104,29 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
-  String get setupSpeedQuestion => 'Gusto mo bang bilisan ang boses?';
+  String get setupSpeedQuestion =>
+      'Bilis ng pagsasalita. Gaano kabilis ang gusto mo?';
 
   @override
   String get setupSpeedHow =>
-      'Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.';
+      'Mag-swipe pakanan para marinig ang bawat bilis, at mag-double-tap para pumili. O sabihin ang “mabagal”, “katamtaman” o “mabilis”.';
+
+  @override
+  String get speedSlow => 'Mabagal';
+
+  @override
+  String get speedMedium => 'Katamtaman';
+
+  @override
+  String get speedFast => 'Mabilis';
+
+  @override
+  String get speedSampleSentence => 'Ganito ang bilis ng aking pagsasalita.';
+
+  @override
+  String setupSpeedChosen(String speed) {
+    return 'Napili: $speed.';
+  }
 
   @override
   String setupSpeedValue(String rate) {
@@ -1171,6 +1199,11 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String summaryAutoRead(String value) {
     return 'Awtomatikong pagbasa: $value';
+  }
+
+  @override
+  String summarySpeed(String value) {
+    return 'Bilis: $value';
   }
 
   @override
@@ -1713,7 +1746,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpHome =>
-      'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.';
+      'Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”. Para ulitin ang pagtuturo, sabihin ang “tutorial”.';
 
   @override
   String get helpLibrary =>
@@ -1891,6 +1924,10 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get tutorialSkip => 'Laktawan';
+
+  @override
+  String get tutorialPercy =>
+      'Kumusta! Ako si Percy, ang voice assistant ng Percipere. Tawagin mo ako sa pag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Subukan ang “basahin mo”, “buksan ang Aklatan” o “bumalik”. Gumagana ako kahit walang internet. I-double tap kahit saan para magpatuloy.';
 
   @override
   String get tutorialIntro =>

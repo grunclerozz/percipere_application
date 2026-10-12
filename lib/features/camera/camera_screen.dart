@@ -20,6 +20,7 @@ import '../../core/platform/permissions.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/widgets/live_speaking_zone.dart';
+import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 import '../describe/describe_controller.dart';
@@ -262,8 +263,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                     : const SizedBox.expand(),
               ),
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+                child: PagePadding(
+                  top: 16,
+                  bottom: 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

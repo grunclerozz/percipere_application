@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../config/constants.dart';
 import 'gesture_pad.dart';
+import 'page_padding.dart';
 
 /// Standard in-app screen layout: [content] on top, the [GesturePad] taking
 /// roughly the bottom third.
@@ -32,13 +33,7 @@ class GesturePadLayout extends StatelessWidget {
               constraints.maxHeight * AppDimens.gesturePadHeightFraction,
               AppDimens.gesturePadMinHeight,
             );
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppDimens.pagePadding,
-                24,
-                AppDimens.pagePadding,
-                24,
-              ),
+            return PagePadding(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

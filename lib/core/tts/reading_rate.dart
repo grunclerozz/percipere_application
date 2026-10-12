@@ -28,3 +28,29 @@ abstract final class ReadingRate {
 final readingRateProvider = Provider<double>(
   (ref) => ref.watch(settingsProvider.select((s) => s.readingRate)),
 );
+
+/// The three named speeds offered when registering ("Bilis ng pagsasalita").
+enum SpeechSpeed {
+  /// Mabagal.
+  slow(0.75),
+
+  /// Katamtaman (default).
+  medium(1.0),
+
+  /// Mabilis.
+  fast(1.5);
+
+  const SpeechSpeed(this.rate);
+
+  /// The reading rate this speed sets.
+  final double rate;
+
+  /// The named speed closest to [rate].
+  static SpeechSpeed nearest(double rate) {
+    var best = medium;
+    for (final s in values) {
+      if ((s.rate - rate).abs() < (best.rate - rate).abs()) best = s;
+    }
+    return best;
+  }
+}

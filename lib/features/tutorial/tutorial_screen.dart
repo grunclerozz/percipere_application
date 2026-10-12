@@ -5,12 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
 import '../../app/router.dart';
-import '../../config/constants.dart';
 import '../../core/accessibility/accessible_screen.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/account.dart';
 import '../../core/auth/session.dart';
 import '../../core/db/daos/preferences_dao.dart';
 import '../../core/gestures/gesture_surface.dart';
@@ -18,11 +18,22 @@ import '../../core/tts/speech_language.dart';
 import '../../core/voice/command_matcher.dart';
 import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/live_speaking_zone.dart';
+import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 
+/// Whether [account] already finished or skipped the tutorial: a guest per
+/// device (first launch), a registered account per account.
+Future<bool> tutorialSeen(PreferencesDao prefs, Account account) async {
+  final scope = account.isGuest ? PreferencesDao.deviceScope : account.id;
+  return await prefs.get(PrefKeys.tutorialDone, userId: scope) == true;
+}
+
 /// One step of the tutorial.
 enum TutorialStep {
+  /// Percy introduces itself (who, how to call, examples, offline).
+  percy,
+
   /// What this is; double-tap to start, two-finger swipe right to skip.
   intro,
 
@@ -60,9 +71,10 @@ enum TutorialStep {
 /// Controls tutorial ("Pag-aaral ng mga kontrol"): explains and lets the
 /// user practise each gesture and a voice command before using the app.
 ///
-/// Shown once on first launch, before Welcome; replayed from Settings
-/// ("Paano gamitin ang app") or by saying "paano gamitin" anywhere
-/// ([replay] true: finishing goes back instead of to Welcome). The whole
+/// Starts with Percy introducing itself. Shown once after the setup (right
+/// after registration, or a guest's first visit), then home; replayed from
+/// Settings ("Paano gamitin ang app") or by saying "paano gamitin" anywhere
+/// ([replay] true: finishing goes back instead of home). The whole
 /// screen is the gesture surface. Skipped by saying "laktawan", the
 /// "Laktawan" button, or a two-finger swipe right (asked first after the
 /// introduction).
@@ -84,7 +96,7 @@ class TutorialScreen extends ConsumerStatefulWidget {
 }
 
 class _TutorialScreenState extends ConsumerState<TutorialScreen> {
-  TutorialStep _step = TutorialStep.intro;
+  TutorialStep _step = TutorialStep.percy;
   int _wrong = 0;
   bool _finishing = false;
 
@@ -93,6 +105,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 
   /// The gesture (as an intent) each practice step waits for.
   static const Map<TutorialStep, NavIntent> _expected = {
+    TutorialStep.percy: NavIntent.activate,
     TutorialStep.intro: NavIntent.activate,
     TutorialStep.swipeRight: NavIntent.next,
     TutorialStep.swipeLeft: NavIntent.previous,
@@ -115,6 +128,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   static const List<String> _sayWords = ['tulong', 'help'];
 
   String _text(TutorialStep step, AppLocalizations l) => switch (step) {
+    TutorialStep.percy => l.tutorialPercy,
     TutorialStep.intro => l.tutorialIntro,
     TutorialStep.swipeRight => l.tutorialSwipeRight,
     TutorialStep.swipeLeft => l.tutorialSwipeLeft,
@@ -137,7 +151,9 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     switch (intent) {
       case NavIntent.back:
         // Two fingers right: skip (asked first, except on the intro).
-        if (_step == TutorialStep.intro) return _finish(skipped: true);
+        if (_step == TutorialStep.percy || _step == TutorialStep.intro) {
+          return _finish(skipped: true);
+        }
         return _bus.offer(
           _l.tutorialSkipQuestion,
           () => _finish(skipped: true),
@@ -162,6 +178,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     final l = _l;
     final praise = _step.index.isEven ? l.tutorialGood : l.tutorialGoodAlt;
     switch (_step) {
+      case TutorialStep.percy:
       case TutorialStep.intro:
         return _advance();
       case TutorialStep.done:
@@ -230,7 +247,13 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     if (_finishing) return;
     _finishing = true;
     try {
-      await ref.read(userPrefsProvider).set(PrefKeys.tutorialDone, true);
+      final account = ref.read(currentAccountProvider);
+      final scope = account == null || account.isGuest
+          ? PreferencesDao.deviceScope
+          : account.id;
+      await ref
+          .read(userPrefsProvider)
+          .set(PrefKeys.tutorialDone, true, userId: scope);
     } on Object catch (e) {
       debugPrint('Saving tutorialDone failed: $e');
     }
@@ -240,7 +263,10 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     if (widget.replay && router.canPop()) {
       router.pop();
     } else {
-      router.go(AppRoutes.welcome);
+      final account = ref.read(currentAccountProvider);
+      router.go(
+        account == null ? AppRoutes.welcome : AppRoutes.landing(account),
+      );
     }
   }
 
@@ -319,11 +345,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
               slivers: [
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.pagePadding,
-                      vertical: 24,
-                    ),
+                  child: PagePadding(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

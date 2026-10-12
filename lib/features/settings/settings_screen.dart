@@ -118,7 +118,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               l.settingValue(item.label(l), item.value(_context(l))),
             if (colorReset) l.textColorReset,
           ].join(' '),
-          rate: item.id == Ids.settingReadingRate ? after.readingRate : 1.0,
+          rate: after.readingRate,
         );
     if (after.navMode == NavMode.voice && before.navMode != NavMode.voice) {
       await ref

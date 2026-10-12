@@ -1031,6 +1031,18 @@
       }
     }
   },
+  "passwordVisibleNotice": "Nakikita ang password habang nagta-type. Pindutin ang mata para itago.",
+  "@passwordVisibleNotice": {
+    "description": "Spoken once when a password field is focused (the password is shown by default)."
+  },
+  "passwordHide": "Itago ang password",
+  "@passwordHide": {
+    "description": "Eye button label while the password is visible."
+  },
+  "passwordShow": "Ipakita ang password",
+  "@passwordShow": {
+    "description": "Eye button label while the password is hidden."
+  },
   "formPasswordLength": "{count} titik",
   "@formPasswordLength": {
     "description": "Password read back by length only. No plural in Filipino.",
@@ -1472,13 +1484,38 @@
       }
     }
   },
-  "setupSpeedQuestion": "Gusto mo bang bilisan ang boses?",
+  "setupSpeedQuestion": "Bilis ng pagsasalita. Gaano kabilis ang gusto mo?",
   "@setupSpeedQuestion": {
     "description": "Step 5."
   },
-  "setupSpeedHow": "Mag-swipe pataas o sabihin ang “bilisan”; mag-swipe pababa o sabihin ang “bagalan”. I-double tap o sabihin ang “okay” kapag tama na.",
+  "setupSpeedHow": "Mag-swipe pakanan para marinig ang bawat bilis, at mag-double-tap para pumili. O sabihin ang “mabagal”, “katamtaman” o “mabilis”.",
   "@setupSpeedHow": {
     "description": "Step 5 how."
+  },
+  "speedSlow": "Mabagal",
+  "@speedSlow": {
+    "description": "Speech speed option."
+  },
+  "speedMedium": "Katamtaman",
+  "@speedMedium": {
+    "description": "Speech speed option (default)."
+  },
+  "speedFast": "Mabilis",
+  "@speedFast": {
+    "description": "Speech speed option."
+  },
+  "speedSampleSentence": "Ganito ang bilis ng aking pagsasalita.",
+  "@speedSampleSentence": {
+    "description": "Sample sentence spoken at each speed option."
+  },
+  "setupSpeedChosen": "Napili: {speed}.",
+  "@setupSpeedChosen": {
+    "description": "Step 5 chosen.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
   },
   "setupSpeedValue": "Bilis: {rate}x.",
   "@setupSpeedValue": {
@@ -1586,6 +1623,15 @@
   "summaryAutoRead": "Awtomatikong pagbasa: {value}",
   "@summaryAutoRead": {
     "description": "Summary line.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySpeed": "Bilis: {value}",
+  "@summarySpeed": {
+    "description": "Summary line for the speech speed.",
     "placeholders": {
       "value": {
         "type": "String"
@@ -1935,7 +1981,7 @@
   "@chapterLine": {"description": "A chapter in the list.", "placeholders": {"number": {"type": "int"}, "title": {"type": "String"}}},
   "chapterFallback": "Kabanata {number}",
   "@chapterFallback": {"description": "Name of a chapter that has no title.", "placeholders": {"number": {"type": "int"}}},
-  "helpHome": "Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”.",
+  "helpHome": "Mag-swipe pakanan o pakaliwa para pumili, at i-double tap para buksan. Sabihin ang “magbasa ng bago” o “aklatan”. Para ulitin ang pagtuturo, sabihin ang “tutorial”.",
   "@helpHome": {"description": "Help for Home."},
   "helpLibrary": "Mag-swipe pakanan o pakaliwa para lumipat ng aytem. Mag-swipe pataas o pababa para lumipat ng istante. I-double tap para buksan ang detalye. Sabihin ang “ituloy ang” at ang pamagat para ituloy agad, o “hanapin” para maghanap.",
   "@helpLibrary": {"description": "Help for the Library."},
@@ -2026,6 +2072,8 @@
   "@screenTutorial": {"description": "Tutorial screen name."},
   "tutorialSkip": "Laktawan",
   "@tutorialSkip": {"description": "Skip the tutorial."},
+  "tutorialPercy": "Kumusta! Ako si Percy, ang voice assistant ng Percipere. Tawagin mo ako sa pag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Subukan ang “basahin mo”, “buksan ang Aklatan” o “bumalik”. Gumagana ako kahit walang internet. I-double tap kahit saan para magpatuloy.",
+  "@tutorialPercy": {"description": "Tutorial first step: Percy introduces itself."},
   "tutorialIntro": "Tuturuan kita kung paano gamitin ang Percipere gamit ang daliri at boses. Mga dalawang minuto lang ito. I-double tap kahit saan sa screen para magsimula. Para laktawan, mag-swipe pakanan gamit ang dalawang daliri, o sabihin ang “laktawan”.",
   "@tutorialIntro": {"description": "Tutorial first step."},
   "tutorialSwipeRight": "Para lumipat sa susunod na pagpipilian, mag-swipe pakanan gamit ang isang daliri. Subukan mo ngayon.",

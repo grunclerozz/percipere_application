@@ -116,16 +116,18 @@ void main() {
       await tester.say('mango tree 123');
       expect(env.tts.transcript, contains('Password: 12 titik.'));
       expect(env.tts.transcript, isNot(contains('mangotree')));
-      // Never shown: only the obscured field holds it.
+      // Never shown outside the field.
       expect(
         find.byWidgetPredicate(
           (w) => w is Text && (w.data ?? '').contains('mango'),
         ),
         findsNothing,
       );
+      // Visible while typing (panel requirement) in the field, hidden with
+      // the eye; still never shown as plain Text or spoken.
       expect(
         tester.widget<TextField>(find.byType(TextField).last).obscureText,
-        isTrue,
+        isFalse,
       );
       expect(env.tts.transcript, contains('Kumpleto na.'));
 

@@ -90,6 +90,50 @@ void main() {
     return dm.handle(text, env, style);
   }
 
+  group('Percy introduces itself', () {
+    test('"Sino ka?" / "Ano ang kaya mo?" answer with the intro, even when '
+        'the model is unsure', () async {
+      for (final text in [
+        'sino ka',
+        'Sino ka ba?',
+        'ano ang kaya mo',
+        'Ano ang kaya mo, Percy?',
+        'who are you',
+        'what can you do',
+      ]) {
+        final r = await say(text);
+        expect(r.say, contains('Percy'), reason: text);
+        expect(r.say, contains('basahin mo'), reason: text);
+        expect(r.say, contains('walang internet'), reason: text);
+        expect(r.action, isNull, reason: 'only talks: $text');
+      }
+    });
+
+    test('other sentences are not asking who Percy is', () {
+      for (final text in [
+        'basahin mo',
+        'buksan ang aklatan',
+        'sino si Rizal',
+      ]) {
+        expect(IntroRule.matches(text), isFalse, reason: text);
+      }
+    });
+
+    test('every intro row of the dataset is caught by the rule', () {
+      final rows = File('data/percy/intents.csv')
+          .readAsLinesSync()
+          .where(
+            (l) =>
+                RegExp(r'^(sino ka|ano ang kaya mo|who are you)').hasMatch(l),
+          )
+          .map((l) => l.split(',greeting,').first);
+      expect(rows, isNotEmpty);
+      for (final text in rows) {
+        expect(IntroRule.matches(text), isTrue, reason: text);
+      }
+    });
+  });
+
   group('report an issue (keyword rule as a backstop to the model)', () {
     test('a sentence about reporting opens the report, even when the '
         'model is unsure', () async {

@@ -321,6 +321,16 @@ class DialogueManager {
       );
     }
 
+    // 2c. "Sino ka?" / "Ano ang kaya mo?": Percy introduces itself.
+    if (IntroRule.matches(text)) {
+      return PercyReply(
+        say: responses.dialogue('introduction', style.lang, style.politeness),
+        outcome: TurnOutcome.chat,
+        intent: PercyIntent.greeting,
+        confidence: top.probability,
+      );
+    }
+
     // 3. A document named by title ("basahin ang Liham kay Nanay"): the
     // title words are new to the classifier, so the slot rule goes first —
     // unless the classifier is sure it is another command.

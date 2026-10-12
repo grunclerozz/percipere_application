@@ -10,8 +10,8 @@ import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/widgets/gesture_pad.dart';
-import 'package:percipere_app/features/home/home_screen.dart';
 import 'package:percipere_app/features/setup/profiling_screen.dart';
+import 'package:percipere_app/features/tutorial/tutorial_screen.dart';
 
 import '../../helpers/fakes.dart';
 import '../../helpers/pump_app.dart';
@@ -94,32 +94,32 @@ void main() {
     expect(env.tts.transcript, contains('Napili: Tagalog.'));
     expect(env.tts.transcript, contains('Hakbang 3 ng 4.'));
 
-    await tester.say('bilisan');
-    expect(env.tts.spoken.last, 'Ganito kabilis ang boses.');
-    expect(env.tts.transcript, contains('Bilis: 1.25x.'));
-    expect(env.tts.rates.last, 1.25, reason: 'the sample uses the new speed');
-    await tester.say('okay');
+    await tester.say('mabilis');
+    expect(env.tts.transcript, contains('Napili: Mabilis.'));
+    expect(env.tts.rates.last, 1.5, reason: 'spoken at the chosen speed');
+    expect(tester.scope.read(settingsProvider).readingRate, 1.5);
 
     expect(env.tts.transcript, contains('Hakbang 4 ng 4. Buod.'));
     expect(
       env.tts.transcript,
       contains(
         'Ito ang iyong mga napili: Paraan: Pa-galaw (Gestures). '
-        'Wika ng boses: Tagalog. Bilis: 1.25x.',
+        'Wika ng boses: Tagalog. Bilis: Mabilis.',
       ),
     );
 
     // Jump back by voice; confirming returns to the summary.
     await tester.say('bumalik sa bilis');
-    expect(env.tts.spoken, contains('Bilis: 1.25x.'));
-    await tester.say('bagalan');
+    expect(env.tts.transcript, contains('Bilis ng pagsasalita.'));
+    await tester.say('katamtaman');
     expect(tester.scope.read(settingsProvider).readingRate, 1.0);
-    await tester.say('sige');
-    expect(env.tts.transcript, contains('Bilis: 1.0x. Tama ba ang lahat?'));
+    expect(env.tts.transcript, contains('Bilis: Katamtaman'));
 
     await tester.say('oo');
     expect(env.tts.transcript, contains('Tapos na ang setup.'));
-    expect(find.byType(HomeScreen), findsOneWidget);
+    // A guest's first visit: Percy introduces itself in the tutorial.
+    expect(find.byType(TutorialScreen), findsOneWidget);
+    expect(env.tts.transcript, contains('Ako si Percy'));
     final account = tester.scope.read(currentAccountProvider)!;
     expect(account.profilingCompleted, isTrue);
     final done = await tester.runAsync(
@@ -226,7 +226,7 @@ void main() {
     await pumpApp(tester, env);
     expect(find.byType(ProfilingScreen), findsOneWidget);
     expect(env.tts.transcript, contains('Hakbang 5 ng 10.'));
-    expect(env.tts.transcript, contains('Gusto mo bang bilisan ang boses?'));
+    expect(env.tts.transcript, contains('Bilis ng pagsasalita.'));
 
     // Completed accounts don't see it again.
     final repo = AccountRepository(env.database.db, TestEnv.testHasher);

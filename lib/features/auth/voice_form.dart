@@ -128,6 +128,21 @@ class VoiceForm {
   /// Submits (validation is the screen's job).
   final Future<void> Function(CommandBus bus) onSubmit;
 
+  /// Whether password fields are hidden. Passwords are visible while typing
+  /// (required by the adviser/panel), so this starts false every time the
+  /// screen opens; the eye button toggles it.
+  final ValueNotifier<bool> passwordHidden = ValueNotifier<bool>(false);
+
+  bool _passwordNoticeSpoken = false;
+
+  /// A password field got the keyboard: say once that it is visible (never
+  /// the password itself).
+  void passwordFocused() {
+    if (_passwordNoticeSpoken || passwordHidden.value) return;
+    _passwordNoticeSpoken = true;
+    unawaited(ref.read(commandBusProvider).say(_l.passwordVisibleNotice));
+  }
+
   /// Phrases that submit the form.
   static const List<String> submitPhrases = [
     'submit',
@@ -296,6 +311,7 @@ class VoiceForm {
 
   /// Ends password privacy and releases the fields.
   void dispose() {
+    passwordHidden.dispose();
     for (final f in fields) {
       f.dispose();
     }
@@ -319,7 +335,10 @@ Future<void> reportInvalid(
 
 /// The pill-shaped text field from the mockups. Tapping it focuses the field
 /// (for typing); finishing typing reads the value back.
-class VoiceTextField extends ConsumerWidget {
+///
+/// A password field is visible by default, with an eye button to hide it
+/// ([VoiceForm.passwordHidden]).
+class VoiceTextField extends ConsumerStatefulWidget {
   /// Creates the field view for [field] of [form].
   const VoiceTextField({super.key, required this.form, required this.field});
 
@@ -330,7 +349,33 @@ class VoiceTextField extends ConsumerWidget {
   final VoiceField field;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VoiceTextField> createState() => _VoiceTextFieldState();
+}
+
+class _VoiceTextFieldState extends ConsumerState<VoiceTextField> {
+  VoiceForm get form => widget.form;
+  VoiceField get field => widget.field;
+
+  @override
+  void initState() {
+    super.initState();
+    field.focusNode.addListener(_onFocus);
+  }
+
+  @override
+  void dispose() {
+    field.focusNode.removeListener(_onFocus);
+    super.dispose();
+  }
+
+  void _onFocus() {
+    if (field.focusNode.hasFocus && field.kind == FieldKind.password) {
+      form.passwordFocused();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
     final focused = ref.watch(focusControllerProvider) == field.id;
@@ -342,45 +387,93 @@ class VoiceTextField extends ConsumerWidget {
 
     return Listener(
       onPointerDown: (e) => GestureSurface.claimPointer(context, e.pointer),
-      child: TextField(
-        controller: field.controller,
-        focusNode: field.focusNode,
-        obscureText: password,
-        enableSuggestions: !password,
-        autocorrect: false,
-        textAlign: TextAlign.center,
-        keyboardType: switch (field.kind) {
-          FieldKind.email => TextInputType.emailAddress,
-          FieldKind.password => TextInputType.visiblePassword,
-          FieldKind.name => TextInputType.name,
-          FieldKind.text => TextInputType.text,
-          FieldKind.code => TextInputType.number,
-        },
-        textCapitalization: field.kind == FieldKind.name
-            ? TextCapitalization.words
-            : TextCapitalization.none,
-        style: Theme.of(context).textTheme.bodyLarge,
-        decoration: InputDecoration(
-          hintText: field.label(l10n),
-          isDense: true,
-          constraints: const BoxConstraints(
-            minHeight: AppDimens.minTouchTarget,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-          enabledBorder: border(
-            focused ? 3 : AppDimens.panelBorderWidth,
-            focused ? p.focusRing : p.border,
-          ),
-          focusedBorder: border(3, p.focusRing),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: form.passwordHidden,
+        builder: (context, hidden, _) => _textField(
+          context,
+          p,
+          l10n,
+          focused,
+          password,
+          password && hidden,
+          border,
         ),
-        onTap: () {
-          ref.read(focusControllerProvider.notifier).focus(field.id);
-          ref.read(voiceControllerProvider.notifier).sensitive = password;
+      ),
+    );
+  }
+
+  Widget _textField(
+    BuildContext context,
+    AppPalette p,
+    AppLocalizations l10n,
+    bool focused,
+    bool password,
+    bool hidden,
+    OutlineInputBorder Function(double, Color) border,
+  ) {
+    return TextField(
+      controller: field.controller,
+      focusNode: field.focusNode,
+      obscureText: hidden,
+      enableSuggestions: !password,
+      autocorrect: false,
+      textAlign: TextAlign.center,
+      keyboardType: switch (field.kind) {
+        FieldKind.email => TextInputType.emailAddress,
+        FieldKind.password => TextInputType.visiblePassword,
+        FieldKind.name => TextInputType.name,
+        FieldKind.text => TextInputType.text,
+        FieldKind.code => TextInputType.number,
+      },
+      textCapitalization: field.kind == FieldKind.name
+          ? TextCapitalization.words
+          : TextCapitalization.none,
+      style: Theme.of(context).textTheme.bodyLarge,
+      decoration: InputDecoration(
+        hintText: field.label(l10n),
+        suffixIcon: password ? _eyeButton(l10n, hidden) : null,
+        isDense: true,
+        constraints: const BoxConstraints(minHeight: AppDimens.minTouchTarget),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        enabledBorder: border(
+          focused ? 3 : AppDimens.panelBorderWidth,
+          focused ? p.focusRing : p.border,
+        ),
+        focusedBorder: border(3, p.focusRing),
+      ),
+      onTap: () {
+        ref.read(focusControllerProvider.notifier).focus(field.id);
+        ref.read(voiceControllerProvider.notifier).sensitive = password;
+        if (password) form.passwordFocused();
+      },
+      onSubmitted: (_) => unawaited(form.typed(field)),
+    );
+  }
+
+  /// Eye button: hide / show the password (large touch target, labelled for
+  /// TalkBack).
+  Widget _eyeButton(AppLocalizations l10n, bool hidden) {
+    final label = hidden ? l10n.passwordShow : l10n.passwordHide;
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: IconButton(
+        tooltip: label,
+        constraints: const BoxConstraints(
+          minWidth: AppDimens.minTouchTarget,
+          minHeight: AppDimens.minTouchTarget,
+        ),
+        iconSize: 28,
+        icon: Icon(hidden ? Icons.visibility : Icons.visibility_off),
+        onPressed: () {
+          form.passwordHidden.value = !hidden;
+          unawaited(ref.read(hapticsProvider).tick());
+          unawaited(ref.read(commandBusProvider).say(label));
         },
-        onSubmitted: (_) => unawaited(form.typed(field)),
       ),
     );
   }

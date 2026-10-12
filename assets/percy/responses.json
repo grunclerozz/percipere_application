@@ -148,6 +148,16 @@
       "fil": {"po": ["Mukhang tapos na po tayo. Tawagin lang po ako ulit."], "casual": ["Mukhang tapos na tayo. Tawagin mo lang ako ulit."]},
       "en": {"po": ["Looks like we're done. Call me again anytime."], "casual": ["Seems we're done. Call me anytime."]}
     },
+    "introduction": {
+      "fil": {
+        "po": ["Ako po si Percy, ang voice assistant ng Percipere. Tawagin po ako sa pamamagitan ng pag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Subukan po ang “basahin mo”, “buksan ang Aklatan” o “bumalik”. Gumagana po ako kahit walang internet."],
+        "casual": ["Ako si Percy, ang voice assistant ng Percipere. Tawagin mo ako sa pag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Subukan ang “basahin mo”, “buksan ang Aklatan” o “bumalik”. Gumagana ako kahit walang internet."]
+      },
+      "en": {
+        "po": ["I'm Percy, the voice assistant of Percipere. Call me by swiping left with two fingers, or by saying “Percy”. Try “read it”, “open the Library” or “go back”. I work offline."],
+        "casual": ["I'm Percy, Percipere's voice assistant. Call me by swiping left with two fingers, or say “Percy”. Try “read it”, “open the Library” or “go back”. I work offline."]
+      }
+    },
     "or": {
       "fil": {"po": ["o"], "casual": ["o"]},
       "en": {"po": ["or"], "casual": ["or"]}

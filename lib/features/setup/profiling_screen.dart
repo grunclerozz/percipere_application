@@ -35,8 +35,10 @@ import '../../core/widgets/boxed_list.dart';
 import '../../core/widgets/eye_logo.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../core/widgets/live_speaking_zone.dart';
+import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
+import '../tutorial/tutorial_screen.dart';
 import 'setup_flow.dart';
 import 'setup_labels.dart';
 
@@ -221,7 +223,16 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     if (widget.mode == SetupMode.redo && router.canPop()) {
       router.pop();
     } else {
-      router.go(AppRoutes.home);
+      // New users (and a guest's first visit) hear Percy's introduction and
+      // the controls tutorial before Home.
+      var seen = true;
+      try {
+        seen = await tutorialSeen(_prefs, account);
+      } on Object catch (e) {
+        debugPrint('Reading tutorialDone failed: $e');
+      }
+      if (!mounted) return;
+      router.go(seen ? AppRoutes.home : AppRoutes.tutorial);
     }
   }
 
@@ -230,7 +241,7 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
   Future<void> _change(
     AppSettings Function(AppSettings s) change,
     String Function(AppLocalizations l, AppSettings s) spoken, {
-    double rate = 1.0,
+    double? rate,
     bool useRate = false,
   }) async {
     final before = _s;
@@ -463,29 +474,42 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
           common: common,
         );
       case SetupStep.speed:
-        return _adjust(
+        String name(SpeechSpeed v, AppLocalizations l) => switch (v) {
+          SpeechSpeed.slow => l.speedSlow,
+          SpeechSpeed.medium => l.speedMedium,
+          SpeechSpeed.fast => l.speedFast,
+        };
+        // Moving between the options plays the sample at that speed (without
+        // choosing it); choosing saves it for all speech at once.
+        _Option speedOption(SpeechSpeed v, List<String> words) => _Option(
+          id: '$_screenId.${v.name}',
+          label: (l) => name(v, l),
+          synonyms: words,
+          onFocus: (_) => ref
+              .read(announcerProvider.notifier)
+              .say('${name(v, _l)}. ${_l.speedSampleSentence}', rate: v.rate),
+          choose: () async {
+            await _settings.update((s) => s.copyWith(readingRate: v.rate));
+            await ref
+                .read(announcerProvider.notifier)
+                .say(_l.setupSpeedChosen(name(v, _l)), rate: v.rate);
+          },
+        );
+        return _choice(
           title: title,
-          prompt: (l) =>
-              '${l.setupSpeedQuestion} '
-              '${l.setupSpeedValue(ReadingRate.label(_s.readingRate))}',
+          prompt: (l) => l.setupSpeedQuestion,
           followUp: (l) => l.setupSpeedHow,
-          up: () => _change(
-            (s) => s.copyWith(readingRate: s.readingRate + ReadingRate.step),
-            (l, s) =>
-                '${l.setupSpeedValue(ReadingRate.label(s.readingRate))} '
-                '${l.setupSpeedSample}',
-            useRate: true,
-          ),
-          down: () => _change(
-            (s) => s.copyWith(readingRate: s.readingRate - ReadingRate.step),
-            (l, s) =>
-                '${l.setupSpeedValue(ReadingRate.label(s.readingRate))} '
-                '${l.setupSpeedSample}',
-            useRate: true,
-          ),
-          vertical: true,
+          current: true,
+          options: [
+            speedOption(SpeechSpeed.slow, const ['mabagal', 'bagal', 'slow']),
+            speedOption(SpeechSpeed.medium, const [
+              'katamtaman',
+              'medium',
+              'normal',
+            ]),
+            speedOption(SpeechSpeed.fast, const ['mabilis', 'bilis', 'fast']),
+          ],
           skip: skip,
-          confirm: confirm,
           common: common,
         );
       case SetupStep.pitch:
@@ -838,11 +862,7 @@ class _NavModeView extends ConsumerWidget {
             slivers: [
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.pagePadding,
-                    vertical: 24,
-                  ),
+                child: PagePadding(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

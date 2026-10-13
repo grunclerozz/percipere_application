@@ -1,0 +1,166 @@
+---
+title: Percipere Web Dashboard (MySQL) ERD
+---
+erDiagram
+    members {
+        int_unsigned(10) member_id PK
+        varchar(150) member_name
+        varchar(150) member_role
+        varchar(200) member_school
+        varchar(191) member_email UK
+        timestamp member_created_at
+    }
+    roles {
+        int_unsigned(10) role_id PK
+        varchar(50) role_name UK
+        varchar(255) role_description
+    }
+    admins {
+        int_unsigned(10) admin_id PK
+        varchar(191) admin_email UK
+        varchar(150) admin_full_name
+        varchar(255) admin_password_hash
+        int_unsigned(10) admin_member_id FK
+        int_unsigned(10) admin_role_id FK
+        enum admin_status
+        int(11) admin_failed_login_attempts
+        datetime admin_locked_until
+        datetime admin_last_login_at
+        text admin_preferences
+        int_unsigned(10) admin_session_version
+        timestamp admin_created_at
+        timestamp admin_updated_at
+    }
+    app_users {
+        int_unsigned(10) user_id PK
+        varchar(100) user_full_name
+        varchar(150) user_email UK
+        varchar(20) user_phone_number
+        varchar(255) user_password_hash
+        enum user_status
+        datetime user_email_verified_at
+        varchar(255) user_otp_hash
+        datetime user_otp_expires_at
+        datetime user_otp_sent_at
+        varchar(100) user_position
+        datetime user_phone_verified_at
+        datetime user_created_at
+        datetime user_last_login_at
+    }
+    app_tokens {
+        int_unsigned(10) token_id PK
+        int_unsigned(10) token_user_id FK
+        char(64) token_hash UK
+        varchar(100) token_device
+        datetime token_created_at
+        datetime token_last_used_at
+        datetime token_expires_at
+    }
+    feedback {
+        int_unsigned(10) feedback_id PK
+        varchar(60) feedback_category
+        varchar(40) feedback_type_code
+        varchar(60) feedback_module
+        varchar(40) feedback_module_code
+        varchar(40) feedback_severity
+        varchar(40) feedback_severity_code
+        text feedback_description
+        varchar(191) feedback_email
+        int_unsigned(10) feedback_user_id FK
+        varchar(20) feedback_app_version
+        varchar(100) feedback_device
+        varchar(40) feedback_os_version
+        varchar(20) feedback_ticket_no UK
+        varchar(50) feedback_source_screen
+        enum feedback_reporter_kind
+        varchar(100) feedback_reporter_name
+        datetime feedback_app_created_at
+        enum feedback_status
+        enum feedback_source
+        date feedback_submitted_at
+        date feedback_resolved_at
+        datetime feedback_archived_at
+        int_unsigned(10) feedback_member_id FK
+        int_unsigned(10) feedback_admin_id FK
+        timestamp feedback_created_at
+        timestamp feedback_updated_at
+    }
+    feedback_notes {
+        int_unsigned(10) note_id PK
+        int_unsigned(10) note_feedback_id FK
+        int_unsigned(10) note_member_id FK
+        int_unsigned(10) note_admin_id FK
+        text note_text
+        timestamp note_created_at
+        timestamp note_updated_at
+    }
+    audit_log {
+        int_unsigned(10) log_id PK
+        int_unsigned(10) log_member_id FK
+        int_unsigned(10) log_admin_id FK
+        varchar(255) log_action
+        timestamp log_created_at
+    }
+    app_settings {
+        varchar(64) setting_key PK
+        varchar(255) setting_value
+        timestamp setting_updated_at
+        int_unsigned(10) setting_admin_id FK
+    }
+    api_limits {
+        char(64) limit_key PK
+        int_unsigned(10) limit_count
+        datetime limit_window_start
+        datetime limit_locked_until
+    }
+    categories {
+        int_unsigned(10) category_id PK
+        varchar(80) category_name UK
+        tinyint(1) category_is_active
+        timestamp category_created_at
+        timestamp category_updated_at
+    }
+    languages {
+        int_unsigned(10) language_id PK
+        varchar(40) language_name UK
+        varchar(10) language_code
+        tinyint(1) language_is_active
+        timestamp language_created_at
+        timestamp language_updated_at
+    }
+    books {
+        int_unsigned(10) book_id PK
+        varchar(200) book_title
+        varchar(150) book_author
+        text book_description
+        int_unsigned(10) book_category_id FK
+        int_unsigned(10) book_language_id FK
+        enum book_format
+        varchar(80) book_file_path
+        varchar(255) book_file_name
+        int_unsigned(10) book_file_size
+        char(64) book_file_hash
+        varchar(80) book_cover_path
+        varchar(20) book_cover_mime
+        tinyint(1) book_is_active
+        int_unsigned(10) book_version
+        int_unsigned(10) book_admin_id FK
+        timestamp book_created_at
+        timestamp book_updated_at
+    }
+
+    members |o--o{ admins : "admin_member_id"
+    app_users ||--o{ app_tokens : "token_user_id"
+    members |o--o{ feedback : "feedback_member_id"
+    app_users |o--o{ feedback : "feedback_user_id"
+    feedback ||--o{ feedback_notes : "note_feedback_id"
+    members |o--o{ feedback_notes : "note_member_id"
+    members |o--o{ audit_log : "log_member_id"
+    admins |o--o{ books : "book_admin_id"
+    categories ||--o{ books : "book_category_id"
+    languages ||--o{ books : "book_language_id"
+    roles |o..o{ admins : "admin_role_id (code)"
+    admins |o..o{ audit_log : "log_admin_id (code)"
+    admins |o..o{ feedback : "feedback_admin_id (code)"
+    admins |o..o{ feedback_notes : "note_admin_id (code)"
+    admins |o..o{ app_settings : "setting_admin_id (code)"

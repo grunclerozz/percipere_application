@@ -1,0 +1,35 @@
+erDiagram
+  %% Cross-database mappings only. None is a foreign key (separate databases); links are carried in Android columns server_id / book_id and the shared ticket_no.
+  %% Android = SQLite, server = MariaDB. Mapping 3 is (inferred).
+  users {
+    text id PK
+    text server_id
+    text email UK
+  }
+  app_users {
+    int user_id PK
+    varchar user_email UK
+  }
+  issue_reports {
+    text id PK
+    text ticket_no UK
+    text server_id
+    text server_status
+  }
+  feedback {
+    int feedback_id PK
+    varchar feedback_ticket_no UK
+    enum feedback_status
+  }
+  library_items {
+    text id PK
+    text book_id
+    int book_version
+  }
+  books {
+    int book_id PK
+    int book_version
+  }
+  users }o..o| app_users : "server_id = user_id; REST /auth/*"
+  issue_reports }o..o| feedback : "ticket_no (server_id); POST+GET /reports"
+  library_items }o..o| books : "book_id = book_id; GET /books (inferred)"

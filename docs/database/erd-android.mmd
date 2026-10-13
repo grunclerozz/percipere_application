@@ -1,0 +1,200 @@
+---
+title: Percipere Android App (SQLite) ERD
+---
+erDiagram
+    users {
+        text id PK
+        text display_name
+        text email UK
+        text secret_hash
+        text secret_salt
+        text remote_id
+        integer created_at
+        integer updated_at
+        integer last_login_at
+        text first_name
+        text last_name
+        text secret_kind
+        text security_question
+        text security_answer_hash
+        text security_answer_salt
+        integer is_guest
+        integer profiling_completed
+        integer fingerprint_enabled
+        integer synced
+        text server_id
+    }
+    preferences {
+        text user_id PK,FK
+        text key PK
+        text value
+        integer updated_at
+    }
+    login_attempts {
+        text key PK,FK
+        integer failures
+        integer locked_until
+        integer updated_at
+    }
+    library_items {
+        text id PK
+        text user_id FK
+        text source
+        text format
+        text language
+        text title
+        text author
+        text cover_path
+        text file_path
+        text text_ref
+        text full_text
+        text text_path
+        text chapters
+        integer total_sentences
+        integer word_count
+        integer chapter_index
+        integer sentence_index
+        real percent
+        integer finished
+        integer last_opened_at
+        integer created_at
+        integer updated_at
+        text book_id FK
+        integer book_version
+        integer remote_version
+        text category
+        text description
+        text cover_url
+        integer file_size
+        integer downloaded
+        integer is_new
+        integer unavailable
+        integer local_only
+        integer synced
+        integer legacy_id FK
+    }
+    library_favorites {
+        text id PK
+        text item_id FK
+        integer chapter_index
+        integer sentence_index
+        text label
+        integer created_at
+        integer updated_at
+        integer synced
+    }
+    library_collections {
+        text id PK
+        text user_id FK
+        text name
+        integer created_at
+        integer updated_at
+        integer synced
+    }
+    library_collection_items {
+        text collection_id PK,FK
+        text item_id PK,FK
+        integer added_at
+        integer synced
+    }
+    documents_legacy {
+        integer id PK
+        text user_id FK
+        text title
+        text full_text
+        text source_type
+        text language
+        integer created_at
+        integer updated_at
+        integer last_opened_at
+        integer last_position
+        text thumbnail_path
+    }
+    usage_logs {
+        integer id PK
+        text session_id
+        text event_type
+        text screen
+        text input_mode
+        text payload
+        integer created_at
+        integer uploaded_at
+    }
+    outbox {
+        integer id PK
+        text type
+        text payload
+        text status
+        integer attempts
+        text last_error
+        integer next_attempt_at
+        integer created_at
+        integer updated_at
+    }
+    sus_responses {
+        integer id PK
+        text user_id FK
+        text answers
+        real score
+        text language
+        text input_mode
+        integer created_at
+    }
+    wer_results {
+        integer id PK
+        text session_id
+        text locale
+        integer on_device
+        text reference
+        text hypothesis
+        integer substitutions
+        integer deletions
+        integer insertions
+        integer reference_words
+        real wer
+        integer created_at
+    }
+    percy_turns {
+        integer id PK
+        text user_id FK
+        text text
+        text intent
+        real confidence
+        text outcome
+        text screen
+        text model_version
+        integer created_at
+    }
+    issue_reports {
+        text id PK
+        text ticket_no UK
+        text user_id FK
+        text type
+        text module
+        text severity
+        text description
+        text email
+        text app_version
+        text os_version
+        text device_model
+        text source_screen
+        integer created_at
+        text sync_status
+        text server_id
+        integer attempts
+        text last_error
+        text server_status
+    }
+
+    users ||..o{ preferences : "user_id (code)"
+    users ||..o{ login_attempts : "key (code)"
+    users |o--o{ library_items : "user_id"
+    documents_legacy |o..o{ library_items : "legacy_id (code)"
+    library_items ||--o{ library_favorites : "item_id"
+    users |o--o{ library_collections : "user_id"
+    library_collections ||--o{ library_collection_items : "collection_id"
+    library_items ||--o{ library_collection_items : "item_id"
+    users |o--o{ documents_legacy : "user_id"
+    users |o--o{ sus_responses : "user_id"
+    users |o--o{ percy_turns : "user_id"
+    users |o--o{ issue_reports : "user_id"

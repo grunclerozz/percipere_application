@@ -152,7 +152,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String voiceDidYouMean(String phrase) {
-    return 'Did you mean “$phrase”? Say yes or no.';
+    return 'Is this what you meant: “$phrase”? Say yes or no.';
   }
 
   @override
@@ -2676,4 +2676,151 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverAddressNone => 'No server';
+
+  @override
+  String get voiceOfflineNone =>
+      'There\'s no internet and no offline speech recognition is installed, so I can\'t hear you right now. Please use gestures for now. To make it work offline, download an offline language in the voice input settings; Settings, Voice check, has the guide.';
+
+  @override
+  String get voiceOfflineEnglish =>
+      'There\'s no internet. I\'m using offline English recognition now, so commands in English, like next, pause or library, work best.';
+
+  @override
+  String get screenVoiceCheck => 'Voice check';
+
+  @override
+  String get setVoiceCheckValue => 'Listening, voice and offline';
+
+  @override
+  String get voiceCheckIntro =>
+      'This is how listening and the app\'s voice are set up. Choose Test for a five-second test.';
+
+  @override
+  String voiceCheckRecognizer(String service) {
+    return 'Speech recognition: $service.';
+  }
+
+  @override
+  String voiceCheckLanguage(String locale) {
+    return 'Listening language: $locale.';
+  }
+
+  @override
+  String voiceCheckOfflineFilipino(String answer) {
+    return 'Offline Filipino: $answer.';
+  }
+
+  @override
+  String voiceCheckOfflineEnglish(String answer) {
+    return 'Offline English: $answer.';
+  }
+
+  @override
+  String voiceCheckMode(String mode) {
+    return 'Listening right now: $mode.';
+  }
+
+  @override
+  String get voiceCheckModeOnDevice => 'on the tablet itself, works offline';
+
+  @override
+  String get voiceCheckModeOnline => 'online, needs the internet';
+
+  @override
+  String get voiceCheckModeEnglish => 'offline English';
+
+  @override
+  String get voiceCheckModeNone =>
+      'can\'t listen, no internet and no offline language';
+
+  @override
+  String voiceCheckInternet(String answer) {
+    return 'Internet: $answer.';
+  }
+
+  @override
+  String voiceCheckMic(String answer) {
+    return 'Microphone permission: $answer.';
+  }
+
+  @override
+  String voiceCheckTtsEngine(String engine) {
+    return 'Speech engine: $engine.';
+  }
+
+  @override
+  String voiceCheckTtsVoice(String voice, String where) {
+    return 'Voice: $voice, $where.';
+  }
+
+  @override
+  String get voiceCheckVoiceLocal => 'installed on the tablet, works offline';
+
+  @override
+  String get voiceCheckVoiceNetwork => 'needs the internet';
+
+  @override
+  String get voiceCheckFilipinoVoiceMissing =>
+      'There\'s no Filipino voice on the tablet yet; English is used.';
+
+  @override
+  String get voiceCheckYes => 'yes';
+
+  @override
+  String get voiceCheckNo => 'no';
+
+  @override
+  String get voiceCheckUnknown => 'unknown';
+
+  @override
+  String get voiceCheckTest => 'Test, five seconds';
+
+  @override
+  String get voiceCheckTestSay => 'Say: open the Library.';
+
+  @override
+  String voiceCheckTestResult(
+    String heard,
+    String command,
+    String intent,
+    String percent,
+    String confidence,
+    String ms,
+  ) {
+    return 'Heard: $heard. Command: $command. Percy: $intent, $percent percent. Recognition confidence: $confidence. Response time: $ms milliseconds.';
+  }
+
+  @override
+  String get voiceCheckTestNothing => 'Nothing was heard. Please try again.';
+
+  @override
+  String get voiceCheckNone => 'none';
+
+  @override
+  String get voiceCheckReadAgain => 'Read again';
+
+  @override
+  String get voiceCheckVoiceInput => 'Voice input settings';
+
+  @override
+  String get voiceCheckTtsSettings => 'Text-to-speech settings';
+
+  @override
+  String voiceCheckDownload(String language) {
+    return 'Download offline $language';
+  }
+
+  @override
+  String get voiceCheckDownloadStarted =>
+      'The download has started. Check the tablet\'s notifications and come back here afterwards.';
+
+  @override
+  String get voiceCheckDownloadFailed =>
+      'It can\'t be downloaded from here. Open the voice input settings and look for Offline speech recognition.';
+
+  @override
+  String get languageFilipino => 'Filipino';
+
+  @override
+  String get languageEnglish => 'English';
 }

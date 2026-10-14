@@ -15,6 +15,7 @@ import '../accessibility/haptics.dart';
 import '../accessibility/nav_intent.dart';
 import '../accessibility/navigation_mode.dart';
 import '../assistant/assistant_controller.dart';
+import '../network/connectivity.dart';
 import '../percy/percy_controller.dart';
 import '../platform/permissions.dart';
 import '../platform/system_settings.dart';
@@ -54,6 +55,74 @@ class VoiceState {
 
   /// Whether a session is open.
   bool get listening => status == ListenStatus.listening;
+}
+
+/// How the next listening session recognizes speech: which language, and
+/// on the device (offline) or online.
+@immutable
+class ListenPlan {
+  /// Creates a plan.
+  const ListenPlan({
+    required this.localeId,
+    required this.onDevice,
+    this.englishFallback = false,
+  });
+
+  /// No way to recognize speech right now (offline, no offline language).
+  static const ListenPlan none = ListenPlan(localeId: null, onDevice: false);
+
+  /// Recognizer language; null for the phone's default.
+  final String? localeId;
+
+  /// Recognize on the device (works offline).
+  final bool onDevice;
+
+  /// Filipino was wanted but only offline English is installed: commands
+  /// are heard in English (Taglish works best with English command words).
+  final bool englishFallback;
+
+  /// Whether this is [none].
+  bool get isNone => identical(this, none);
+}
+
+/// One test listen for the Voice check screen ([VoiceController.probe]).
+@immutable
+class VoiceProbe {
+  /// Creates a probe result.
+  const VoiceProbe({
+    required this.text,
+    required this.confidence,
+    required this.alternates,
+    required this.plan,
+    required this.via,
+    required this.sessionStart,
+    required this.endOfSpeech,
+    required this.decided,
+  });
+
+  /// What was heard (best guess).
+  final String text;
+
+  /// The recognizer's confidence, 0..1; −1 when it doesn't say.
+  final double confidence;
+
+  /// The recognizer's other guesses.
+  final List<String> alternates;
+
+  /// How it was recognized.
+  final ListenPlan plan;
+
+  /// `partial`, `final`, `last partial`.
+  final String via;
+
+  /// When the microphone opened.
+  final DateTime? sessionStart;
+
+  /// About when the user stopped talking (last change of the words).
+  final DateTime? endOfSpeech;
+
+  /// When the app had the words.
+  final DateTime decided;
 }
 
 /// Whether the microphone was already allowed at launch. Set by `bootstrap()`.
@@ -104,8 +173,9 @@ class _Timing {
 /// - Auto-listens in voice mode, and on screens with `autoListen` (Welcome)
 ///   once the mic is allowed. Stops after [AppDurations.voiceIdleLimit]
 ///   without activity; a long-press re-arms it.
-/// - Prefers on-device recognition; if the offline pack is missing it falls
-///   back to online recognition, and explains when neither works.
+/// - Listens by a plan ([_planNow]): the app language on the device when it
+///   is installed offline, else online, else offline English; with none, it
+///   says so once and waits for the connection or a long-press.
 class VoiceController extends Notifier<VoiceState> {
   bool _initialized = false;
   bool _recognizerAvailable = false;
@@ -117,8 +187,41 @@ class VoiceController extends Notifier<VoiceState> {
   bool _oneShot = false;
   bool _listening = false;
   bool _gotFinal = false;
-  bool _offlineNoticeGiven = false;
   int _session = 0;
+
+  /// What recognition can do on this phone (read once at setup).
+  RecognizerInfo? _info;
+
+  /// Whether the phone has a network, as last checked. Refreshed in the
+  /// background (never awaited before listening).
+  bool _online = true;
+
+  /// When online recognition last failed for lack of network.
+  DateTime? _networkFailedAt;
+
+  /// Offline English recognition failed too (older phones that can't list
+  /// their offline languages).
+  bool _englishOfflineFailed = false;
+
+  /// "Offline: English recognition" said in this offline period.
+  bool _englishNoticeGiven = false;
+
+  /// "No recognition offline" said in this offline period.
+  bool _offlineNoticeGiven = false;
+
+  /// The plan of the open (or last) session.
+  ListenPlan _plan = ListenPlan.none;
+  StreamSubscription<void>? _connection;
+
+  /// Ends a noisy command session ([VoiceConfig.commandSpeechMax]).
+  Timer? _capTimer;
+
+  /// The recognizer's other guesses and confidence for the last result.
+  List<String> _alternates = const [];
+  double _confidence = -1;
+
+  /// A Voice check test listen is running.
+  Completer<VoiceProbe?>? _probe;
   int _failures = 0;
 
   /// Recognizer session the plugin hasn't reported finished (`done` / error /
@@ -190,6 +293,8 @@ class VoiceController extends Notifier<VoiceState> {
         _restartTimer?.cancel();
         _heardTimer?.cancel();
         _duckTimer?.cancel();
+        _capTimer?.cancel();
+        unawaited(_connection?.cancel());
         _session++;
         if (_listening) unawaited(_stt.cancel());
       })
@@ -221,8 +326,88 @@ class VoiceController extends Notifier<VoiceState> {
         // Have the recognizer ready before the first command.
         unawaited(warmUp());
       });
+    try {
+      _connection = ref
+          .read(connectionRestoredProvider)
+          .listen((_) => _connectionBack(), onError: (Object _) {});
+    } on Object catch (e) {
+      debugPrint('[VOICE] connection changes unavailable: $e');
+    }
     return const VoiceState();
   }
+
+  /// The network is back: online recognition can be used again, and
+  /// listening that stopped for lack of it starts again.
+  void _connectionBack() {
+    if (!ref.mounted) return;
+    final wasOffline = !_online;
+    _online = true;
+    _networkFailedAt = null;
+    _englishNoticeGiven = false;
+    _offlineNoticeGiven = false;
+    if (!wasOffline) return;
+    _log('connection back: online recognition possible again');
+    if (!_listening && _budgetSpent && _wantsAutoListen) {
+      noteActivity();
+      _scheduleAutoListen();
+    }
+  }
+
+  /// Checks the network in the background, for the next session's plan.
+  void _refreshOnline() {
+    unawaited(() async {
+      try {
+        var online = await ref.read(isOnlineProvider)();
+        if (!ref.mounted) return;
+        final failedAt = _networkFailedAt;
+        if (online &&
+            failedAt != null &&
+            DateTime.now().difference(failedAt) <
+                VoiceConfig.networkRetryAfter) {
+          // "Connected" (Wi-Fi without internet, a weak signal) but online
+          // recognition just failed: stay offline for a while.
+          online = false;
+        }
+        if (online != _online) {
+          _log('network ${online ? 'available' : 'gone'}');
+          if (!online) {
+            _englishNoticeGiven = false;
+            _offlineNoticeGiven = false;
+          }
+        }
+        _online = online;
+      } on Object catch (e) {
+        debugPrint('[VOICE] network check failed: $e');
+      }
+    }());
+  }
+
+  // ── What the Voice check screen shows ───────────────────────────────────
+
+  /// What recognition can do on this phone; null until the recognizer has
+  /// been set up.
+  RecognizerInfo? get recognizerInfo => _info;
+
+  /// The preferred recognizer language (from the app language).
+  String? get preferredLocale => _localeId;
+
+  /// Whether the phone had a network at the last check.
+  bool get online => _online;
+
+  /// How the next session would listen.
+  ListenPlan get nextPlan => _planNow();
+
+  /// Reads the phone's recognition details again (Voice check).
+  Future<RecognizerInfo> refreshRecognizerInfo() async {
+    final info = await _stt.recognizerInfo();
+    if (ref.mounted) _info = info;
+    _refreshOnline();
+    return info;
+  }
+
+  /// Asks the phone to download offline recognition for [languageTag].
+  Future<bool> downloadOffline(String languageTag) =>
+      _stt.downloadOffline(languageTag);
 
   /// While true (a password field is being filled), recognized words are
   /// never shown in the Speaking Zone: partial results show as dots and the
@@ -296,6 +481,14 @@ class VoiceController extends Notifier<VoiceState> {
         !_ladderExhausted &&
         code != 'error_busy') {
       if (!_onDeviceUnavailable) {
+        if (!_online) {
+          // Online recognition can't help without a network.
+          if (_sameFailures >= _giveUpAfter) {
+            _giveUp(code);
+            return true;
+          }
+          return false;
+        }
         _log('repeated $code: retrying with onDevice=false');
         _onDeviceUnavailable = true;
       } else {
@@ -335,6 +528,7 @@ class VoiceController extends Notifier<VoiceState> {
     _sameFailures = 0;
     _instantFailures = 0;
     state = VoiceState(heard: state.heard);
+    unawaited(ref.read(earconProvider).stopped());
     unawaited(_say(_l.voiceRepeatedError));
   }
 
@@ -456,6 +650,7 @@ class VoiceController extends Notifier<VoiceState> {
 
   Future<void> _createRecognizer() async {
     final watch = Stopwatch()..start();
+    _refreshOnline();
     _recognizerAvailable = await _stt.initialize(
       onError: _onError,
       onStatus: _onStatus,
@@ -463,11 +658,15 @@ class VoiceController extends Notifier<VoiceState> {
     // The app may have closed while the recognizer was starting.
     if (!ref.mounted) return;
     if (_recognizerAvailable) {
+      final info = _stt.recognizerInfo();
       _localeId = await _pickLocale();
+      if (!ref.mounted) return;
+      _info = await info;
       if (!ref.mounted) return;
       _log(
         'initialized in ${watch.elapsedMilliseconds}ms; '
-        'picked locale $_localeId',
+        'picked locale $_localeId; offline languages '
+        '${_info?.installed ?? 'unknown'}',
       );
     } else {
       _log('initialize() returned false: no recognizer');
@@ -487,6 +686,7 @@ class VoiceController extends Notifier<VoiceState> {
     await _closeSession();
     if (!ref.mounted) return null;
     final result = _dictation = Completer<String?>();
+    _probe = _pendingProbe;
     _oneShot = false;
     _sameFailures = _instantFailures = 0;
     unawaited(ref.read(hapticsProvider).tick());
@@ -500,7 +700,31 @@ class VoiceController extends Notifier<VoiceState> {
     final d = _dictation;
     _dictation = null;
     if (d != null && !d.isCompleted) d.complete(null);
+    _endProbe();
   }
+
+  /// Ends a pending Voice check test listen with no result.
+  void _endProbe() {
+    final p = _probe;
+    _probe = null;
+    if (p != null && !p.isCompleted) p.complete(null);
+  }
+
+  /// The Voice check test: listens once (as for a command, at most
+  /// [VoiceConfig.probeListenFor]) and returns what was heard and how,
+  /// without running it. Null if nothing was heard.
+  Future<VoiceProbe?> probe() async {
+    _endProbe();
+    final result = Completer<VoiceProbe?>();
+    // Set inside dictate(), after it has ended any earlier dictation.
+    _pendingProbe = result;
+    final heard = await dictate();
+    _pendingProbe = null;
+    if (heard == null && !result.isCompleted) result.complete(null);
+    return result.future;
+  }
+
+  Completer<VoiceProbe?>? _pendingProbe;
 
   /// Long-press / "listen": stops any speech (including document reading)
   /// at once and listens now. Always works, also when listening while
@@ -556,6 +780,7 @@ class VoiceController extends Notifier<VoiceState> {
   /// Closes any open session.
   Future<void> stopListening() async {
     _restartTimer?.cancel();
+    _stopCap();
     _endDictation();
     _clearCarry();
     _unduck();
@@ -609,17 +834,92 @@ class VoiceController extends Notifier<VoiceState> {
     final filipinoUi = ref.read(appLocaleProvider) == AppLocales.filipino;
     final ids = await _stt.localeIds();
     String norm(String s) => s.replaceAll('_', '-').toLowerCase();
+    // On Android 13+ the list holds only the languages of the *offline*
+    // recognizer: Filipino missing from it doesn't mean online recognition
+    // can't do Filipino, so a Filipino user always gets Filipino here (the
+    // listening plan decides offline vs online, [_planNow]).
     final preferred = filipinoUi
-        ? ['fil-ph', 'fil', 'tl-ph', 'en-ph', 'en-us']
-        : ['en-ph', 'en-us', 'fil-ph'];
+        ? ['fil-ph', 'fil', 'tl-ph']
+        : ['en-ph', 'en-us'];
     for (final p in preferred) {
       for (final id in ids) {
         final n = norm(id);
         if (n == p || n.startsWith('$p-')) return id;
       }
     }
-    if (ids.isNotEmpty) return ids.first;
     return filipinoUi ? 'fil-PH' : 'en-US';
+  }
+
+  /// How the next session recognizes speech:
+  /// 1. the app's language on the device, when it is installed offline;
+  /// 2. else online in the app's language, when there is a network;
+  /// 3. else offline English (Filipino users: Taglish commands), when
+  ///    installed;
+  /// 4. else nothing ([ListenPlan.none]): one spoken explanation.
+  /// When the phone can't list its offline languages (Android 12 and older),
+  /// on-device is tried first and errors move down the list.
+  ListenPlan _planNow() {
+    final preferred = _useDefaultLocale ? null : (_localeId ?? 'fil-PH');
+    final filipinoWanted = (preferred ?? 'fil').toLowerCase().startsWith(
+      RegExp('fil|tl'),
+    );
+    final info = _info;
+    if (info != null && info.installed != null) {
+      final own = filipinoWanted
+          ? info.filipinoOffline
+          : info.englishOffline != null;
+      if (own && !_onDeviceUnavailable) {
+        return ListenPlan(localeId: preferred, onDevice: true);
+      }
+      if (_online) return ListenPlan(localeId: preferred, onDevice: false);
+      final english = info.englishOffline;
+      if (english != null && !_englishOfflineFailed) {
+        return ListenPlan(
+          localeId: english,
+          onDevice: true,
+          englishFallback: filipinoWanted,
+        );
+      }
+      return ListenPlan.none;
+    }
+    // Offline languages unknown.
+    if (!_onDeviceUnavailable && (info?.onDevice ?? true)) {
+      return ListenPlan(localeId: preferred, onDevice: true);
+    }
+    if (_online) return ListenPlan(localeId: preferred, onDevice: false);
+    if (filipinoWanted && !_englishOfflineFailed && (info?.onDevice ?? true)) {
+      return const ListenPlan(
+        localeId: 'en-US',
+        onDevice: true,
+        englishFallback: true,
+      );
+    }
+    return ListenPlan.none;
+  }
+
+  /// No way to recognize speech now: says why (once per offline period,
+  /// or every time the user asked to be heard) and stops listening until
+  /// the network comes back or the user asks again.
+  void _cannotListen({required bool asked}) {
+    _log('no recognizer usable now (offline, no offline language)');
+    _listening = false;
+    _budgetSpent = true;
+    _oneShot = false;
+    _endDictation();
+    _endProbe();
+    if (ref.mounted) state = VoiceState(heard: state.heard);
+    unawaited(ref.read(earconProvider).stopped());
+    if (asked || !_offlineNoticeGiven) {
+      _offlineNoticeGiven = true;
+      unawaited(
+        ref
+            .read(commandBusProvider)
+            .offer(
+              _l.voiceOfflineNone,
+              () => ref.read(systemSettingsProvider).openVoiceInputSettings(),
+            ),
+      );
+    }
   }
 
   void _onSpeechChanged(SpeechState? previous, SpeechState next) {
@@ -681,6 +981,7 @@ class VoiceController extends Notifier<VoiceState> {
       } else if (DateTime.now().difference(_lastActivity) >
           AppDurations.voiceIdleLimit) {
         _budgetSpent = true;
+        unawaited(ref.read(earconProvider).stopped());
         unawaited(_say(_l.voiceListeningPaused));
         return;
       }
@@ -706,6 +1007,21 @@ class VoiceController extends Notifier<VoiceState> {
       });
       return;
     }
+    final dictating = _dictation != null;
+    final asked = _oneShot || dictating;
+    final plan = _planNow();
+    _refreshOnline(); // for the next session
+    if (plan.isNone) return _cannotListen(asked: asked);
+    if (plan.englishFallback && !_englishNoticeGiven) {
+      if (!asked && !_readingNow) {
+        // Said first; listening starts when it ends.
+        _englishNoticeGiven = true;
+        _log('offline: English recognition only');
+        unawaited(_say(_l.voiceOfflineEnglish));
+        return;
+      }
+    }
+    _plan = plan;
     final session = ++_session;
     _sessionStart = DateTime.now();
     _gotFinal = false;
@@ -714,9 +1030,13 @@ class VoiceController extends Notifier<VoiceState> {
     _firstSoundAt = _firstPartialAt = _lastChangeAt = null;
     _lastWords = '';
     _partialTarget = null;
+    _alternates = const [];
+    _confidence = -1;
+    _stopCap();
     state = VoiceState(status: ListenStatus.listening, heard: state.heard);
-    final dictating = _dictation != null;
     _sessionBargeIn = !dictating && _readingNow;
+    final percy = !dictating && ref.read(percyActiveProvider);
+    final probing = _probe != null;
     final carriedAt = _carryAt;
     if (_sessionBargeIn ||
         dictating ||
@@ -737,25 +1057,37 @@ class VoiceController extends Notifier<VoiceState> {
       unawaited(ref.read(earconProvider).listening());
     }
     _cueNext = false;
+    final freeSpeech = dictating && !probing;
     final request = ListenRequest(
-      localeId: _useDefaultLocale ? null : (_localeId ?? 'fil-PH'),
-      onDevice: !_onDeviceUnavailable,
-      phrases: dictating
+      localeId: plan.localeId,
+      onDevice: plan.onDevice,
+      phrases: freeSpeech
           ? const []
           : _sessionBargeIn
           ? BargeIn.phrases
           : ref.read(commandBusProvider).expectedPhrases(),
-      dictation: dictating,
+      dictation: freeSpeech,
+      // Commands: short sessions (a noisy room can't hold one open) and a
+      // short pause; Percy and dictation: longer, for whole sentences.
+      listenFor: freeSpeech
+          ? VoiceConfig.listenFor
+          : percy
+          ? VoiceConfig.percyListenFor
+          : probing
+          ? VoiceConfig.probeListenFor
+          : VoiceConfig.commandListenFor,
       // Wait for the first words, then the short pause (see onResult).
       // After a cut-off, a short wait for more: the rest of what was said
       // may already be over.
-      pauseFor: dictating
+      pauseFor: freeSpeech
           ? VoiceConfig.dictationPause
           : carrying
           ? VoiceConfig.carryWait
           : VoiceConfig.waitForSpeech,
-      pauseAfterSpeech: dictating
+      pauseAfterSpeech: freeSpeech
           ? VoiceConfig.dictationPause
+          : percy
+          ? VoiceConfig.percyPause
           : VoiceConfig.commandPause,
     );
     _pauseAfterSpeech = request.pauseFor == request.pauseAfterSpeech
@@ -764,6 +1096,7 @@ class VoiceController extends Notifier<VoiceState> {
     _log(
       'listen() locale=${request.localeId ?? 'device default'} '
       'onDevice=${request.onDevice} dictation=$dictating '
+      '${plan.englishFallback ? '(offline English) ' : ''}online=$_online percy=$percy '
       'whileReading=$_sessionBargeIn '
       'listenFor=${request.listenFor.inSeconds}s '
       'pauseFor=${request.pauseFor.inMilliseconds}ms'
@@ -775,7 +1108,14 @@ class VoiceController extends Notifier<VoiceState> {
     try {
       await _stt.listen(
         request,
-        onResult: (words, isFinal) => _onResult(session, words, isFinal),
+        onResult: (words, isFinal, {alternates = const [], confidence = -1}) =>
+            _onResult(
+              session,
+              words,
+              isFinal,
+              alternates: alternates,
+              confidence: confidence,
+            ),
         onSoundLevel: (level) => _onSoundLevel(session, level),
       );
     } on Object catch (e) {
@@ -793,7 +1133,13 @@ class VoiceController extends Notifier<VoiceState> {
     _log('speech started (level ${level.toStringAsFixed(1)})');
   }
 
-  void _onResult(int session, String words, bool isFinal) {
+  void _onResult(
+    int session,
+    String words,
+    bool isFinal, {
+    List<String> alternates = const [],
+    double confidence = -1,
+  }) {
     if (session != _session || !ref.mounted) {
       _log('ignored stale result "$words" (session $session)');
       return;
@@ -823,8 +1169,34 @@ class VoiceController extends Notifier<VoiceState> {
       _stt.changePauseFor(shorter);
       _log('words heard: pause now ${shorter.inMilliseconds}ms');
     }
+    if (_capTimer == null &&
+        !isFinal &&
+        words.trim().isNotEmpty &&
+        _dictation == null &&
+        !_sessionBargeIn &&
+        !ref.read(percyActiveProvider)) {
+      // A command is short: in a noisy room the words may never stop
+      // changing, so what was heard is judged after a few seconds at most.
+      _capTimer = Timer(VoiceConfig.commandSpeechMax, () {
+        if (!ref.mounted || session != _session || !_listening) return;
+        _log(
+          'words still changing after '
+          '${VoiceConfig.commandSpeechMax.inSeconds}s: ending the session',
+        );
+        unawaited(
+          _stt.stop().catchError((Object e) => _log('stop() threw: $e')),
+        );
+      });
+    }
+    if (isFinal) {
+      _capTimer?.cancel();
+      _capTimer = null;
+      _alternates = alternates;
+      _confidence = confidence;
+    }
     _log(
-      '${isFinal ? 'FINAL' : 'partial'} result: ${sensitive ? '•••' : '"$words"'}',
+      '${isFinal ? 'FINAL' : 'partial'} result: ${sensitive ? '•••' : '"$words"'}'
+      '${isFinal && confidence >= 0 ? ' (confidence ${confidence.toStringAsFixed(2)})' : ''}',
     );
     if (_sessionBargeIn) return _onReadingResult(words, isFinal);
     if (words.trim().isNotEmpty) {
@@ -839,15 +1211,27 @@ class VoiceController extends Notifier<VoiceState> {
         partial: sensitive ? '•' * said.length : said,
         heard: state.heard,
       );
-      if (_dictation == null && !sensitive) _tryPartial(said);
+      if ((_dictation == null || _probe != null) && !sensitive) {
+        _tryPartial(said);
+      }
       return;
     }
     _gotFinal = true;
     _listening = false;
-    final text = said.trim();
+    var text = said.trim();
     if (text.isEmpty) {
       if (_failedSession('empty_final')) return;
       return _endEmpty();
+    }
+    if (_dictation == null && _carry.isEmpty && alternates.isNotEmpty) {
+      // In noise the right words are often the recognizer's second guess.
+      final picked = ref
+          .read(commandBusProvider)
+          .preferAlternate(text, alternates);
+      if (picked != text) {
+        _log('using the recognizer\'s other guess "$picked" for "$text"');
+        text = picked;
+      }
     }
     _accept(text, via: 'final');
   }
@@ -929,6 +1313,24 @@ class VoiceController extends Notifier<VoiceState> {
       // Free speech for a form field: hand it back, don't run it.
       _dictation = null;
       state = VoiceState(heard: sensitive ? null : text);
+      final probe = _probe;
+      if (probe != null) {
+        _probe = null;
+        if (!probe.isCompleted) {
+          probe.complete(
+            VoiceProbe(
+              text: text,
+              confidence: via == 'final' ? _confidence : -1,
+              alternates: via == 'final' ? _alternates : const [],
+              plan: _plan,
+              via: via,
+              sessionStart: _sessionStart,
+              endOfSpeech: _lastChangeAt ?? _firstPartialAt,
+              decided: decided,
+            ),
+          );
+        }
+      }
       dictation.complete(text);
       return;
     }
@@ -980,9 +1382,15 @@ class VoiceController extends Notifier<VoiceState> {
     _scheduleAutoListen();
   }
 
+  void _stopCap() {
+    _capTimer?.cancel();
+    _capTimer = null;
+  }
+
   /// Ends the open session now because its words were acted on: later
   /// results from it are ignored (they would run the command again).
   void _endSessionEarly() {
+    _stopCap();
     _session++;
     _listening = false;
     _gotFinal = true;
@@ -992,6 +1400,7 @@ class VoiceController extends Notifier<VoiceState> {
   /// Drops the open session and listens again shortly.
   void _abandonSession() {
     _restartTimer?.cancel();
+    _stopCap();
     _clearCarry();
     _unduck(missed: true);
     if (_listening || _platformOpen) {
@@ -1010,6 +1419,7 @@ class VoiceController extends Notifier<VoiceState> {
   /// new one can start at once (long-press, dictation).
   Future<void> _closeSession() async {
     _restartTimer?.cancel();
+    _stopCap();
     if (!_listening && !_platformOpen) return;
     _log('closing the open session first');
     _session++;
@@ -1036,9 +1446,13 @@ class VoiceController extends Notifier<VoiceState> {
   void _onStatus(String status) {
     if (!ref.mounted) return;
     _log('status: $status (listening=$_listening, gotFinal=$_gotFinal)');
-    if (status == 'done' || status == 'notListening') _platformOpen = false;
-    if (status == 'done' && _listening && !_gotFinal) {
+    // "doneNoResult": the session ended and no result was sent at all.
+    final done = status == 'done' || status == 'doneNoResult';
+    if (done || status == 'notListening') _platformOpen = false;
+    if (done && _listening && !_gotFinal) {
       _listening = false;
+      _capTimer?.cancel();
+      _capTimer = null;
       if (_salvage('done_without_result')) return;
       if (_sessionBargeIn) _unduck(missed: true);
       if (_failedSession('done_without_result')) return;
@@ -1046,63 +1460,75 @@ class VoiceController extends Notifier<VoiceState> {
     }
   }
 
+  /// Starts the next session soon with a new plan (after the failed
+  /// session's trailing "done" status has arrived).
+  void _retrySoon() {
+    _restartTimer?.cancel();
+    _restartTimer = Timer(const Duration(milliseconds: 250), () {
+      if (ref.mounted && !_listening) unawaited(_start());
+    });
+  }
+
+  static const Set<String> _languageErrors = {
+    'error_language_unavailable',
+    'error_language_not_supported',
+  };
+
+  static const Set<String> _networkErrors = {
+    'error_network',
+    'error_network_timeout',
+    'error_server',
+    'error_server_disconnected',
+  };
+
   void _onError(String code) {
     if (!ref.mounted) return;
     _log('ERROR $code (listening=$_listening)');
     _platformOpen = false;
     if (!_listening) return;
     _listening = false;
-    final setupError =
-        code == 'error_permission' ||
-        code == 'error_insufficient_permissions' ||
-        code == 'error_language_unavailable' ||
-        code == 'error_language_not_supported';
-    if (!setupError && _salvage(code)) return;
+    _capTimer?.cancel();
+    _capTimer = null;
+    final permissionError =
+        code == 'error_permission' || code == 'error_insufficient_permissions';
+    final languageError = _languageErrors.contains(code);
+    final networkError = _networkErrors.contains(code) && !_plan.onDevice;
+    if (!permissionError && !languageError && _salvage(code)) return;
     if (_sessionBargeIn) _unduck(missed: true);
-    if (code != 'error_permission' &&
-        code != 'error_insufficient_permissions' &&
-        code != 'error_language_unavailable' &&
-        code != 'error_language_not_supported' &&
-        _failedSession(code)) {
-      return;
+
+    if (languageError) {
+      if (_plan.onDevice) {
+        // This language isn't installed offline after all: next plan.
+        if (_plan.englishFallback) {
+          _log('offline English not installed either');
+          _englishOfflineFailed = true;
+        } else {
+          _log('no offline pack for ${_plan.localeId}: next plan');
+          _onDeviceUnavailable = true;
+        }
+        return _retrySoon();
+      }
+      if (!_useDefaultLocale) {
+        // Online recognition doesn't know the language: the phone's own.
+        _log('online recognizer lacks ${_plan.localeId}: phone default');
+        _useDefaultLocale = true;
+        return _retrySoon();
+      }
     }
-    final retryingOnline =
-        (code == 'error_language_unavailable' ||
-            code == 'error_language_not_supported') &&
-        !_onDeviceUnavailable;
-    if (!retryingOnline) _endDictation();
+    if (networkError) {
+      // Online recognition needed the network and it is gone (or too slow):
+      // listen offline instead, if this phone can ([_planNow]).
+      _log('network error: switching to offline recognition');
+      _online = false;
+      _networkFailedAt = DateTime.now();
+      state = VoiceState(heard: state.heard);
+      return _retrySoon();
+    }
+    if (!permissionError && !languageError && _failedSession(code)) return;
+    _endDictation();
     switch (code) {
-      case 'error_language_unavailable' || 'error_language_not_supported'
-          when !_onDeviceUnavailable:
-        // No offline pack for this language: retry with online recognition,
-        // after the failed session's trailing "done" status has arrived.
-        _onDeviceUnavailable = true;
-        _restartTimer?.cancel();
-        _restartTimer = Timer(const Duration(milliseconds: 250), () {
-          if (ref.mounted && !_listening) unawaited(_start());
-        });
       case 'error_no_match' || 'error_speech_timeout':
         _endEmpty();
-      case 'error_network' ||
-              'error_network_timeout' ||
-              'error_server' ||
-              'error_server_disconnected'
-          when _onDeviceUnavailable:
-        // Online recognition needed, but there's no connection.
-        state = VoiceState(heard: state.heard);
-        _budgetSpent = true;
-        if (!_offlineNoticeGiven) {
-          _offlineNoticeGiven = true;
-          unawaited(
-            ref
-                .read(commandBusProvider)
-                .offer(
-                  _l.voiceOfflineMissing,
-                  () =>
-                      ref.read(systemSettingsProvider).openVoiceInputSettings(),
-                ),
-          );
-        }
       case 'error_permission' || 'error_insufficient_permissions':
         _micGranted = false;
         state = VoiceState(heard: state.heard);
@@ -1122,6 +1548,8 @@ class VoiceController extends Notifier<VoiceState> {
 
   void _endEmpty() {
     _listening = false;
+    _capTimer?.cancel();
+    _capTimer = null;
     _unduck(missed: true);
     state = VoiceState(heard: state.heard);
     if (_dictation != null) {
@@ -1130,6 +1558,7 @@ class VoiceController extends Notifier<VoiceState> {
     }
     if (_oneShot) {
       _oneShot = false;
+      unawaited(ref.read(earconProvider).stopped());
       unawaited(_say(_l.voiceNothingHeard));
       return;
     }
@@ -1169,6 +1598,9 @@ class VoiceController extends Notifier<VoiceState> {
         'session ended ($why) without a final result: acting on '
         '${sensitive ? '•••' : '"$said"'}',
       );
+      // A final result may still arrive from this session: it must not run
+      // the command a second time.
+      _session++;
       _accept(said, via: _carry.isEmpty ? 'last partial' : 'carried');
       return true;
     }

@@ -275,6 +275,40 @@ All 7 items are built (1, 2, 3, 5, 6 first; 4 and 7 in a second pass the same da
 - [ ] On the tablet the content is at most about 640 dp wide, with equal space left and right.
 - [ ] Largest text size: nothing overflows or is cut off, on phone and tablet.
 
+## 17. Offline voice, response time and noise (2026-10-14)
+Set the tablet up first with `docs/voice-offline-setup.md`. Voice mode, speech speed
+"Katamtaman" unless a check says otherwise. Debug builds also log a `[VOICE TIMING]` line per
+command (`adb logcat -s flutter`).
+
+**Voice check (Mga Setting → Pagsusuri ng boses):**
+- [ ] The screen speaks: recognizer, listening language, offline Filipino yes/no, offline English yes/no, listening mode, internet, microphone, speech engine, voice + "naka-install sa tablet" or "kailangan ng internet". Write them here: ______________________
+- [ ] "Subukan, limang segundo" → beep → say "buksan ang Aklatan": it reads back what it heard, "Utos: library", Percy's intent, confidence and response time; the Library does **not** open. Response time: ______ ms (3 tries).
+- [ ] Every row works by swipe + double tap, by tap, and by saying its name ("subukan", "basahin ulit").
+
+**Response time (online, quiet room):**
+- [ ] Home: "Aklatan" → the Library opens within about 1 second of finishing the word (5 tries; count the misses: ___).
+- [ ] Reader: "i-pause", "ituloy", "susunod" while reading → reacts within about 1 second.
+- [ ] A slow command with a pause in the middle ("buksan … ang Aklatan") is not cut off.
+- [ ] Speech speed "Mabagal": the prompts are slower and listening starts only after them (expected); "Katamtaman" is noticeably quicker.
+- [ ] After the app stops talking, a soft beep says it's listening; when a long-press listen hears nothing, a low tone and "Wala akong narinig."
+
+**Offline (airplane mode):**
+- [ ] Turn on airplane mode, restart the app. Voice check says the listening mode is "sa tablet mismo" or "offline na Ingles".
+- [ ] Offline English only: the app says **once** "Walang internet. Ingles na offline na pagkilala…"; then "next", "pause", "library", "back" work. Filipino commands: write which ones still work: ______
+- [ ] Nothing installed offline (delete the offline pack to test): the app says **once** it can't hear without internet and offers the settings; it does **not** beep in a loop; gestures still work.
+- [ ] Turn airplane mode off: listening comes back by itself (within a few seconds of the connection returning).
+- [ ] Wi-Fi connected but without internet (e.g. a router with no internet): the app moves to offline listening after one failed try, without long silences.
+- [ ] Every prompt is spoken offline (no silences); the Reader reads a whole page offline.
+- [ ] Filipino voice not installed: prompts are in English, said once at start; nothing is silent.
+- [ ] Percy offline: "Percy" → greeting; "buksan ang Aklatan" (or "open the library" with offline English) works.
+
+**Noisy room (TV or people talking, about 1–2 m away):**
+- [ ] 10 × "Aklatan" / "susunod" / "i-pause": understood ___ / 10, wrong action ___, nothing ___.
+- [ ] A session never stays open more than a few seconds while people talk; the app keeps listening (no endless beeping, no stuck "listening").
+- [ ] When unsure, the app asks "Ito ba ang ibig mong sabihin: …?"; "oo" runs it, "hindi" cancels.
+- [ ] "hindi susunod" / background talk ending in a command word does not run the command by mistake (write any wrong actions).
+- [ ] Camera in voice mode: say "kunan" while the camera is giving hints — the hint does not cut you off.
+
 ## Result log
 | Section | ✅ | ❌ | ⚠️ | Notes / bugs found |
 |---|---|---|---|---|
@@ -293,6 +327,7 @@ All 7 items are built (1, 2, 3, 5, 6 first; 4 and 7 in a second pass the same da
 | 13 Performance | | | | |
 | 14 Regression | | | | |
 | 16 Revisions round (items 1, 2, 3, 5, 6) | | | | |
+| 17 Offline voice / response time / noise | | | | |
 
 ### Voice accuracy table (section 5)
 | Command | Tries | Understood | Wrong action | Not understood | Notes |

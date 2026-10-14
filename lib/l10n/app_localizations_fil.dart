@@ -154,7 +154,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String voiceDidYouMean(String phrase) {
-    return 'Ang ibig mo bang sabihin ay “$phrase”? Sabihin ang oo o hindi.';
+    return 'Ito ba ang ibig mong sabihin: “$phrase”? Sabihin ang oo o hindi.';
   }
 
   @override
@@ -2629,4 +2629,151 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverAddressNone => 'Walang server';
+
+  @override
+  String get voiceOfflineNone =>
+      'Walang internet, at walang naka-install na offline na pagkilala sa boses, kaya hindi kita marinig ngayon. Gumamit muna ng mga galaw. Para gumana ito offline, i-download ang offline na wika sa voice input settings; nasa Settings, Pagsusuri ng boses, ang gabay.';
+
+  @override
+  String get voiceOfflineEnglish =>
+      'Walang internet. Ingles na offline na pagkilala ang gamit ko ngayon, kaya mas maiintindihan ko ang mga utos sa Ingles, gaya ng next, pause o library.';
+
+  @override
+  String get screenVoiceCheck => 'Pagsusuri ng boses';
+
+  @override
+  String get setVoiceCheckValue => 'Pakikinig, boses at offline';
+
+  @override
+  String get voiceCheckIntro =>
+      'Ito ang kalagayan ng pakikinig at ng boses ng app. Piliin ang Subukan para sa limang segundong pagsubok.';
+
+  @override
+  String voiceCheckRecognizer(String service) {
+    return 'Pagkilala sa boses: $service.';
+  }
+
+  @override
+  String voiceCheckLanguage(String locale) {
+    return 'Wika ng pakikinig: $locale.';
+  }
+
+  @override
+  String voiceCheckOfflineFilipino(String answer) {
+    return 'Offline na Filipino: $answer.';
+  }
+
+  @override
+  String voiceCheckOfflineEnglish(String answer) {
+    return 'Offline na Ingles: $answer.';
+  }
+
+  @override
+  String voiceCheckMode(String mode) {
+    return 'Paraan ng pakikinig ngayon: $mode.';
+  }
+
+  @override
+  String get voiceCheckModeOnDevice => 'sa tablet mismo, gumagana offline';
+
+  @override
+  String get voiceCheckModeOnline => 'online, kailangan ng internet';
+
+  @override
+  String get voiceCheckModeEnglish => 'offline na Ingles';
+
+  @override
+  String get voiceCheckModeNone =>
+      'hindi makakarinig, walang internet at walang offline na wika';
+
+  @override
+  String voiceCheckInternet(String answer) {
+    return 'Internet: $answer.';
+  }
+
+  @override
+  String voiceCheckMic(String answer) {
+    return 'Pahintulot sa mikropono: $answer.';
+  }
+
+  @override
+  String voiceCheckTtsEngine(String engine) {
+    return 'Makina ng boses: $engine.';
+  }
+
+  @override
+  String voiceCheckTtsVoice(String voice, String where) {
+    return 'Boses: $voice, $where.';
+  }
+
+  @override
+  String get voiceCheckVoiceLocal => 'naka-install sa tablet, gumagana offline';
+
+  @override
+  String get voiceCheckVoiceNetwork => 'kailangan ng internet';
+
+  @override
+  String get voiceCheckFilipinoVoiceMissing =>
+      'Wala pang Filipino na boses sa tablet; Ingles ang ginagamit.';
+
+  @override
+  String get voiceCheckYes => 'oo';
+
+  @override
+  String get voiceCheckNo => 'hindi';
+
+  @override
+  String get voiceCheckUnknown => 'hindi alam';
+
+  @override
+  String get voiceCheckTest => 'Subukan, limang segundo';
+
+  @override
+  String get voiceCheckTestSay => 'Sabihin: buksan ang Aklatan.';
+
+  @override
+  String voiceCheckTestResult(
+    String heard,
+    String command,
+    String intent,
+    String percent,
+    String confidence,
+    String ms,
+  ) {
+    return 'Narinig: $heard. Utos: $command. Percy: $intent, $percent porsiyento. Kumpiyansa ng pagkilala: $confidence. Bilis ng sagot: $ms millisecond.';
+  }
+
+  @override
+  String get voiceCheckTestNothing => 'Walang narinig. Subukan ulit.';
+
+  @override
+  String get voiceCheckNone => 'wala';
+
+  @override
+  String get voiceCheckReadAgain => 'Basahin ulit';
+
+  @override
+  String get voiceCheckVoiceInput => 'Settings ng voice input';
+
+  @override
+  String get voiceCheckTtsSettings => 'Settings ng boses ng app';
+
+  @override
+  String voiceCheckDownload(String language) {
+    return 'I-download ang offline na $language';
+  }
+
+  @override
+  String get voiceCheckDownloadStarted =>
+      'Sinimulan ang pag-download. Tingnan ang abiso ng tablet, at bumalik dito pagkatapos.';
+
+  @override
+  String get voiceCheckDownloadFailed =>
+      'Hindi ito ma-download mula rito. Buksan ang Settings ng voice input at hanapin ang Offline speech recognition.';
+
+  @override
+  String get languageFilipino => 'Filipino';
+
+  @override
+  String get languageEnglish => 'Ingles';
 }

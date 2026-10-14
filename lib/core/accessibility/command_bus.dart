@@ -712,6 +712,10 @@ class CommandBus {
         break;
       }
     }
+    // In a noisy room the recognizer often hears other words first ("…
+    // ingay susunod"): a command said word for word at the very end counts
+    // too, but only once it shows in two partial results in a row.
+    found ??= _commandAtEnd(input, groups);
     if (found == null) return null;
     // A different, longer command may still be on its way.
     for (final group in groups) {
@@ -727,6 +731,88 @@ class CommandBus {
 
   /// The phrase in [phrases] most similar to the whole of [input]; null for
   /// a tie between two different commands.
+  /// Words that turn the command after them around ("hindi susunod").
+  static const Set<String> _negations = {
+    'hindi',
+    'huwag',
+    'wag',
+    'di',
+    'dont',
+    'not',
+    'no',
+  };
+
+  /// The command whose words end [input] exactly, after other words (not a
+  /// negation), scored [VoiceConfig.partialRepeatScore]; null if none or
+  /// if two different commands fit.
+  static PartialMatch? _commandAtEnd(
+    List<String> input,
+    List<List<CommandPhrase>> groups,
+  ) {
+    if (input.length < 2) return null;
+    for (final group in groups) {
+      CommandTarget? found;
+      var foundLength = 0;
+      for (final p in group) {
+        final words = CommandMatcher.tokens(p.phrase);
+        if (words.isEmpty || words.length >= input.length) continue;
+        // "oo", "go": too easy to mishear in noise.
+        if (words.join().length < 4) continue;
+        final tail = input.sublist(input.length - words.length);
+        if (tail.join(' ') != words.join(' ')) continue;
+        if (_negations.contains(input[input.length - words.length - 1])) {
+          continue;
+        }
+        if (found != null && found != p.target && words.length == foundLength) {
+          return null; // two commands fit equally: wait
+        }
+        if (words.length > foundLength) {
+          found = p.target;
+          foundLength = words.length;
+        }
+      }
+      if (found != null) {
+        return PartialMatch(found, VoiceConfig.partialRepeatScore);
+      }
+    }
+    return null;
+  }
+
+  /// What [heard] would run, without running it (the Voice check screen).
+  MatchResult matchOnly(String heard) =>
+      _matchCommand(Understanding.clean(_stripWakeWord(heard)), activeScreen);
+
+  /// Picks among the recognizer's guesses: [best] when it names a command
+  /// (or is not a plain command at all: a title, a free-text answer, Percy),
+  /// else the first of [alternates] that names one word for word. In noise
+  /// the right words are often the recognizer's second or third guess.
+  String preferAlternate(String best, List<String> alternates) {
+    if (alternates.isEmpty) return best;
+    if (_ref.read(percyActiveProvider) || _choices != null) return best;
+    final screen = activeScreen;
+    if (screen == null || screen.onUtterance != null) return best;
+    final cleaned = Understanding.clean(_stripWakeWord(best));
+    if (_matchCommand(cleaned, screen) is Matched) return best;
+    if (_percyRequest(best) != null) return best;
+    final input = CommandMatcher.tokens(cleaned);
+    for (final prefix in Understanding.titlePrefixes) {
+      final words = CommandMatcher.tokens(prefix);
+      if (input.length >= words.length &&
+          CommandMatcher.wholeScore(input.sublist(0, words.length), prefix) ==
+              1) {
+        return best; // "basahin ang …": a title follows
+      }
+    }
+    for (final alternate in alternates.take(4)) {
+      final result = _matchCommand(
+        Understanding.clean(_stripWakeWord(alternate)),
+        screen,
+      );
+      if (result is Matched && result.score >= 1) return alternate;
+    }
+    return best;
+  }
+
   static PartialMatch? _bestWhole(
     List<String> input,
     List<CommandPhrase> phrases,
@@ -791,9 +877,24 @@ class CommandBus {
       }
       return local;
     }
-    if (global is Matched) return global;
+    if (global is Matched) return _whatToOpen(global, text) ?? global;
     if (local is Ambiguous) return local;
     return global;
+  }
+
+  /// "buksan ang Aklatan" on a screen without its own "Aklatan": "buksan"
+  /// (activate) is said first, but the app-wide command named after it is
+  /// meant. Null when nothing follows.
+  MatchResult? _whatToOpen(Matched global, String text) {
+    if (global.target != const ValueTarget(NavIntent.activate)) return null;
+    final rest = _globalPhrases
+        .where((p) => p.target != const ValueTarget(NavIntent.activate))
+        .toList();
+    final named = _matcher.match(text, rest);
+    if (named is Matched && named.at > global.at && named.score >= 1) {
+      return named;
+    }
+    return null;
   }
 
   Future<void> _run(CommandTarget target) async {

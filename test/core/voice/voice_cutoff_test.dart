@@ -168,7 +168,7 @@ void main() {
     expect(VoiceConfig.cutOffRetries, 3);
     expect(
       VoiceConfig.commandPause.inMilliseconds,
-      inInclusiveRange(800, 1200),
+      inInclusiveRange(1200, 1500),
     );
   });
 }

@@ -19,6 +19,7 @@ import '../../core/ocr/ocr_service.dart';
 import '../../core/platform/permissions.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../core/tts/speech_language.dart';
+import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/pill_button.dart';
@@ -108,7 +109,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       final session = ref.read(cameraSessionFactoryProvider)();
       _session = session;
       _tracker.reset();
-      await session.start(_onFrame);
+      await session.start(_onFrame).timeout(AppDurations.cameraStartLimit);
       if (mounted) setState(() => _live = true);
     } on Object catch (e) {
       debugPrint('Camera failed: $e');
@@ -146,8 +147,12 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     final now = DateTime.now();
     final step = _tracker.update(Guidance.of(stats), now);
     final speak = step.speak;
-    // Don't talk over the intro or a confirmation; the hint repeats later.
-    if (speak != null && !ref.read(announcerProvider).speaking) {
+    // Don't talk over the intro or a confirmation, nor over a voice
+    // command being said (speaking would cancel it); the hint repeats.
+    final hearing = ref.read(voiceControllerProvider).partial ?? '';
+    if (speak != null &&
+        !ref.read(announcerProvider).speaking &&
+        hearing.trim().isEmpty) {
       _tracker.markSpoken(speak, now);
       unawaited(
         ref
@@ -172,7 +177,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     unawaited(ref.read(hapticsProvider).confirm());
     unawaited(_bus.say(_l.cameraCapturing, protect: true));
     try {
-      final path = await session.takePicture();
+      final path = await session.takePicture().timeout(
+        AppDurations.captureLimit,
+      );
       if (!mounted) return;
       _openReader(
         DocumentFile(path: path, kind: DocumentKind.image, fromCamera: true),

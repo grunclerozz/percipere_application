@@ -487,6 +487,14 @@ List<SettingItem> settingItemsFor(
     ),
   ),
   SettingItem(
+    id: Ids.settingVoiceCheck,
+    kind: SettingKind.link,
+    label: (l) => l.screenVoiceCheck,
+    value: (c) => c.l.setVoiceCheckValue,
+    open: (ref, bus) =>
+        unawaited(ref.read(routerProvider).push(AppRoutes.voiceCheck)),
+  ),
+  SettingItem(
     id: Ids.settingRedoSetup,
     kind: SettingKind.link,
     label: (l) => l.setRedoSetup,

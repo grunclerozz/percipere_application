@@ -28,6 +28,7 @@ import '../features/reader/reader_screen.dart';
 import '../features/report/my_reports_screen.dart';
 import '../features/report/report_issue_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/settings/voice_check_screen.dart';
 import '../features/setup/profiling_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../features/welcome/welcome_screen.dart';
@@ -68,6 +69,9 @@ abstract final class AppRoutes {
 
   /// "Aking mga report".
   static const String myReports = '/report/mine';
+
+  /// "Pagsusuri ng boses" (Voice check).
+  static const String voiceCheck = '/settings/voice-check';
 
   /// Claim an old name + PIN account.
   static const String legacyAccount = '/login/legacy';
@@ -188,6 +192,10 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.myReports,
         builder: (context, state) => const MyReportsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.voiceCheck,
+        builder: (context, state) => const VoiceCheckScreen(),
       ),
       GoRoute(
         path: AppRoutes.legacyAccount,

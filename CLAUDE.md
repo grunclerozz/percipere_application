@@ -85,6 +85,16 @@ syncing with a separate web admin app (later).
   panel (transcript, language, intent, confidence, top 3, action; memory only).
   Checklist section 16 of `docs/testing/system-test-checklist.md`; decision log 2026-10-13 and
   2026-10-13 (2). Awaiting the user's tablet test.
+- **Voice regression + offline voice (2026-10-14):** investigated why voice got slower, missed
+  commands in noise and only worked online (decision log 2026-10-14). Silences now timed by
+  the app (nothing handed to Android), commands 1.3 s / 10 s sessions / judged after 4 s of
+  words, Percy 2.2 s; command-at-the-end and second-guess matching; listening plan offline →
+  online → offline English → one message (`VoiceController._planNow`, native
+  `SpeechInfoBridge.kt`); TTS errors no longer wait, local voices preferred. New **Voice check**
+  screen (Settings → "Pagsusuri ng boses"). Module audit fixes (camera time limits, hints
+  don't cut off commands, Percy preload, "buksan ang Aklatan" fix). Tester guide
+  `docs/voice-offline-setup.md`; checklist section 17 of `docs/testing/system-test-checklist.md`.
+  Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -103,6 +113,7 @@ syncing with a separate web admin app (later).
 - `docs/testing/voice-speed-voice-checklist.md` — voice cut-offs, speed strip, reading voice.
 - `docs/testing/server-accounts-checklist.md` — accounts on the web app (build command, tablet checks).
 - `docs/specs/report-an-issue.md` — Phase 10 Report an Issue (flow, voice phrases, data, sending).
+- `docs/voice-offline-setup.md` — setting up the tablet for offline voice (for testers).
 - `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).

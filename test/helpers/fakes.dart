@@ -45,7 +45,6 @@ import 'package:percipere_app/core/platform/storage_info.dart';
 import 'package:percipere_app/core/platform/system_settings.dart';
 import 'package:percipere_app/core/report/issue_report.dart';
 import 'package:percipere_app/core/report/issue_report_api.dart';
-import 'package:percipere_app/core/report/issue_report_sync.dart';
 import 'package:percipere_app/core/settings/app_settings.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/tts/tts_service.dart';
@@ -147,6 +146,20 @@ class FakeTts implements TtsService {
   @override
   Future<void> setVoicePreference(String preference) async =>
       voicePreferences.add(preference);
+
+  /// Set to make the next utterances report an engine failure.
+  @override
+  bool lastFailed = false;
+
+  /// What [report] says.
+  TtsReport ttsReport = const TtsReport(
+    engine: 'com.google.android.tts',
+    voiceName: 'fil-ph-x-fie-local',
+    local: true,
+  );
+
+  @override
+  Future<TtsReport> report(String languageTag) async => ttsReport;
 }
 
 /// Records haptic cues.
@@ -163,6 +176,12 @@ class FakeEarcon implements Earcon {
 
   @override
   Future<void> listening() async => listeningCues++;
+
+  /// Times the "stopped" tone played.
+  int stoppedCues = 0;
+
+  @override
+  Future<void> stopped() async => stoppedCues++;
 }
 
 class FakeHaptics implements Haptics {
@@ -228,7 +247,7 @@ class FakeSpeechInput implements SpeechInput {
 
   void Function(String code)? _onError;
   void Function(String status)? _onStatus;
-  void Function(String words, bool isFinal)? _onResult;
+  SpeechResultCallback? _onResult;
 
   @override
   Future<bool> initialize({
@@ -243,10 +262,26 @@ class FakeSpeechInput implements SpeechInput {
   @override
   Future<List<String>> localeIds() async => locales;
 
+  /// What [recognizerInfo] reports (default: nothing known, as on older
+  /// Android).
+  RecognizerInfo info = RecognizerInfo.unknown;
+
+  /// Languages asked to download for offline use.
+  final List<String> downloads = [];
+
+  @override
+  Future<RecognizerInfo> recognizerInfo() async => info;
+
+  @override
+  Future<bool> downloadOffline(String languageTag) async {
+    downloads.add(languageTag);
+    return true;
+  }
+
   @override
   Future<void> listen(
     ListenRequest request, {
-    required void Function(String words, bool isFinal) onResult,
+    required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
   }) async {
     sessions.add(request);
@@ -260,8 +295,14 @@ class FakeSpeechInput implements SpeechInput {
   @override
   void changePauseFor(Duration pauseFor) => pauseChanges.add(pauseFor);
 
+  /// Number of stop() calls (keep what was heard).
+  int stops = 0;
+
   @override
-  Future<void> stop() async => listening = false;
+  Future<void> stop() async {
+    stops++;
+    listening = false;
+  }
 
   @override
   Future<void> cancel() async {
@@ -271,6 +312,17 @@ class FakeSpeechInput implements SpeechInput {
 
   /// Delivers a partial result.
   void partial(String words) => _onResult!(words, false);
+
+  /// Delivers a final result with the recognizer's other guesses.
+  void hearWith(
+    String words,
+    List<String> alternates, {
+    double confidence = 0.9,
+  }) {
+    listening = false;
+    _onResult!(words, true, alternates: alternates, confidence: confidence);
+    _onStatus?.call('done');
+  }
 
   /// Delivers a final result and ends the session.
   void hear(String words) {

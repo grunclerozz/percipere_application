@@ -2776,4 +2776,111 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get languageEnglish => 'Ingles';
+
+  @override
+  String get screenOfflineVoice => 'Mga boses at wika';
+
+  @override
+  String get offlineVoiceWait =>
+      'Pakihintay habang dina-download namin ang mga boses at wika.';
+
+  @override
+  String offlineVoiceSize(String size) {
+    return 'Mga $size megabyte ito; isang beses lang.';
+  }
+
+  @override
+  String offlineVoiceProgress(String percent) {
+    return '$percent porsiyento na.';
+  }
+
+  @override
+  String get offlineVoiceReady =>
+      'Handa na. Gumagana na ang boses kahit walang internet.';
+
+  @override
+  String get offlineVoiceNoInternet =>
+      'Walang internet ngayon, kaya hindi pa ma-download ang mga boses. Puwede mo nang gamitin ang mga galaw, at ang boses kapag may internet. Itutuloy ko ang pag-download pagbalik ng internet.';
+
+  @override
+  String offlineVoiceLowStorage(String size) {
+    return 'Kulang ang espasyo sa tablet para sa mga boses. Kailangan ng mga $size megabyte. Magbura ng ilang file, at susubukan ko ulit.';
+  }
+
+  @override
+  String get offlineVoiceFailed =>
+      'Hindi natapos ang pag-download ng mga boses. Susubukan ko ulit mamaya.';
+
+  @override
+  String get offlineVoiceContinue => 'Ituloy habang nagda-download';
+
+  @override
+  String get offlineVoiceContinueDone =>
+      'Itutuloy ko ang pag-download habang ginagamit mo ang app.';
+
+  @override
+  String get offlineVoiceRetry => 'Subukan ulit';
+
+  @override
+  String offlineVoiceStatusDownloading(String percent) {
+    return 'Nagda-download: $percent porsiyento';
+  }
+
+  @override
+  String get offlineVoiceStatusChecking =>
+      'Tinitingnan kung ano ang kailangan…';
+
+  @override
+  String voiceCheckOfflineModels(String status) {
+    return 'Sariling offline na boses at utos ng Percipere: $status.';
+  }
+
+  @override
+  String voiceCheckModelsInstalled(String versions) {
+    return 'naka-install, bersyon $versions';
+  }
+
+  @override
+  String get voiceCheckModelsPartial => 'bahagi lang ang naka-install';
+
+  @override
+  String get voiceCheckModelsMissing => 'hindi pa naka-download';
+
+  @override
+  String voiceCheckModelsDownloading(String percent) {
+    return 'nagda-download, $percent porsiyento';
+  }
+
+  @override
+  String get voiceCheckModelsWaiting => 'naghihintay ng internet';
+
+  @override
+  String get voiceCheckModelsLowStorage => 'kulang ang espasyo';
+
+  @override
+  String get voiceCheckModelsFailed => 'hindi natapos ang pag-download';
+
+  @override
+  String get voiceCheckModeOffline => 'offline, sariling makina ng Percipere';
+
+  @override
+  String get voiceCheckOfflineVoice => 'Percipere offline';
+
+  @override
+  String get voiceCheckRedownload => 'I-download ulit ang mga boses';
+
+  @override
+  String get voiceCheckRedownloadStarted =>
+      'Sinimulan ulit ang pag-download ng mga boses.';
+
+  @override
+  String get voiceCheckDeleteModels => 'Burahin ang mga offline na boses';
+
+  @override
+  String get voiceCheckDeleteConfirm =>
+      'Burahin ang mga offline na boses at utos? Kailangan ng internet para ma-download ulit.';
+
+  @override
+  String get voiceCheckModelsDeleted =>
+      'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.';
 }

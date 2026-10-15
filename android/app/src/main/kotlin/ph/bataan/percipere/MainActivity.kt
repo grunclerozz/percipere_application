@@ -12,6 +12,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var tones: ToneGenerator? = null
     private var assistant: AssistantBridge? = null
     private var speechInfo: SpeechInfoBridge? = null
+    private var audio: AudioBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -19,6 +20,8 @@ class MainActivity : FlutterFragmentActivity() {
         assistant = AssistantBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         // Recognition service, offline availability and installed languages.
         speechInfo = SpeechInfoBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        // Microphone and playback for the offline voice engines (sherpa-onnx).
+        audio = AudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Free space for the Library's "low storage" warning before a download.
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -68,6 +71,8 @@ class MainActivity : FlutterFragmentActivity() {
         assistant = null
         speechInfo?.dispose()
         speechInfo = null
+        audio?.dispose()
+        audio = null
         tones?.release()
         tones = null
         super.onDestroy()

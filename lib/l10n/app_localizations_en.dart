@@ -2823,4 +2823,109 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageEnglish => 'English';
+
+  @override
+  String get screenOfflineVoice => 'Voices and languages';
+
+  @override
+  String get offlineVoiceWait =>
+      'Please wait while we download the voices and languages.';
+
+  @override
+  String offlineVoiceSize(String size) {
+    return 'It is about $size megabytes, only once.';
+  }
+
+  @override
+  String offlineVoiceProgress(String percent) {
+    return '$percent percent done.';
+  }
+
+  @override
+  String get offlineVoiceReady =>
+      'Ready. Voice now works even without internet.';
+
+  @override
+  String get offlineVoiceNoInternet =>
+      'There is no internet right now, so the voices can\'t be downloaded yet. You can already use gestures, and voice while there is internet. I will continue the download when the internet is back.';
+
+  @override
+  String offlineVoiceLowStorage(String size) {
+    return 'Not enough space on the tablet for the voices. About $size megabytes are needed. Delete some files, and I will try again.';
+  }
+
+  @override
+  String get offlineVoiceFailed =>
+      'The voice download did not finish. I will try again later.';
+
+  @override
+  String get offlineVoiceContinue => 'Continue while downloading';
+
+  @override
+  String get offlineVoiceContinueDone =>
+      'I will keep downloading while you use the app.';
+
+  @override
+  String get offlineVoiceRetry => 'Try again';
+
+  @override
+  String offlineVoiceStatusDownloading(String percent) {
+    return 'Downloading: $percent percent';
+  }
+
+  @override
+  String get offlineVoiceStatusChecking => 'Checking what is needed…';
+
+  @override
+  String voiceCheckOfflineModels(String status) {
+    return 'Percipere\'s own offline voices and commands: $status.';
+  }
+
+  @override
+  String voiceCheckModelsInstalled(String versions) {
+    return 'installed, version $versions';
+  }
+
+  @override
+  String get voiceCheckModelsPartial => 'only partly installed';
+
+  @override
+  String get voiceCheckModelsMissing => 'not downloaded yet';
+
+  @override
+  String voiceCheckModelsDownloading(String percent) {
+    return 'downloading, $percent percent';
+  }
+
+  @override
+  String get voiceCheckModelsWaiting => 'waiting for internet';
+
+  @override
+  String get voiceCheckModelsLowStorage => 'not enough space';
+
+  @override
+  String get voiceCheckModelsFailed => 'the download did not finish';
+
+  @override
+  String get voiceCheckModeOffline => 'offline, Percipere\'s own engine';
+
+  @override
+  String get voiceCheckOfflineVoice => 'Percipere offline';
+
+  @override
+  String get voiceCheckRedownload => 'Download the voices again';
+
+  @override
+  String get voiceCheckRedownloadStarted => 'The voice download started again.';
+
+  @override
+  String get voiceCheckDeleteModels => 'Delete the offline voices';
+
+  @override
+  String get voiceCheckDeleteConfirm =>
+      'Delete the offline voices and commands? Internet is needed to download them again.';
+
+  @override
+  String get voiceCheckModelsDeleted =>
+      'The offline voices are deleted. When there is internet, I will download them again.';
 }

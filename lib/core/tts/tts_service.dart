@@ -17,6 +17,7 @@ class VoiceStatus {
     this.filipinoTag = 'fil-PH',
     this.englishTag = 'en-US',
     this.englishReady = true,
+    this.filipinoAvailable = false,
   });
 
   /// True when a Filipino voice is available AND its data is installed, so
@@ -34,17 +35,27 @@ class VoiceStatus {
   /// so English works offline.
   final bool englishReady;
 
+  /// A Filipino voice exists, maybe only over the internet (Google's
+  /// network voice): usable while online ([networkFilipinoProvider]).
+  final bool filipinoAvailable;
+
   @override
   bool operator ==(Object other) =>
       other is VoiceStatus &&
       other.filipinoReady == filipinoReady &&
       other.filipinoTag == filipinoTag &&
       other.englishTag == englishTag &&
-      other.englishReady == englishReady;
+      other.englishReady == englishReady &&
+      other.filipinoAvailable == filipinoAvailable;
 
   @override
-  int get hashCode =>
-      Object.hash(filipinoReady, filipinoTag, englishTag, englishReady);
+  int get hashCode => Object.hash(
+    filipinoReady,
+    filipinoTag,
+    englishTag,
+    englishReady,
+    filipinoAvailable,
+  );
 }
 
 /// Which engine and voice speak a language (Voice check screen).
@@ -226,6 +237,7 @@ class FlutterTtsService implements TtsService {
       filipinoReady: filAvailable && filInstalled,
       englishTag: enPh ? 'en-PH' : 'en-US',
       englishReady: enPh || enUs,
+      filipinoAvailable: filAvailable,
     );
   }
 

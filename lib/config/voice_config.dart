@@ -144,4 +144,12 @@ abstract final class VoiceConfig {
   /// Microphone level (Android rms dB, about −2 silent to 10 loud) taken as
   /// "speech started" in the `[VOICE TIMING]` log. Logging only.
   static const double speechStartLevel = 3;
+
+  // ── Offline engines (bundled, downloaded once) ───────────────────────────
+
+  /// Silence that ends a command for the app's own offline recognizer
+  /// (Whisper + Silero VAD). Shorter than [commandPause]: the Android
+  /// recognizer acts on partial results long before its pause ends, ours
+  /// only once the speech has ended. Raise it if commands get cut off.
+  static const Duration offlineEndOfSpeech = Duration(milliseconds: 700);
 }

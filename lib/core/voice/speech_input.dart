@@ -8,6 +8,8 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../config/voice_config.dart';
+import '../offline_voice/hybrid_speech_input.dart';
+import '../offline_voice/offline_engines.dart';
 
 /// Parameters for one listening session.
 @immutable
@@ -21,6 +23,7 @@ class ListenRequest {
     this.pauseFor = VoiceConfig.waitForSpeech,
     this.pauseAfterSpeech = VoiceConfig.commandPause,
     this.dictation = false,
+    this.offline = false,
   });
 
   /// Recognizer locale, e.g. `fil-PH`. Null uses the device's default.
@@ -45,6 +48,10 @@ class ListenRequest {
 
   /// Free speech (a name, a title) rather than a short command.
   final bool dictation;
+
+  /// Use the app's own offline recognizer (commands only; see
+  /// `HybridSpeechInput`).
+  final bool offline;
 }
 
 /// Called with each recognition result: the best [words], whether the
@@ -352,5 +359,8 @@ class SttSpeechInput implements SpeechInput {
   }
 }
 
-/// The app's speech input.
-final speechInputProvider = Provider<SpeechInput>((ref) => SttSpeechInput());
+/// The app's speech input: the app's own offline recognizer for commands
+/// once its model is installed, else the Android recognizer.
+final speechInputProvider = Provider<SpeechInput>(
+  (ref) => HybridSpeechInput(SttSpeechInput(), ref.read(offlineEnginesProvider)),
+);

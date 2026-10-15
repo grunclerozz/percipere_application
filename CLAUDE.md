@@ -95,6 +95,18 @@ syncing with a separate web admin app (later).
   don't cut off commands, Percy preload, "buksan ang Aklatan" fix). Tester guide
   `docs/voice-offline-setup.md`; checklist section 17 of `docs/testing/system-test-checklist.md`.
   Awaiting the user's tablet test.
+- **Offline voice with the app's own engines (2026-10-15):** 881dd1a still failed offline on
+  the tablet and users must install nothing, so the app downloads its own sherpa-onnx models
+  once at first launch (`/voice-setup` before Welcome: "Pakihintay habang dina-download
+  namin ang mga boses at wika", progress every 20 %, "Handa na…"): commands = Whisper tiny
+  Filipino fine-tune + Silero VAD (keyword spotting was tried and rejected: 2 % on real
+  Filipino speech), voices = MMS Tagalog + Piper English; 85.9 MB. Commands use it first
+  (also online); dictation and Percy stay on Android's recognizer (`docs/todo.md`). Code
+  `lib/core/offline_voice/`, native `AudioBridge.kt`; models and conversion scripts
+  `tool/voice_models/` (**the user uploads the 3 archives + `manifest.json` to the
+  dashboard's `models/` folder and to GitHub release `voice-models-v1`**). Settings →
+  Pagsusuri ng boses: model status, re-download, delete. Decision log 2026-10-15; guide
+  `docs/voice-offline-setup.md`; checklist section 18. Awaiting the user's tablet test.
 - Phase 6D — Core Algorithms (Levenshtein/WER, Laplacian variance, Otsu): ⏸ after 6E
   (`docs/specs/algorithms.md`); the user approved doing 6E first.
 - Phases 7 (reports, SUS, sync) and 8 (evaluation, polish): ⏸ postponed.
@@ -113,7 +125,9 @@ syncing with a separate web admin app (later).
 - `docs/testing/voice-speed-voice-checklist.md` — voice cut-offs, speed strip, reading voice.
 - `docs/testing/server-accounts-checklist.md` — accounts on the web app (build command, tablet checks).
 - `docs/specs/report-an-issue.md` — Phase 10 Report an Issue (flow, voice phrases, data, sending).
-- `docs/voice-offline-setup.md` — setting up the tablet for offline voice (for testers).
+- `docs/voice-offline-setup.md` — offline voice for testers (first-launch download, checks).
+- `tool/voice_models/README.md` — the offline models: sizes, licenses, how they were built, how to upload them.
+- `docs/todo.md` — things set aside for later (Percy offline).
 - `docs/testing/system-test-checklist.md` — general test checklist (inputs, voice, gestures, spamming…); use every round.
 - `docs/specs/decisions.md` — dated decision log.
 - `docs/specs/architecture.md` — how the existing subsystems work (read before changing one).
@@ -123,12 +137,13 @@ syncing with a separate web admin app (later).
 Riverpod 3 (hand-written providers, no codegen) · go_router · sqflite (versioned
 migrations, `lib/core/db/migrations.dart`) · ML Kit OCR · speech_to_text · flutter_tts ·
 camera · file_picker (SAF, no storage permission) · pdfrx · archive+xml (DOCX) · dio ·
-ElevenLabs Android SDK (voice assistant, Kotlin bridge) ·
+ElevenLabs Android SDK (voice assistant, Kotlin bridge) · sherpa_onnx (offline commands
+and voices, models downloaded at first launch) ·
 bundled fonts (no google_fonts). minSdk 24, compileSdk 37.0, application id `ph.bataan.percipere.app` (was `ph.bataan.percipere` until 2026-10-07; Kotlin package and namespace unchanged).
 
 ## Layout
 `lib/app` (app, router, bootstrap, theme) · `lib/config` · `lib/core/{accessibility,
-gestures, voice, tts, ocr, extraction, db, settings, platform, widgets}` ·
+gestures, voice, offline_voice, tts, ocr, extraction, db, settings, platform, widgets}` ·
 `lib/features/<screen>` · `lib/l10n` (`app_fil.arb` = template).
 
 ## Rules
@@ -182,5 +197,9 @@ they are listed clearly under "Known issues remaining" with the reason they were
   `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=D:\tmp\jdk`.
 - `flutter_tester` crashes randomly on this PC ("did not complete", 0xC0000005): run
   `bash tool/test_each.sh` (each file alone, crashes retried).
+- Real offline-model test (skipped by default): `test/core/offline_voice/real_models_test.dart`
+  with `PERCIPERE_MODELS` (folder with the 3 archives) and `SHERPA_DLL_DIR`
+  (`%LOCALAPPDATA%/Pub/Cache/hosted/pub.dev/sherpa_onnx_windows-<ver>/windows`; Windows'
+  own older `onnxruntime.dll` in System32 shadows it otherwise).
 - `percipere/` subfolder = stray old project (excluded). Old prototype backup:
   `..\percipere_app_prototype_backup\`.

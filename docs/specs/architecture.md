@@ -108,6 +108,37 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   English is `en-PH` only when installed locally, else `en-US`. `TtsService.lastFailed`
   lets the Reader retry a sentence once, then stop with an error buzz.
 
+## Offline voice engines (2026-10-15)
+- `core/offline_voice/`: the app's own offline engines (sherpa-onnx, Flutter `sherpa_onnx`),
+  downloaded once. Models: `model_catalog.dart` (names, manifest parsing, built-in GitHub
+  list), `model_store.dart` (`<app support>/voice_models/<name>/` + `.installed.json`,
+  `.downloads/*.part`, safe tar.gz unpacking off the UI isolate), `model_installer.dart`
+  (`HttpModelSource`: `/api/v1/models` → `/models/manifest.json` → built-in; Range resume,
+  size + SHA-256, free space, 4 tries alternating server/GitHub), `offline_voice_setup.dart`
+  (`offlineVoiceProvider`: statuses, progress, resume on `connectionRestoredProvider`,
+  delete / re-download; loads the engines when done).
+- Engines (`offline_engines.dart`, `offlineEnginesProvider`, loaded in `bootstrap()` when
+  installed — voices first, then the recognizer): `CommandRecognizer` (isolate: Whisper tiny
+  Filipino fine-tune + Silero VAD; each speech segment recognized with 0.4 s pre-roll) behind
+  `OfflineCommandListener` (mic → recognizer → one final result + `done`, like Android's
+  recognizer), and `OfflineSpeaker` (isolate: MMS Tagalog + Piper English VITS; short first
+  piece, small prompt cache, Filipino number words).
+- Routing: `HybridSpeechInput` (`speechInputProvider`) sends sessions with
+  `ListenRequest.offline` to the offline listener (falls back to Android if the mic can't
+  open); `VoiceController._planNow(commands:)` sets it for commands and the Voice check test
+  when `commandsReady`, never for dictation or Percy. `HybridTtsService` (in `bootstrap()`):
+  installed Android voice → the app's voice → Android (maybe network); an Android failure is
+  retried with the app's voice; `checkVoices` counts the app's voices, so Filipino prompts
+  work offline.
+- Native `AudioBridge.kt`: `ph.bataan.percipere/mic` (event channel, 16 kHz PCM16, 100 ms,
+  `VOICE_RECOGNITION` source + `AcousticEchoCanceler`) and `ph.bataan.percipere/audio`
+  (`micStart/micStop/play/playStop`; `play` answers when the sound has been heard).
+- First launch: `offlineVoiceSetupPendingProvider` (models missing and
+  `PrefKeys.offlineVoiceSetupShown` not set) makes the router open `/voice-setup` before the
+  usual first screen (`OfflineVoiceNext`). `OfflineVoiceHost` (app builder) resumes an
+  unfinished download later and says "Handa na…" when one finishes elsewhere.
+- Models and how they were built: `tool/voice_models/README.md`; decision log 2026-10-15.
+
 ## Capture & extraction (Phase 4)
 - `core/ocr/`: ML Kit OCR, `text_cleanup.dart` (`cleanText`, `assessQuality`). Big texts in
   `Isolate.run`.

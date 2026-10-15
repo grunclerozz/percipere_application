@@ -16,6 +16,7 @@ import '../accessibility/nav_intent.dart';
 import '../accessibility/navigation_mode.dart';
 import '../assistant/assistant_controller.dart';
 import '../network/connectivity.dart';
+import '../offline_voice/offline_engines.dart';
 import '../percy/percy_controller.dart';
 import '../platform/permissions.dart';
 import '../platform/system_settings.dart';
@@ -66,6 +67,7 @@ class ListenPlan {
     required this.localeId,
     required this.onDevice,
     this.englishFallback = false,
+    this.offline = false,
   });
 
   /// No way to recognize speech right now (offline, no offline language).
@@ -80,6 +82,9 @@ class ListenPlan {
   /// Filipino was wanted but only offline English is installed: commands
   /// are heard in English (Taglish works best with English command words).
   final bool englishFallback;
+
+  /// The app's own offline recognizer (downloaded once; commands only).
+  final bool offline;
 
   /// Whether this is [none].
   bool get isNone => identical(this, none);
@@ -766,7 +771,8 @@ class VoiceController extends Notifier<VoiceState> {
       await _initRecognizer();
       if (!ref.mounted) return false;
     }
-    if (!_recognizerAvailable) {
+    if (!_recognizerAvailable &&
+        !ref.read(offlineEnginesProvider).commandsReady) {
       state = const VoiceState(status: ListenStatus.unavailable);
       if (ref.read(navigationModeProvider) == NavMode.voice) {
         await ref.read(navigationModeProvider.notifier).set(NavMode.gestures);
@@ -851,6 +857,9 @@ class VoiceController extends Notifier<VoiceState> {
   }
 
   /// How the next session recognizes speech:
+  /// 0. a command ([commands]) with the app's own offline recognizer, once
+  ///    its model is downloaded — first, online or not (decision log
+  ///    2026-10-15);
   /// 1. the app's language on the device, when it is installed offline;
   /// 2. else online in the app's language, when there is a network;
   /// 3. else offline English (Filipino users: Taglish commands), when
@@ -858,8 +867,15 @@ class VoiceController extends Notifier<VoiceState> {
   /// 4. else nothing ([ListenPlan.none]): one spoken explanation.
   /// When the phone can't list its offline languages (Android 12 and older),
   /// on-device is tried first and errors move down the list.
-  ListenPlan _planNow() {
+  ListenPlan _planNow({bool commands = true}) {
     final preferred = _useDefaultLocale ? null : (_localeId ?? 'fil-PH');
+    if (commands && ref.read(offlineEnginesProvider).commandsReady) {
+      return ListenPlan(
+        localeId: _localeId ?? 'fil-PH',
+        onDevice: true,
+        offline: true,
+      );
+    }
     final filipinoWanted = (preferred ?? 'fil').toLowerCase().startsWith(
       RegExp('fil|tl'),
     );
@@ -1009,7 +1025,12 @@ class VoiceController extends Notifier<VoiceState> {
     }
     final dictating = _dictation != null;
     final asked = _oneShot || dictating;
-    final plan = _planNow();
+    final percy = !dictating && ref.read(percyActiveProvider);
+    final probing = _probe != null;
+    final freeSpeech = dictating && !probing;
+    // Commands (and the Voice check test) may use the offline recognizer;
+    // dictation and Percy need free speech (Android's recognizer).
+    final plan = _planNow(commands: !freeSpeech && !percy);
     _refreshOnline(); // for the next session
     if (plan.isNone) return _cannotListen(asked: asked);
     if (plan.englishFallback && !_englishNoticeGiven) {
@@ -1035,8 +1056,6 @@ class VoiceController extends Notifier<VoiceState> {
     _stopCap();
     state = VoiceState(status: ListenStatus.listening, heard: state.heard);
     _sessionBargeIn = !dictating && _readingNow;
-    final percy = !dictating && ref.read(percyActiveProvider);
-    final probing = _probe != null;
     final carriedAt = _carryAt;
     if (_sessionBargeIn ||
         dictating ||
@@ -1057,8 +1076,8 @@ class VoiceController extends Notifier<VoiceState> {
       unawaited(ref.read(earconProvider).listening());
     }
     _cueNext = false;
-    final freeSpeech = dictating && !probing;
     final request = ListenRequest(
+      offline: plan.offline,
       localeId: plan.localeId,
       onDevice: plan.onDevice,
       phrases: freeSpeech
@@ -1095,7 +1114,8 @@ class VoiceController extends Notifier<VoiceState> {
         : request.pauseAfterSpeech;
     _log(
       'listen() locale=${request.localeId ?? 'device default'} '
-      'onDevice=${request.onDevice} dictation=$dictating '
+      'onDevice=${request.onDevice} offline=${request.offline} '
+      'dictation=$dictating '
       '${plan.englishFallback ? '(offline English) ' : ''}online=$_online percy=$percy '
       'whileReading=$_sessionBargeIn '
       'listenFor=${request.listenFor.inSeconds}s '

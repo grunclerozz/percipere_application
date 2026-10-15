@@ -2,6 +2,60 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-15 — Offline voice with the app's own engines (no Google packs)
+**Decided (user request, after 881dd1a still failed offline on the tablet):** offline voice
+must work without users installing anything. Android can't install Google's speech packs for
+an app, so Percipere downloads its **own** engines once, at first launch (sherpa-onnx).
+Scope: offline **voice commands** and **reading aloud / prompts**, Filipino + English. Percy's
+free conversation and dictation stay on Android's recognizer (later: `docs/todo.md`).
+
+- **Commands — tried keyword spotting first, rejected on evidence.** sherpa-onnx's
+  phone-based KWS (zh-en 3M, 9 MB) with our own Filipino spelling→phone rules found **2 %**
+  of Filipino words in real speech (59 Google FLEURS recordings) and ~65 % of clean
+  synthetic *English* single words; Vosk has no Tagalog model. **Chosen: Whisper tiny
+  fine-tuned for Filipino/Taglish** (`KarlShane11/handsfree-whisper-tiny-tl`, MIT) +
+  Silero VAD, run through the **unchanged** command matcher. FLEURS test WER: stock tiny 97 %,
+  stock base 64 %, **Filipino tiny 45 %**, Filipino base 37 % (80 MB, 2–3× slower; can
+  replace tiny on the server alone). The 80 MB token embedding is stored int8 (43 MB total).
+  The VAD cut first syllables ("basahin" → "hina"): each segment is recognized with 0.4 s of
+  audio before it. End of speech: 0.7 s of silence (`VoiceConfig.offlineEndOfSpeech`), no
+  partial results; commands still run through the matcher and "Ito ba ang ibig mong
+  sabihin…?". Order: **app's offline recognizer first for commands (also online)** → the
+  Android plan of 2026-10-14 when the model isn't there. The 1.3 s pause, beeps and the
+  question stay for the Android path.
+- **Voices.** No prebuilt sherpa-onnx Tagalog voice exists: converted Meta **MMS-TTS `tgl`**
+  (CC-BY-NC 4.0 — fine for the non-commercial thesis). int8 dynamic quantization made it
+  5× slower; instead decoder weights int8 + rest float16, expanded at load (114 → 43 MB, fp32
+  speed, near-identical audio). English: **Piper `en_US-ljspeech-medium` int8** (MIT, public
+  domain data), eSpeak data reduced to English. Order: an **installed** Android voice →
+  the app's voice → Android's (possibly network) voice only as a last resort; a failing
+  Android voice is retried with the app's voice. Numbers are spelled in Filipino for the
+  Tagalog voice; text is cut into short pieces (first ≤ 70 characters) so speech starts soon.
+- **Download.** First launch, before Welcome/tutorial: `OfflineVoiceSetupScreen` (spoken
+  wait line, size, every 20 %, "Handa na…"). Server: `GET /api/v1/models` or the static
+  `models/manifest.json` (dashboard `models/` folder); fallback: GitHub release
+  `voice-models-v1` (also built into the app). Resumable (HTTP Range into `.part`), size +
+  SHA-256 checked, free space checked, 4 tries alternating server/GitHub, resumes when the
+  connection returns. Total **85.9 MB** download / 108 MB installed.
+- **Native:** `AudioBridge.kt` (16 kHz mic stream with the echo canceller; PCM playback).
+  Engines run in their own isolates. While the first-launch screen is open the app may speak
+  Filipino with Google's network voice (`networkFilipinoProvider`).
+- **Emulator check** (release build, `Percipere_Light`, archives served from the PC as the
+  dashboard's `models/` folder): manifest → download → SHA-256 → unpack → engines load →
+  offline command session (`offline=true`) all work. It found that `tokens.txt` written on
+  Windows (CRLF) makes the native reader **end the app**: archives rebuilt with LF, the app
+  removes carriage returns from it when unpacking, and a crash guard marks a model broken after two loads that
+  never returned (not loaded or downloaded again until "I-download ulit"). Installed models
+  are updated only to a higher `version` (or the same version from another file); the
+  built-in list never downgrades a newer install.
+- APK: the fat release APK grew 186 → 252 MB (ONNX Runtime + sherpa-onnx for three ABIs);
+  install the split arm64 APK on the tablet (`flutter build apk --release --split-per-abi`:
+  `app-arm64-v8a-release.apk`, 94 MB).
+- Known limits: measured on a PC, the emulator and synthetic/FLEURS speech only — the tablet
+  test decides (accuracy with real users, speed on the Exynos 1380). Synthetic command test:
+  10/18 right + 3 asked. sherpa-onnx's Android library includes eSpeak NG (GPL-3.0): note for
+  any public release.
+
 ## 2026-10-14 — Voice regression, offline voice, Voice check
 **Decided (user request):** voice got slower and missed commands in noise on the Galaxy Tab
 S10 Lite, and only worked online. Investigated before changing anything.

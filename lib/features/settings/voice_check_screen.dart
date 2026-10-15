@@ -11,6 +11,9 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/screen_registration.dart';
 import '../../core/network/connectivity.dart';
+import '../../core/offline_voice/hybrid_tts_service.dart';
+import '../../core/offline_voice/model_catalog.dart';
+import '../../core/offline_voice/offline_voice_setup.dart';
 import '../../core/percy/percy_controller.dart';
 import '../../core/platform/permissions.dart';
 import '../../core/platform/system_settings.dart';
@@ -35,6 +38,9 @@ class VoiceCheckFacts {
     required this.micGranted,
     required this.tts,
     required this.voices,
+    this.offline = const OfflineVoiceState(
+      status: OfflineVoiceStatus.unavailable,
+    ),
   });
 
   /// Recognition on this phone (null: the recognizer isn't set up, e.g.
@@ -59,6 +65,37 @@ class VoiceCheckFacts {
   /// Which TTS languages work offline.
   final VoiceStatus voices;
 
+  /// The app's own offline voices and command recognizer.
+  final OfflineVoiceState offline;
+
+  /// The status of the app's own offline models, as said.
+  static String offlineStatus(AppLocalizations l, OfflineVoiceState s) {
+    switch (s.status) {
+      case OfflineVoiceStatus.downloading || OfflineVoiceStatus.checking:
+        return l.voiceCheckModelsDownloading('${s.percent}');
+      case OfflineVoiceStatus.waitingForInternet:
+        return l.voiceCheckModelsWaiting;
+      case OfflineVoiceStatus.lowStorage:
+        return l.voiceCheckModelsLowStorage;
+      case OfflineVoiceStatus.failed:
+        return l.voiceCheckModelsFailed;
+      case OfflineVoiceStatus.ready ||
+          OfflineVoiceStatus.idle ||
+          OfflineVoiceStatus.unavailable:
+        if (s.complete) {
+          return l.voiceCheckModelsInstalled(
+            [
+              for (final n in OfflineModelCatalog.names)
+                s.installed[n]!.version,
+            ].join(', '),
+          );
+        }
+        return s.installed.isEmpty
+            ? l.voiceCheckModelsMissing
+            : l.voiceCheckModelsPartial;
+    }
+  }
+
   /// One spoken sentence per fact.
   List<String> lines(AppLocalizations l, {required bool details}) {
     String yesNo(bool? v) => v == null
@@ -69,6 +106,7 @@ class VoiceCheckFacts {
     final i = info;
     final offlineKnown = i != null && i.installed != null;
     return [
+      l.voiceCheckOfflineModels(offlineStatus(l, offline)),
       l.voiceCheckRecognizer(_serviceName(i?.service, l)),
       l.voiceCheckLanguage(plan.localeId ?? preferredLocale ?? '–'),
       l.voiceCheckOfflineFilipino(
@@ -80,6 +118,8 @@ class VoiceCheckFacts {
       l.voiceCheckMode(
         plan.isNone
             ? l.voiceCheckModeNone
+            : plan.offline
+            ? l.voiceCheckModeOffline
             : plan.englishFallback
             ? l.voiceCheckModeEnglish
             : plan.onDevice
@@ -116,6 +156,7 @@ class VoiceCheckFacts {
 
   static String _engineName(String? package, AppLocalizations l) {
     if (package == null) return l.voiceCheckUnknown;
+    if (package == HybridTtsService.bundledEngine) return l.voiceCheckOfflineVoice;
     if (package.contains('google')) return 'Google';
     if (package.contains('samsung')) return 'Samsung';
     return package;
@@ -188,6 +229,8 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
   static const String _download = '${Ids.voiceCheck}.download';
   static const String _voiceInput = '${Ids.voiceCheck}.voiceInput';
   static const String _ttsSettings = '${Ids.voiceCheck}.tts';
+  static const String _redownload = '${Ids.voiceCheck}.redownload';
+  static const String _deleteModels = '${Ids.voiceCheck}.deleteModels';
 
   @override
   void initState() {
@@ -222,6 +265,7 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
       micGranted: micGranted,
       tts: tts,
       voices: ref.read(voiceStatusProvider),
+      offline: ref.read(offlineVoiceProvider),
     );
   }
 
@@ -241,6 +285,7 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
             micGranted: false,
             tts: const TtsReport(),
             voices: ref.read(voiceStatusProvider),
+            offline: ref.read(offlineVoiceProvider),
           ),
         );
       }
@@ -399,6 +444,34 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
             label: (l) => l.voiceCheckDownload(_languageName(download, l)),
             onActivate: (bus) => _downloadOffline(bus, download),
           ),
+        if (facts.offline.status != OfflineVoiceStatus.unavailable) ...[
+          A11yAction(
+            id: _redownload,
+            label: (l) => l.voiceCheckRedownload,
+            voiceSynonyms: const ['i-download ulit', 'download again'],
+            confirmation: (l) => l.voiceCheckRedownloadStarted,
+            onActivate: (bus) async {
+              unawaited(ref.read(offlineVoiceProvider.notifier).redownload());
+              await Future<void>.delayed(const Duration(milliseconds: 300));
+              await _gather();
+            },
+          ),
+          if (facts.offline.installed.isNotEmpty)
+            A11yAction(
+              id: _deleteModels,
+              label: (l) => l.voiceCheckDeleteModels,
+              voiceSynonyms: const ['burahin', 'delete'],
+              confirmation: (l) => '',
+              onActivate: (bus) => bus.offer(
+                bus.strings.voiceCheckDeleteConfirm,
+                () async {
+                  await ref.read(offlineVoiceProvider.notifier).deleteAll();
+                  await bus.say(bus.strings.voiceCheckModelsDeleted);
+                  await _gather();
+                },
+              ),
+            ),
+        ],
         A11yAction(
           id: _voiceInput,
           label: (l) => l.voiceCheckVoiceInput,

@@ -4610,6 +4610,174 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Ingles'**
   String get languageEnglish;
+
+  /// Screen: first-launch download of the offline voices.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga boses at wika'**
+  String get screenOfflineVoice;
+
+  /// First launch: downloading the offline voices (proctor wording).
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakihintay habang dina-download namin ang mga boses at wika.'**
+  String get offlineVoiceWait;
+
+  /// Download size, said after the wait line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga {size} megabyte ito; isang beses lang.'**
+  String offlineVoiceSize(String size);
+
+  /// Download progress, about every 20%.
+  ///
+  /// In fil, this message translates to:
+  /// **'{percent} porsiyento na.'**
+  String offlineVoiceProgress(String percent);
+
+  /// All offline voices installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Handa na. Gumagana na ang boses kahit walang internet.'**
+  String get offlineVoiceReady;
+
+  /// No internet at first launch.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang internet ngayon, kaya hindi pa ma-download ang mga boses. Puwede mo nang gamitin ang mga galaw, at ang boses kapag may internet. Itutuloy ko ang pag-download pagbalik ng internet.'**
+  String get offlineVoiceNoInternet;
+
+  /// Not enough free space.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kulang ang espasyo sa tablet para sa mga boses. Kailangan ng mga {size} megabyte. Magbura ng ilang file, at susubukan ko ulit.'**
+  String offlineVoiceLowStorage(String size);
+
+  /// Download failed after retries.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi natapos ang pag-download ng mga boses. Susubukan ko ulit mamaya.'**
+  String get offlineVoiceFailed;
+
+  /// Action: continue to the app while the download goes on.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ituloy habang nagda-download'**
+  String get offlineVoiceContinue;
+
+  /// Confirmation of Continue.
+  ///
+  /// In fil, this message translates to:
+  /// **'Itutuloy ko ang pag-download habang ginagamit mo ang app.'**
+  String get offlineVoiceContinueDone;
+
+  /// Action: retry the download.
+  ///
+  /// In fil, this message translates to:
+  /// **'Subukan ulit'**
+  String get offlineVoiceRetry;
+
+  /// Visual status line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagda-download: {percent} porsiyento'**
+  String offlineVoiceStatusDownloading(String percent);
+
+  /// Visual status line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tinitingnan kung ano ang kailangan…'**
+  String get offlineVoiceStatusChecking;
+
+  /// Voice check: bundled models status.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sariling offline na boses at utos ng Percipere: {status}.'**
+  String voiceCheckOfflineModels(String status);
+
+  /// Bundled models installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'naka-install, bersyon {versions}'**
+  String voiceCheckModelsInstalled(String versions);
+
+  /// Some bundled models installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'bahagi lang ang naka-install'**
+  String get voiceCheckModelsPartial;
+
+  /// Bundled models missing.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi pa naka-download'**
+  String get voiceCheckModelsMissing;
+
+  /// Bundled models downloading.
+  ///
+  /// In fil, this message translates to:
+  /// **'nagda-download, {percent} porsiyento'**
+  String voiceCheckModelsDownloading(String percent);
+
+  /// Waiting for internet.
+  ///
+  /// In fil, this message translates to:
+  /// **'naghihintay ng internet'**
+  String get voiceCheckModelsWaiting;
+
+  /// Low storage.
+  ///
+  /// In fil, this message translates to:
+  /// **'kulang ang espasyo'**
+  String get voiceCheckModelsLowStorage;
+
+  /// Failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi natapos ang pag-download'**
+  String get voiceCheckModelsFailed;
+
+  /// Plan: bundled offline command engine.
+  ///
+  /// In fil, this message translates to:
+  /// **'offline, sariling makina ng Percipere'**
+  String get voiceCheckModeOffline;
+
+  /// TTS engine name for the bundled voices.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percipere offline'**
+  String get voiceCheckOfflineVoice;
+
+  /// Action: re-download the offline models.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-download ulit ang mga boses'**
+  String get voiceCheckRedownload;
+
+  /// Re-download started.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sinimulan ulit ang pag-download ng mga boses.'**
+  String get voiceCheckRedownloadStarted;
+
+  /// Action: delete the offline models.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang mga offline na boses'**
+  String get voiceCheckDeleteModels;
+
+  /// Delete confirmation question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang mga offline na boses at utos? Kailangan ng internet para ma-download ulit.'**
+  String get voiceCheckDeleteConfirm;
+
+  /// After delete.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.'**
+  String get voiceCheckModelsDeleted;
 }
 
 class _AppLocalizationsDelegate

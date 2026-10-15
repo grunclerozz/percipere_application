@@ -1,100 +1,88 @@
-# Setting up the tablet for offline voice
+# Offline voice — what testers need to know
 
-For testers. This makes Percipere **listen** and **speak** without internet on the
-Samsung Galaxy Tab S10 Lite (works the same on most Android tablets). It takes about
-15 minutes and needs Wi-Fi **once**, for the downloads. Afterwards everything in this guide
-works in airplane mode.
+Since 2026-10-15 Percipere **sets up offline voice by itself**. Nobody has to install
+anything from Google or change Android settings. At first launch the app downloads its own
+voices and its own command recognizer **once** (about **86 MB**), and from then on voice
+commands and reading aloud work in **airplane mode**, in Filipino and English.
 
-Menu names differ a little between Samsung updates. If you can't find a menu, open
-**Settings**, tap the **magnifying glass** at the top and type the words in **bold**.
-
----
-
-## What you are setting up
-
-| Part | What it does | Needs to be downloaded once |
-|---|---|---|
-| Speech recognition | The app **hears** your commands | An "offline speech recognition" language |
-| Text-to-speech (TTS) | The app **speaks** to you | A "voice data" language |
-
-Filipino may **not** be available for offline *listening* on this tablet (Google offers only
-some languages offline, and the list depends on the tablet). That is fine: download **English
-(US)** for offline listening. Without internet, Percipere then listens in English and tells
-you once that English commands work best, for example "next", "pause", "library".
-With internet, it listens in Filipino as before.
+(Percy's free conversation and dictation — names, email, passwords — still use Android's
+recognizer and need internet unless Android has an offline language installed. That is
+planned for later: `docs/todo.md`.)
 
 ---
 
-## Step 1 — Update the Google speech apps (Wi-Fi on)
+## Before the test: the server
 
-1. Open **Play Store**.
-2. Search for **Speech Recognition and Synthesis from Google** and tap **Update** (or
-   **Install** if it isn't there).
-3. Search for **Google** (the Google app) and tap **Update** if offered.
+The app downloads the models from the dashboard server, or — if the server can't be
+reached — from the GitHub release `voice-models-v1`.
 
-## Step 2 — Let Google do the listening
+1. Put the three archives and `manifest.json` in the dashboard's `models/` folder
+   (`tool/voice_models/README.md`, "Putting them on the server").
+2. In a browser on the tablet, open `http://<server>/percipere_dashboard/models/manifest.json`
+   — you should see the list. (This checks the tablet reaches the PC.)
 
-1. Open **Settings → Apps → Choose default apps → Digital assistant app**.
-2. Tap **Voice input** and choose **Speech Recognition and Synthesis from Google**
-   (it may be called **Google** or **Speech services by Google**).
-   If you can't find it, search Settings for **voice input**.
+## First launch
 
-> Samsung's own voice input may be the default on Samsung tablets. Percipere works with it
-> online, but offline it works best with Google's.
+1. Install the APK and open Percipere **with Wi-Fi on**.
+2. Before Welcome, the app says **"Pakihintay habang dina-download namin ang mga boses at
+   wika."** and the size ("Mga 86 megabyte ito; isang beses lang.").
+3. About every 20 % it says the progress ("20 porsiyento na." …).
+4. At the end: **"Handa na. Gumagana na ang boses kahit walang internet."** Then Welcome
+   (and later the tutorial) continue as usual.
+   - In a hurry? Say **"ituloy"** (or choose **Ituloy habang nagda-download**): the app goes
+     on and keeps downloading; it says "Handa na…" when it is done.
+   - **No internet?** The app says so once and goes on. Gestures work, and voice works while
+     there is internet. When the internet comes back the download continues by itself, from
+     where it stopped.
+   - **Not enough space?** The app says how many megabytes it needs. Free some space; the app
+     tries again when the connection changes, or choose **Subukan ulit**.
 
-## Step 3 — Download offline listening languages
+## Checking it — Settings → "Pagsusuri ng boses"
 
-**Easiest way — from Percipere:**
-1. Open Percipere → **Mga Setting → Pagsusuri ng boses** (Voice check).
-2. If you see **I-download ang offline na Filipino** or **I-download ang offline na Ingles**,
-   choose it. A notification shows the download. Wait until it is finished.
+The first line is **"Sariling offline na boses at utos ng Percipere: naka-install, bersyon
+1, 1, 1."** Other answers: *nagda-download, … porsiyento*, *naghihintay ng internet*,
+*kulang ang espasyo*, *hindi pa naka-download*.
 
-**Or from Android:**
-1. Search Settings for **offline speech recognition** (or open **Settings → General
-   management → Voice input → the gear next to Google → Offline speech recognition**).
-2. Open the **All** tab.
-3. Download **English (US)**. If **Filipino (Philippines)** is in the list, download it too.
-4. Wait until each shows **Installed** (the **Installed** tab).
+- **Paraan ng pakikinig ngayon: offline, sariling makina ng Percipere** — commands use the
+  app's own recognizer (also when online).
+- **Makina ng boses: Percipere offline** — prompts use the app's own voice. If the tablet
+  already has an *installed* Google voice for the language, that one is used instead (it
+  sounds better); a voice that needs the internet is never used offline.
+- **Subukan, limang segundo** — say "buksan ang Aklatan" after the beep; the app reads back
+  what it heard, the command and the response time.
+- **I-download ulit ang mga boses** — deletes the models and downloads them again.
+- **Burahin ang mga offline na boses** — asks first ("oo" / "hindi"), then deletes them
+  (voice falls back to Android's until they are downloaded again).
 
-## Step 4 — Download the voices the app speaks with
+## Airplane-mode test
 
-1. Search Settings for **text-to-speech output** (usually **Settings → General management →
-   Text-to-speech output**).
-2. Tap **Preferred engine** and choose **Speech Recognition and Synthesis from Google**
-   (not Samsung TTS — it has no Filipino voice).
-3. Tap the **gear** next to it → **Install voice data**.
-4. Tap **Filipino (Philippines)** → tap the **download** icon next to a voice. Wait until it
-   finishes.
-5. Do the same for **English (United States)**.
-6. Go back and tap **Play** / **Listen to an example** to check you hear a voice.
-
-## Step 5 — Check it in Percipere
-
-1. Open Percipere → **Mga Setting → Pagsusuri ng boses**. The app reads out what it found.
-   You want to hear:
-   - **Offline na Ingles: oo** (and **Offline na Filipino: oo** if it was available)
-   - **Boses: …, naka-install sa tablet** (the voice is on the tablet)
-   - **Pahintulot sa mikropono: oo**
-2. Choose **Subukan, limang segundo** and say **"buksan ang Aklatan"** after the beep.
-   The app reads back what it heard, the command, and the response time in milliseconds.
-3. Turn on **airplane mode** and do 1–2 again. **Paraan ng pakikinig ngayon** should say
-   **sa tablet mismo** (offline Filipino) or **offline na Ingles**, and the test should still
-   work (say **"open the library"** if it's offline English).
-4. Turn airplane mode off again when done.
-
----
+1. Turn on **airplane mode**.
+2. Say commands in **Filipino** ("susunod", "bumalik", "buksan ang Aklatan", "basahin",
+   "itigil") and in **English** ("next", "go back", "open the library", "pause").
+3. Open a document and let it be **read aloud** (Filipino and English text); try "i-pause" /
+   "pause" while it reads.
+4. If unsure, the app asks **"Ito ba ang ibig mong sabihin…?"** — answer "oo" or "hindi".
 
 ## If something doesn't work
 
 | What you notice | What to do |
 |---|---|
-| Offline, the app says it can't hear you ("walang naka-install…") | Step 3 isn't finished: download **English (US)** and check the **Installed** tab. |
-| Offline, the app is silent or skips sentences | Step 4: the voice for that language isn't downloaded. In Voice check, the voice line says **kailangan ng internet**. |
-| Prompts are in English although the app is in Filipino | The Filipino *voice* (Step 4.4) isn't installed. The app says so at start. |
-| The app reacts slowly | In Settings, check the **speech speed**: "Mabagal" makes every prompt longer, and the app listens only after it stops talking. Try "Katamtaman". |
-| Commands are missed in a noisy room | Hold the tablet closer, speak right after the beep, and use short commands. If unsure, the app asks "Ito ba ang ibig mong sabihin…?" — answer "oo" or "hindi". |
-| Voice check says **Pagkilala sa boses: Samsung** | Do Step 2. |
-| After installing, nothing changed | Close Percipere completely (swipe it away from recent apps) and open it again. |
+| No "Pakihintay…" at first launch | The models were already there, or the screen was shown before on this tablet (it shows once; later downloads run silently). Check Pagsusuri ng boses. |
+| The download stays at 0 % | The tablet can't reach the server or GitHub. Check the manifest URL in the tablet's browser; check the server address (developer build: Settings → Server address). |
+| "hindi natapos ang pag-download" | A file was damaged or the server sent an error. Choose **I-download ulit ang mga boses**; check the archives' sizes against `manifest.json`. |
+| Commands are often misheard | Speak right after the beep, close to the tablet, one command at a time. Note which words fail (the log shows `[OFFLINE VOICE] heard "…"`), so the matcher's phrases can be tuned. |
+| The first prompt after opening the app is late | The voices load in the background at start (a few seconds). Later prompts start faster. |
 
-For developers: the tablet's log shows `[VOICE]` lines (`adb logcat -s flutter`), including
-the listening plan (`locale=… onDevice=… online=…`) and the recognizer's offline languages.
+For developers: `adb logcat -s flutter` shows `[OFFLINE VOICE]` lines (download, loading
+times, what the recognizer heard and how long it took) and `[VOICE]` lines with
+`offline=true` for sessions that used the app's own recognizer.
+
+---
+
+## Optional: Google's offline packs
+
+Not needed any more. If a tablet already has Google's offline speech or voice data
+installed, Percipere still uses the **installed Google voice** for speaking (it sounds
+better), while commands always go to the app's own recognizer first. Percy and dictation
+use Google's recognizer, which works offline only with its offline language pack
+(Settings → search "offline speech recognition").

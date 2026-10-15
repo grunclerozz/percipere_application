@@ -28,11 +28,28 @@ class SpeechLanguage {
   bool fellBackFrom(Locale uiLocale) => uiLocale != locale;
 }
 
+/// True while a network-only Filipino voice may speak the prompts: during
+/// the first-launch download (online by definition), before the app's own
+/// offline Filipino voice is installed.
+class NetworkFilipinoNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// Allows or stops the network voice.
+  void set(bool allowed) => state = allowed;
+}
+
+/// See [NetworkFilipinoNotifier].
+final networkFilipinoProvider = NotifierProvider<NetworkFilipinoNotifier, bool>(
+  NetworkFilipinoNotifier.new,
+);
+
 /// Prompt language derived from the UI locale and voice availability.
 final speechLanguageProvider = Provider<SpeechLanguage>((ref) {
   final ui = ref.watch(appLocaleProvider);
   final voices = ref.watch(voiceStatusProvider);
-  if (ui.languageCode == 'fil' && voices.filipinoReady) {
+  final network = ref.watch(networkFilipinoProvider) && voices.filipinoAvailable;
+  if (ui.languageCode == 'fil' && (voices.filipinoReady || network)) {
     return SpeechLanguage(locale: ui, ttsTag: voices.filipinoTag);
   }
   return SpeechLanguage(locale: AppLocales.english, ttsTag: voices.englishTag);

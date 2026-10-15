@@ -86,6 +86,10 @@ abstract final class PrefKeys {
   /// Device scope: the microphone was already requested on Welcome.
   static const String micAsked = 'mic.askedOnWelcome';
 
+  /// Device scope: the first-launch download of the offline voices was
+  /// shown (it then continues in the background, without the screen).
+  static const String offlineVoiceSetupShown = 'offlineVoice.setupShown';
+
   /// Font family name.
   static const String font = 'ui.font';
 

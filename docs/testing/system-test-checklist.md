@@ -309,6 +309,40 @@ command (`adb logcat -s flutter`).
 - [ ] "hindi susunod" / background talk ending in a command word does not run the command by mistake (write any wrong actions).
 - [ ] Camera in voice mode: say "kunan" while the camera is giving hints — the hint does not cut you off.
 
+## 18. Offline voice without installing anything (2026-10-15)
+The app's own models: put them on the server first (`tool/voice_models/README.md`). Guide:
+`docs/voice-offline-setup.md`. Uninstall the app first, so it starts fresh.
+
+**First-launch download (Wi-Fi on):**
+- [ ] Before Welcome the app says "Pakihintay habang dina-download namin ang mga boses at wika." and the size (about 86 MB).
+- [ ] Progress is spoken about every 20 % ("20 porsiyento na." … "80 porsiyento na."); the bar on screen moves. Time for the whole download: ______
+- [ ] At the end: "Handa na. Gumagana na ang boses kahit walang internet." and Welcome opens; the tutorial still comes after the setup as before.
+- [ ] "ituloy" (or double tap on "Ituloy habang nagda-download") goes on at once; later the app says "Handa na…" once, without cutting off what it was saying.
+- [ ] Turn Wi-Fi off in the middle of the download: the app says once there is no internet and goes on. Turn Wi-Fi on: the download continues from where it stopped (not from 0 %), then "Handa na…".
+- [ ] Start with no internet at all: the no-internet message, then Welcome; gestures work. Connect: the download starts by itself.
+- [ ] Settings → Pagsusuri ng boses: "Sariling offline na boses at utos ng Percipere: naka-install, bersyon 1, 1, 1."; "Paraan ng pakikinig ngayon: offline, sariling makina ng Percipere".
+- [ ] "I-download ulit ang mga boses" downloads again; "Burahin ang mga offline na boses" asks first, "hindi" keeps them, "oo" deletes them (the status line says "hindi pa naka-download").
+
+**Airplane mode — commands (say each 5×; write understood / wrong / nothing):**
+- [ ] Filipino: "susunod" __ "bumalik" __ "buksan ang Aklatan" __ "basahin" __ "itigil" __ "ulitin" __ "bilisan" __ "tulong" __
+- [ ] English: "next" __ "go back" __ "open the library" __ "pause" __ "settings" __
+- [ ] Taglish: "i-pause" __ "i-save" __ "next chapter" __
+- [ ] Response time (Voice check test, "buksan ang Aklatan", 3 tries): ____ ms
+- [ ] Unclear words → "Ito ba ang ibig mong sabihin…?"; "oo" runs it, "hindi" cancels.
+- [ ] Noise (TV at 1–2 m): 10 × "susunod": understood __, wrong __, nothing __. No endless beeping.
+
+**Airplane mode — reading aloud:**
+- [ ] Prompts are spoken in Filipino (a Filipino voice, not English) on a tablet without Google's Filipino voice data.
+- [ ] A Filipino document is read aloud to the end; numbers are read as Filipino words ("pahina labindalawa").
+- [ ] An English document is read with the English voice.
+- [ ] "i-pause" / "pause" while reading stops it within about a second; "ituloy" continues.
+- [ ] The first prompt after opening the app may be a little late (voices loading); later prompts start within about 1 second: ____ s.
+
+**Not changed (regression):**
+- [ ] Percy: "Percy" → conversation works online as before (it still needs internet or Android's offline pack).
+- [ ] Dictation (register name/email, collection names) works online as before.
+- [ ] Gestures, back navigation, the Reader and saved settings work as before.
+
 ## Result log
 | Section | ✅ | ❌ | ⚠️ | Notes / bugs found |
 |---|---|---|---|---|
@@ -328,6 +362,7 @@ command (`adb logcat -s flutter`).
 | 14 Regression | | | | |
 | 16 Revisions round (items 1, 2, 3, 5, 6) | | | | |
 | 17 Offline voice / response time / noise | | | | |
+| 18 Offline voice without installing anything | | | | |
 
 ### Voice accuracy table (section 5)
 | Command | Tries | Understood | Wrong action | Not understood | Notes |

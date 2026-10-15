@@ -53,3 +53,6 @@ app.*.map.json
 # Percy training environment
 scripts/percy/.venv/
 __pycache__/
+
+# Offline voice model archives (86 MB): uploaded to the server / GitHub release, not committed
+tool/voice_models/dist/

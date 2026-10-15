@@ -29,7 +29,7 @@ Format:
 - Checks: `flutter analyze`: no issues. `flutter test test/core/percy test/core/settings test/core/voice
   test/core/accessibility`: 277 passed (the 3 stale-model tests now pass). Full suite and release build
   not run.
-- Commit: see `git log` (pushed: no)
+- Commit: `2ae0b31` (pushed: no)
 - Follow-ups: team adds test phrases for the 5 new intents; rerun `train.py` (no `--provisional`);
   write the official docs. Note the old "before" score (1.000) is leaky and not a fair baseline.
 

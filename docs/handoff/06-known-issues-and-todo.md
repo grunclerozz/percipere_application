@@ -1,7 +1,7 @@
 # 06 — Known issues and TODO
 
 Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-questions.md`,
-`docs/features-summary.md` §5, `docs/testing/*`, `CLAUDE.md` and the code. The code has no
+`docs/features-summary.md` §5, `docs/testing/*`, `05-current-status.md` and the code. The code has no
 `TODO`/`FIXME` comments. Priority: **High** = blocks the thesis demo/tablet use;
 **Medium** = needed soon; **Low** = cleanup or later.
 
@@ -12,7 +12,7 @@ Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-qu
 | Nearly all work since 7 Oct is untested on the tablet (voice, accounts, reports, Aklatan, revisions, offline voice) | `docs/testing/*.md`, `docs/handoff/05-current-status.md` |
 | Offline command accuracy with real users unknown (Whisper tiny-tl: 45% WER on FLEURS sentences; synthetic commands 10/18 + 3 asked) | `lib/core/offline_voice/command_recognizer.dart`, `tool/voice_models/README.md` |
 | App needs dashboard branch `fix/webapp-api` merged (state unverified) | dashboard repo; `docs/api-contract.md` |
-| Unpushed commits on `main` (4) and `docs/database-masterlist` (2) | git |
+| Unpushed commits on `main` (4) and `docs/database-masterlist` (4, as of 2026-10-16) | git; `05-current-status.md` → Branches |
 
 ## Medium
 | Issue / TODO | File(s) |
@@ -24,7 +24,7 @@ Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-qu
 | Detailed image description is mocked (`USE_MOCK_API` default true; dashboard `describe-image` not built) | `lib/core/network/image_description_repository.dart` |
 | Dashboard `GET /api/v1/models` route not built (static `models/manifest.json` works) | dashboard repo; `docs/api-contract.md` |
 | Dashboard DB has no books yet (as of 2026-10-13) | dashboard |
-| Dashboard privacy: drop personal columns, old personal data in git history (user decision) | `docs/database/open-questions.md` item 6, `CLAUDE.md` |
+| Dashboard privacy: drop personal columns, old personal data in git history (user decision) | `docs/database/open-questions.md` item 6, `05-current-status.md` |
 | Release APK size: fat 252 MB, arm64 split 94 MB — install the split APK | `docs/specs/decisions.md` 2026-10-15 |
 | TalkBack may speak typed password characters (outside app control) | decision 2026-10-13 |
 | Hosting online (https server) planned, not set up | — |

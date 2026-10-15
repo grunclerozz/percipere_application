@@ -51,4 +51,4 @@
 | **WER** (word error rate, Levenshtein) | Table `wer_results` exists; no in-app calculation (Phase 6D, `docs/specs/algorithms.md`). WER was measured offline for model choice with `tool/voice_models/fleurs_eval.py` |
 | Voice accuracy table | `docs/testing/system-test-checklist.md` §5 and §18 (understood / wrong action / nothing) |
 | Percy metrics | accuracy, macro F1, cross-validation, confidence bands in `data/percy/reports/report-<date>.md` |
-| **Likert** questionnaire | **Not found** in this repo (unverified; may live in the thesis manuscript) |
+| **Likert** questionnaire | Named in the thesis draft as a supplementary user-feedback questionnaire (`docs/thesis/objectives-and-scope-draft.md`, objective 4). **No app feature**; whether it is on paper or in the app is an open question in that draft (item 5). Items/wording not in this repo (unverified) |

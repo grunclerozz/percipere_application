@@ -10,9 +10,24 @@ data in code or docs.**
 | Android SDK | platform android-37, build-tools 37.0.0 (`%LOCALAPPDATA%\Android\sdk`) |
 | JDK | OpenJDK 25 bundled with Android Studio (from `flutter doctor -v`); `java` is not on PATH |
 | Gradle | 9.3.1 wrapper; heap 4 GB (`android/gradle.properties`, keep it) |
-| Python | 3.12 at `%LOCALAPPDATA%\Programs\Python\Python312\python.exe` (not on PATH). Percy venv `scripts/percy/.venv`; model-conversion scripts `tool/voice_models/` (own venv, see its README) |
+| Python | 3.12 at `%LOCALAPPDATA%\Programs\Python\Python312\python.exe` (on 2026-10-16 `python` resolved to it in Git Bash; use the full path if not found). Percy venv `scripts/percy/.venv`; model-conversion scripts `tool/voice_models/` (own venv, see its README) |
 | XAMPP | Apache + MySQL for the dashboard (`C:\xampp\htdocs\website\percipere_web\percipere_dashboard`); the user starts/stops it |
 | Git Bash | used for `tool/test_each.sh` |
+
+## Project paths
+- App repo: `D:\Development\Flutter Projects\percipere_app` — **the path has a space; always quote it**.
+- Dashboard (separate repo, XAMPP): `C:\xampp\htdocs\website\percipere_web\percipere_dashboard`.
+- `percipere/` inside the app repo = stray old project, excluded from analysis — ignore it.
+- Old prototype backup (outside the repo): `..\percipere_app_prototype_backup\`.
+
+## Running commands on Windows (both agents)
+- PowerShell 5.1 and Git Bash are both installed. `tool/test_each.sh` needs **bash**
+  (`bash tool/test_each.sh`). In PowerShell 5.1 chain commands with `;`, not `&&`.
+- `flutter`, `dart` and `git` are on PATH; `adb` and `java` may not be (full paths below and in
+  `flutter doctor -v`).
+- The full test suite takes about 1–1.5 h and a release build several minutes: run them in the
+  background or with a long timeout.
+- Don't run `flutter test` and `flutter build` at the same time.
 
 ## Devices
 - **Tablet:** Samsung Galaxy Tab S10 Lite (named in decision log 2026-10-14). The user installs

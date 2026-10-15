@@ -4,7 +4,7 @@ Status words: **Done** = built, automated tests pass · **Done, not tablet-teste
 tested on PC/emulator, waiting for the user's tablet test · **Partial** · **Mocked** ·
 **Postponed** · **Broken**. Sources: `docs/features-summary.md` (13 Oct),
 `docs/thesis/objectives-and-scope-draft.md` §1.1 (6 Oct, some statuses outdated),
-`docs/specs/decisions.md`, `CLAUDE.md`. Almost everything after 7 Oct still waits for the first
+`docs/specs/decisions.md`, `05-current-status.md`. Almost everything after 7 Oct still waits for the first
 full tablet test, so "tablet-tested" is never claimed below.
 
 ## Accounts and onboarding

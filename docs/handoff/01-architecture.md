@@ -3,6 +3,20 @@
 How the app is put together. Deeper notes per subsystem: `docs/specs/architecture.md`.
 Full table/column reference: `docs/database/table-list.md`, `docs/database/database-masterlist.md`.
 
+## Tech stack (moved from `CLAUDE.md` / `AGENTS.md`; from `pubspec.yaml` and the code)
+- Flutter 3.47.5 (stable), Dart 3.13.4 (`environment: sdk ^3.13.4`). App version `0.1.1+2`.
+- State: Riverpod 3 (`flutter_riverpod`, hand-written providers, **no codegen**). Routing: `go_router`.
+- Storage: `sqflite` with versioned migrations; secrets/tokens in `flutter_secure_storage`.
+- OCR `google_mlkit_text_recognition`; image labels `google_mlkit_image_labeling`; `camera`.
+- Speech in: `speech_to_text` (Android recognizer) + `sherpa_onnx` (own offline command recognizer).
+- Speech out: `flutter_tts` (Android TTS) + `sherpa_onnx` offline voices.
+- Files: `file_picker` (SAF, no storage permission), `pdfrx`, `archive` + `xml` (DOCX/EPUB).
+- Network: `dio`, `connectivity_plus`. Auth: `local_auth` (fingerprint), PBKDF2 hashing in Dart.
+- ElevenLabs Android SDK (old Percy, developer-only, Kotlin bridge).
+- Bundled fonts (no `google_fonts`).
+- Android: minSdk 24, compileSdk 37, application id `ph.bataan.percipere.app` (was
+  `ph.bataan.percipere` until 2026-10-07; Kotlin package and namespace unchanged).
+
 ## Folder structure
 | Path | What is there |
 |---|---|
@@ -110,3 +124,27 @@ session in `flutter_secure_storage`.
   loaded, else Android `SttSpeechInput`; dictation and Percy → Android.
 - `ttsServiceProvider` = `HybridTtsService`: installed Android voice → app's offline voice →
   Android (maybe network) voice.
+
+## Where specs, checklists and guides are (moved from `CLAUDE.md` on 2026-10-16)
+- Rules and workflow for agents: `docs/agent-rules.md`. Status: `docs/handoff/05-current-status.md`.
+- `docs/specs/architecture.md` — how the existing subsystems work (**read before changing one**).
+- `docs/specs/decisions.md` — dated decision log (long form); summary in `docs/handoff/07-decisions.md`.
+- `docs/specs/auth.md`, `profiling.md`, `guest-mode.md`, `navigation.md` — Phase 6B requirements.
+- `docs/specs/image-recognition.md` — Phase 6C; `docs/specs/algorithms.md` — postponed Phase 6D.
+- `docs/specs/library.md` — Phase 6E Aklatan; `docs/api-contract.md` — endpoints the dashboard provides.
+- `docs/specs/assistant.md`, `docs/setup/elevenlabs-assistant-setup.md`, `assistant/` — old
+  ElevenLabs Percy (developer-only); `docs/specs/percy-local.md`, `data/percy/`, `scripts/percy/`
+  — self-built Percy (Phase 9); `docs/percy-dataset-guide.md` — what sentences the team writes
+  and how to retrain.
+- `docs/specs/report-an-issue.md` — Phase 10.
+- `docs/voice-offline-setup.md` — offline voice for testers; `tool/voice_models/README.md` —
+  offline models: sizes, licenses, how they were built and uploaded.
+- `docs/todo.md` — things set aside for later (Percy offline).
+- `docs/testing/` — `system-test-checklist.md` (use every round), `first-tablet-test.md`, and
+  per-feature checklists (`phase-6b/6c/6e`, `input-fix`, `voice-response`, `voice-speed-voice`,
+  `server-accounts`, `library-web`, `percy-local`, `assistant`).
+- `docs/database/` — table list, masterlist, ERDs, open questions, proposed SQL.
+- `docs/features-summary.md`, `docs/implementation-summary.md`, `docs/system-masterlist.md`,
+  `docs/thesis/` — thesis-facing summaries.
+- `docs/prompts/revisions.md` — the 2026-10-13 revisions request.
+- `docs/ui/` — mockups. **Mockup layout and wording win** over prompt text.

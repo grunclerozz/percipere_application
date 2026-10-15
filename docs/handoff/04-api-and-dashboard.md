@@ -13,7 +13,7 @@ served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percip
 - Developer builds (`PERCIPERE_DEV=true`) can change the address at runtime: Settings →
   "Server address (developer)" (`lib/core/network/server_address.dart`,
   `lib/features/settings/server_address_dialog.dart`).
-- Requirement (as of 2026-10-13, per `CLAUDE.md`): the app needs the dashboard branch
+- Requirement (as of 2026-10-13, per the status history in `05-current-status.md`): the app needs the dashboard branch
   **`fix/webapp-api`** (REST routes). It was **not merged** then; current state **unverified**.
 - HTTP client: `apiDio()` in `lib/core/network/api_dio.dart` (timeouts + `CleartextGuard`).
 

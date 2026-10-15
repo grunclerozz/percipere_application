@@ -1,11 +1,13 @@
 # 07 — Key decisions and why
 
-Short summary. The full dated log (newest first) is `docs/specs/decisions.md`; add new
-decisions there.
+**Record every new or changed decision here** (add a row, newest at the bottom of the table,
+keep the date). For a long write-up with alternatives and measurements, also add a dated entry
+to `docs/specs/decisions.md` (newest first) and point to it in the "Where" column.
+If a decision is reversed, don't delete the old row: add a new row that says what replaced it.
 
 | Date | Decision | Why | Where |
 |---|---|---|---|
-| 2026-09-30 | Android-only Flutter app, offline-first, Filipino default | Users are blind/low-vision people in Bataan; connectivity is unreliable | `CLAUDE.md` |
+| 2026-09-30 | Android-only Flutter app, offline-first, Filipino default | Users are blind/low-vision people in Bataan; connectivity is unreliable | `docs/agent-rules.md` |
 | 2026-09-30 | One action registry: gestures, voice and taps run the same `A11yAction`s through the CommandBus | Consistent behaviour, every action reachable three ways | `lib/core/accessibility/` |
 | 2026-10-01 | Fixed layout, no page scrolling; text size only enlarges the reading text | Review: overlaps and scrolling confuse users who can't see | decisions 2026-10-01, 2026-10-03 |
 | 2026-10-04 | Maglarawan offline labels first; online detail only with spoken consent, via the server (Gemini on the dashboard, no API key in the app) | Privacy, offline-first; the app never calls AI APIs directly | `docs/specs/image-recognition.md` |
@@ -24,7 +26,8 @@ decisions there.
 | 2026-10-14 | Silences timed by the app, never handed to Android; listening plan offline → online → offline English | Android held results back by the 4 s wait; voice only worked online | decisions 2026-10-14 |
 | 2026-10-15 | App downloads its **own offline engines** (sherpa-onnx: Whisper tiny Filipino + Silero VAD; MMS Tagalog + Piper English voices), first for commands | Users must not install Google packs; keyword spotting failed on real Filipino speech (2%) | decisions 2026-10-15, `tool/voice_models/README.md` |
 | 2026-10-15 | **Percy offline postponed** (dictation and Percy stay on Android's recognizer) | Scope kept small for this round | `docs/todo.md` |
+| 2026-10-16 | Claude Code and OpenAI Codex both work on this repo; rules live only in `docs/agent-rules.md`, status in `05-current-status.md`, history in `worklog.md`; one agent per branch at a time | Either agent must continue the other's work without chat history | `docs/agent-rules.md` |
 
 Standing rules that came from decisions: privacy under RA 10173 (minimum data, own documents
 stay on the device), passwords never logged or spoken, end-of-phase quality check
-(`AGENTS.md`).
+(all in `docs/agent-rules.md`).

@@ -17,6 +17,7 @@
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Percy smarter (`feat/percy-smarter`) | team, then Claude Code | data merged and eval pipeline ready (2026-10-16, committed, not pushed); **waiting for team test phrases** for 5 new intents (0 each); then run `train.py`, write results to `03-voice-and-percy.md` + `docs/thesis/percy-evaluation.md`; `model.json` NOT retrained yet |
 | Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15) |
 | Tablet test of everything since 2026-10-07 (checklists in `docs/testing/`, §15–18 of `system-test-checklist.md`) | user | waiting |
 | First test with the real dashboard (`docs/testing/first-tablet-test.md`) | user | waiting |

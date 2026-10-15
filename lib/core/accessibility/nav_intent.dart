@@ -94,6 +94,12 @@ enum NavIntent {
   /// Open "Mag-report ng problema" ("mag-report", "may problema"). Phase 10.
   report,
 
+  /// Open Maglarawan's existing image-source route.
+  describe,
+
+  /// Replay the existing controls tutorial.
+  tutorial,
+
   /// Switch to voice navigation ("pa-boses").
   voiceMode,
 

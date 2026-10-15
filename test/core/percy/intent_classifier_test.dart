@@ -109,6 +109,22 @@ void main() {
       );
     });
 
+    test('removes fillers but preserves meaningful questions and empty input', () {
+      expect(
+        PercyText.preprocess('Percy, pakisuyo po buksan nga ang library please'),
+        'buksan ang library',
+      );
+      expect(PercyText.preprocess('ano ang kaya mo?'), 'ano ang kaya mo');
+      expect(PercyText.preprocess('ano po pakisuyo nga'),
+          'ano po pakisuyo nga');
+    });
+
+    test('corrects common speech-recognition spellings', () {
+      expect(PercyText.preprocess('buksan ang libary'), 'buksan ang library');
+      expect(PercyText.preprocess('open setings'), 'open settings');
+      expect(PercyText.preprocess('maglarawn'), 'maglarawan');
+    });
+
     test('char n-grams are per padded word', () {
       expect(PercyText.charFeatures('ab'), [' ab', 'ab ', ' ab ']);
       expect(PercyText.wordFeatures('a b c'), ['a', 'b', 'c', 'a b', 'b c']);

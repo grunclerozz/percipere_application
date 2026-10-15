@@ -273,6 +273,10 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
     switch (reply.action) {
       case RunIntent(:final intent):
         await _run(() => _bus.dispatch(intent));
+      case RunAction(:final actionId):
+        await _run(() => _bus.activate(actionId));
+      case SetSpeed(:final speed):
+        await _run(() => _bus.setReadingSpeed(speed));
       case OpenDocument(:final item, :final play):
         await _run(
           () => ref.read(libraryActionsProvider).open(item, play: play),
@@ -414,6 +418,8 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
 
   static String _actionName(PercyReply reply) => switch (reply.action) {
     RunIntent(:final intent) => 'run:${intent.name}',
+    RunAction(:final actionId) => 'action:$actionId',
+    SetSpeed(:final speed) => 'speed:${speed.name}',
     OpenDocument(:final item, :final play) =>
       '${play ? 'play' : 'open'}:${item.title}',
     AnswerApp(:final yes) => 'answer:${yes ? 'yes' : 'no'}',
@@ -459,6 +465,9 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
 
   @override
   bool supports(NavIntent intent) => _bus.supports(intent);
+
+  @override
+  bool supportsAction(String actionId) => _bus.activeScreen?.action(actionId) != null;
 
   @override
   Future<List<LibraryItem>> libraryItems() async {

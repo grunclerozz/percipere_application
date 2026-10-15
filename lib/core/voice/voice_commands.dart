@@ -1,4 +1,5 @@
 import '../accessibility/nav_intent.dart';
+import '../tts/reading_rate.dart';
 
 /// Spoken phrases (Filipino and English) for the app-wide voice commands.
 ///
@@ -70,6 +71,8 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
     'may problema',
     'ulat',
   ],
+  NavIntent.describe: ['maglarawan', 'ilarawan ang larawan', 'describe image'],
+  NavIntent.tutorial: ['tutorial', 'paano gamitin', 'how to use'],
   NavIntent.voiceMode: ['pa-boses', 'voice mode'],
   NavIntent.gestureMode: ['pa-galaw', 'gesture mode'],
   NavIntent.assistant: [
@@ -81,6 +84,13 @@ const Map<NavIntent, List<String>> globalVoiceCommands = {
     'assistant',
     'voice assistant',
   ],
+};
+
+/// Exact named reading-speed presets from the registration speed step.
+const Map<SpeechSpeed, List<String>> namedSpeedCommands = {
+  SpeechSpeed.slow: ['mabagal', 'gawing mabagal', 'slow'],
+  SpeechSpeed.medium: ['katamtaman', 'normal na bilis', 'medium'],
+  SpeechSpeed.fast: ['mabilis', 'gawing mabilis', 'fast'],
 };
 
 /// Saying just the app name re-arms listening; as a prefix it is ignored

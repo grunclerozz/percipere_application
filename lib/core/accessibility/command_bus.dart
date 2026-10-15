@@ -25,6 +25,7 @@ import '../percy/percy_text.dart';
 import '../platform/app_closer.dart';
 import '../settings/app_settings.dart';
 import '../settings/settings_controller.dart';
+import '../tts/reading_rate.dart';
 import '../tts/speech_language.dart';
 import '../voice/command_matcher.dart';
 import '../voice/understanding.dart';
@@ -194,6 +195,24 @@ class CommandBus {
   /// Runs a matched command (as if it had been said).
   Future<void> runTarget(CommandTarget target) => _run(target);
 
+  /// Sets one of the three named reading-speed presets used during setup.
+  ///
+  /// The value is saved in the existing profile setting and the confirmation
+  /// is spoken at the newly selected speed.
+  Future<void> setReadingSpeed(SpeechSpeed speed) async {
+    await _ref
+        .read(settingsProvider.notifier)
+        .update((s) => s.copyWith(readingRate: speed.rate));
+    final l = _l10n;
+    final name = switch (speed) {
+      SpeechSpeed.slow => l.speedSlow,
+      SpeechSpeed.medium => l.speedMedium,
+      SpeechSpeed.fast => l.speedFast,
+    };
+    unawaited(_haptics.confirm());
+    await say(l.setupSpeedChosen(name), protect: true);
+  }
+
   /// App commands that do something only where a screen handles them.
   static const Set<NavIntent> _screenOnly = {
     NavIntent.faster,
@@ -315,6 +334,14 @@ class CommandBus {
         return _openScreen(AppRoutes.settings, Ids.settings);
       case NavIntent.report:
         return _openReport();
+      case NavIntent.describe:
+        return _goAndActivate(
+          AppRoutes.capture,
+          Ids.capture,
+          Ids.captureDescribe,
+        );
+      case NavIntent.tutorial:
+        return answer(Question.tutorial);
       case NavIntent.faster:
       case NavIntent.slower:
       case NavIntent.textBigger:
@@ -903,6 +930,8 @@ class CommandBus {
         return activate(actionId);
       case ValueTarget(:final value) when value is NavIntent:
         return dispatch(value);
+      case ValueTarget(:final value) when value is SpeechSpeed:
+        return setReadingSpeed(value);
       case ValueTarget():
         return;
     }
@@ -936,6 +965,8 @@ class CommandBus {
 
   static final List<CommandPhrase> _globalPhrases = [
     for (final e in globalVoiceCommands.entries)
+      for (final phrase in e.value) CommandPhrase(phrase, ValueTarget(e.key)),
+    for (final e in namedSpeedCommands.entries)
       for (final phrase in e.value) CommandPhrase(phrase, ValueTarget(e.key)),
   ];
 

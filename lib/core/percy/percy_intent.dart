@@ -83,7 +83,22 @@ enum PercyIntent {
 
   /// Open "Mag-report ng problema" (Phase 10). In the model since the
   /// 2026-10-11 retrain; [ReportIssueRule] still catches the keywords.
-  reportIssue('report_issue');
+  reportIssue('report_issue'),
+
+  /// Open Maglarawan to describe a picture.
+  describeImage('describe_image'),
+
+  /// Ask Maglarawan for its online detailed description.
+  moreDetail('more_detail'),
+
+  /// Read text found in the described image.
+  readImageText('read_image_text'),
+
+  /// Replay the controls tutorial.
+  tutorial('tutorial'),
+
+  /// Set a named reading-speed preset.
+  setSpeed('set_speed');
 
   const PercyIntent(this.label);
 
@@ -124,6 +139,8 @@ enum PercyIntent {
     biggerText => NavIntent.textBigger,
     smallerText => NavIntent.textSmaller,
     reportIssue => NavIntent.report,
+    describeImage => NavIntent.describe,
+    tutorial => NavIntent.tutorial,
     _ => null,
   };
 
@@ -143,7 +160,7 @@ enum PercyIntent {
 /// the keyword is what matters.
 abstract final class ReportIssueRule {
   static final RegExp _pattern = RegExp(
-    r'\b(mag-?report|i-?report|ireport|report (an? )?(issue|problem|bug)|'
+    r'\b(mag[- ]?report|i-?report|ireport|report (an? )?(issue|problem|bug)|'
     r'may problema|may sira|magreklamo|reklamo|feedback|magbigay ng puna|'
     r'(mag-?)?ulat ng (problema|sira))\b',
   );

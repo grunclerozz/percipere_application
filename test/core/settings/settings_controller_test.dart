@@ -93,6 +93,27 @@ void main() {
     expect(env.tts.pitches.last, 1.25);
   });
 
+  test('named speed presets round-trip through the existing profile setting',
+      () async {
+    for (final speed in SpeechSpeed.values) {
+      await settings().update((s) => s.copyWith(readingRate: speed.rate));
+      expect(container.read(readingRateProvider), speed.rate);
+      await settings().reload();
+      expect(container.read(settingsProvider).readingRate, speed.rate);
+    }
+  });
+
+  test('relative speed steps stop at the minimum and maximum', () {
+    expect(
+      ReadingRate.normalize(ReadingRate.max + ReadingRate.step),
+      ReadingRate.max,
+    );
+    expect(
+      ReadingRate.normalize(ReadingRate.min - ReadingRate.step),
+      ReadingRate.min,
+    );
+  });
+
   test('a new profile starts from the current settings; switching back '
       'restores the device settings', () async {
     await settings().update((s) => s.copyWith(textSize: 28));

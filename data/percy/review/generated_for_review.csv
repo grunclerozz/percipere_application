@@ -1,0 +1,571 @@
+text,intent,note
+basahin ang dokumento,read,Generated (Codex); review before training.
+basahin ang dokumento ngayon,read,Generated (Codex); review before training.
+basahin ang dokumento muna,read,Generated (Codex); review before training.
+basahin ang dokumento para sa akin,read,Generated (Codex); review before training.
+basahin ang dokumento ulit,read,Generated (Codex); review before training.
+basahin ang dokumento this time,read,Generated (Codex); review before training.
+basahin ang dokumento sa app,read,Generated (Codex); review before training.
+paki basahin ang dokumento,read,Generated (Codex); review before training.
+pwede bang basahin ang dokumento,read,Generated (Codex); review before training.
+gusto kong basahin ang dokumento,read,Generated (Codex); review before training.
+nais kong basahin ang dokumento,read,Generated (Codex); review before training.
+can you basahin ang dokumento,read,Generated (Codex); review before training.
+simulan ang pagbasa,read,Generated (Codex); review before training.
+simulan ang pagbasa ngayon,read,Generated (Codex); review before training.
+simulan ang pagbasa muna,read,Generated (Codex); review before training.
+simulan ang pagbasa para sa akin,read,Generated (Codex); review before training.
+simulan ang pagbasa ulit,read,Generated (Codex); review before training.
+simulan ang pagbasa this time,read,Generated (Codex); review before training.
+simulan ang pagbasa sa app,read,Generated (Codex); review before training.
+paki simulan ang pagbasa,read,Generated (Codex); review before training.
+pwede bang simulan ang pagbasa,read,Generated (Codex); review before training.
+gusto kong simulan ang pagbasa,read,Generated (Codex); review before training.
+i pause ang pagbasa,pause,Generated (Codex); review before training.
+i pause ang pagbasa ngayon,pause,Generated (Codex); review before training.
+i pause ang pagbasa muna,pause,Generated (Codex); review before training.
+i pause ang pagbasa para sa akin,pause,Generated (Codex); review before training.
+i pause ang pagbasa ulit,pause,Generated (Codex); review before training.
+i pause ang pagbasa this time,pause,Generated (Codex); review before training.
+i pause ang pagbasa sa app,pause,Generated (Codex); review before training.
+paki i pause ang pagbasa,pause,Generated (Codex); review before training.
+pwede bang i pause ang pagbasa,pause,Generated (Codex); review before training.
+gusto kong i pause ang pagbasa,pause,Generated (Codex); review before training.
+nais kong i pause ang pagbasa,pause,Generated (Codex); review before training.
+can you i pause ang pagbasa,pause,Generated (Codex); review before training.
+sandali muna,pause,Generated (Codex); review before training.
+sandali muna ngayon,pause,Generated (Codex); review before training.
+sandali muna muna,pause,Generated (Codex); review before training.
+sandali muna para sa akin,pause,Generated (Codex); review before training.
+sandali muna ulit,pause,Generated (Codex); review before training.
+sandali muna this time,pause,Generated (Codex); review before training.
+sandali muna sa app,pause,Generated (Codex); review before training.
+paki sandali muna,pause,Generated (Codex); review before training.
+pwede bang sandali muna,pause,Generated (Codex); review before training.
+gusto kong sandali muna,pause,Generated (Codex); review before training.
+ituloy ang pagbasa ngayon,resume,Generated (Codex); review before training.
+ituloy ang pagbasa muna,resume,Generated (Codex); review before training.
+ituloy ang pagbasa para sa akin,resume,Generated (Codex); review before training.
+ituloy ang pagbasa ulit,resume,Generated (Codex); review before training.
+ituloy ang pagbasa this time,resume,Generated (Codex); review before training.
+ituloy ang pagbasa sa app,resume,Generated (Codex); review before training.
+paki ituloy ang pagbasa,resume,Generated (Codex); review before training.
+pwede bang ituloy ang pagbasa,resume,Generated (Codex); review before training.
+gusto kong ituloy ang pagbasa,resume,Generated (Codex); review before training.
+nais kong ituloy ang pagbasa,resume,Generated (Codex); review before training.
+can you ituloy ang pagbasa,resume,Generated (Codex); review before training.
+tumuloy ka sa basa,resume,Generated (Codex); review before training.
+tumuloy ka sa basa ngayon,resume,Generated (Codex); review before training.
+tumuloy ka sa basa muna,resume,Generated (Codex); review before training.
+tumuloy ka sa basa para sa akin,resume,Generated (Codex); review before training.
+tumuloy ka sa basa ulit,resume,Generated (Codex); review before training.
+tumuloy ka sa basa this time,resume,Generated (Codex); review before training.
+tumuloy ka sa basa sa app,resume,Generated (Codex); review before training.
+paki tumuloy ka sa basa,resume,Generated (Codex); review before training.
+pwede bang tumuloy ka sa basa,resume,Generated (Codex); review before training.
+gusto kong tumuloy ka sa basa,resume,Generated (Codex); review before training.
+nais kong tumuloy ka sa basa,resume,Generated (Codex); review before training.
+itigil ang pagbasa,stop,Generated (Codex); review before training.
+itigil ang pagbasa ngayon,stop,Generated (Codex); review before training.
+itigil ang pagbasa muna,stop,Generated (Codex); review before training.
+itigil ang pagbasa para sa akin,stop,Generated (Codex); review before training.
+itigil ang pagbasa ulit,stop,Generated (Codex); review before training.
+itigil ang pagbasa this time,stop,Generated (Codex); review before training.
+itigil ang pagbasa sa app,stop,Generated (Codex); review before training.
+paki itigil ang pagbasa,stop,Generated (Codex); review before training.
+pwede bang itigil ang pagbasa,stop,Generated (Codex); review before training.
+gusto kong itigil ang pagbasa,stop,Generated (Codex); review before training.
+nais kong itigil ang pagbasa,stop,Generated (Codex); review before training.
+can you itigil ang pagbasa,stop,Generated (Codex); review before training.
+tama na muna,stop,Generated (Codex); review before training.
+tama na muna ngayon,stop,Generated (Codex); review before training.
+tama na muna muna,stop,Generated (Codex); review before training.
+tama na muna para sa akin,stop,Generated (Codex); review before training.
+tama na muna ulit,stop,Generated (Codex); review before training.
+tama na muna this time,stop,Generated (Codex); review before training.
+tama na muna sa app,stop,Generated (Codex); review before training.
+paki tama na muna,stop,Generated (Codex); review before training.
+pwede bang tama na muna,stop,Generated (Codex); review before training.
+gusto kong tama na muna,stop,Generated (Codex); review before training.
+ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo ngayon,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo muna,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo para sa akin,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo ulit,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo this time,repeat,Generated (Codex); review before training.
+ulitin ang sinabi mo sa app,repeat,Generated (Codex); review before training.
+paki ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+pwede bang ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+gusto kong ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+nais kong ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+can you ulitin ang sinabi mo,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita ngayon,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita muna,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita para sa akin,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita ulit,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita this time,repeat,Generated (Codex); review before training.
+pakiulit ang huling salita sa app,repeat,Generated (Codex); review before training.
+paki pakiulit ang huling salita,repeat,Generated (Codex); review before training.
+pwede bang pakiulit ang huling salita,repeat,Generated (Codex); review before training.
+gusto kong pakiulit ang huling salita,repeat,Generated (Codex); review before training.
+bilisan ang pagbasa,faster,Generated (Codex); review before training.
+bilisan ang pagbasa ngayon,faster,Generated (Codex); review before training.
+bilisan ang pagbasa muna,faster,Generated (Codex); review before training.
+bilisan ang pagbasa para sa akin,faster,Generated (Codex); review before training.
+bilisan ang pagbasa ulit,faster,Generated (Codex); review before training.
+bilisan ang pagbasa this time,faster,Generated (Codex); review before training.
+bilisan ang pagbasa sa app,faster,Generated (Codex); review before training.
+paki bilisan ang pagbasa,faster,Generated (Codex); review before training.
+pwede bang bilisan ang pagbasa,faster,Generated (Codex); review before training.
+gusto kong bilisan ang pagbasa,faster,Generated (Codex); review before training.
+nais kong bilisan ang pagbasa,faster,Generated (Codex); review before training.
+can you bilisan ang pagbasa,faster,Generated (Codex); review before training.
+mas mabilis magsalita,faster,Generated (Codex); review before training.
+mas mabilis magsalita ngayon,faster,Generated (Codex); review before training.
+mas mabilis magsalita muna,faster,Generated (Codex); review before training.
+mas mabilis magsalita para sa akin,faster,Generated (Codex); review before training.
+mas mabilis magsalita ulit,faster,Generated (Codex); review before training.
+mas mabilis magsalita this time,faster,Generated (Codex); review before training.
+mas mabilis magsalita sa app,faster,Generated (Codex); review before training.
+paki mas mabilis magsalita,faster,Generated (Codex); review before training.
+pwede bang mas mabilis magsalita,faster,Generated (Codex); review before training.
+gusto kong mas mabilis magsalita,faster,Generated (Codex); review before training.
+bagalan ang pagbasa,slower,Generated (Codex); review before training.
+bagalan ang pagbasa ngayon,slower,Generated (Codex); review before training.
+bagalan ang pagbasa muna,slower,Generated (Codex); review before training.
+bagalan ang pagbasa para sa akin,slower,Generated (Codex); review before training.
+bagalan ang pagbasa ulit,slower,Generated (Codex); review before training.
+bagalan ang pagbasa this time,slower,Generated (Codex); review before training.
+bagalan ang pagbasa sa app,slower,Generated (Codex); review before training.
+paki bagalan ang pagbasa,slower,Generated (Codex); review before training.
+pwede bang bagalan ang pagbasa,slower,Generated (Codex); review before training.
+gusto kong bagalan ang pagbasa,slower,Generated (Codex); review before training.
+nais kong bagalan ang pagbasa,slower,Generated (Codex); review before training.
+can you bagalan ang pagbasa,slower,Generated (Codex); review before training.
+mas mabagal magsalita,slower,Generated (Codex); review before training.
+mas mabagal magsalita ngayon,slower,Generated (Codex); review before training.
+mas mabagal magsalita muna,slower,Generated (Codex); review before training.
+mas mabagal magsalita para sa akin,slower,Generated (Codex); review before training.
+mas mabagal magsalita ulit,slower,Generated (Codex); review before training.
+mas mabagal magsalita this time,slower,Generated (Codex); review before training.
+mas mabagal magsalita sa app,slower,Generated (Codex); review before training.
+paki mas mabagal magsalita,slower,Generated (Codex); review before training.
+pwede bang mas mabagal magsalita,slower,Generated (Codex); review before training.
+gusto kong mas mabagal magsalita,slower,Generated (Codex); review before training.
+palakihin ang letra,bigger_text,Generated (Codex); review before training.
+palakihin ang letra ngayon,bigger_text,Generated (Codex); review before training.
+palakihin ang letra muna,bigger_text,Generated (Codex); review before training.
+palakihin ang letra para sa akin,bigger_text,Generated (Codex); review before training.
+palakihin ang letra ulit,bigger_text,Generated (Codex); review before training.
+palakihin ang letra this time,bigger_text,Generated (Codex); review before training.
+palakihin ang letra sa app,bigger_text,Generated (Codex); review before training.
+paki palakihin ang letra,bigger_text,Generated (Codex); review before training.
+pwede bang palakihin ang letra,bigger_text,Generated (Codex); review before training.
+gusto kong palakihin ang letra,bigger_text,Generated (Codex); review before training.
+nais kong palakihin ang letra,bigger_text,Generated (Codex); review before training.
+can you palakihin ang letra,bigger_text,Generated (Codex); review before training.
+lakihan ang text,bigger_text,Generated (Codex); review before training.
+lakihan ang text ngayon,bigger_text,Generated (Codex); review before training.
+lakihan ang text muna,bigger_text,Generated (Codex); review before training.
+lakihan ang text para sa akin,bigger_text,Generated (Codex); review before training.
+lakihan ang text ulit,bigger_text,Generated (Codex); review before training.
+lakihan ang text this time,bigger_text,Generated (Codex); review before training.
+lakihan ang text sa app,bigger_text,Generated (Codex); review before training.
+paki lakihan ang text,bigger_text,Generated (Codex); review before training.
+pwede bang lakihan ang text,bigger_text,Generated (Codex); review before training.
+gusto kong lakihan ang text,bigger_text,Generated (Codex); review before training.
+paliitin ang letra,smaller_text,Generated (Codex); review before training.
+paliitin ang letra ngayon,smaller_text,Generated (Codex); review before training.
+paliitin ang letra muna,smaller_text,Generated (Codex); review before training.
+paliitin ang letra para sa akin,smaller_text,Generated (Codex); review before training.
+paliitin ang letra ulit,smaller_text,Generated (Codex); review before training.
+paliitin ang letra this time,smaller_text,Generated (Codex); review before training.
+paliitin ang letra sa app,smaller_text,Generated (Codex); review before training.
+paki paliitin ang letra,smaller_text,Generated (Codex); review before training.
+pwede bang paliitin ang letra,smaller_text,Generated (Codex); review before training.
+gusto kong paliitin ang letra,smaller_text,Generated (Codex); review before training.
+nais kong paliitin ang letra,smaller_text,Generated (Codex); review before training.
+can you paliitin ang letra,smaller_text,Generated (Codex); review before training.
+liitan ang text,smaller_text,Generated (Codex); review before training.
+liitan ang text ngayon,smaller_text,Generated (Codex); review before training.
+liitan ang text muna,smaller_text,Generated (Codex); review before training.
+liitan ang text para sa akin,smaller_text,Generated (Codex); review before training.
+liitan ang text ulit,smaller_text,Generated (Codex); review before training.
+liitan ang text this time,smaller_text,Generated (Codex); review before training.
+liitan ang text sa app,smaller_text,Generated (Codex); review before training.
+paki liitan ang text,smaller_text,Generated (Codex); review before training.
+pwede bang liitan ang text,smaller_text,Generated (Codex); review before training.
+gusto kong liitan ang text,smaller_text,Generated (Codex); review before training.
+buksan ang dokumento,open_item,Generated (Codex); review before training.
+buksan ang dokumento ngayon,open_item,Generated (Codex); review before training.
+buksan ang dokumento muna,open_item,Generated (Codex); review before training.
+buksan ang dokumento para sa akin,open_item,Generated (Codex); review before training.
+buksan ang dokumento ulit,open_item,Generated (Codex); review before training.
+buksan ang dokumento this time,open_item,Generated (Codex); review before training.
+buksan ang dokumento sa app,open_item,Generated (Codex); review before training.
+paki buksan ang dokumento,open_item,Generated (Codex); review before training.
+pwede bang buksan ang dokumento,open_item,Generated (Codex); review before training.
+gusto kong buksan ang dokumento,open_item,Generated (Codex); review before training.
+nais kong buksan ang dokumento,open_item,Generated (Codex); review before training.
+can you buksan ang dokumento,open_item,Generated (Codex); review before training.
+basahin ang huling file,open_item,Generated (Codex); review before training.
+basahin ang huling file ngayon,open_item,Generated (Codex); review before training.
+basahin ang huling file muna,open_item,Generated (Codex); review before training.
+basahin ang huling file para sa akin,open_item,Generated (Codex); review before training.
+basahin ang huling file ulit,open_item,Generated (Codex); review before training.
+basahin ang huling file this time,open_item,Generated (Codex); review before training.
+basahin ang huling file sa app,open_item,Generated (Codex); review before training.
+paki basahin ang huling file,open_item,Generated (Codex); review before training.
+pwede bang basahin ang huling file,open_item,Generated (Codex); review before training.
+gusto kong basahin ang huling file,open_item,Generated (Codex); review before training.
+kumusta percy ngayon,greeting,Generated (Codex); review before training.
+kumusta percy muna,greeting,Generated (Codex); review before training.
+kumusta percy para sa akin,greeting,Generated (Codex); review before training.
+kumusta percy ulit,greeting,Generated (Codex); review before training.
+kumusta percy this time,greeting,Generated (Codex); review before training.
+kumusta percy sa app,greeting,Generated (Codex); review before training.
+paki kumusta percy,greeting,Generated (Codex); review before training.
+maraming salamat ngayon,thanks,Generated (Codex); review before training.
+maraming salamat muna,thanks,Generated (Codex); review before training.
+maraming salamat para sa akin,thanks,Generated (Codex); review before training.
+maraming salamat ulit,thanks,Generated (Codex); review before training.
+maraming salamat this time,thanks,Generated (Codex); review before training.
+maraming salamat sa app,thanks,Generated (Codex); review before training.
+paki maraming salamat,thanks,Generated (Codex); review before training.
+pwede bang maraming salamat,thanks,Generated (Codex); review before training.
+gusto kong maraming salamat,thanks,Generated (Codex); review before training.
+nais kong maraming salamat,thanks,Generated (Codex); review before training.
+can you maraming salamat,thanks,Generated (Codex); review before training.
+salamat percy ngayon,thanks,Generated (Codex); review before training.
+salamat percy muna,thanks,Generated (Codex); review before training.
+salamat percy para sa akin,thanks,Generated (Codex); review before training.
+salamat percy ulit,thanks,Generated (Codex); review before training.
+salamat percy this time,thanks,Generated (Codex); review before training.
+salamat percy sa app,thanks,Generated (Codex); review before training.
+paki salamat percy,thanks,Generated (Codex); review before training.
+pwede bang salamat percy,thanks,Generated (Codex); review before training.
+gusto kong salamat percy,thanks,Generated (Codex); review before training.
+nais kong salamat percy,thanks,Generated (Codex); review before training.
+can you salamat percy,thanks,Generated (Codex); review before training.
+paalam na,goodbye,Generated (Codex); review before training.
+paalam na ngayon,goodbye,Generated (Codex); review before training.
+paalam na muna,goodbye,Generated (Codex); review before training.
+paalam na para sa akin,goodbye,Generated (Codex); review before training.
+paalam na ulit,goodbye,Generated (Codex); review before training.
+paalam na this time,goodbye,Generated (Codex); review before training.
+paalam na sa app,goodbye,Generated (Codex); review before training.
+paki paalam na,goodbye,Generated (Codex); review before training.
+pwede bang paalam na,goodbye,Generated (Codex); review before training.
+gusto kong paalam na,goodbye,Generated (Codex); review before training.
+nais kong paalam na,goodbye,Generated (Codex); review before training.
+can you paalam na,goodbye,Generated (Codex); review before training.
+hanggang sa muli ngayon,goodbye,Generated (Codex); review before training.
+hanggang sa muli muna,goodbye,Generated (Codex); review before training.
+hanggang sa muli para sa akin,goodbye,Generated (Codex); review before training.
+hanggang sa muli ulit,goodbye,Generated (Codex); review before training.
+hanggang sa muli this time,goodbye,Generated (Codex); review before training.
+hanggang sa muli sa app,goodbye,Generated (Codex); review before training.
+paki hanggang sa muli,goodbye,Generated (Codex); review before training.
+pwede bang hanggang sa muli,goodbye,Generated (Codex); review before training.
+gusto kong hanggang sa muli,goodbye,Generated (Codex); review before training.
+nais kong hanggang sa muli,goodbye,Generated (Codex); review before training.
+oo ngayon,yes,Generated (Codex); review before training.
+oo muna,yes,Generated (Codex); review before training.
+oo para sa akin,yes,Generated (Codex); review before training.
+oo ulit,yes,Generated (Codex); review before training.
+oo this time,yes,Generated (Codex); review before training.
+oo sa app,yes,Generated (Codex); review before training.
+paki oo,yes,Generated (Codex); review before training.
+pwede bang oo,yes,Generated (Codex); review before training.
+gusto kong oo,yes,Generated (Codex); review before training.
+nais kong oo,yes,Generated (Codex); review before training.
+can you oo,yes,Generated (Codex); review before training.
+opo ngayon,yes,Generated (Codex); review before training.
+opo muna,yes,Generated (Codex); review before training.
+opo para sa akin,yes,Generated (Codex); review before training.
+opo this time,yes,Generated (Codex); review before training.
+opo sa app,yes,Generated (Codex); review before training.
+paki opo,yes,Generated (Codex); review before training.
+pwede bang opo,yes,Generated (Codex); review before training.
+gusto kong opo,yes,Generated (Codex); review before training.
+nais kong opo,yes,Generated (Codex); review before training.
+can you opo,yes,Generated (Codex); review before training.
+please opo,yes,Generated (Codex); review before training.
+hindi ngayon,no,Generated (Codex); review before training.
+hindi muna,no,Generated (Codex); review before training.
+hindi para sa akin,no,Generated (Codex); review before training.
+hindi ulit,no,Generated (Codex); review before training.
+hindi this time,no,Generated (Codex); review before training.
+hindi sa app,no,Generated (Codex); review before training.
+paki hindi,no,Generated (Codex); review before training.
+pwede bang hindi,no,Generated (Codex); review before training.
+gusto kong hindi,no,Generated (Codex); review before training.
+nais kong hindi,no,Generated (Codex); review before training.
+can you hindi,no,Generated (Codex); review before training.
+ayoko ngayon,no,Generated (Codex); review before training.
+ayoko muna,no,Generated (Codex); review before training.
+ayoko para sa akin,no,Generated (Codex); review before training.
+ayoko ulit,no,Generated (Codex); review before training.
+ayoko this time,no,Generated (Codex); review before training.
+ayoko sa app,no,Generated (Codex); review before training.
+paki ayoko,no,Generated (Codex); review before training.
+pwede bang ayoko,no,Generated (Codex); review before training.
+gusto kong ayoko,no,Generated (Codex); review before training.
+nais kong ayoko,no,Generated (Codex); review before training.
+can you ayoko,no,Generated (Codex); review before training.
+no thank you,no,Generated (Codex); review before training.
+anong panahon bukas ngayon,out_of_scope,Generated (Codex); review before training.
+anong panahon bukas muna,out_of_scope,Generated (Codex); review before training.
+anong panahon bukas para sa akin,out_of_scope,Generated (Codex); review before training.
+anong panahon bukas ulit,out_of_scope,Generated (Codex); review before training.
+anong panahon bukas this time,out_of_scope,Generated (Codex); review before training.
+anong panahon bukas sa app,out_of_scope,Generated (Codex); review before training.
+paki anong panahon bukas,out_of_scope,Generated (Codex); review before training.
+pwede bang anong panahon bukas,out_of_scope,Generated (Codex); review before training.
+gusto kong anong panahon bukas,out_of_scope,Generated (Codex); review before training.
+nais kong anong panahon bukas,out_of_scope,Generated (Codex); review before training.
+can you anong panahon bukas,out_of_scope,Generated (Codex); review before training.
+kumanta ka ngayon,out_of_scope,Generated (Codex); review before training.
+kumanta ka muna,out_of_scope,Generated (Codex); review before training.
+kumanta ka para sa akin,out_of_scope,Generated (Codex); review before training.
+kumanta ka ulit,out_of_scope,Generated (Codex); review before training.
+kumanta ka this time,out_of_scope,Generated (Codex); review before training.
+kumanta ka sa app,out_of_scope,Generated (Codex); review before training.
+paki kumanta ka,out_of_scope,Generated (Codex); review before training.
+pwede bang kumanta ka,out_of_scope,Generated (Codex); review before training.
+gusto kong kumanta ka,out_of_scope,Generated (Codex); review before training.
+nais kong kumanta ka,out_of_scope,Generated (Codex); review before training.
+can you kumanta ka,out_of_scope,Generated (Codex); review before training.
+mag report ng problema,report_issue,Generated (Codex); review before training.
+mag report ng problema ngayon,report_issue,Generated (Codex); review before training.
+mag report ng problema muna,report_issue,Generated (Codex); review before training.
+mag report ng problema para sa akin,report_issue,Generated (Codex); review before training.
+mag report ng problema ulit,report_issue,Generated (Codex); review before training.
+mag report ng problema this time,report_issue,Generated (Codex); review before training.
+mag report ng problema sa app,report_issue,Generated (Codex); review before training.
+paki mag report ng problema,report_issue,Generated (Codex); review before training.
+pwede bang mag report ng problema,report_issue,Generated (Codex); review before training.
+gusto kong mag report ng problema,report_issue,Generated (Codex); review before training.
+nais kong mag report ng problema,report_issue,Generated (Codex); review before training.
+can you mag report ng problema,report_issue,Generated (Codex); review before training.
+buksan ang aklatan ngayon,open_library,Generated (Codex); review before training.
+buksan ang aklatan muna,open_library,Generated (Codex); review before training.
+buksan ang aklatan para sa akin,open_library,Generated (Codex); review before training.
+buksan ang aklatan ulit,open_library,Generated (Codex); review before training.
+buksan ang aklatan this time,open_library,Generated (Codex); review before training.
+buksan ang aklatan sa app,open_library,Generated (Codex); review before training.
+paki buksan ang aklatan,open_library,Generated (Codex); review before training.
+pwede bang buksan ang aklatan,open_library,Generated (Codex); review before training.
+buksan ang mga setting,open_settings,Generated (Codex); review before training.
+buksan ang mga setting ngayon,open_settings,Generated (Codex); review before training.
+buksan ang mga setting muna,open_settings,Generated (Codex); review before training.
+buksan ang mga setting para sa akin,open_settings,Generated (Codex); review before training.
+buksan ang mga setting ulit,open_settings,Generated (Codex); review before training.
+buksan ang mga setting this time,open_settings,Generated (Codex); review before training.
+buksan ang mga setting sa app,open_settings,Generated (Codex); review before training.
+ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan ngayon,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan muna,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan para sa akin,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan ulit,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan this time,describe_image,Generated (Codex); review before training.
+ilarawan ang larawan sa app,describe_image,Generated (Codex); review before training.
+paki ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+pwede bang ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+gusto kong ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+nais kong ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+can you ilarawan ang larawan,describe_image,Generated (Codex); review before training.
+maglarawan ng picture,describe_image,Generated (Codex); review before training.
+maglarawan ng picture ngayon,describe_image,Generated (Codex); review before training.
+maglarawan ng picture muna,describe_image,Generated (Codex); review before training.
+maglarawan ng picture para sa akin,describe_image,Generated (Codex); review before training.
+maglarawan ng picture ulit,describe_image,Generated (Codex); review before training.
+maglarawan ng picture this time,describe_image,Generated (Codex); review before training.
+maglarawan ng picture sa app,describe_image,Generated (Codex); review before training.
+paki maglarawan ng picture,describe_image,Generated (Codex); review before training.
+pwede bang maglarawan ng picture,describe_image,Generated (Codex); review before training.
+gusto kong maglarawan ng picture,describe_image,Generated (Codex); review before training.
+nais kong maglarawan ng picture,describe_image,Generated (Codex); review before training.
+can you maglarawan ng picture,describe_image,Generated (Codex); review before training.
+describe this image,describe_image,Generated (Codex); review before training.
+describe this image ngayon,describe_image,Generated (Codex); review before training.
+describe this image muna,describe_image,Generated (Codex); review before training.
+describe this image para sa akin,describe_image,Generated (Codex); review before training.
+describe this image ulit,describe_image,Generated (Codex); review before training.
+describe this image this time,describe_image,Generated (Codex); review before training.
+describe this image sa app,describe_image,Generated (Codex); review before training.
+paki describe this image,describe_image,Generated (Codex); review before training.
+pwede bang describe this image,describe_image,Generated (Codex); review before training.
+gusto kong describe this image,describe_image,Generated (Codex); review before training.
+nais kong describe this image,describe_image,Generated (Codex); review before training.
+can you describe this image,describe_image,Generated (Codex); review before training.
+ano ang nasa larawan,describe_image,Generated (Codex); review before training.
+ano ang nasa larawan ngayon,describe_image,Generated (Codex); review before training.
+ano ang nasa larawan muna,describe_image,Generated (Codex); review before training.
+ano ang nasa larawan para sa akin,describe_image,Generated (Codex); review before training.
+ano ang nasa larawan ulit,describe_image,Generated (Codex); review before training.
+mas detalyado pa,more_detail,Generated (Codex); review before training.
+mas detalyado pa ngayon,more_detail,Generated (Codex); review before training.
+mas detalyado pa muna,more_detail,Generated (Codex); review before training.
+mas detalyado pa para sa akin,more_detail,Generated (Codex); review before training.
+mas detalyado pa ulit,more_detail,Generated (Codex); review before training.
+mas detalyado pa this time,more_detail,Generated (Codex); review before training.
+mas detalyado pa sa app,more_detail,Generated (Codex); review before training.
+paki mas detalyado pa,more_detail,Generated (Codex); review before training.
+pwede bang mas detalyado pa,more_detail,Generated (Codex); review before training.
+gusto kong mas detalyado pa,more_detail,Generated (Codex); review before training.
+nais kong mas detalyado pa,more_detail,Generated (Codex); review before training.
+can you mas detalyado pa,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail ngayon,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail muna,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail para sa akin,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail ulit,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail this time,more_detail,Generated (Codex); review before training.
+gusto ko ng more detail sa app,more_detail,Generated (Codex); review before training.
+paki gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+pwede bang gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+gusto kong gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+nais kong gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+can you gusto ko ng more detail,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan ngayon,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan muna,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan para sa akin,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan ulit,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan this time,more_detail,Generated (Codex); review before training.
+pakidetalye ang larawan sa app,more_detail,Generated (Codex); review before training.
+paki pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+pwede bang pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+gusto kong pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+nais kong pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+can you pakidetalye ang larawan,more_detail,Generated (Codex); review before training.
+describe it more,more_detail,Generated (Codex); review before training.
+describe it more ngayon,more_detail,Generated (Codex); review before training.
+describe it more muna,more_detail,Generated (Codex); review before training.
+describe it more para sa akin,more_detail,Generated (Codex); review before training.
+describe it more ulit,more_detail,Generated (Codex); review before training.
+basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan ngayon,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan muna,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan para sa akin,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan ulit,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan this time,read_image_text,Generated (Codex); review before training.
+basahin ang text sa larawan sa app,read_image_text,Generated (Codex); review before training.
+paki basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+pwede bang basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+gusto kong basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+nais kong basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+can you basahin ang text sa larawan,read_image_text,Generated (Codex); review before training.
+read the image text,read_image_text,Generated (Codex); review before training.
+read the image text ngayon,read_image_text,Generated (Codex); review before training.
+read the image text muna,read_image_text,Generated (Codex); review before training.
+read the image text para sa akin,read_image_text,Generated (Codex); review before training.
+read the image text ulit,read_image_text,Generated (Codex); review before training.
+read the image text this time,read_image_text,Generated (Codex); review before training.
+read the image text sa app,read_image_text,Generated (Codex); review before training.
+paki read the image text,read_image_text,Generated (Codex); review before training.
+pwede bang read the image text,read_image_text,Generated (Codex); review before training.
+gusto kong read the image text,read_image_text,Generated (Codex); review before training.
+nais kong read the image text,read_image_text,Generated (Codex); review before training.
+can you read the image text,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat ngayon,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat muna,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat para sa akin,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat ulit,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat this time,read_image_text,Generated (Codex); review before training.
+pakibasa ang nakasulat sa app,read_image_text,Generated (Codex); review before training.
+paki pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+pwede bang pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+gusto kong pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+nais kong pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+can you pakibasa ang nakasulat,read_image_text,Generated (Codex); review before training.
+basahin ang sulat sa picture,read_image_text,Generated (Codex); review before training.
+basahin ang sulat sa picture ngayon,read_image_text,Generated (Codex); review before training.
+basahin ang sulat sa picture muna,read_image_text,Generated (Codex); review before training.
+basahin ang sulat sa picture para sa akin,read_image_text,Generated (Codex); review before training.
+basahin ang sulat sa picture ulit,read_image_text,Generated (Codex); review before training.
+simulan ang tutorial,tutorial,Generated (Codex); review before training.
+simulan ang tutorial ngayon,tutorial,Generated (Codex); review before training.
+simulan ang tutorial muna,tutorial,Generated (Codex); review before training.
+simulan ang tutorial para sa akin,tutorial,Generated (Codex); review before training.
+simulan ang tutorial ulit,tutorial,Generated (Codex); review before training.
+simulan ang tutorial this time,tutorial,Generated (Codex); review before training.
+simulan ang tutorial sa app,tutorial,Generated (Codex); review before training.
+paki simulan ang tutorial,tutorial,Generated (Codex); review before training.
+pwede bang simulan ang tutorial,tutorial,Generated (Codex); review before training.
+gusto kong simulan ang tutorial,tutorial,Generated (Codex); review before training.
+nais kong simulan ang tutorial,tutorial,Generated (Codex); review before training.
+can you simulan ang tutorial,tutorial,Generated (Codex); review before training.
+paano gamitin ang app ngayon,tutorial,Generated (Codex); review before training.
+paano gamitin ang app muna,tutorial,Generated (Codex); review before training.
+paano gamitin ang app para sa akin,tutorial,Generated (Codex); review before training.
+paano gamitin ang app ulit,tutorial,Generated (Codex); review before training.
+paano gamitin ang app this time,tutorial,Generated (Codex); review before training.
+paano gamitin ang app sa app,tutorial,Generated (Codex); review before training.
+paki paano gamitin ang app,tutorial,Generated (Codex); review before training.
+pwede bang paano gamitin ang app,tutorial,Generated (Codex); review before training.
+gusto kong paano gamitin ang app,tutorial,Generated (Codex); review before training.
+nais kong paano gamitin ang app,tutorial,Generated (Codex); review before training.
+can you paano gamitin ang app,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito ngayon,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito muna,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito para sa akin,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito ulit,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito this time,tutorial,Generated (Codex); review before training.
+turuan mo ako gamitin ito sa app,tutorial,Generated (Codex); review before training.
+paki turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+pwede bang turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+gusto kong turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+nais kong turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+can you turuan mo ako gamitin ito,tutorial,Generated (Codex); review before training.
+show me the tutorial,tutorial,Generated (Codex); review before training.
+show me the tutorial ngayon,tutorial,Generated (Codex); review before training.
+show me the tutorial muna,tutorial,Generated (Codex); review before training.
+show me the tutorial para sa akin,tutorial,Generated (Codex); review before training.
+show me the tutorial ulit,tutorial,Generated (Codex); review before training.
+show me the tutorial this time,tutorial,Generated (Codex); review before training.
+gawing mabagal,set_speed,Generated (Codex); review before training.
+gawing mabagal ngayon,set_speed,Generated (Codex); review before training.
+gawing mabagal muna,set_speed,Generated (Codex); review before training.
+gawing mabagal para sa akin,set_speed,Generated (Codex); review before training.
+gawing mabagal ulit,set_speed,Generated (Codex); review before training.
+gawing mabagal this time,set_speed,Generated (Codex); review before training.
+gawing mabagal sa app,set_speed,Generated (Codex); review before training.
+paki gawing mabagal,set_speed,Generated (Codex); review before training.
+pwede bang gawing mabagal,set_speed,Generated (Codex); review before training.
+gusto kong gawing mabagal,set_speed,Generated (Codex); review before training.
+nais kong gawing mabagal,set_speed,Generated (Codex); review before training.
+can you gawing mabagal,set_speed,Generated (Codex); review before training.
+katamtaman na bilis,set_speed,Generated (Codex); review before training.
+katamtaman na bilis ngayon,set_speed,Generated (Codex); review before training.
+katamtaman na bilis muna,set_speed,Generated (Codex); review before training.
+katamtaman na bilis para sa akin,set_speed,Generated (Codex); review before training.
+katamtaman na bilis ulit,set_speed,Generated (Codex); review before training.
+katamtaman na bilis this time,set_speed,Generated (Codex); review before training.
+katamtaman na bilis sa app,set_speed,Generated (Codex); review before training.
+paki katamtaman na bilis,set_speed,Generated (Codex); review before training.
+pwede bang katamtaman na bilis,set_speed,Generated (Codex); review before training.
+gusto kong katamtaman na bilis,set_speed,Generated (Codex); review before training.
+nais kong katamtaman na bilis,set_speed,Generated (Codex); review before training.
+can you katamtaman na bilis,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita ngayon,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita muna,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita para sa akin,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita ulit,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita this time,set_speed,Generated (Codex); review before training.
+mabilis na pagsasalita sa app,set_speed,Generated (Codex); review before training.
+paki mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+pwede bang mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+gusto kong mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+nais kong mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+can you mabilis na pagsasalita,set_speed,Generated (Codex); review before training.
+set speed to medium,set_speed,Generated (Codex); review before training.
+set speed to medium ngayon,set_speed,Generated (Codex); review before training.
+set speed to medium muna,set_speed,Generated (Codex); review before training.
+set speed to medium para sa akin,set_speed,Generated (Codex); review before training.
+set speed to medium ulit,set_speed,Generated (Codex); review before training.

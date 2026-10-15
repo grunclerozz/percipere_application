@@ -17,6 +17,29 @@ Format:
 
 ---
 
+## 2026-10-16 — Percy smarter: verify handoff, merge data, evaluation pipeline (retrain blocked)
+- Agent: Claude Code
+- Branch: `feat/percy-smarter`
+- Changed: verified Codex's routing/normalization/set_speed work; removed 76 training rows that
+  match `data/percy/test_team.csv` after normalization (58 Team + 18 Starter variants); added the
+  570 reviewed rows to `data/percy/intents.csv` (source `Generated (Codex)`, 0 duplicates, 0 phrase
+  in two intents); `scripts/percy/validate_dataset.py` (new intents, test-file loader, leakage and
+  cross-intent checks, source shares) and `scripts/percy/train.py` (team-only test set is primary,
+  70/15/15 + 5-fold CV secondary, NB vs LR with/without class weighting, data shares, 10
+  most-confused phrases, test-set completeness gate, `--dry-run`); `assets/percy/responses.json`
+  (action names for the 5 new intents); `ReportIssueRule` accepts "mag report" (STT spelling);
+  `PercySlots.speed` ignores "mas/medyo mabagal/mabilis" (relative, not a preset); import order
+  fixed (3 analyzer infos); tests for set_speed presets, relative wording, rate limits;
+  corrected the `ano po pakisuyo nga` test to the agreed rule (keep original if nothing is left).
+- Checks: `flutter analyze`: no issues. Percy + settings tests pass except 3 in
+  `intent_classifier_test.dart` that need the retrained `model.json`/`test_vectors.json` (expected).
+  Full suite and release build NOT run (no retrain yet, no native change).
+- Commit: see `git log` ("Percy: ...") (pushed: no)
+- Follow-ups: **team** adds 8+ (about 10) phrases each for `describe_image`, `more_detail`,
+  `read_image_text`, `tutorial`, `set_speed` to `data/percy/test_team.csv` (all 0 now) and decides
+  `paano gamitin` (help vs tutorial). Then run `train.py`, write `docs/handoff/03-voice-and-percy.md`
+  and `docs/thesis/percy-evaluation.md`, run all tests.
+
 ## 2026-10-16 — Shared Claude Code + Codex documentation
 - Agent: Claude Code
 - Branch: `docs/database-masterlist`

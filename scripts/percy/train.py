@@ -1,17 +1,23 @@
 """Trains Percy's intent classifier and exports it for the app.
 
 Usage (from the project folder, Windows):
-    scripts\\percy\\.venv\\Scripts\\python scripts\\percy\\train.py
+    scripts/percy/.venv/Scripts/python scripts/percy/train.py [--dry-run]
 
-Steps: validate the dataset, preprocess, split 70/15/15 (stratified, seed 42),
-TF-IDF features (word 1–2-grams + per-word char 3–5-grams), compare Multinomial
-Naive Bayes and Logistic Regression (tuned by 5-fold cross-validation on
-train + validation), evaluate on test,
-write the report and confusion matrix, export model.json / model_alt.json and
-the test vectors used by the Dart unit test.
+Evaluation (decision 2026-10-16):
+  * PRIMARY: the fixed, team-written test set data/percy/test_team.csv. It is
+    never trained on, split or reshuffled; training rows that match it after
+    preprocessing are dropped. Accuracy, macro F1, per-intent scores and the
+    confusion matrix are reported for Naive Bayes and Logistic Regression
+    (with and without class weighting).
+  * SECONDARY: an all-data 70/15/15 split and 5-fold cross-validation.
+  * Hyperparameters and the chosen model come from 5-fold CV on the training
+    data only (never from the test set).
+  * Data share per intent (team / generated / starter); intents with less than
+    2/3 team-written phrases are flagged.
 
-The exported models are trained on train + validation (the test set stays
-unseen, so the report's test metrics describe exactly the shipped model).
+The exported models are trained on all training data. Without --dry-run the
+script refuses to train until test_team.csv has MIN_TEAM_TEST+ team phrases for
+each new intent. --dry-run evaluates and writes a report to --report-dir only.
 """
 
 from __future__ import annotations
@@ -44,7 +50,17 @@ from percy_text import (
     preprocess,
     word_features,
 )
-from validate_dataset import DEFAULT_CSV, INTENTS, STARTER, check, load
+from validate_dataset import (
+    DEFAULT_CSV,
+    INTENTS,
+    MIN_TEAM_TEST,
+    TEST_CSV,
+    check,
+    load,
+    load_test,
+    source_kind,
+    team_test_gaps,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "assets" / "percy"
@@ -322,213 +338,353 @@ def md_table(header: list[str], rows: list[list[object]]) -> str:
     return "\n".join(lines)
 
 
+# ── Evaluation helpers ──────────────────────────────────────────────────────
+
+
+def metrics(y_true, y_pred) -> dict:
+    """Accuracy and macro F1 (over the intents that occur in [y_true]) plus
+    per-intent precision / recall / F1 / support."""
+    present = sorted(set(y_true))
+    labels = sorted(set(y_true) | set(y_pred))
+    rep = classification_report(
+        y_true, y_pred, labels=labels, output_dict=True, zero_division=0
+    )
+    return {
+        "accuracy": accuracy_score(y_true, y_pred),
+        "macro_f1": f1_score(y_true, y_pred, labels=present, average="macro", zero_division=0),
+        "present": present,
+        "labels": labels,
+        "report": rep,
+        "cm": confusion_matrix(y_true, y_pred, labels=labels),
+    }
+
+
+def best_with(tuned_rows, option):
+    """Best tuning row whose option (class_weight / fit_prior) equals [option]."""
+    return next(r for r in tuned_rows if r[4] == option)
+
+
+def md_confusion(cm, labels) -> str:
+    """Confusion matrix as a Markdown table (numbered columns + a legend)."""
+    head = ["true \\ predicted"] + [str(i + 1) for i in range(len(labels))]
+    rows = []
+    for i, lab in enumerate(labels):
+        rows.append([f"{i + 1}. {lab}"] + [int(v) if v else "" for v in cm[i]])
+    return md_table(head, rows)
+
+
+def confused_pairs(cm, labels, k=10):
+    pairs = [
+        (int(cm[i, j]), labels[i], labels[j])
+        for i in range(len(labels))
+        for j in range(len(labels))
+        if i != j and cm[i, j]
+    ]
+    return sorted(pairs, reverse=True)[:k]
+
+
+def baseline_predictions(path: Path, texts: list[str]):
+    """Predictions of an already-exported model.json (the 'before' model).
+
+    Returns (labels, predicted intents) or None when the file is missing.
+    """
+    if not path.exists():
+        return None
+    m = json.loads(path.read_text(encoding="utf-8"))
+    out = []
+    for t in texts:
+        probs = json_predict(m, t)
+        out.append(m["labels"][int(np.argmax(probs))])
+    return m["labels"], out
+
+
 # ── Main ────────────────────────────────────────────────────────────────────
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--csv", type=Path, default=DEFAULT_CSV)
+    ap.add_argument("--csv", type=Path, default=DEFAULT_CSV, help="training data")
+    ap.add_argument("--test", type=Path, default=TEST_CSV, help="fixed team-only test set")
+    ap.add_argument(
+        "--baseline", type=Path, default=ASSETS / "model.json",
+        help="model scored as 'before' (read before anything is overwritten)",
+    )
+    ap.add_argument(
+        "--dry-run", action="store_true",
+        help="evaluate and write a report to --report-dir only; do not touch "
+             "assets/percy or test_vectors.json, and skip the test-set completeness gate",
+    )
+    ap.add_argument("--report-dir", type=Path, default=None)
     args = ap.parse_args()
+    report_dir = args.report_dir or REPORTS
 
+    # ── Data ──
     rows = load(args.csv)
     errors, warnings = check(rows)
+    test_rows, test_errors = load_test(args.test)
+    errors += test_errors
     if errors:
         print("Dataset errors (fix them first; see validate_dataset.py):")
         for e in errors:
             print("  ", e)
         return 1
+    gaps = team_test_gaps(test_rows)
+    if gaps and not args.dry_run:
+        print(f"STOP: {args.test.name} needs {MIN_TEAM_TEST}+ team-written phrases for:")
+        for i, n in gaps.items():
+            print(f"  {i}: {n}")
+        print("Nothing was trained or exported.")
+        return 2
 
-    # One row per distinct cleaned sentence.
-    seen, data = set(), []
+    # The test set is fixed: it is never split, shuffled or trained on. Any
+    # training row that matches a test phrase (after preprocessing) is dropped.
+    test_clean = {preprocess(r["text"]) for r in test_rows}
+    seen, data, leaked = set(), [], 0
     for r in rows:
         clean = preprocess(r["text"])
         if clean in seen:
             continue
         seen.add(clean)
+        if clean in test_clean:
+            leaked += 1
+            continue
         data.append({**r, "clean": clean})
-    dropped = len(rows) - len(data)
+    dropped = len(rows) - len(data) - leaked
     labels = [d["intent"] for d in data]
     idx = np.arange(len(data))
+    test_x = [preprocess(r["text"]) for r in test_rows]
+    test_y = [r["intent"] for r in test_rows]
+    all_x, all_y = [d["clean"] for d in data], labels
+    print(f"{len(data)} training sentences ({dropped} repeats dropped, {leaked} matching the "
+          f"test set dropped); {len(test_rows)} fixed team test sentences")
 
-    train_i, rest_i = train_test_split(
-        idx, test_size=0.30, stratify=labels, random_state=SEED
-    )
+    # ── Secondary: all-data 70/15/15 split (stratified, seed 42) ──
+    train_i, rest_i = train_test_split(idx, test_size=0.30, stratify=labels, random_state=SEED)
     val_i, test_i = train_test_split(
-        rest_i, test_size=0.50, stratify=[labels[i] for i in rest_i],
-        random_state=SEED,
+        rest_i, test_size=0.50, stratify=[labels[i] for i in rest_i], random_state=SEED
     )
     pick = lambda ids: ([data[i]["clean"] for i in ids], [labels[i] for i in ids])  # noqa: E731
-    train, val, test = pick(train_i), pick(val_i), pick(test_i)
-    print(f"{len(data)} sentences ({dropped} repeats dropped): "
-          f"train {len(train_i)}, validation {len(val_i)}, test {len(test_i)}")
-
-    # Tune both by cross-validation on train + validation.
+    train, val, split_test = pick(train_i), pick(val_i), pick(test_i)
     trval = (train[0] + val[0], train[1] + val[1])
-    tuned = {k: tune(k, trval) for k in ("multinomial_nb", "logreg")}
+    tuned_split = {k: tune(k, trval) for k in ("multinomial_nb", "logreg")}
+    split_models = {}
+    for k in tuned_split:
+        _, _, _, p, o = tuned_split[k][0]
+        feat, model = fit(k, p, o, *trval)
+        split_models[k] = metrics(split_test[1], list(model.predict(feat.transform(split_test[0]))))
+
+    # ── Tuning on all training data (5-fold CV) ──
+    tuned = {k: tune(k, (all_x, all_y)) for k in ("multinomial_nb", "logreg")}
     best = {k: v[0] for k, v in tuned.items()}
     for k, (f1, acc, sd, p, o) in best.items():
-        print(f"  {describe(k, p, o)}: {CV_FOLDS}-fold CV macro F1 {f1:.3f} ± {sd:.3f}, "
-              f"accuracy {acc:.3f}")
-    # Higher CV macro F1 wins; a tie goes to Logistic Regression
-    # (its probabilities are better calibrated for the confidence thresholds).
+        print(f"  {describe(k, p, o)}: {CV_FOLDS}-fold CV macro F1 {f1:.3f} ± {sd:.3f}, accuracy {acc:.3f}")
+    # Higher CV macro F1 wins (never the test set); a tie goes to Logistic Regression.
     chosen = max(best, key=lambda k: (best[k][0], best[k][1], k == "logreg"))
     other = "logreg" if chosen == "multinomial_nb" else "multinomial_nb"
 
-    # Final models on train + validation; evaluated on test.
-    final = {}
-    for k in (chosen, other):
-        _, _, _, p, o = best[k]
-        feat, model = fit(k, p, o, *trval)
-        pred = model.predict(feat.transform(test[0]))
-        proba = model.predict_proba(feat.transform(test[0]))
-        final[k] = dict(feat=feat, model=model, pred=pred, proba=proba, p=p, o=o)
+    # ── Primary: fixed team-only test set ──
+    candidates = {
+        "Naive Bayes": ("multinomial_nb", best["multinomial_nb"]),
+        "Logistic Regression, class_weight=balanced": ("logreg", best_with(tuned["logreg"], "balanced")),
+        "Logistic Regression, no class weighting": ("logreg", best_with(tuned["logreg"], None)),
+    }
+    primary = {}
+    fitted = {}
+    for name, (k, (f1, acc, sd, p, o)) in candidates.items():
+        feat, model = fit(k, p, o, all_x, all_y)
+        pred = list(model.predict(feat.transform(test_x)))
+        proba = model.predict_proba(feat.transform(test_x))
+        primary[name] = dict(kind=k, cv=(f1, sd, acc), p=p, o=o, pred=pred, proba=proba,
+                             m=metrics(test_y, pred))
+        fitted[name] = (feat, model)
+    chosen_name = next(n for n, (k, r) in candidates.items()
+                       if k == chosen and r is best[chosen])
+    ch = primary[chosen_name]
+    ch_feat, ch_model = fitted[chosen_name]
+    oth_name = "Naive Bayes" if chosen == "logreg" else \
+        "Logistic Regression, class_weight=balanced"
+    # The alternative model that is exported is the best of the other kind.
+    oth_best = best[other]
+    oth_feat, oth_model = fit(other, oth_best[3], oth_best[4], all_x, all_y)
 
-    # Cross-validation scores of the chosen settings (from the tuning):
-    # (macro F1 mean, macro F1 SD, accuracy mean).
-    cv_scores = {k: (best[k][0], best[k][2], best[k][1]) for k in (chosen, other)}
+    # Baseline ("before"): the currently shipped model on the same sentences.
+    base = baseline_predictions(args.baseline, test_x)
+    base_m = metrics(test_y, base[1]) if base else None
 
     today = dt.date.today().isoformat()
     version = f"{today}-{len(data)}"
-    REPORTS.mkdir(parents=True, exist_ok=True)
-    ASSETS.mkdir(parents=True, exist_ok=True)
+    m = ch["m"]
+    labels_c, cm = m["labels"], m["cm"]
 
-    # Export.
-    exported = {}
-    for k, name in ((chosen, "model.json"), (other, "model_alt.json")):
-        f = final[k]
-        m = export(k, f["p"], f["o"], f["feat"], f["model"], version)
-        (ASSETS / name).write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
-        exported[k] = m
-        size = (ASSETS / name).stat().st_size / 1024
-        print(f"  wrote assets/percy/{name} ({describe(k, f['p'], f['o'])}, {size:.0f} KB)")
+    print("\nPRIMARY (fixed team-only test set, "
+          f"{len(test_rows)} sentences, {len(m['present'])} intents):")
+    for name, r in primary.items():
+        mark = "  <- chosen" if name == chosen_name else ""
+        print(f"  {name}: accuracy {r['m']['accuracy']:.3f}, macro F1 {r['m']['macro_f1']:.3f}, "
+              f"CV macro F1 {r['cv'][0]:.3f}{mark}")
+    if base_m:
+        print(f"  before (shipped model.json): accuracy {base_m['accuracy']:.3f}, "
+              f"macro F1 {base_m['macro_f1']:.3f}")
+    print("SECONDARY (all-data 70/15/15 split, test 15%):")
+    for k, r in split_models.items():
+        print(f"  {k}: accuracy {r['accuracy']:.3f}, macro F1 {r['macro_f1']:.3f}")
 
-    # The JSON reimplementation must match scikit-learn.
-    m = exported[chosen]
-    ch = final[chosen]
-    worst = 0.0
-    for t, sk in zip(test[0], ch["proba"]):
-        worst = max(worst, float(np.max(np.abs(np.array(json_predict(m, t)) - sk))))
-    print(f"  model.json vs scikit-learn on test: max probability difference {worst:.6f}")
+    # ── Data shares per intent ──
+    def count(kind, intent, pool):
+        return sum(1 for r in pool if r["intent"] == intent and source_kind(r) == kind)
 
-    # Test vectors for the Dart unit test.
-    test_texts = [data[i]["text"] for i in test_i]
-    step = max(1, len(test_texts) // (30 - len(EXTRA_VECTOR_SENTENCES)))
-    sample = test_texts[::step][: 30 - len(EXTRA_VECTOR_SENTENCES)]
-    vectors = []
-    for t in sample + EXTRA_VECTOR_SENTENCES:
-        probs = json_predict(m, t)
-        top = int(np.argmax(probs))
-        vectors.append({
-            "text": t,
-            "clean": preprocess(t),
-            "intent": m["labels"][top],
-            "probability": round(probs[top], 6),
-            "probabilities": [round(p, 6) for p in probs],
-        })
-    VECTORS.write_text(
-        json.dumps({"model_version": version, "labels": m["labels"], "vectors": vectors},
-                   ensure_ascii=False, indent=1),
-        encoding="utf-8",
-    )
-    print(f"  wrote {VECTORS.relative_to(ROOT)} ({len(vectors)} sentences)")
+    shares = []
+    flagged = []
+    for intent in INTENTS:
+        t_tr, g, st = (count(k, intent, data) for k in ("team", "generated", "starter"))
+        t_te = sum(1 for r in test_rows if r["intent"] == intent)
+        total = t_tr + t_te + g + st
+        team = t_tr + t_te
+        share = team / total if total else 0.0
+        low = share < 2 / 3
+        if low:
+            flagged.append(intent)
+        shares.append([intent, team, t_te, g, st, total, f"{share:.0%}", "LOW" if low else ""])
 
-    # Metrics for the report.
-    y_test = test[1]
-    pred = ch["pred"]
-    acc = accuracy_score(y_test, pred)
-    macro = f1_score(y_test, pred, average="macro", zero_division=0)
-    test_rows = [data[i] for i in test_i]
-    team_mask = [r["source"] != STARTER for r in test_rows]
-    team_n = sum(team_mask)
-    team_acc = (
-        accuracy_score([y for y, t in zip(y_test, team_mask) if t],
-                       [p for p, t in zip(pred, team_mask) if t])
-        if team_n else float("nan")
-    )
-    other_acc = accuracy_score(y_test, final[other]["pred"])
-    other_macro = f1_score(y_test, final[other]["pred"], average="macro", zero_division=0)
-    labels_sorted = list(ch["model"].classes_)
-    cm = confusion_matrix(y_test, pred, labels=labels_sorted)
+    # ── Export ──
+    exported_note = "dry run: nothing exported"
+    if not args.dry_run:
+        ASSETS.mkdir(parents=True, exist_ok=True)
+        exported = {}
+        for k, feat, model, (p, o), name in (
+            (chosen, ch_feat, ch_model, (ch["p"], ch["o"]), "model.json"),
+            (other, oth_feat, oth_model, (oth_best[3], oth_best[4]), "model_alt.json"),
+        ):
+            mj = export(k, p, o, feat, model, version)
+            (ASSETS / name).write_text(json.dumps(mj, ensure_ascii=False), encoding="utf-8")
+            exported[k] = mj
+            print(f"  wrote assets/percy/{name} ({describe(k, p, o)}, "
+                  f"{(ASSETS / name).stat().st_size / 1024:.0f} KB)")
+        mj = exported[chosen]
+        worst = 0.0
+        for t, sk in zip(test_x, ch["proba"]):
+            worst = max(worst, float(np.max(np.abs(np.array(json_predict(mj, t)) - sk))))
+        print(f"  model.json vs scikit-learn on the team test set: max probability difference {worst:.6f}")
+        sample_n = 30 - len(EXTRA_VECTOR_SENTENCES)
+        texts = [r["text"] for r in test_rows]
+        step = max(1, len(texts) // sample_n)
+        vectors = []
+        for t in texts[::step][:sample_n] + EXTRA_VECTOR_SENTENCES:
+            probs = json_predict(mj, t)
+            top = int(np.argmax(probs))
+            vectors.append({
+                "text": t, "clean": preprocess(t), "intent": mj["labels"][top],
+                "probability": round(probs[top], 6),
+                "probabilities": [round(p_, 6) for p_ in probs],
+            })
+        VECTORS.write_text(
+            json.dumps({"model_version": version, "labels": mj["labels"], "vectors": vectors},
+                       ensure_ascii=False, indent=1),
+            encoding="utf-8",
+        )
+        print(f"  wrote {VECTORS.relative_to(ROOT)} ({len(vectors)} sentences)")
+        exported_note = f"`assets/percy/model.json` (version `{version}`)"
+
+    # ── Report ──
+    report_dir.mkdir(parents=True, exist_ok=True)
     cm_name = f"confusion-{today}.png"
-    save_confusion(cm, labels_sorted, REPORTS / cm_name,
-                   f"Percy intents — {describe(chosen, ch['p'], ch['o'])} (test set)")
-    report_dict = classification_report(y_test, pred, labels=labels_sorted,
-                                         output_dict=True, zero_division=0)
+    save_confusion(cm, labels_c, report_dir / cm_name,
+                   f"Percy intents — {chosen_name} (fixed team test set)")
+
     conf = ch["proba"].max(axis=1)
     bands = []
     for name, lo, hi in (("≥ 0.60 (act)", 0.60, 1.01), ("0.30–0.60 (ask)", 0.30, 0.60),
                          ("< 0.30 (fallback)", 0.0, 0.30)):
-        sel = [(p == y) for p, y, c in zip(pred, y_test, conf) if lo <= c < hi]
+        sel = [(p_ == y) for p_, y, c in zip(ch["pred"], test_y, conf) if lo <= c < hi]
         bands.append([name, len(sel), f"{(sum(sel) / len(sel)):.2f}" if sel else "—"])
 
-    team_counts = Counter(r["intent"] for r in data if r["source"] != STARTER)
-    starter_counts = Counter(r["intent"] for r in data if r["source"] == STARTER)
-    examples = []
-    for intent in INTENTS:
-        team_ex = [r["text"] for r in data if r["intent"] == intent and r["source"] != STARTER][:2]
-        st_ex = [r["text"] for r in data if r["intent"] == intent and r["source"] == STARTER][:2]
-        examples.append([intent, team_counts[intent], starter_counts[intent],
-                         "; ".join(team_ex) or "—", "; ".join(st_ex) or "—"])
+    def per_intent(mm):
+        rep = mm["report"]
+        return [[lab, f"{rep[lab]['precision']:.2f}", f"{rep[lab]['recall']:.2f}",
+                 f"{rep[lab]['f1-score']:.2f}", int(rep[lab]["support"])]
+                for lab in mm["labels"]]
 
-    tops = top_features(chosen, ch["feat"], ch["model"])
-    wrong = [
-        [r["text"], y, p, f"{c:.2f}", r["source"]]
-        for r, y, p, c in zip(test_rows, y_test, pred, conf) if y != p
-    ]
-    per_intent = [
-        [lab, f"{report_dict[lab]['precision']:.2f}", f"{report_dict[lab]['recall']:.2f}",
-         f"{report_dict[lab]['f1-score']:.2f}", int(report_dict[lab]["support"])]
-        for lab in labels_sorted
-    ]
-    nb_rows = [[a, p, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"]
-               for f1, ac, sd, a, p in tuned["multinomial_nb"]]
-    lr_rows = [[c, w, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"]
-               for f1, ac, sd, c, w in tuned["logreg"]]
-
+    cmp_rows = [[name, f"{r['m']['accuracy']:.3f}", f"{r['m']['macro_f1']:.3f}",
+                 f"{r['cv'][0]:.3f} ± {r['cv'][1]:.3f}", f"{r['cv'][2]:.3f}",
+                 describe(r["kind"], r["p"], r["o"])]
+                for name, r in primary.items()]
+    if base_m:
+        cmp_rows.insert(0, [f"BEFORE: {args.baseline.name} as shipped", f"{base_m['accuracy']:.3f}",
+                            f"{base_m['macro_f1']:.3f}", "—", "—", "old data; saw these phrases in training"])
+    split_rows = [[describe(k, tuned_split[k][0][3], tuned_split[k][0][4]),
+                   f"{r['accuracy']:.3f}", f"{r['macro_f1']:.3f}",
+                   f"{tuned_split[k][0][0]:.3f} ± {tuned_split[k][0][2]:.3f}"]
+                  for k, r in split_models.items()]
+    wrong = sorted(
+        [(c, t, y, p_) for t, y, p_, c in zip(
+            [r["text"] for r in test_rows], test_y, ch["pred"], conf) if y != p_],
+        reverse=True,
+    )
+    confused_rows = [[t, y, p_, f"{c:.2f}"] for c, t, y, p_ in wrong[:10]]
+    pair_rows = [[n, a, b] for n, a, b in confused_pairs(cm, labels_c)]
+    nb_rows = [[a, p, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"] for f1, ac, sd, a, p in tuned["multinomial_nb"]]
+    lr_rows = [[c, w, f"{f1:.3f} ± {sd:.3f}", f"{ac:.3f}"] for f1, ac, sd, c, w in tuned["logreg"]]
+    untested = [i for i in INTENTS if i not in m["present"]]
     why = (
-        f"{describe(chosen, ch['p'], ch['o'])} had the higher {CV_FOLDS}-fold cross-validation macro F1 "
-        f"({best[chosen][0]:.3f} vs {best[other][0]:.3f})"
+        f"{chosen_name} had the higher {CV_FOLDS}-fold cross-validation macro F1 on the training data "
+        f"({best[chosen][0]:.3f} vs {best[other][0]:.3f}); the choice never looks at the test set"
         if best[chosen][0] != best[other][0]
         else "Both had the same cross-validation macro F1; Logistic Regression is preferred "
-             "because its probabilities are better calibrated for Percy's confidence "
-             "thresholds"
+             "because its probabilities are better calibrated for Percy's confidence thresholds"
     )
+    report = f"""# Percy intent classifier — evaluation report ({today}){' — DRY RUN' if args.dry_run else ''}
 
-    report = f"""# Percy intent classifier — training report ({today})
+Training data: `{_rel(args.csv)}` — {len(rows)} rows, {len(data)} distinct sentences after
+preprocessing ({dropped} repeats dropped, {leaked} dropped for matching the test set).
+Fixed test set: `{_rel(args.test)}` — {len(test_rows)} team-written sentences, never trained on,
+never split or reshuffled. Features: TF-IDF word {WORD_NGRAMS[0]}–{WORD_NGRAMS[1]}-grams +
+character {CHAR_NGRAMS[0]}–{CHAR_NGRAMS[1]}-grams ({len(ch_feat.features)} features).
+Settings are tuned by stratified {CV_FOLDS}-fold CV on the training data only.
+Exported: {exported_note}.
 
-Dataset: `{args.csv.relative_to(ROOT) if args.csv.is_relative_to(ROOT) else args.csv}` — {len(rows)} rows,
-{len(data)} distinct sentences after preprocessing ({dropped} repeat(s) dropped), {len(INTENTS)} intents.
-Split (stratified, seed {SEED}): train {len(train_i)}, validation {len(val_i)}, test {len(test_i)}.
-Settings are tuned by stratified {CV_FOLDS}-fold cross-validation on train + validation
-({len(trval[0])} sentences); the test set is used only for this report.
-Features: TF-IDF word {WORD_NGRAMS[0]}–{WORD_NGRAMS[1]}-grams + character {CHAR_NGRAMS[0]}–{CHAR_NGRAMS[1]}-grams
-inside words ({len(ch['feat'].features)} features on train + validation).
-Exported models are trained on train + validation; the test set was never seen.
+## Primary: fixed team-only test set
+Intents with test sentences: {len(m['present'])} of {len(INTENTS)}.
+Not covered by the test set: {', '.join(untested) if untested else 'none'}.
+Macro F1 is over the intents that have test sentences.
 
-## Chosen model
-**{describe(chosen, ch['p'], ch['o'])}** → `assets/percy/model.json` (version `{version}`).
-Why: {why}. The other model is exported as `assets/percy/model_alt.json`.
+{md_table(["Model", "Accuracy", "Macro F1", f"{CV_FOLDS}-fold CV macro F1 (training data)", "CV accuracy", "Settings"], cmp_rows)}
 
-## Test-set results
-| Metric | {describe(chosen, ch['p'], ch['o'])} | {describe(other, final[other]['p'], final[other]['o'])} |
-|---|---|---|
-| Accuracy | {acc:.3f} | {other_acc:.3f} |
-| Macro F1 | {macro:.3f} | {other_macro:.3f} |
-| {CV_FOLDS}-fold CV macro F1 (train + validation), mean ± SD | {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f} | {cv_scores[other][0]:.3f} ± {cv_scores[other][1]:.3f} |
-| {CV_FOLDS}-fold CV accuracy (train + validation), mean | {cv_scores[chosen][2]:.3f} | {cv_scores[other][2]:.3f} |
-| Accuracy on team-written test sentences only ({team_n}) | {team_acc:.3f} | — |
+**Chosen:** {chosen_name}. Why: {why}. The other kind is exported as `model_alt.json`.
 
-Confusion matrix: `{cm_name}` (same folder).
+### Per intent (chosen model, test set)
+{md_table(["Intent", "Precision", "Recall", "F1", "Support"], per_intent(m))}
+
+### Confusion matrix (chosen model, test set)
+Rows are the true intent, columns the predicted one (numbers = row numbers).
+Image: `{cm_name}`.
+
+{md_confusion(cm, labels_c)}
+
+### Most confused intent pairs
+{md_table(["Count", "True", "Predicted"], pair_rows) if pair_rows else "None."}
+
+### The 10 most-confused phrases (wrong predictions with the highest confidence)
+{md_table(["Phrase", "True", "Predicted", "Confidence"], confused_rows) if confused_rows else "None — no mistakes."}
 
 ### Confidence bands (chosen model, test set)
-How often the prediction was right at each of Percy's thresholds.
+Current thresholds kept: ≥ 0.60 act, 0.30–0.60 ask, < 0.30 fallback.
 
 {md_table(["Band", "Sentences", "Accuracy"], bands)}
 
-### Per intent (test set)
-{md_table(["Intent", "Precision", "Recall", "F1", "Support"], per_intent)}
+## Secondary: all-data 70/15/15 split (stratified, seed {SEED})
+Train {len(train_i)}, validation {len(val_i)}, test {len(test_i)} sentences of the training data
+(team-test phrases are not in it). Tuned by {CV_FOLDS}-fold CV on train + validation.
 
-## Tuning ({CV_FOLDS}-fold cross-validation on train + validation)
+{md_table(["Model", "Test accuracy", "Test macro F1", f"{CV_FOLDS}-fold CV macro F1"], split_rows)}
+
+## Data source share per intent
+`Team` = training team rows + held-out test rows. Flag = team-written share below 2/3.
+
+{md_table(["Intent", "Team", "of which test", "Generated (Codex)", "Starter", "Total", "Team share", "Flag"], shares)}
+
+Flagged intents ({len(flagged)}): {', '.join(flagged) if flagged else 'none'}.
+
+## Tuning ({CV_FOLDS}-fold cross-validation, all training data)
 Naive Bayes:
 
 {md_table(["alpha", "fit_prior", "Macro F1 (mean ± SD)", "Accuracy"], nb_rows)}
@@ -537,26 +693,21 @@ Logistic Regression:
 
 {md_table(["C", "class_weight", "Macro F1 (mean ± SD)", "Accuracy"], lr_rows)}
 
-## Examples per intent (team vs Starter)
-{md_table(["Intent", "Team", "Starter", "Team examples", "Starter examples"], examples)}
-
-## Top 10 informative words per intent (chosen model)
-{md_table(["Intent", "Words"], [[k, ", ".join(v)] for k, v in tops.items()])}
-
-## Misclassified test sentences
-{md_table(["Sentence", "True", "Predicted", "Confidence", "Source"], wrong) if wrong else "None."}
-
 ## Dataset warnings
 {chr(10).join("- " + w for w in warnings) if warnings else "None."}
 """
-    out = REPORTS / f"report-{today}.md"
+    out = report_dir / f"report-{today}.md"
     out.write_text(report, encoding="utf-8")
-    print(f"  wrote {out.relative_to(ROOT)}")
-    print(f"\nChosen: {describe(chosen, ch['p'], ch['o'])}")
-    print(f"Test accuracy {acc:.3f}, macro F1 {macro:.3f}, "
-          f"CV macro F1 {cv_scores[chosen][0]:.3f} ± {cv_scores[chosen][1]:.3f}, "
-          f"team-only {team_acc:.3f} ({team_n} sentences)")
+    print(f"  wrote {_rel(out)}")
+    print(f"\nChosen: {chosen_name} ({describe(chosen, ch['p'], ch['o'])})")
     return 0
+
+
+def _rel(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT)).replace("\\", "/")
+    except ValueError:
+        return str(path)
 
 
 if __name__ == "__main__":

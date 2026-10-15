@@ -102,6 +102,52 @@ filter against the sentences just read).
 - ElevenLabs Percy (`lib/core/assistant/`, `AssistantBridge.kt`, `assistant/`) only in builds with
   `PERCIPERE_DEV=true` and its switch on.
 
+## Percy classifier — PROVISIONAL evaluation (2026-10-16)
+
+**PROVISIONAL. Not the official thesis result.** The fixed team test set has no phrases yet for the
+5 new intents (`describe_image`, `more_detail`, `read_image_text`, `tutorial`, `set_speed`), so those
+are **not evaluated**. Rerun `train.py` after the team adds them (see `06-known-issues-and-todo.md`).
+Full report: `data/percy/reports/report-2026-10-16.md` (made with `train.py --provisional`).
+`assets/percy/model.json` was retrained with it; confidence thresholds unchanged (0.60 act, 0.30 ask).
+
+**Data.** `data/percy/intents.csv`: 1023 rows, 1003 distinct after normalization. 76 rows matching
+`test_team.csv` were removed from training first (58 Team + 18 Starter variants such as "home po").
+570 reviewed `Generated (Codex)` rows were added. The team rows are therefore **not in training** (all
+58 are the test set); every intent has 0 Team rows in training.
+
+**Primary: 58 fixed team-written sentences, 10 intents** (back, cancel, help, next_option, open_home,
+open_library, open_settings, previous_option, select, where_am_i). Not evaluated: the other 22 intents,
+including the 5 new ones.
+
+| Model | Accuracy | Macro F1 | 5-fold CV macro F1 (training data) |
+|---|---|---|---|
+| Before (old `model.json`) | 1.000* | 1.000* | n/a |
+| Naive Bayes (alpha 0.03) | 0.897 | 0.932 | 0.860 ± 0.023 |
+| **Logistic Regression, class_weight=balanced (C 30) — chosen, exported** | **0.966** | **0.971** | **0.893 ± 0.028** |
+| Logistic Regression, no weighting (C 100) | 0.966 | 0.978 | 0.889 ± 0.030 |
+
+\* The old model had these same 58 phrases in its training data, so 1.000 is **not** a fair "before".
+There is no honest before/after number yet. Chosen by CV on training data, not by the test set; the
+balanced and unweighted LR differ by one sentence on the test set (noise). Naive Bayes is exported as
+`model_alt.json`.
+
+**Per intent (chosen):** all 1.00 precision/recall/F1 except `help` 0.86/0.86/0.86 and `select`
+1.00 recall 0.75 (F1 0.86). Confusion: `help`→`tutorial` 1 ("pano toh gamitin", confidence 0.94),
+`select`→`help` 1 ("proceed", confidence 0.10). The first is the `paano gamitin` help-vs-tutorial
+question in `06`. Confidence bands: ≥ 0.60 act 50 sentences 98% correct; 0.30–0.60 ask 6, 100%;
+< 0.30 fallback 2, 50%. No measured reason to change the thresholds.
+
+**Secondary (all training data, 70/15/15 split, 151 test sentences):** Naive Bayes accuracy 0.887,
+macro F1 0.873; Logistic Regression 0.907 / 0.903. These sentences are mostly generated/starter text, so
+they say little about real users.
+
+**Data share (team / generated / starter):** 32 of 32 intents are below 2/3 team-written (flagged
+LOW). Only 10 intents have any team text (2–8 phrases, all used as the test set); 22 intents have 0.
+The 5 new intents are 100% generated. Per-intent table: the report.
+
+**Caveats:** very small test set (2–8 per intent); the generated text may be unnatural; Starter and
+Generated rows are not independent of each other's wording.
+
 ## Online-only parts
 Dictation and Percy listening (without Google's offline pack); account register/reset/verify;
 admin books (browse/download); reports sending/status; detailed image description (mocked);

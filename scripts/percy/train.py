@@ -17,7 +17,7 @@ Evaluation (decision 2026-10-16):
 
 The exported models are trained on all training data. Without --dry-run the
 script refuses to train until test_team.csv has MIN_TEAM_TEST+ team phrases for
-each new intent. --dry-run evaluates and writes a report to --report-dir only.
+each new intent (or --provisional is given). --dry-run evaluates and writes a report to --report-dir only.
 """
 
 from __future__ import annotations
@@ -414,6 +414,12 @@ def main() -> int:
         help="evaluate and write a report to --report-dir only; do not touch "
              "assets/percy or test_vectors.json, and skip the test-set completeness gate",
     )
+    ap.add_argument(
+        "--provisional", action="store_true",
+        help="train and export even though some new intents have no team test "
+             "phrases yet; the report is marked PROVISIONAL and those intents "
+             "are listed as not evaluated",
+    )
     ap.add_argument("--report-dir", type=Path, default=None)
     args = ap.parse_args()
     report_dir = args.report_dir or REPORTS
@@ -429,7 +435,7 @@ def main() -> int:
             print("  ", e)
         return 1
     gaps = team_test_gaps(test_rows)
-    if gaps and not args.dry_run:
+    if gaps and not (args.dry_run or args.provisional):
         print(f"STOP: {args.test.name} needs {MIN_TEAM_TEST}+ team-written phrases for:")
         for i, n in gaps.items():
             print(f"  {i}: {n}")
@@ -632,7 +638,7 @@ def main() -> int:
         else "Both had the same cross-validation macro F1; Logistic Regression is preferred "
              "because its probabilities are better calibrated for Percy's confidence thresholds"
     )
-    report = f"""# Percy intent classifier — evaluation report ({today}){' — DRY RUN' if args.dry_run else ''}
+    report = f"""# Percy intent classifier — evaluation report ({today}){' — DRY RUN' if args.dry_run else ''}{' — PROVISIONAL' if args.provisional and gaps else ''}
 
 Training data: `{_rel(args.csv)}` — {len(rows)} rows, {len(data)} distinct sentences after
 preprocessing ({dropped} repeats dropped, {leaked} dropped for matching the test set).
@@ -644,7 +650,7 @@ Exported: {exported_note}.
 
 ## Primary: fixed team-only test set
 Intents with test sentences: {len(m['present'])} of {len(INTENTS)}.
-Not covered by the test set: {', '.join(untested) if untested else 'none'}.
+Not evaluated (no team test sentences): {', '.join(untested) if untested else 'none'}.
 Macro F1 is over the intents that have test sentences.
 
 {md_table(["Model", "Accuracy", "Macro F1", f"{CV_FOLDS}-fold CV macro F1 (training data)", "CV accuracy", "Settings"], cmp_rows)}

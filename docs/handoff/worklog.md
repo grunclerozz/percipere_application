@@ -17,6 +17,22 @@ Format:
 
 ---
 
+## 2026-10-16 — Percy smarter: PROVISIONAL retrain
+- Agent: Claude Code
+- Branch: `feat/percy-smarter`
+- Changed: `scripts/percy/train.py` (`--provisional`: trains although new intents have no team test
+  phrases; report marked PROVISIONAL); retrained and exported `assets/percy/model.json` (Logistic
+  Regression, balanced, C 30), `model_alt.json` (Naive Bayes), `scripts/percy/test_vectors.json`;
+  `data/percy/reports/report-2026-10-16.md` + confusion PNG; results in
+  `docs/handoff/03-voice-and-percy.md` (PROVISIONAL section); status and known-issues updated.
+  `docs/thesis/percy-evaluation.md` NOT written yet. Thresholds unchanged.
+- Checks: `flutter analyze`: no issues. `flutter test test/core/percy test/core/settings test/core/voice
+  test/core/accessibility`: 277 passed (the 3 stale-model tests now pass). Full suite and release build
+  not run.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: team adds test phrases for the 5 new intents; rerun `train.py` (no `--provisional`);
+  write the official docs. Note the old "before" score (1.000) is leaky and not a fair baseline.
+
 ## 2026-10-16 — Percy smarter: verify handoff, merge data, evaluation pipeline (retrain blocked)
 - Agent: Claude Code
 - Branch: `feat/percy-smarter`

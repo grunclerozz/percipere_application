@@ -34,7 +34,7 @@ Format:
 - Checks: `flutter analyze`: no issues. Percy + settings tests pass except 3 in
   `intent_classifier_test.dart` that need the retrained `model.json`/`test_vectors.json` (expected).
   Full suite and release build NOT run (no retrain yet, no native change).
-- Commit: see `git log` ("Percy: ...") (pushed: no)
+- Commit: `e868ed7` (pushed: no)
 - Follow-ups: **team** adds 8+ (about 10) phrases each for `describe_image`, `more_detail`,
   `read_image_text`, `tutorial`, `set_speed` to `data/percy/test_team.csv` (all 0 now) and decides
   `paano gamitin` (help vs tutorial). Then run `train.py`, write `docs/handoff/03-voice-and-percy.md`

@@ -30,7 +30,7 @@ Format:
   voice_controller, voice_cutoff, voice_offline, percy_session): 85 passed. Full suite, emulator and
   release build NOT run (as agreed). Needs the tablet: hold while Percy/Reader speaks, TalkBack action,
   the false error in daily use.
-- Commit: see `git log` (pushed: no)
+- Commit: `33f11cc` (pushed: no)
 - Follow-ups: Phase C (measure latency from tablet logs, noise options) after the user's review.
 
 ## 2026-10-16 — Percy smarter: PROVISIONAL retrain

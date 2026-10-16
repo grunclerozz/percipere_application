@@ -110,6 +110,21 @@ void main() {
     expect(env.tts.transcript, isNot(matches(_endedLine)));
   });
 
+  test('holding to listen while Percy works out an answer drops that answer',
+      () async {
+    await setUpWith();
+    await startPercy();
+    final mark = env.tts.spoken.length;
+
+    final turn = percy().handle('sino ka'); // not an exact command
+    percy().interruptTurn(); // the user held the gesture area
+    await turn;
+    await Future<void>.delayed(_settle);
+
+    expect(spokenSince(mark), isNot(contains('Percy')));
+    expect(active(), isTrue, reason: 'the session itself goes on');
+  });
+
   test('silence: Percy asks once, then says goodbye and ends', () async {
     await setUpWith();
     await startPercy();

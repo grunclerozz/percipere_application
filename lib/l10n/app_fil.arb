@@ -228,6 +228,10 @@
   "@voiceRepeatedError": {
     "description": "Voice recognition failed the same way several times in a row; listening stops instead of retrying forever."
   },
+  "gestureHoldListenAction": "Makinig ngayon",
+  "@gestureHoldListenAction": {
+    "description": "TalkBack action on the gesture area: the same as holding one finger on it (stops speech and listens)."
+  },
   "micPermissionExplain": "Hihingi ngayon ang Android ng pahintulot na gamitin ng Percipere ang mikropono, para marinig ko ang iyong mga utos. Piliin ang “Habang ginagamit ang app”.",
   "@micPermissionExplain": {
     "description": "Spoken right before the Android microphone permission dialog."

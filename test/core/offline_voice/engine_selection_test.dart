@@ -238,6 +238,19 @@ void main() {
       expect(android.sessions, hasLength(1));
     });
 
+    test('a late error of an old Android session during an offline session '
+        'is not this session failing', () async {
+      final errors = <String>[];
+      await input.initialize(onError: errors.add, onStatus: (_) {});
+      await listen(offline: true);
+      android.fail('error_client'); // late error of a cancelled session
+      expect(errors, isEmpty);
+      await input.cancel();
+      await listen(offline: false);
+      android.fail('error_client');
+      expect(errors, ['error_client'], reason: 'real Android errors pass');
+    });
+
     test('microphone busy: Android listens instead', () async {
       mic.opens = false;
       await listen(offline: true);

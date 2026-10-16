@@ -70,6 +70,28 @@ voice depends on Google packs as before.
 Silences on the Android path are timed by the app, never handed to Android (decision 2026-10-14).
 Earcons (`ToneGenerator`, channel `ph.bataan.percipere/sound`): "heard", "listening", "stopped".
 
+## Hold to listen (2026-10-16, branch `feat/voice-hold-interrupt`)
+Holding one finger still on the gesture area (`VoiceConfig.holdToListen`, 650 ms) stops all speech
+(prompts, Percy, the Reader) and listens at once: `GestureType.longPress` → `NavIntent.listen` →
+`VoiceController.listenNow()`. It already worked this way; this change makes the hold time
+configurable in `voice_config.dart`, and:
+- **While Percy works out an answer**, the hold drops that answer (`PercyController.interruptTurn`,
+  `_turnToken`): it is neither spoken nor acted on.
+- **Reader:** stopping the speech leaves the current sentence unfinished; `ReaderController` saves that
+  index, so "ituloy" replays the interrupted sentence (not verified on the tablet).
+- **TalkBack on:** the gesture area is off (TalkBack owns touch), so `GestureSurface` offers the same
+  action as a custom TalkBack action "Makinig ngayon" (`gestureHoldListenAction`). **Unverified:** whether
+  TalkBack exposes it on the screen's root node.
+
+**False "Hindi gumagana ang pakikinig ng boses ko ngayon" (likely cause, from reading the code, not
+confirmed with a device log):** `HybridSpeechInput` passed Android recognizer errors through even while
+the app's own offline recognizer was listening (only statuses were filtered). A late error of an
+earlier, cancelled Android session was counted as the offline session failing; after 3 in a row
+`VoiceController._giveUp` spoke the message while the offline session still delivered the command a
+second later. Fixes: stale Android errors are ignored during an offline session; `_giveUp` now also
+closes the session so a late result cannot run after the message. If it still happens, send the
+`[VOICE ...]` lines around "giving up" (`adb logcat -s flutter`).
+
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein
 similarity. **≥ 0.8 run, 0.6–0.8 ask "Ang ibig mo bang sabihin ay …?"**, below → not understood.

@@ -4,6 +4,13 @@
 /// The `[VOICE TIMING]` log line (`adb logcat -s flutter`) shows what each
 /// command actually took; change these values, rebuild and compare.
 abstract final class VoiceConfig {
+  // ── Hold to listen ───────────────────────────────────────────────────────
+
+  /// How long one finger must stay still on the gesture area before the app
+  /// stops speaking and listens (long-press). Long enough that resting a
+  /// hand on the screen does not trigger it (0.6–0.8 s is sensible).
+  static const Duration holdToListen = Duration(milliseconds: 650);
+
   // ── Pauses: how long a silence ends a listening session ──────────────────
 
   /// How long a session waits for the user to **start** speaking. The short

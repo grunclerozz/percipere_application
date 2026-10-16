@@ -114,6 +114,10 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
   /// A sentence is being handled (not silence).
   bool _turn = false;
 
+  /// Bumped when the user takes over (hold to listen) while a turn is being
+  /// worked out, so its reply is neither spoken nor acted on.
+  int _turnToken = 0;
+
   /// What Percy said last (a single tap repeats it).
   String? _lastLine;
 
@@ -205,6 +209,13 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
     await _say(brain.responses.greeting(s.lang, s.politeness));
   }
 
+  /// The user held the gesture area to speak: whatever Percy was still
+  /// working out for the last sentence is dropped.
+  void interruptTurn() {
+    if (!_turn || _acting) return;
+    _turnToken++;
+  }
+
   /// Ends the session, saying [line] (default: a short goodbye).
   Future<void> stop({String? line}) async {
     if (!state.active && !state.starting) return;
@@ -234,16 +245,21 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
     _silence?.cancel();
     _reprompted = false;
     _turn = true;
+    final token = _turnToken;
     state = PercyState(active: true, heard: text);
     try {
-      await _handleTurn(manager, text);
+      await _handleTurn(manager, text, token);
     } finally {
       _turn = false;
       if (ref.mounted && state.active) _armSilence();
     }
   }
 
-  Future<void> _handleTurn(DialogueManager manager, String text) async {
+  Future<void> _handleTurn(
+    DialogueManager manager,
+    String text,
+    int token,
+  ) async {
     // Exact short commands keep using the app's phrase matcher.
     if (!manager.awaitingAnswer && !_bus.hasPendingQuestion) {
       final exact = _bus.exactCommand(text);
@@ -258,7 +274,7 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
 
     final s = style;
     final reply = await manager.handle(text, this, s);
-    if (!ref.mounted || !state.active) return;
+    if (!ref.mounted || !state.active || token != _turnToken) return;
     unawaited(_log(text, reply.intent?.label, reply.confidence, reply.outcome));
     _analyze(
       text,
@@ -268,8 +284,9 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
       confidence: reply.confidence,
     );
     if (reply.say.isNotEmpty) await _say(reply.say);
-    // A gesture while Percy was speaking ended the session: do nothing more.
-    if (!ref.mounted || !state.active) return;
+    // A gesture while Percy was speaking ended the session, or a hold to
+    // listen took over: do nothing more.
+    if (!ref.mounted || !state.active || token != _turnToken) return;
     switch (reply.action) {
       case RunIntent(:final intent):
         await _run(() => _bus.dispatch(intent));

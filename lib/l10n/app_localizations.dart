@@ -374,6 +374,12 @@ abstract class AppLocalizations {
   /// **'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.'**
   String get voiceRepeatedError;
 
+  /// TalkBack action on the gesture area: the same as holding one finger on it (stops speech and listens).
+  ///
+  /// In fil, this message translates to:
+  /// **'Makinig ngayon'**
+  String get gestureHoldListenAction;
+
   /// Spoken right before the Android microphone permission dialog.
   ///
   /// In fil, this message translates to:

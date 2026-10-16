@@ -229,6 +229,13 @@ void main() {
     expect(env.tts.transcript, contains('Hihinto muna ako'));
     expect(env.speech.listening, isFalse);
     expect(sessions.length, lessThan(10), reason: 'no endless retrying');
+
+    // After the message, a late result of the closed session is dropped.
+    final before = state().heard;
+    env.speech.hear('susunod');
+    await pumpEventQueue();
+    expect(state().heard, before);
+    expect(env.speech.listening, isFalse);
   }, timeout: const Timeout(Duration(seconds: 90)));
 
   test('no recognizer: explains and switches to gestures', () async {

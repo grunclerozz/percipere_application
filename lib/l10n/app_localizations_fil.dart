@@ -175,6 +175,9 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.';
 
   @override
+  String get gestureHoldListenAction => 'Makinig ngayon';
+
+  @override
   String get micPermissionExplain =>
       'Hihingi ngayon ang Android ng pahintulot na gamitin ng Percipere ang mikropono, para marinig ko ang iyong mga utos. Piliin ang “Habang ginagamit ang app”.';
 

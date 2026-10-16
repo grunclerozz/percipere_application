@@ -17,6 +17,22 @@ Format:
 
 ---
 
+## 2026-10-16 — Voice: hold to listen, false-error fix (Phase B)
+- Agent: Claude Code
+- Branch: `feat/voice-hold-interrupt` (from `feat/percy-smarter`)
+- Changed: `lib/core/offline_voice/hybrid_speech_input.dart` (ignore Android errors during an offline
+  session), `lib/core/voice/voice_controller.dart` (`_giveUp` closes the session),
+  `lib/config/voice_config.dart` + `lib/core/gestures/gesture_map.dart` (`holdToListen`),
+  `lib/core/gestures/gesture_surface.dart` (TalkBack custom action), ARB + generated l10n
+  (`gestureHoldListenAction`), `lib/core/percy/percy_controller.dart` + `command_bus.dart`
+  (`interruptTurn`), tests in `test/core/{gestures,offline_voice,voice,percy}`, docs 03/05/06/07.
+- Checks: `flutter analyze`: no issues. Changed test files + neighbours (gestures, engine_selection,
+  voice_controller, voice_cutoff, voice_offline, percy_session): 85 passed. Full suite, emulator and
+  release build NOT run (as agreed). Needs the tablet: hold while Percy/Reader speaks, TalkBack action,
+  the false error in daily use.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: Phase C (measure latency from tablet logs, noise options) after the user's review.
+
 ## 2026-10-16 — Percy smarter: PROVISIONAL retrain
 - Agent: Claude Code
 - Branch: `feat/percy-smarter`

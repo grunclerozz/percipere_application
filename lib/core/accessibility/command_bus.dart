@@ -136,6 +136,7 @@ class CommandBus {
     if (!_ref.read(percyActiveProvider) || _percy.acting) return false;
     switch (intent) {
       case NavIntent.listen:
+        _percy.interruptTurn();
         await _voice.listenNow();
         return true;
       case NavIntent.repeat:

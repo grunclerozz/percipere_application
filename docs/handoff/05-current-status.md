@@ -18,6 +18,7 @@
 | Item | Who | State |
 |---|---|---|
 | Percy smarter (`feat/percy-smarter`) | team, then Claude Code | **provisionally retrained** 2026-10-16 (`model.json` new, evaluated on 58 team rows only; 5 new intents not evaluated). Waiting for team test phrases, then rerun `train.py` for the official evaluation + `docs/thesis/percy-evaluation.md`. Not pushed |
+| Voice: hold to interrupt, false-error fix, latency, noise (`feat/voice-hold-interrupt`) | Claude Code | Phase B done 2026-10-16 (hold time config, TalkBack action, Percy turn drop, stale-error fix; tests for changed files pass). Waiting for user's tablet test; Phase C (latency, noise) after review. Not pushed |
 | Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15) |
 | Tablet test of everything since 2026-10-07 (checklists in `docs/testing/`, §15–18 of `system-test-checklist.md`) | user | waiting |
 | First test with the real dashboard (`docs/testing/first-tablet-test.md`) | user | waiting |

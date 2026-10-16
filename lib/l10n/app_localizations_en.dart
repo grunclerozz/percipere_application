@@ -173,6 +173,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'My voice listening isn\'t working right now, so I\'ll stop. Long-press the gesture area to try again, or use gestures.';
 
   @override
+  String get gestureHoldListenAction => 'Listen now';
+
+  @override
   String get micPermissionExplain =>
       'Android will now ask to let Percipere use the microphone, so I can hear your commands. Choose “While using the app”.';
 

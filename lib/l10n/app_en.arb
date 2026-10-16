@@ -46,6 +46,7 @@
   "voiceNothingHeard": "I didn't hear anything.",
   "voiceListeningPaused": "I'll stop listening for now. Long-press the gesture area to talk to me again.",
   "voiceRepeatedError": "My voice listening isn't working right now, so I'll stop. Long-press the gesture area to try again, or use gestures.",
+  "gestureHoldListenAction": "Listen now",
   "micPermissionExplain": "Android will now ask to let Percipere use the microphone, so I can hear your commands. Choose “While using the app”.",
   "micDenied": "I can't use the microphone, so gestures will be used for now.",
   "micDeniedPermanent": "The microphone is blocked for Percipere. You can allow it in the app's settings.",

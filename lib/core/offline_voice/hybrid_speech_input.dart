@@ -32,7 +32,14 @@ class HybridSpeechInput implements SpeechInput {
   }) async {
     _onStatus = onStatus;
     final androidReady = await android.initialize(
-      onError: onError,
+      // Like the statuses below: an error of an Android session that was
+      // cancelled earlier can arrive after our own session has started.
+      // Counted as this session's failure, it made the app give up
+      // ("Hindi gumagana ang pakikinig...") while the offline recognizer
+      // went on to hear the command a moment later.
+      onError: (code) {
+        if (!_offlineSession) onError(code);
+      },
       onStatus: (status) {
         // Statuses of an Android session while ours is open are stale.
         if (!_offlineSession) onStatus(status);

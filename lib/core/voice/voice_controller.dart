@@ -526,6 +526,10 @@ class VoiceController extends Notifier<VoiceState> {
   void _giveUp(String code) {
     _log('giving up after repeated "$code"');
     _restartTimer?.cancel();
+    // Nothing the closed session still delivers may run after this message.
+    _stopCap();
+    _session++;
+    unawaited(_cancelPlatform());
     _endDictation();
     _oneShot = false;
     _budgetSpent = true;

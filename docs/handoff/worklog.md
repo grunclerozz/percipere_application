@@ -17,6 +17,20 @@ Format:
 
 ---
 
+## 2026-10-17 — Database masterlist v2 (read-only analysis)
+- Agent: Claude Code
+- Branch: `docs/database-masterlist-v2` (from `feat/voice-hold-interrupt`)
+- Changed: new `docs/database/masterlist.md` and `docs/database/masterlist.xlsx` (11 sheets). Built from the live
+  MySQL `percipere_dashboard` (structure + row counts only; schema v13), the dashboard code on
+  `feat/admin-roles`, and the real SQLite migrations v1–v7 run in SQLite. Contains table/column dictionaries,
+  enums, three Mermaid ERDs (MySQL, SQLite, app↔server through the API), data flow/privacy (RA 10173),
+  changes since the 2026-10-13 masterlist, and a findings list (nothing fixed). The old
+  `database-masterlist.*` files are untouched. No code, schema, data or dashboard file was changed.
+- Checks: docs only: `flutter analyze`: no issues found. Mermaid syntax checked with the Mermaid parser in the browser pane.
+- Commit: see `git log docs/database-masterlist-v2` (pushed: no)
+- Follow-ups: the user decides on the findings (S-1 … X-1 in section 9), e.g. legacy `members` columns, missing
+  admin foreign keys, unused Android tables, erasure of reports when an app user is deleted.
+
 ## 2026-10-16 — Voice: hold to listen, false-error fix (Phase B)
 - Agent: Claude Code
 - Branch: `feat/voice-hold-interrupt` (from `feat/percy-smarter`)

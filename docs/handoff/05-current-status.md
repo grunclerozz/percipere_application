@@ -1,6 +1,6 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-16 by Claude Code.** Every agent updates this file at the end of a task
+**Last updated: 2026-10-17 by Claude Code (database masterlist v2: docs only).** Every agent updates this file at the end of a task
 (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each task:
 `docs/handoff/worklog.md`.
 
@@ -38,6 +38,7 @@
 ## Branches (checked 2026-10-16 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
+| `docs/database-masterlist-v2` | docs commit (database masterlist v2) on top of `feat/voice-hold-interrupt` | **not pushed**. Only `docs/database/masterlist.{md,xlsx}` + worklog/status. |
 | `docs/database-masterlist` (current work branch) | today's docs commit on top of `55edf3c` | 4 commits **not pushed** beyond `origin/docs/database-masterlist` (`0e24bd8`): `881dd1a`, `3bb1627`, `55edf3c`, and today's. Contains all of `main`. |
 | `main` (local) | `de4cac8` | 4 commits **not pushed** beyond `origin/main` (`54b6567`). Does not contain `0e24bd8` or later. |
 | `origin/main` | `54b6567` | last pushed state of the app |

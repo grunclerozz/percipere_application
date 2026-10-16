@@ -27,7 +27,7 @@ Format:
   changes since the 2026-10-13 masterlist, and a findings list (nothing fixed). The old
   `database-masterlist.*` files are untouched. No code, schema, data or dashboard file was changed.
 - Checks: docs only: `flutter analyze`: no issues found. Mermaid syntax checked with the Mermaid parser in the browser pane.
-- Commit: see `git log docs/database-masterlist-v2` (pushed: no)
+- Commit: `f88422e` (pushed: no)
 - Follow-ups: the user decides on the findings (S-1 … X-1 in section 9), e.g. legacy `members` columns, missing
   admin foreign keys, unused Android tables, erasure of reports when an app user is deleted.
 

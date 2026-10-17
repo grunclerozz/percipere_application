@@ -1,0 +1,81 @@
+erDiagram
+  %% SERVER (MariaDB percipere_dashboard) - TO-BE: assumes v12_remove_personal_columns.sql and v3_admin_fks.sql are applied (not run).
+  %% Solid = foreign key (live or added by v3_admin_fks.sql). Admins->roles solid line = proposed A4 (ON DELETE RESTRICT). Dotted = relationship with no FK.
+  %% FLAGGED: audit_log.log_member_id and feedback_notes.note_member_id are ON DELETE CASCADE; proposed fix SET NULL (A3, A5) (see proposed-changes.sql).
+  members {
+    int member_id PK
+    varchar member_email UK
+  }
+  roles {
+    int role_id PK
+    varchar role_name UK
+  }
+  admins {
+    int admin_id PK
+    varchar admin_email UK
+    int admin_member_id FK
+    int admin_role_id FK
+  }
+  app_users {
+    int user_id PK
+    varchar user_email UK
+  }
+  app_tokens {
+    int token_id PK
+    int token_user_id FK
+    char token_hash UK
+  }
+  api_limits {
+    char limit_key PK
+  }
+  feedback {
+    int feedback_id PK
+    int feedback_user_id FK
+    varchar feedback_ticket_no UK
+    int feedback_member_id FK
+    int feedback_admin_id FK
+  }
+  feedback_notes {
+    int note_id PK
+    int note_feedback_id FK
+    int note_member_id FK
+    int note_admin_id FK
+  }
+  audit_log {
+    int log_id PK
+    int log_member_id FK
+    int log_admin_id FK
+  }
+  app_settings {
+    varchar setting_key PK
+    int setting_admin_id FK
+  }
+  categories {
+    int category_id PK
+    varchar category_name UK
+  }
+  languages {
+    int language_id PK
+    varchar language_name UK
+  }
+  books {
+    int book_id PK
+    int book_category_id FK
+    int book_language_id FK
+    int book_admin_id FK
+  }
+  members |o--o{ admins : "admin_member_id (on delete set null)"
+  app_users ||--o{ app_tokens : "token_user_id (on delete cascade)"
+  members |o--o{ feedback : "feedback_member_id (on delete set null)"
+  app_users |o--o{ feedback : "feedback_user_id (on delete set null)"
+  feedback ||--o{ feedback_notes : "note_feedback_id (on delete cascade)"
+  members |o--o{ feedback_notes : "note_member_id (ON DELETE CASCADE - FLAGGED, propose SET NULL)"
+  members |o--o{ audit_log : "log_member_id (ON DELETE CASCADE - FLAGGED, propose SET NULL)"
+  admins |o--o{ books : "book_admin_id (on delete set null)"
+  categories ||--o{ books : "book_category_id (on delete restrict)"
+  languages ||--o{ books : "book_language_id (on delete restrict)"
+  admins |o--o{ feedback : "feedback_admin_id (on delete set null; via v3_admin_fks)"
+  admins |o--o{ feedback_notes : "note_admin_id (on delete set null; via v3_admin_fks)"
+  admins |o--o{ audit_log : "log_admin_id (on delete set null; via v3_admin_fks)"
+  roles |o--o{ admins : "admin_role_id (on delete restrict; proposed A4)"
+  admins |o..o{ app_settings : "setting_admin_id (no FK by design)"

@@ -1,12 +1,25 @@
 import '../../config/percy_config.dart';
 import '../library/library_models.dart';
 import '../library/library_view.dart';
+import '../tts/reading_rate.dart';
 import '../voice/understanding.dart';
 import 'percy_text.dart';
 
 /// Rule-based slot extraction for Percy (`open_item`): which document the
 /// user means, by title or by position ("yung pangalawa").
 abstract final class PercySlots {
+  /// A named setup speed in [text], or null when the sentence is relative.
+  static SpeechSpeed? speed(String text) {
+    final words = PercyText.preprocess(text).split(' ').toSet();
+    // "mas mabagal" / "mas mabilis" are relative (faster/slower), not presets.
+    if (words.contains('mas') || words.contains('medyo')) return null;
+    if (words.contains('mabagal') || words.contains('slow')) return SpeechSpeed.slow;
+    if (words.contains('katamtaman') || words.contains('medium') || words.contains('normal')) {
+      return SpeechSpeed.medium;
+    }
+    if (words.contains('mabilis') || words.contains('fast')) return SpeechSpeed.fast;
+    return null;
+  }
   /// Ordinal words → position (−1 = the last one).
   static const Map<String, int> ordinals = {
     'una': 0, 'unang': 0, 'first': 0, 'isa': 0, //

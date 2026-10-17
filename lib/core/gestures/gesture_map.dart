@@ -1,3 +1,4 @@
+import '../../config/voice_config.dart';
 import '../accessibility/nav_intent.dart';
 
 /// Gestures the gesture layer recognizes.
@@ -77,7 +78,7 @@ class GestureTuning {
     this.tapSlop = 20,
     this.tapMaxDuration = const Duration(milliseconds: 400),
     this.doubleTapTimeout = const Duration(milliseconds: 350),
-    this.longPressDuration = const Duration(milliseconds: 650),
+    this.longPressDuration = VoiceConfig.holdToListen,
   });
 
   /// Minimum travel for a swipe.

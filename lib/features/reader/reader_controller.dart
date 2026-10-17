@@ -642,12 +642,28 @@ class ReaderController extends Notifier<ReaderState> {
       if (i >= n) return _finish();
       final sentence = state.sentences[i].textIn(state.text);
       _announcer.noteReadAloud(sentence);
-      final spoken = await _tts.speak(
+      var spoken = await _tts.speak(
         sentence,
         languageTag: _voiceTag,
         rate: ref.read(readingRateProvider),
       );
       if (token != _token || !ref.mounted) return; // we paused or skipped
+      if (!spoken && _tts.lastFailed) {
+        // The engine failed (e.g. a voice that needs the internet, while
+        // offline); the TTS service has moved to another voice: try the
+        // sentence once more before giving up.
+        debugPrint('[READER] sentence $i failed to speak: trying again');
+        spoken = await _tts.speak(
+          sentence,
+          languageTag: _voiceTag,
+          rate: ref.read(readingRateProvider),
+        );
+        if (token != _token || !ref.mounted) return;
+        if (!spoken && _tts.lastFailed) {
+          unawaited(ref.read(hapticsProvider).error());
+          return _stopped();
+        }
+      }
       if (!spoken) return _stopped(); // someone else stopped speech
       if (single) return _stopped();
       _setIndex(i + 1);

@@ -194,7 +194,12 @@
     "goodbye": {"fil": "tapusin ang usapan", "en": "ending our talk"},
     "yes": {"fil": "oo", "en": "yes"},
     "no": {"fil": "hindi", "en": "no"},
-    "out_of_scope": {"fil": "iba pa", "en": "something else"}
+    "out_of_scope": {"fil": "iba pa", "en": "something else"},
+    "describe_image": {"fil": "buksan ang Maglarawan", "en": "opening Maglarawan"},
+    "more_detail": {"fil": "humingi ng mas detalyadong paglalarawan", "en": "getting a more detailed description"},
+    "read_image_text": {"fil": "basahin ang teksto sa larawan", "en": "reading the text in the picture"},
+    "tutorial": {"fil": "ulitin ang tutorial", "en": "replaying the tutorial"},
+    "set_speed": {"fil": "itakda ang bilis ng pagbasa", "en": "setting the reading speed"}
   },
   "suggestions": {
     "home": {"fil": ["buksan ang Aklatan", "magbasa ng bago", "nasaan ako"], "en": ["open the Library", "read something new", "where am I"]},

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/auth/account.dart';
 import '../core/auth/session.dart';
+import '../core/offline_voice/offline_voice_setup.dart';
 import '../features/auth/auth_choice_screen.dart';
 import '../features/auth/fingerprint_offer_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
@@ -23,11 +24,13 @@ import '../features/library/chapters_screen.dart';
 import '../features/library/favorites_screen.dart';
 import '../features/library/item_details_screen.dart';
 import '../features/library/library_screen.dart';
+import '../features/offline_voice/offline_voice_setup_screen.dart';
 import '../features/reader/reader_controller.dart';
 import '../features/reader/reader_screen.dart';
 import '../features/report/my_reports_screen.dart';
 import '../features/report/report_issue_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/settings/voice_check_screen.dart';
 import '../features/setup/profiling_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../features/welcome/welcome_screen.dart';
@@ -68,6 +71,13 @@ abstract final class AppRoutes {
 
   /// "Aking mga report".
   static const String myReports = '/report/mine';
+
+  /// "Pagsusuri ng boses" (Voice check).
+  static const String voiceCheck = '/settings/voice-check';
+
+  /// First launch: downloading the offline voices. `extra`: an
+  /// `OfflineVoiceNext` (where to go afterwards).
+  static const String offlineVoice = '/voice-setup';
 
   /// Claim an old name + PIN account.
   static const String legacyAccount = '/login/legacy';
@@ -190,6 +200,18 @@ GoRouter buildRouter({
         builder: (context, state) => const MyReportsScreen(),
       ),
       GoRoute(
+        path: AppRoutes.voiceCheck,
+        builder: (context, state) => const VoiceCheckScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.offlineVoice,
+        builder: (context, state) => OfflineVoiceSetupScreen(
+          next: state.extra is OfflineVoiceNext
+              ? state.extra! as OfflineVoiceNext
+              : const OfflineVoiceNext(AppRoutes.welcome),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.legacyAccount,
         builder: (context, state) => const LegacyAccountScreen(),
       ),
@@ -282,13 +304,17 @@ GoRouter buildRouter({
 final routerProvider = Provider<GoRouter>((ref) {
   final account = ref.read(initialAccountProvider);
   final expired = ref.read(initialSessionExpiredProvider);
+  final location = account != null
+      ? AppRoutes.landing(account)
+      : expired
+      ? AppRoutes.authChoice
+      : AppRoutes.welcome;
+  final extra = account == null && expired ? true : null;
+  // First launch: the offline voices are downloaded before anything else.
+  final setup = ref.read(offlineVoiceSetupPendingProvider);
   final router = buildRouter(
-    initialLocation: account != null
-        ? AppRoutes.landing(account)
-        : expired
-        ? AppRoutes.authChoice
-        : AppRoutes.welcome,
-    initialExtra: account == null && expired ? true : null,
+    initialLocation: setup ? AppRoutes.offlineVoice : location,
+    initialExtra: setup ? OfflineVoiceNext(location, extra: extra) : extra,
   );
   ref.onDispose(router.dispose);
   return router;

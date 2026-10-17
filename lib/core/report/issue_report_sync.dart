@@ -1,12 +1,14 @@
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/session_store.dart';
+import '../network/connectivity.dart';
 import 'issue_report_api.dart';
 import 'issue_report_repository.dart';
+
+export '../network/connectivity.dart' show connectionRestoredProvider;
 
 /// Sends the reports saved on the phone that the web app doesn't have yet.
 /// A report is only marked sent once the web app has it; with no
@@ -86,18 +88,6 @@ final issueReportSyncProvider = Provider<IssueReportSync>(
     ref.watch(sessionStoreProvider),
   ),
 );
-
-/// Fires when the phone's connection comes back (tests override it).
-final connectionRestoredProvider = Provider<Stream<void>>((ref) {
-  try {
-    return Connectivity().onConnectivityChanged
-        .where((results) => results.any((r) => r != ConnectivityResult.none))
-        .map((_) {});
-  } on Object catch (e) {
-    debugPrint('Connectivity unavailable: $e');
-    return const Stream<void>.empty();
-  }
-});
 
 /// Sends waiting reports when the app starts, when it comes back to the
 /// front and when the connection returns.

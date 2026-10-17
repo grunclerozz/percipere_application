@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 
+import '../../app/ids.dart';
 import '../../config/percy_config.dart';
 import '../accessibility/nav_intent.dart';
 import '../library/library_models.dart';
 import '../library/library_view.dart';
+import '../tts/reading_rate.dart';
 import '../voice/understanding.dart';
 import '../voice/voice_commands.dart';
 import 'intent_classifier.dart';
@@ -24,6 +26,9 @@ abstract interface class PercyEnvironment {
 
   /// Whether [intent] does something on the active screen.
   bool supports(NavIntent intent);
+
+  /// Whether the active screen exposes this existing accessibility action.
+  bool supportsAction(String actionId);
 
   /// The user's Library, most recently opened first.
   Future<List<LibraryItem>> libraryItems();
@@ -63,6 +68,24 @@ final class RunIntent extends PercyAction {
 
   /// The command.
   final NavIntent intent;
+}
+
+/// Runs an existing accessibility action on the active screen.
+final class RunAction extends PercyAction {
+  /// Creates the action.
+  const RunAction(this.actionId);
+
+  /// Stable id from [Ids].
+  final String actionId;
+}
+
+/// Sets an existing named reading-speed preset through the CommandBus.
+final class SetSpeed extends PercyAction {
+  /// Creates the action.
+  const SetSpeed(this.speed);
+
+  /// The setup speed preset to apply.
+  final SpeechSpeed speed;
 }
 
 /// Opens a Library document in the Reader.
@@ -267,7 +290,7 @@ class DialogueManager {
     PercyStyle style,
   ) async {
     final top = prediction.top;
-    final intent = top.intent;
+    final intent = _contextualIntent(top.intent, env);
     final answer = _yesNo(text, prediction);
 
     // 1. Percy's own question.
@@ -369,6 +392,19 @@ class DialogueManager {
     return _act(intent, text, env, style, TurnOutcome.acted, top.probability);
   }
 
+  /// The same spoken request has a different safe target while a described
+  /// image is open. This avoids relying on the classifier alone for the
+  /// overlap between document reading and text discovered in an image.
+  PercyIntent? _contextualIntent(PercyIntent? intent, PercyEnvironment env) {
+    if (env.screenId == Ids.describe && intent == PercyIntent.read) {
+      return PercyIntent.readImageText;
+    }
+    if (env.screenId != Ids.describe && intent == PercyIntent.readImageText) {
+      return PercyIntent.read;
+    }
+    return intent;
+  }
+
   // ── Acting ─────────────────────────────────────────────────────────────
 
   static const Set<PercyIntent> _movesScreen = {
@@ -437,6 +473,26 @@ class DialogueManager {
         );
       case PercyIntent.openItem:
         return _openItem(text, env, style, outcome, confidence);
+      case PercyIntent.moreDetail:
+        return _action(Ids.describeMore, env, style, outcome, intent, confidence);
+      case PercyIntent.readImageText:
+        return _action(
+          Ids.describeReadText,
+          env,
+          style,
+          outcome,
+          intent,
+          confidence,
+        );
+      case PercyIntent.setSpeed:
+        final speed = PercySlots.speed(text);
+        if (speed == null) return _fallback(env, style, intent, confidence ?? 0);
+        return PercyReply(
+          action: SetSpeed(speed),
+          outcome: outcome,
+          intent: intent,
+          confidence: confidence,
+        );
       case PercyIntent.outOfScope:
         return _fallback(env, style, intent, confidence ?? 0);
       default:
@@ -462,6 +518,30 @@ class DialogueManager {
           confidence: confidence,
         );
     }
+  }
+
+  PercyReply _action(
+    String actionId,
+    PercyEnvironment env,
+    PercyStyle style,
+    TurnOutcome outcome,
+    PercyIntent intent,
+    double? confidence,
+  ) {
+    if (!env.supportsAction(actionId)) {
+      return PercyReply(
+        say: responses.dialogue('not_here', style.lang, style.politeness),
+        outcome: TurnOutcome.notAvailable,
+        intent: intent,
+        confidence: confidence,
+      );
+    }
+    return PercyReply(
+      action: RunAction(actionId),
+      outcome: outcome,
+      intent: intent,
+      confidence: confidence,
+    );
   }
 
   Future<PercyReply> _openItem(

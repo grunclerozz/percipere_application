@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/app/ids.dart';
 import 'package:percipere_app/config/percy_config.dart';
 import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/library/library_models.dart';
@@ -15,6 +16,7 @@ import 'package:percipere_app/core/percy/intent_classifier.dart';
 import 'package:percipere_app/core/percy/percy_intent.dart';
 import 'package:percipere_app/core/percy/percy_responses.dart';
 import 'package:percipere_app/core/percy/slots.dart';
+import 'package:percipere_app/core/tts/reading_rate.dart';
 
 /// Returns whatever the test scripted for a sentence (default: unsure).
 class _ScriptedModel implements IntentModel {
@@ -48,6 +50,11 @@ class _Env implements PercyEnvironment {
 
   @override
   bool supports(NavIntent intent) => !unsupported.contains(intent);
+
+  final Set<String> supportedActions = {};
+
+  @override
+  bool supportsAction(String actionId) => supportedActions.contains(actionId);
 
   @override
   Future<List<LibraryItem>> libraryItems() async => items;
@@ -281,6 +288,52 @@ void main() {
   test('"nasaan ako" asks the app', () async {
     final r = await say('nasaan ako', (PercyIntent.whereAmI, 0.9));
     expect(r.action, isA<TellWhereAmI>());
+  });
+
+  group('image reading context', () {
+    test('on Maglarawan, read runs the existing image-text action', () async {
+      env
+        ..screenId = Ids.describe
+        ..supportedActions.add(Ids.describeReadText);
+      final r = await say('basahin ang text', (PercyIntent.read, 0.9));
+      expect(r.intent, PercyIntent.readImageText);
+      expect((r.action! as RunAction).actionId, Ids.describeReadText);
+    });
+
+    test('away from Maglarawan, image-text wording remains document reading',
+        () async {
+      env.screenId = 'reader';
+      final r = await say('read image text', (PercyIntent.readImageText, 0.9));
+      expect(r.intent, PercyIntent.read);
+      expect((r.action! as RunIntent).intent, NavIntent.read);
+    });
+  });
+
+  group('set_speed presets', () {
+    const cases = {
+      'mabagal': SpeechSpeed.slow,
+      'gawing mabagal': SpeechSpeed.slow,
+      'slow': SpeechSpeed.slow,
+      'katamtaman': SpeechSpeed.medium,
+      'normal na bilis': SpeechSpeed.medium,
+      'medium': SpeechSpeed.medium,
+      'mabilis': SpeechSpeed.fast,
+      'gawing mabilis': SpeechSpeed.fast,
+      'fast': SpeechSpeed.fast,
+    };
+    for (final e in cases.entries) {
+      test('"${e.key}" sets ${e.value.name}', () async {
+        final r = await say(e.key, (PercyIntent.setSpeed, 0.9));
+        expect((r.action! as SetSpeed).speed, e.value);
+      });
+    }
+
+    test('relative wording is not an exact preset', () async {
+      for (final t in ['mas mabagal', 'mas mabilis']) {
+        final r = await say(t, (PercyIntent.setSpeed, 0.9));
+        expect(r.action, isNot(isA<SetSpeed>()), reason: t);
+      }
+    });
   });
 
   group('the app\'s own questions (destructive actions)', () {

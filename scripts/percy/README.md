@@ -32,6 +32,13 @@ scripts\percy\.venv\Scripts\python scripts\percy\train.py
 | `data/percy/reports/confusion-<date>.png` | Confusion matrix of the test set |
 | `scripts/percy/test_vectors.json` | 30 sentences the Dart test checks against |
 
+`train.py` scores on the fixed team-written test set `data/percy/test_team.csv` (primary), then on an
+all-data 70/15/15 split and 5-fold CV (secondary). It refuses to train (exit 2) until that file has
+8+ team phrases for each new intent (`describe_image`, `more_detail`, `read_image_text`, `tutorial`,
+`set_speed`). `--dry-run` evaluates only: nothing in `assets/percy/` is touched.
+Training rows that match a test phrase after preprocessing must be removed (`validate_dataset.py`
+reports them as leakage).
+
 Then run the Dart check that the app reads the new model exactly like Python:
 
 ```powershell

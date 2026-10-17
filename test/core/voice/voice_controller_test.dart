@@ -112,23 +112,35 @@ void main() {
     expect(env.speech.sessions.last.onDevice, isFalse);
   });
 
-  test(
-    'no offline pack and no internet: explains and offers settings',
-    () async {
-      await setUpWith();
-      await speakThenSettle('Una.');
-      env.speech.fail('error_language_unavailable');
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      env.speech.fail('error_network');
-      await pumpEventQueue();
+  test('no offline pack and no internet: offline English, then explains and '
+      'offers settings', () async {
+    await setUpWith();
+    await speakThenSettle('Una.');
+    env.speech.fail('error_language_unavailable');
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    env.online = false;
+    env.speech.fail('error_network');
+    // Online failed: offline English is tried, and said once.
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    expect(env.tts.transcript, contains('Ingles na offline'));
+    await Future<void>.delayed(_settle);
+    final english = env.speech.sessions.last;
+    expect(english.localeId, 'en-US');
+    expect(english.onDevice, isTrue);
+    // Not installed either: one clear message, no more sessions.
+    env.speech.fail('error_language_unavailable');
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    final count = env.speech.sessions.length;
 
-      expect(env.tts.transcript, contains('Walang internet'));
-      // The offer's "how to answer" is held back until the answer wait.
-      expect(container.read(announcerProvider.notifier).awaitingAnswer, true);
-      await container.read(commandBusProvider).dispatch(NavIntent.activate);
-      expect(env.settings.voiceInputOpened, 1);
-    },
-  );
+    expect(env.tts.transcript, contains('walang naka-install'));
+    expect(env.earcon.stoppedCues, greaterThanOrEqualTo(1));
+    await Future<void>.delayed(_settle);
+    expect(env.speech.sessions, hasLength(count), reason: 'no loop');
+    // The offer's "how to answer" is held back until the answer wait.
+    expect(container.read(announcerProvider.notifier).awaitingAnswer, true);
+    await container.read(commandBusProvider).dispatch(NavIntent.activate);
+    expect(env.settings.voiceInputOpened, 1);
+  });
 
   test(
     'long-press in gesture mode: one session; silence is reported',
@@ -217,6 +229,13 @@ void main() {
     expect(env.tts.transcript, contains('Hihinto muna ako'));
     expect(env.speech.listening, isFalse);
     expect(sessions.length, lessThan(10), reason: 'no endless retrying');
+
+    // After the message, a late result of the closed session is dropped.
+    final before = state().heard;
+    env.speech.hear('susunod');
+    await pumpEventQueue();
+    expect(state().heard, before);
+    expect(env.speech.listening, isFalse);
   }, timeout: const Timeout(Duration(seconds: 90)));
 
   test('no recognizer: explains and switches to gestures', () async {

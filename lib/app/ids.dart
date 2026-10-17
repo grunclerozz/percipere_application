@@ -167,6 +167,16 @@ abstract final class Ids {
   /// Setting row: my reports.
   static const String settingMyReports = 'settings.myReports';
 
+  /// "Pagsusuri ng boses" (Voice check); each action adds `.<name>`.
+  static const String voiceCheck = 'voiceCheck';
+
+  /// Setting row: Voice check.
+  static const String settingVoiceCheck = 'settings.voiceCheck';
+
+  /// First launch: downloading the offline voices ("Mga boses at wika");
+  /// each action adds `.<name>`.
+  static const String offlineVoice = 'offlineVoice';
+
   /// Library screen (Aklatan).
   static const String library = 'library';
 

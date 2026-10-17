@@ -1,0 +1,36 @@
+# 07 — Key decisions and why
+
+**Record every new or changed decision here** (add a row, newest at the bottom of the table,
+keep the date). For a long write-up with alternatives and measurements, also add a dated entry
+to `docs/specs/decisions.md` (newest first) and point to it in the "Where" column.
+If a decision is reversed, don't delete the old row: add a new row that says what replaced it.
+
+| Date | Decision | Why | Where |
+|---|---|---|---|
+| 2026-09-30 | Android-only Flutter app, offline-first, Filipino default | Users are blind/low-vision people in Bataan; connectivity is unreliable | `docs/agent-rules.md` |
+| 2026-09-30 | One action registry: gestures, voice and taps run the same `A11yAction`s through the CommandBus | Consistent behaviour, every action reachable three ways | `lib/core/accessibility/` |
+| 2026-10-01 | Fixed layout, no page scrolling; text size only enlarges the reading text | Review: overlaps and scrolling confuse users who can't see | decisions 2026-10-01, 2026-10-03 |
+| 2026-10-04 | Maglarawan offline labels first; online detail only with spoken consent, via the server (Gemini on the dashboard, no API key in the app) | Privacy, offline-first; the app never calls AI APIs directly | `docs/specs/image-recognition.md` |
+| 2026-10-06 | Aklatan (Library) replaces Reading History; Phase 6D postponed | User priority | decisions 2026-10-06 |
+| 2026-10-07 | Release-APK input bugs fixed with R8 keep rules; always test native plugins in a release build | Inputs worked in debug, failed in release | decisions 2026-10-07 |
+| 2026-10-10 | **Self-built Percy** (scikit-learn intent classifier exported to JSON, pure Dart, offline) replaces ElevenLabs; ElevenLabs kept only as a hidden developer option | **Intelligent Systems class requirement**: own model, no external AI API | `docs/specs/percy-local.md` |
+| 2026-10-10 | Accounts on the dashboard (email code, reset, suspension), with offline login for accounts already used on the tablet | Thesis needs server accounts; offline-first must still work | decisions 2026-10-10 (3) |
+| 2026-10-11 | **REST API** under `/api/v1` (old `.php` URLs deprecated) for books, accounts, reports | Clean, testable contract shared with the dashboard | `docs/api-contract.md` |
+| 2026-10-11 | **Admin books maintained in the dashboard**; app downloads with size + SHA-256 check; public domain or licensed only | Admins manage content; integrity; copyright | `docs/specs/library.md` |
+| 2026-10-11 | Reports send `type`/`module`/`severity` as **`{code, label}`**; reporter name not sent | Codes for logic, labels for the dashboard display; less personal data | decisions 2026-10-11 (4) |
+| 2026-10-11 | Plain HTTP only to the configured server host (Android config + Dart `CleartextGuard`) | Testing on a LAN PC without opening cleartext to every host | decisions 2026-10-11 (5) |
+| 2026-10-11 | "Natanggap" instead of "Bukas" for an open ticket | "Bukas" is ambiguous when read aloud | decisions 2026-10-11 (5) |
+| 2026-10-13 | **Password visible by default** with an eye (hide) toggle; never spoken by the app or Percy | Required by the adviser/panel | decisions 2026-10-13 |
+| 2026-10-13 | Tutorial after setup, per account (guests per device), starting with Percy's intro | Tutorial was missed by later users | decisions 2026-10-13 |
+| 2026-10-13 | Percy stays in the conversation through long-press/tap/stop-speech; silence reminder then goodbye | Fixed the "conversation has ended" bug | decisions 2026-10-13 (2) |
+| 2026-10-14 | Silences timed by the app, never handed to Android; listening plan offline → online → offline English | Android held results back by the 4 s wait; voice only worked online | decisions 2026-10-14 |
+| 2026-10-15 | App downloads its **own offline engines** (sherpa-onnx: Whisper tiny Filipino + Silero VAD; MMS Tagalog + Piper English voices), first for commands | Users must not install Google packs; keyword spotting failed on real Filipino speech (2%) | decisions 2026-10-15, `tool/voice_models/README.md` |
+| 2026-10-15 | **Percy offline postponed** (dictation and Percy stay on Android's recognizer) | Scope kept small for this round | `docs/todo.md` |
+| 2026-10-16 | Claude Code and OpenAI Codex both work on this repo; rules live only in `docs/agent-rules.md`, status in `05-current-status.md`, history in `worklog.md`; one agent per branch at a time | Either agent must continue the other's work without chat history | `docs/agent-rules.md` |
+| 2026-10-16 | Percy smarter uses a fixed, team-written-only held-out test set; generated Codex rows are training-only | Thesis evaluation must not score phrases generated for model training | `data/percy/test_team.csv`, `docs/handoff/percy-smarter-handoff.md` |
+| 2026-10-16 | Percy evaluation: primary score = fixed team-only test set (`test_team.csv`, never trained on, never reshuffled); all-data 70/15/15 split and 5-fold CV are secondary; model chosen by 5-fold CV on training data only; training rows matching a test phrase after preprocessing are dropped; `train.py` will not train until each new intent has 8+ team test phrases | A score on phrases the model trained on, or on generated text, would not be honest thesis evidence | `scripts/percy/train.py`, `scripts/percy/validate_dataset.py` |
+| 2026-10-16 | Hold-to-listen stays the existing long-press (`longPress` → `listen`), with the hold time in `VoiceConfig.holdToListen`; TalkBack gets the same action as a custom semantics action; Android recognizer errors are ignored while the offline recognizer is listening | One gesture to stop speech and talk; false "voice not working" stops | `lib/core/gestures/`, `lib/core/offline_voice/hybrid_speech_input.dart` |
+
+Standing rules that came from decisions: privacy under RA 10173 (minimum data, own documents
+stay on the device), passwords never logged or spoken, end-of-phase quality check
+(all in `docs/agent-rules.md`).

@@ -4,27 +4,60 @@
 /// The `[VOICE TIMING]` log line (`adb logcat -s flutter`) shows what each
 /// command actually took; change these values, rebuild and compare.
 abstract final class VoiceConfig {
+  // ── Hold to listen ───────────────────────────────────────────────────────
+
+  /// How long one finger must stay still on the gesture area before the app
+  /// stops speaking and listens (long-press). Long enough that resting a
+  /// hand on the screen does not trigger it (0.6–0.8 s is sensible).
+  static const Duration holdToListen = Duration(milliseconds: 650);
+
   // ── Pauses: how long a silence ends a listening session ──────────────────
 
   /// How long a session waits for the user to **start** speaking. The short
-  /// pauses below only apply once words have been heard (the plugin's
-  /// silence timer otherwise starts when listening starts, and a session
-  /// that ends that fast counts as a recognizer failure).
+  /// pauses below only apply once words have been heard. Timed by the app
+  /// (`SttSpeechInput`), never handed to Android: Android would use it as the
+  /// silence that ends speech and hold every result back this long.
   static const Duration waitForSpeech = Duration(seconds: 4);
 
   /// Silence after the user's words that ends a **command** ("i-pause",
-  /// "susunod"): the single end-of-speech timeout (0.8–1.2 s is sensible).
+  /// "susunod"): the single end-of-speech timeout (1.2–1.5 s is sensible).
   /// Short, so the command runs soon after the user stops talking; partial
   /// results usually act before it anyway. Raise it if commands get cut
   /// off; lower it for a snappier response.
-  static const Duration commandPause = Duration(milliseconds: 1000);
+  static const Duration commandPause = Duration(milliseconds: 1300);
 
   /// Silence that ends **dictation** (names, email, password, collection
   /// names, titles). Longer, so users can stop to think mid-way.
   static const Duration dictationPause = Duration(seconds: 4);
 
-  /// Longest single listening session.
+  /// Silence that ends what the user says to **Percy** (a whole sentence,
+  /// maybe with a pause to think): longer than a command, shorter than
+  /// dictation.
+  static const Duration percyPause = Duration(milliseconds: 2200);
+
+  /// Longest single listening session (dictation).
   static const Duration listenFor = Duration(seconds: 30);
+
+  /// Longest **command** session. Short, so a noisy room (where the words
+  /// never stop changing) can't keep one session open: it ends, the result
+  /// is judged, and a fresh session starts.
+  static const Duration commandListenFor = Duration(seconds: 10);
+
+  /// Longest Percy session.
+  static const Duration percyListenFor = Duration(seconds: 20);
+
+  /// Once words have been heard in a command session, it ends after this
+  /// long even if the words keep changing (background talk, TV): commands
+  /// are short, and what was heard is judged at once.
+  static const Duration commandSpeechMax = Duration(seconds: 4);
+
+  /// After online recognition failed for lack of network, the phone saying
+  /// "connected" is trusted again only after this long (or when the
+  /// connection comes back).
+  static const Duration networkRetryAfter = Duration(seconds: 60);
+
+  /// The Voice check test listen ("Sabihin: buksan ang Aklatan").
+  static const Duration probeListenFor = Duration(seconds: 5);
 
   /// After the recognizer is told to stop, how long to wait for its final
   /// result before using the last partial result instead (plugin default:
@@ -118,4 +151,12 @@ abstract final class VoiceConfig {
   /// Microphone level (Android rms dB, about −2 silent to 10 loud) taken as
   /// "speech started" in the `[VOICE TIMING]` log. Logging only.
   static const double speechStartLevel = 3;
+
+  // ── Offline engines (bundled, downloaded once) ───────────────────────────
+
+  /// Silence that ends a command for the app's own offline recognizer
+  /// (Whisper + Silero VAD). Shorter than [commandPause]: the Android
+  /// recognizer acts on partial results long before its pause ends, ours
+  /// only once the speech has ended. Raise it if commands get cut off.
+  static const Duration offlineEndOfSpeech = Duration(milliseconds: 700);
 }

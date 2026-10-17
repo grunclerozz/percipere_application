@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../percy/percy_controller.dart';
 import '../tts/tts_service.dart';
 import '../voice/voice_controller.dart';
 import 'action_registry.dart';
@@ -103,6 +104,14 @@ class _AccessibilityHostState extends ConsumerState<AccessibilityHost>
     }
     unawaited(bus.announceScreen(screen, interrupt: false));
     bus.noteVisit(screen.id);
+    // Percy's model loads in the background now (in its own isolate), so
+    // the first "Percy" answers without the loading delay.
+    unawaited(
+      ref.read(percyBrainProvider.future).then<void>(
+        (_) {},
+        onError: (Object e) => debugPrint('[PERCY] preload failed: $e'),
+      ),
+    );
     if (ref.read(talkBackProvider)) {
       await announcer.say(bus.strings.talkBackNotice, interrupt: false);
     }

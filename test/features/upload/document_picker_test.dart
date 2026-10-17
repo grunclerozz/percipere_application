@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/features/upload/document_picker.dart';
 
@@ -27,7 +28,7 @@ void main() {
   tearDown(() => tmp.delete(recursive: true));
 
   Future<String> file(String name, List<int> bytes) async {
-    final f = File('${tmp.path}/$name');
+    final f = File(p.join(tmp.path, name));
     await f.writeAsBytes(bytes);
     return f.path;
   }

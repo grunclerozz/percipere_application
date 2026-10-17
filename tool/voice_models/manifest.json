@@ -1,0 +1,31 @@
+{
+  "models": [
+    {
+      "name": "percipere-asr-fil-en",
+      "version": "1",
+      "size": 33502464,
+      "sha256": "e64fd0417d766ccd544a7cd96bb03168ad72f84994ccaf54afc23e352af22edb",
+      "installed_size": 44800000,
+      "url": "models/percipere-asr-fil-en-v1.tar.gz",
+      "fallback_url": "https://github.com/grunclerozz/percipere_app/releases/download/voice-models-v1/percipere-asr-fil-en-v1.tar.gz"
+    },
+    {
+      "name": "percipere-tts-tgl",
+      "version": "1",
+      "size": 38395702,
+      "sha256": "70f00a331a2291a9e6c4bef12f4721dc9bb9c010531e9b2008061c2ffa3fac21",
+      "installed_size": 43450000,
+      "url": "models/percipere-tts-tgl-v1.tar.gz",
+      "fallback_url": "https://github.com/grunclerozz/percipere_app/releases/download/voice-models-v1/percipere-tts-tgl-v1.tar.gz"
+    },
+    {
+      "name": "percipere-tts-en",
+      "version": "1",
+      "size": 14017873,
+      "sha256": "3fc2c48edfc0d90ca6855cea6748f0030d9d227a62c33f94efe23af1baded2b3",
+      "installed_size": 20400000,
+      "url": "models/percipere-tts-en-v1.tar.gz",
+      "fallback_url": "https://github.com/grunclerozz/percipere_app/releases/download/voice-models-v1/percipere-tts-en-v1.tar.gz"
+    }
+  ]
+}

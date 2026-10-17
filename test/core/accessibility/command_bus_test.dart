@@ -8,6 +8,7 @@ import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
 import 'package:percipere_app/core/accessibility/screen_registration.dart';
 import 'package:percipere_app/core/gestures/gesture_map.dart';
+import 'package:percipere_app/core/voice/command_matcher.dart';
 
 import '../../helpers/fakes.dart';
 
@@ -170,11 +171,25 @@ void main() {
       expect(activated, ['a']);
     });
 
+    test('"buksan ang Aklatan" where the screen has no Aklatan row: the '
+        'Library, not "activate" (2026-10-14)', () async {
+      await setUpWith();
+      register(menu());
+      final match = bus().matchOnly('buksan ang aklatan');
+      expect(match, isA<Matched>());
+      expect((match as Matched).target, const ValueTarget(NavIntent.library));
+      // "buksan" alone still activates.
+      expect(
+        (bus().matchOnly('buksan') as Matched).target,
+        const ValueTarget(NavIntent.activate),
+      );
+    });
+
     test('unclear: asks back, "oo" runs it', () async {
       await setUpWith();
       register(menu());
       await bus().handleUtterance('susonud po ba');
-      expect(env.tts.spoken.first, 'Ang ibig mo bang sabihin ay “susunod”?');
+      expect(env.tts.spoken.first, 'Ito ba ang ibig mong sabihin: “susunod”?');
       await bus().handleUtterance('oo');
       expect(container.read(focusControllerProvider), 'a');
     });

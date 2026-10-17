@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// Ask-back when a voice command is unclear.
   ///
   /// In fil, this message translates to:
-  /// **'Ang ibig mo bang sabihin ay “{phrase}”? Sabihin ang oo o hindi.'**
+  /// **'Ito ba ang ibig mong sabihin: “{phrase}”? Sabihin ang oo o hindi.'**
   String voiceDidYouMean(String phrase);
 
   /// User said no to an ask-back or offer.
@@ -373,6 +373,12 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.'**
   String get voiceRepeatedError;
+
+  /// TalkBack action on the gesture area: the same as holding one finger on it (stops speech and listens).
+  ///
+  /// In fil, this message translates to:
+  /// **'Makinig ngayon'**
+  String get gestureHoldListenAction;
 
   /// Spoken right before the Android microphone permission dialog.
   ///
@@ -4381,6 +4387,403 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Walang server'**
   String get serverAddressNone;
+
+  /// No network and no offline recognizer language: listening stops (followed by the offer hint).
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang internet, at walang naka-install na offline na pagkilala sa boses, kaya hindi kita marinig ngayon. Gumamit muna ng mga galaw. Para gumana ito offline, i-download ang offline na wika sa voice input settings; nasa Settings, Pagsusuri ng boses, ang gabay.'**
+  String get voiceOfflineNone;
+
+  /// Offline with only English offline recognition installed (Filipino users).
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang internet. Ingles na offline na pagkilala ang gamit ko ngayon, kaya mas maiintindihan ko ang mga utos sa Ingles, gaya ng next, pause o library.'**
+  String get voiceOfflineEnglish;
+
+  /// Screen title and Settings row.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagsusuri ng boses'**
+  String get screenVoiceCheck;
+
+  /// Settings row value.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakikinig, boses at offline'**
+  String get setVoiceCheckValue;
+
+  /// Voice check prompt, before the details.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ito ang kalagayan ng pakikinig at ng boses ng app. Piliin ang Subukan para sa limang segundong pagsubok.'**
+  String get voiceCheckIntro;
+
+  /// Recognition service.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagkilala sa boses: {service}.'**
+  String voiceCheckRecognizer(String service);
+
+  /// Recognizer locale.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wika ng pakikinig: {locale}.'**
+  String voiceCheckLanguage(String locale);
+
+  /// Filipino recognition installed offline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Offline na Filipino: {answer}.'**
+  String voiceCheckOfflineFilipino(String answer);
+
+  /// English recognition installed offline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Offline na Ingles: {answer}.'**
+  String voiceCheckOfflineEnglish(String answer);
+
+  /// Current listening plan.
+  ///
+  /// In fil, this message translates to:
+  /// **'Paraan ng pakikinig ngayon: {mode}.'**
+  String voiceCheckMode(String mode);
+
+  /// Plan: on-device.
+  ///
+  /// In fil, this message translates to:
+  /// **'sa tablet mismo, gumagana offline'**
+  String get voiceCheckModeOnDevice;
+
+  /// Plan: online.
+  ///
+  /// In fil, this message translates to:
+  /// **'online, kailangan ng internet'**
+  String get voiceCheckModeOnline;
+
+  /// Plan: offline English fallback.
+  ///
+  /// In fil, this message translates to:
+  /// **'offline na Ingles'**
+  String get voiceCheckModeEnglish;
+
+  /// Plan: none.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi makakarinig, walang internet at walang offline na wika'**
+  String get voiceCheckModeNone;
+
+  /// Network now.
+  ///
+  /// In fil, this message translates to:
+  /// **'Internet: {answer}.'**
+  String voiceCheckInternet(String answer);
+
+  /// Mic permission.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pahintulot sa mikropono: {answer}.'**
+  String voiceCheckMic(String answer);
+
+  /// TTS engine.
+  ///
+  /// In fil, this message translates to:
+  /// **'Makina ng boses: {engine}.'**
+  String voiceCheckTtsEngine(String engine);
+
+  /// TTS voice and where it lives.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses: {voice}, {where}.'**
+  String voiceCheckTtsVoice(String voice, String where);
+
+  /// Voice is local.
+  ///
+  /// In fil, this message translates to:
+  /// **'naka-install sa tablet, gumagana offline'**
+  String get voiceCheckVoiceLocal;
+
+  /// Voice is a network voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'kailangan ng internet'**
+  String get voiceCheckVoiceNetwork;
+
+  /// Filipino TTS voice not installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang Filipino na boses sa tablet; Ingles ang ginagamit.'**
+  String get voiceCheckFilipinoVoiceMissing;
+
+  /// Answer yes.
+  ///
+  /// In fil, this message translates to:
+  /// **'oo'**
+  String get voiceCheckYes;
+
+  /// Answer no.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi'**
+  String get voiceCheckNo;
+
+  /// Answer unknown.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi alam'**
+  String get voiceCheckUnknown;
+
+  /// Action: start the test.
+  ///
+  /// In fil, this message translates to:
+  /// **'Subukan, limang segundo'**
+  String get voiceCheckTest;
+
+  /// Test instruction, then listening.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin: buksan ang Aklatan.'**
+  String get voiceCheckTestSay;
+
+  /// Test result.
+  ///
+  /// In fil, this message translates to:
+  /// **'Narinig: {heard}. Utos: {command}. Percy: {intent}, {percent} porsiyento. Kumpiyansa ng pagkilala: {confidence}. Bilis ng sagot: {ms} millisecond.'**
+  String voiceCheckTestResult(
+    String heard,
+    String command,
+    String intent,
+    String percent,
+    String confidence,
+    String ms,
+  );
+
+  /// Test heard nothing.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang narinig. Subukan ulit.'**
+  String get voiceCheckTestNothing;
+
+  /// No command / no intent.
+  ///
+  /// In fil, this message translates to:
+  /// **'wala'**
+  String get voiceCheckNone;
+
+  /// Action: read the details again.
+  ///
+  /// In fil, this message translates to:
+  /// **'Basahin ulit'**
+  String get voiceCheckReadAgain;
+
+  /// Action: open Android voice input settings.
+  ///
+  /// In fil, this message translates to:
+  /// **'Settings ng voice input'**
+  String get voiceCheckVoiceInput;
+
+  /// Action: open Android TTS settings.
+  ///
+  /// In fil, this message translates to:
+  /// **'Settings ng boses ng app'**
+  String get voiceCheckTtsSettings;
+
+  /// Action: download offline recognition.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-download ang offline na {language}'**
+  String voiceCheckDownload(String language);
+
+  /// Download started.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sinimulan ang pag-download. Tingnan ang abiso ng tablet, at bumalik dito pagkatapos.'**
+  String get voiceCheckDownloadStarted;
+
+  /// Download not possible.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ito ma-download mula rito. Buksan ang Settings ng voice input at hanapin ang Offline speech recognition.'**
+  String get voiceCheckDownloadFailed;
+
+  /// Language name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Filipino'**
+  String get languageFilipino;
+
+  /// Language name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ingles'**
+  String get languageEnglish;
+
+  /// Screen: first-launch download of the offline voices.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga boses at wika'**
+  String get screenOfflineVoice;
+
+  /// First launch: downloading the offline voices (proctor wording).
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakihintay habang dina-download namin ang mga boses at wika.'**
+  String get offlineVoiceWait;
+
+  /// Download size, said after the wait line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga {size} megabyte ito; isang beses lang.'**
+  String offlineVoiceSize(String size);
+
+  /// Download progress, about every 20%.
+  ///
+  /// In fil, this message translates to:
+  /// **'{percent} porsiyento na.'**
+  String offlineVoiceProgress(String percent);
+
+  /// All offline voices installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Handa na. Gumagana na ang boses kahit walang internet.'**
+  String get offlineVoiceReady;
+
+  /// No internet at first launch.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang internet ngayon, kaya hindi pa ma-download ang mga boses. Puwede mo nang gamitin ang mga galaw, at ang boses kapag may internet. Itutuloy ko ang pag-download pagbalik ng internet.'**
+  String get offlineVoiceNoInternet;
+
+  /// Not enough free space.
+  ///
+  /// In fil, this message translates to:
+  /// **'Kulang ang espasyo sa tablet para sa mga boses. Kailangan ng mga {size} megabyte. Magbura ng ilang file, at susubukan ko ulit.'**
+  String offlineVoiceLowStorage(String size);
+
+  /// Download failed after retries.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi natapos ang pag-download ng mga boses. Susubukan ko ulit mamaya.'**
+  String get offlineVoiceFailed;
+
+  /// Action: continue to the app while the download goes on.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ituloy habang nagda-download'**
+  String get offlineVoiceContinue;
+
+  /// Confirmation of Continue.
+  ///
+  /// In fil, this message translates to:
+  /// **'Itutuloy ko ang pag-download habang ginagamit mo ang app.'**
+  String get offlineVoiceContinueDone;
+
+  /// Action: retry the download.
+  ///
+  /// In fil, this message translates to:
+  /// **'Subukan ulit'**
+  String get offlineVoiceRetry;
+
+  /// Visual status line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nagda-download: {percent} porsiyento'**
+  String offlineVoiceStatusDownloading(String percent);
+
+  /// Visual status line.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tinitingnan kung ano ang kailangan…'**
+  String get offlineVoiceStatusChecking;
+
+  /// Voice check: bundled models status.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sariling offline na boses at utos ng Percipere: {status}.'**
+  String voiceCheckOfflineModels(String status);
+
+  /// Bundled models installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'naka-install, bersyon {versions}'**
+  String voiceCheckModelsInstalled(String versions);
+
+  /// Some bundled models installed.
+  ///
+  /// In fil, this message translates to:
+  /// **'bahagi lang ang naka-install'**
+  String get voiceCheckModelsPartial;
+
+  /// Bundled models missing.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi pa naka-download'**
+  String get voiceCheckModelsMissing;
+
+  /// Bundled models downloading.
+  ///
+  /// In fil, this message translates to:
+  /// **'nagda-download, {percent} porsiyento'**
+  String voiceCheckModelsDownloading(String percent);
+
+  /// Waiting for internet.
+  ///
+  /// In fil, this message translates to:
+  /// **'naghihintay ng internet'**
+  String get voiceCheckModelsWaiting;
+
+  /// Low storage.
+  ///
+  /// In fil, this message translates to:
+  /// **'kulang ang espasyo'**
+  String get voiceCheckModelsLowStorage;
+
+  /// Failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi natapos ang pag-download'**
+  String get voiceCheckModelsFailed;
+
+  /// Plan: bundled offline command engine.
+  ///
+  /// In fil, this message translates to:
+  /// **'offline, sariling makina ng Percipere'**
+  String get voiceCheckModeOffline;
+
+  /// TTS engine name for the bundled voices.
+  ///
+  /// In fil, this message translates to:
+  /// **'Percipere offline'**
+  String get voiceCheckOfflineVoice;
+
+  /// Action: re-download the offline models.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-download ulit ang mga boses'**
+  String get voiceCheckRedownload;
+
+  /// Re-download started.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sinimulan ulit ang pag-download ng mga boses.'**
+  String get voiceCheckRedownloadStarted;
+
+  /// Action: delete the offline models.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang mga offline na boses'**
+  String get voiceCheckDeleteModels;
+
+  /// Delete confirmation question.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang mga offline na boses at utos? Kailangan ng internet para ma-download ulit.'**
+  String get voiceCheckDeleteConfirm;
+
+  /// After delete.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.'**
+  String get voiceCheckModelsDeleted;
 }
 
 class _AppLocalizationsDelegate

@@ -121,6 +121,30 @@ are OCR'd on the phone); EPUB 2 or 3 without DRM.
 
 ---
 
+## Offline voice models — `GET /api/v1/models` (2026-10-15)
+
+The app downloads its own offline command recognizer and voices once (first launch,
+`lib/core/offline_voice/`). Client: `HttpModelSource` in `model_installer.dart`.
+
+| Endpoint | The app uses it for |
+|---|---|
+| `GET /api/v1/models` | the model list (optional: see below) |
+| `GET /models/manifest.json` | the same list as a static file — used when the route above is missing |
+| `GET /models/<file>.tar.gz` | the archives (`Range` supported → resumable; plain static files are fine) |
+
+Body (either endpoint): `{"models": [...]}` (also accepted: `{"data": [...]}` or a bare list).
+Each model: `name` (`percipere-asr-fil-en`, `percipere-tts-tgl` or `percipere-tts-en`),
+`version` (text; a higher one replaces the installed model), `size` (bytes), `sha256` (hex, or
+`sha256:<hex>`), `url` (absolute, or relative to the server address, e.g.
+`models/percipere-tts-tgl-v1.tar.gz`), optional `fallback_url` (the GitHub release copy) and
+`installed_size`. Unknown names and entries without a valid size/checksum are ignored. The
+ready-made list is `tool/voice_models/manifest.json`. No sign-in.
+
+When neither list can be reached, the app uses the list built into it, which points at the
+GitHub release `voice-models-v1`.
+
+---
+
 ## Library sync — Phase 7 (designed now, not built)
 
 Only **admin-book data** syncs. The user's own scanned and uploaded documents **never

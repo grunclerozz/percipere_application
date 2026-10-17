@@ -1,5 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/config/voice_config.dart';
 import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/gestures/gesture_classifier.dart';
 import 'package:percipere_app/core/gestures/gesture_map.dart';
@@ -118,6 +119,19 @@ void main() {
       d.classifier.pointerUp(1, const Offset(10, 10), d._now);
       d.wait(600);
       expect(d.gestures, [GestureType.longPress], reason: 'no extra tap');
+    });
+  });
+
+  test('the hold time comes from VoiceConfig; a shorter rest is not a hold',
+      () {
+    expect(const GestureTuning().longPressDuration, VoiceConfig.holdToListen);
+    expect(VoiceConfig.holdToListen.inMilliseconds, inInclusiveRange(600, 800));
+    run((d) {
+      d.classifier.pointerDown(1, const Offset(10, 10), d._now);
+      d.wait(VoiceConfig.holdToListen.inMilliseconds - 100);
+      d.classifier.pointerUp(1, const Offset(10, 10), d._now);
+      d.wait(600);
+      expect(d.gestures, isNot(contains(GestureType.longPress)));
     });
   });
 

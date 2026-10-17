@@ -1,0 +1,66 @@
+text,intent,author,source,notes
+punta sa home,open_home,,Team,
+home,open_home,,Team,
+go home,open_home,,Team,
+bumalik sa home,open_home,,Team,
+go to home,open_home,,Team,
+homepage,open_home,,Team,
+open home,open_home,,Team,
+go back to home,open_home,,Team,
+punta sa library,open_library,,Team,
+library,open_library,,Team,
+go to library,open_library,,Team,
+bumalik sa library,open_library,,Team,
+library page,open_library,,Team,
+open library,open_library,,Team,
+go back to library,open_library,,Team,
+punta sa settings,open_settings,,Team,
+settings,open_settings,,Team,
+go to settings,open_settings,,Team,
+bumalik sa settings,open_settings,,Team,
+go settings,open_settings,,Team,
+settings page,open_settings,,Team,
+open settings,open_settings,,Team,
+go back to settings,open_settings,,Team,
+back,back,,Team,
+go back,back,,Team,
+bumalik,back,,Team,
+bumalik ka,back,,Team,
+gusto ko bumalik,back,,Team,
+balik,back,,Team,
+yung kaninang page,back,,Team,
+yung kasunod,next_option,,Team,
+yung sumunod,next_option,,Team,
+kasunod,next_option,,Team,
+susunod na pagpipilian,next_option,,Team,
+next option,next_option,,Team,
+yung nauna,previous_option,,Team,
+yung kaninang pinagpilian,previous_option,,Team,
+the previous option,previous_option,,Team,
+kaninang option,previous_option,,Team,
+pillin,select,,Team,Spelling kept; correct form 'piliin' added too
+yan yung pipillin,select,,Team,Spelling kept; 'pipiliin' added too
+pillin mo yan,select,,Team,Spelling kept
+proceed,select,,Team,Borderline: could also be confirm/submit
+wag na,cancel,,Team,
+cancel mo nalang,cancel,,Team,
+wag na ituloy,cancel,,Team,
+i-cancel mo nalang,cancel,,Team,
+ayoko na gawin,cancel,,Team,
+cancel,cancel,,Team,
+tulong,help,,Team,
+help,help,,Team,
+pano toh gamitin,help,,Team,
+anong gagawin ko,help,,Team,
+paano gamitin,help,,Team,
+paano ito gamitin,help,,Team,
+how to use this,help,,Team,
+nasaan ako,where_am_i,,Team,
+where am i,where_am_i,,Team,
+
+# Empty sections: team adds about 10 natural, team-written phrases per intent.
+# describe_image
+# more_detail
+# read_image_text
+# tutorial
+# set_speed

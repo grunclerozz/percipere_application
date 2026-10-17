@@ -1,6 +1,8 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../accessibility/command_bus.dart';
 import '../accessibility/haptics.dart';
 import '../accessibility/navigation_mode.dart';
@@ -67,7 +69,17 @@ class _GestureSurfaceState extends ConsumerState<GestureSurface> {
     return _GestureSurfaceScope(
       state: this,
       child: talkBack
-          ? widget.child
+          // TalkBack owns touch gestures, so the hold cannot be detected:
+          // the same action is offered in TalkBack's actions menu instead.
+          ? Semantics(
+              container: true,
+              customSemanticsActions: {
+                CustomSemanticsAction(
+                  label: AppLocalizations.of(context).gestureHoldListenAction,
+                ): () => _dispatch(GestureType.longPress),
+              },
+              child: widget.child,
+            )
           : Listener(
               behavior: HitTestBehavior.opaque,
               onPointerDown: (e) => _classifier.pointerDown(

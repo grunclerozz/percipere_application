@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import '../config/env.dart';
 import '../core/auth/account.dart';
@@ -11,6 +15,11 @@ import '../core/auth/session_store.dart';
 import '../core/db/app_database.dart';
 import '../core/db/daos/preferences_dao.dart';
 import '../core/network/server_address.dart';
+import '../core/offline_voice/hybrid_tts_service.dart';
+import '../core/offline_voice/model_catalog.dart';
+import '../core/offline_voice/model_store.dart';
+import '../core/offline_voice/offline_engines.dart';
+import '../core/offline_voice/offline_voice_setup.dart';
 import '../core/platform/permissions.dart';
 import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
@@ -31,7 +40,15 @@ Future<List<Override>> bootstrap() async {
   final restored = await restoreSession(database, prefs, sessions);
   final settings = restored.settings;
 
-  final tts = await FlutterTtsService.create();
+  // The app's own offline voices and command recognizer, when already
+  // downloaded (first launch downloads them: OfflineVoiceSetupScreen).
+  final engines = OfflineEngines();
+  final store = await _modelStore();
+  if (store != null && store.installedAll().isNotEmpty) {
+    unawaited(engines.load(store));
+  }
+
+  final tts = HybridTtsService(await FlutterTtsService.create(), engines);
   await tts.setPitch(settings.pitch);
   await tts.setVoicePreference(settings.readingVoice);
   final voices = await tts.checkVoices();
@@ -54,6 +71,12 @@ Future<List<Override>> bootstrap() async {
     }
   }
 
+  // First launch (on this tablet): download the offline voices first.
+  final setupPending =
+      store != null &&
+      store.installedAll().length < OfflineModelCatalog.names.length &&
+      await prefs.get(PrefKeys.offlineVoiceSetupShown) != true;
+
   final micGranted =
       await const DevicePermissionService().status(AppPermission.microphone) ==
       PermissionAccess.granted;
@@ -68,8 +91,23 @@ Future<List<Override>> bootstrap() async {
     initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
+    offlineEnginesProvider.overrideWithValue(engines),
+    modelStoreProvider.overrideWithValue(store),
+    offlineVoiceSetupPendingProvider.overrideWithValue(setupPending),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(voices)),
   ];
+}
+
+/// The folder of the offline models (app-private storage), or null if the
+/// storage can't be reached.
+Future<ModelStore?> _modelStore() async {
+  try {
+    final support = await getApplicationSupportDirectory();
+    return ModelStore(p.join(support.path, 'voice_models'));
+  } on Object catch (e) {
+    debugPrint('[OFFLINE VOICE] model folder unavailable: $e');
+    return null;
+  }
 }
 
 /// Logs which app and build is running (`adb logcat -s flutter | findstr

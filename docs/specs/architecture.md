@@ -40,11 +40,23 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
 - Turn-taking: a prompt starting cancels the recognizer; speech ending re-arms it after
   `VoiceConfig.afterSpeechGap` (echo); a session that ended in silence restarts after
   `VoiceConfig.sessionGap`. All timings and thresholds live in `config/voice_config.dart`.
-- Pauses: commands end after `VoiceConfig.commandPause` (1.2 s) of silence, dictation after
-  `dictationPause` (4 s). The plugin's final-result wait is `finalTimeout` (0.8 s).
+- Pauses: commands end after `VoiceConfig.commandPause` (1.3 s) of silence, Percy sentences
+  after `percyPause` (2.2 s), dictation after `dictationPause` (4 s); before any words a
+  session waits `waitForSpeech` (4 s). These silences are timed by `SttSpeechInput` itself:
+  **no `pauseFor` is handed to the plugin**, which would pass it to Android as
+  `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS` and hold every result back by the 4 s
+  wait (decision log 2026-10-14). The plugin's final-result wait is `finalTimeout` (0.8 s).
+- Session length: commands `commandListenFor` (10 s), and once words are heard at most
+  `commandSpeechMax` (4 s) — in a noisy room the words never stop changing, so the session is
+  stopped and judged; Percy `percyListenFor` (20 s); dictation `listenFor` (30 s).
+- Final results carry the recognizer's other guesses: `CommandBus.preferAlternate` uses one
+  that names a command word for word when the best guess names none (not for titles,
+  free-text screens, Percy or choices).
 - Partial results: `CommandBus.judgePartial` checks whether a partial result is already a
   whole command (whole-utterance similarity; pending yes/no, then screen actions, then
   app-wide). ≥ 0.9 runs at once; ≥ 0.8 runs when the same command matched twice in a row.
+  A command said word for word at the very **end** of other words ("… ingay mag-upload",
+  not after "hindi/huwag/don't") counts at 0.8 (needs two partials in a row).
   It waits when a different, longer command starts the same way ("susunod" → "susunod na
   talata") or the words begin a free-text command (`ScreenRegistration.freeTextPrefixes`;
   screens with `onUtterance` and no list never act early). Running goes through
@@ -69,8 +81,63 @@ Detailed implementation notes moved out of CLAUDE.md. Read before touching a sub
   gaps and **END OF SPEECH→ACTION**.
 - Auto-listen in voice mode or on `autoListen` screens; stops after `voiceIdleLimit` idle
   (reading counts as activity).
-- On-device recognition first; `error_language_unavailable` → online; no network → explain
-  + offer Voice input settings. Mic permission only after a spoken explanation.
+- Listening plan (`VoiceController._planNow`, 2026-10-14). `SpeechInput.recognizerInfo()`
+  (native channel `ph.bataan.percipere/speech`, `SpeechInfoBridge.kt`) reports the default
+  recognition service, whether on-device recognition exists, and (Android 13+) which
+  languages are *installed* offline. Order: (1) the app language on the device when
+  installed; (2) online in the app language when the phone has a network (`isOnlineProvider`,
+  refreshed in the background, never awaited before listening); (3) offline English for a
+  Filipino user (said once: `voiceOfflineEnglish`); (4) none → one spoken message
+  (`voiceOfflineNone`) + offer Voice input settings, listening stops until the connection
+  comes back (`connectionRestoredProvider`) or the user long-presses. When the installed
+  list is unknown (Android ≤ 12) on-device is tried first and `error_language_*` moves down
+  the list. A network error online switches to the offline plan at once and the phone's
+  "connected" is not trusted again for `networkRetryAfter` (60 s). The recognizer locale is
+  always the app language (`fil-PH` for Filipino), even when the plugin's (offline-only)
+  locale list lacks it. Mic permission only after a spoken explanation.
+- Earcons: `listening` when the mic opens after the app spoke, `heard` when a phrase is
+  accepted, `stopped` when a one-off listen heard nothing or listening pauses (idle, give-up,
+  no recognizer).
+- Voice check (`features/settings/voice_check_screen.dart`, Settings → "Pagsusuri ng
+  boses"): shows and speaks service, language, offline yes/no, plan, internet, mic, TTS
+  engine/voice local or network; `VoiceController.probe()` runs the five-second test
+  (transcript, command via `CommandBus.matchOnly`, Percy intent, confidence, response time).
+- TTS (`FlutterTtsService`): an engine error ends the wait for the utterance at once (the
+  plugin never answers then) and that voice is skipped from then on; prompts and documents
+  use a voice installed on the phone when one exists (never the engine's network default);
+  English is `en-PH` only when installed locally, else `en-US`. `TtsService.lastFailed`
+  lets the Reader retry a sentence once, then stop with an error buzz.
+
+## Offline voice engines (2026-10-15)
+- `core/offline_voice/`: the app's own offline engines (sherpa-onnx, Flutter `sherpa_onnx`),
+  downloaded once. Models: `model_catalog.dart` (names, manifest parsing, built-in GitHub
+  list), `model_store.dart` (`<app support>/voice_models/<name>/` + `.installed.json`,
+  `.downloads/*.part`, safe tar.gz unpacking off the UI isolate), `model_installer.dart`
+  (`HttpModelSource`: `/api/v1/models` → `/models/manifest.json` → built-in; Range resume,
+  size + SHA-256, free space, 4 tries alternating server/GitHub), `offline_voice_setup.dart`
+  (`offlineVoiceProvider`: statuses, progress, resume on `connectionRestoredProvider`,
+  delete / re-download; loads the engines when done).
+- Engines (`offline_engines.dart`, `offlineEnginesProvider`, loaded in `bootstrap()` when
+  installed — voices first, then the recognizer): `CommandRecognizer` (isolate: Whisper tiny
+  Filipino fine-tune + Silero VAD; each speech segment recognized with 0.4 s pre-roll) behind
+  `OfflineCommandListener` (mic → recognizer → one final result + `done`, like Android's
+  recognizer), and `OfflineSpeaker` (isolate: MMS Tagalog + Piper English VITS; short first
+  piece, small prompt cache, Filipino number words).
+- Routing: `HybridSpeechInput` (`speechInputProvider`) sends sessions with
+  `ListenRequest.offline` to the offline listener (falls back to Android if the mic can't
+  open); `VoiceController._planNow(commands:)` sets it for commands and the Voice check test
+  when `commandsReady`, never for dictation or Percy. `HybridTtsService` (in `bootstrap()`):
+  installed Android voice → the app's voice → Android (maybe network); an Android failure is
+  retried with the app's voice; `checkVoices` counts the app's voices, so Filipino prompts
+  work offline.
+- Native `AudioBridge.kt`: `ph.bataan.percipere/mic` (event channel, 16 kHz PCM16, 100 ms,
+  `VOICE_RECOGNITION` source + `AcousticEchoCanceler`) and `ph.bataan.percipere/audio`
+  (`micStart/micStop/play/playStop`; `play` answers when the sound has been heard).
+- First launch: `offlineVoiceSetupPendingProvider` (models missing and
+  `PrefKeys.offlineVoiceSetupShown` not set) makes the router open `/voice-setup` before the
+  usual first screen (`OfflineVoiceNext`). `OfflineVoiceHost` (app builder) resumes an
+  unfinished download later and says "Handa na…" when one finishes elsewhere.
+- Models and how they were built: `tool/voice_models/README.md`; decision log 2026-10-15.
 
 ## Capture & extraction (Phase 4)
 - `core/ocr/`: ML Kit OCR, `text_cleanup.dart` (`cleanText`, `assessQuality`). Big texts in

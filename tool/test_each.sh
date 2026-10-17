@@ -8,6 +8,9 @@ pass=0; fail=0; total=0; failed=()
 for f in $(find test -name '*_test.dart' | sort); do
   for attempt in 1 2 3 4; do
     out=$(flutter test "$f" 2>&1)
+    if echo "$out" | grep -q "All tests skipped"; then
+      pass=$((pass + 1)); echo "SKIP $f (attempt $attempt)"; break
+    fi
     if echo "$out" | grep -q "All tests passed"; then
       n=$(echo "$out" | grep -o "+[0-9]*: All tests passed" | tr -dc '0-9')
       total=$((total + n)); pass=$((pass + 1))

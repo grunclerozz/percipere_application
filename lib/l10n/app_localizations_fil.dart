@@ -154,7 +154,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String voiceDidYouMean(String phrase) {
-    return 'Ang ibig mo bang sabihin ay “$phrase”? Sabihin ang oo o hindi.';
+    return 'Ito ba ang ibig mong sabihin: “$phrase”? Sabihin ang oo o hindi.';
   }
 
   @override
@@ -173,6 +173,9 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get voiceRepeatedError =>
       'Hindi gumagana ang pakikinig ng boses ko ngayon. Hihinto muna ako. Pindutin nang matagal ang lugar ng galaw para subukan ulit, o gumamit ng mga galaw.';
+
+  @override
+  String get gestureHoldListenAction => 'Makinig ngayon';
 
   @override
   String get micPermissionExplain =>
@@ -2629,4 +2632,258 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverAddressNone => 'Walang server';
+
+  @override
+  String get voiceOfflineNone =>
+      'Walang internet, at walang naka-install na offline na pagkilala sa boses, kaya hindi kita marinig ngayon. Gumamit muna ng mga galaw. Para gumana ito offline, i-download ang offline na wika sa voice input settings; nasa Settings, Pagsusuri ng boses, ang gabay.';
+
+  @override
+  String get voiceOfflineEnglish =>
+      'Walang internet. Ingles na offline na pagkilala ang gamit ko ngayon, kaya mas maiintindihan ko ang mga utos sa Ingles, gaya ng next, pause o library.';
+
+  @override
+  String get screenVoiceCheck => 'Pagsusuri ng boses';
+
+  @override
+  String get setVoiceCheckValue => 'Pakikinig, boses at offline';
+
+  @override
+  String get voiceCheckIntro =>
+      'Ito ang kalagayan ng pakikinig at ng boses ng app. Piliin ang Subukan para sa limang segundong pagsubok.';
+
+  @override
+  String voiceCheckRecognizer(String service) {
+    return 'Pagkilala sa boses: $service.';
+  }
+
+  @override
+  String voiceCheckLanguage(String locale) {
+    return 'Wika ng pakikinig: $locale.';
+  }
+
+  @override
+  String voiceCheckOfflineFilipino(String answer) {
+    return 'Offline na Filipino: $answer.';
+  }
+
+  @override
+  String voiceCheckOfflineEnglish(String answer) {
+    return 'Offline na Ingles: $answer.';
+  }
+
+  @override
+  String voiceCheckMode(String mode) {
+    return 'Paraan ng pakikinig ngayon: $mode.';
+  }
+
+  @override
+  String get voiceCheckModeOnDevice => 'sa tablet mismo, gumagana offline';
+
+  @override
+  String get voiceCheckModeOnline => 'online, kailangan ng internet';
+
+  @override
+  String get voiceCheckModeEnglish => 'offline na Ingles';
+
+  @override
+  String get voiceCheckModeNone =>
+      'hindi makakarinig, walang internet at walang offline na wika';
+
+  @override
+  String voiceCheckInternet(String answer) {
+    return 'Internet: $answer.';
+  }
+
+  @override
+  String voiceCheckMic(String answer) {
+    return 'Pahintulot sa mikropono: $answer.';
+  }
+
+  @override
+  String voiceCheckTtsEngine(String engine) {
+    return 'Makina ng boses: $engine.';
+  }
+
+  @override
+  String voiceCheckTtsVoice(String voice, String where) {
+    return 'Boses: $voice, $where.';
+  }
+
+  @override
+  String get voiceCheckVoiceLocal => 'naka-install sa tablet, gumagana offline';
+
+  @override
+  String get voiceCheckVoiceNetwork => 'kailangan ng internet';
+
+  @override
+  String get voiceCheckFilipinoVoiceMissing =>
+      'Wala pang Filipino na boses sa tablet; Ingles ang ginagamit.';
+
+  @override
+  String get voiceCheckYes => 'oo';
+
+  @override
+  String get voiceCheckNo => 'hindi';
+
+  @override
+  String get voiceCheckUnknown => 'hindi alam';
+
+  @override
+  String get voiceCheckTest => 'Subukan, limang segundo';
+
+  @override
+  String get voiceCheckTestSay => 'Sabihin: buksan ang Aklatan.';
+
+  @override
+  String voiceCheckTestResult(
+    String heard,
+    String command,
+    String intent,
+    String percent,
+    String confidence,
+    String ms,
+  ) {
+    return 'Narinig: $heard. Utos: $command. Percy: $intent, $percent porsiyento. Kumpiyansa ng pagkilala: $confidence. Bilis ng sagot: $ms millisecond.';
+  }
+
+  @override
+  String get voiceCheckTestNothing => 'Walang narinig. Subukan ulit.';
+
+  @override
+  String get voiceCheckNone => 'wala';
+
+  @override
+  String get voiceCheckReadAgain => 'Basahin ulit';
+
+  @override
+  String get voiceCheckVoiceInput => 'Settings ng voice input';
+
+  @override
+  String get voiceCheckTtsSettings => 'Settings ng boses ng app';
+
+  @override
+  String voiceCheckDownload(String language) {
+    return 'I-download ang offline na $language';
+  }
+
+  @override
+  String get voiceCheckDownloadStarted =>
+      'Sinimulan ang pag-download. Tingnan ang abiso ng tablet, at bumalik dito pagkatapos.';
+
+  @override
+  String get voiceCheckDownloadFailed =>
+      'Hindi ito ma-download mula rito. Buksan ang Settings ng voice input at hanapin ang Offline speech recognition.';
+
+  @override
+  String get languageFilipino => 'Filipino';
+
+  @override
+  String get languageEnglish => 'Ingles';
+
+  @override
+  String get screenOfflineVoice => 'Mga boses at wika';
+
+  @override
+  String get offlineVoiceWait =>
+      'Pakihintay habang dina-download namin ang mga boses at wika.';
+
+  @override
+  String offlineVoiceSize(String size) {
+    return 'Mga $size megabyte ito; isang beses lang.';
+  }
+
+  @override
+  String offlineVoiceProgress(String percent) {
+    return '$percent porsiyento na.';
+  }
+
+  @override
+  String get offlineVoiceReady =>
+      'Handa na. Gumagana na ang boses kahit walang internet.';
+
+  @override
+  String get offlineVoiceNoInternet =>
+      'Walang internet ngayon, kaya hindi pa ma-download ang mga boses. Puwede mo nang gamitin ang mga galaw, at ang boses kapag may internet. Itutuloy ko ang pag-download pagbalik ng internet.';
+
+  @override
+  String offlineVoiceLowStorage(String size) {
+    return 'Kulang ang espasyo sa tablet para sa mga boses. Kailangan ng mga $size megabyte. Magbura ng ilang file, at susubukan ko ulit.';
+  }
+
+  @override
+  String get offlineVoiceFailed =>
+      'Hindi natapos ang pag-download ng mga boses. Susubukan ko ulit mamaya.';
+
+  @override
+  String get offlineVoiceContinue => 'Ituloy habang nagda-download';
+
+  @override
+  String get offlineVoiceContinueDone =>
+      'Itutuloy ko ang pag-download habang ginagamit mo ang app.';
+
+  @override
+  String get offlineVoiceRetry => 'Subukan ulit';
+
+  @override
+  String offlineVoiceStatusDownloading(String percent) {
+    return 'Nagda-download: $percent porsiyento';
+  }
+
+  @override
+  String get offlineVoiceStatusChecking =>
+      'Tinitingnan kung ano ang kailangan…';
+
+  @override
+  String voiceCheckOfflineModels(String status) {
+    return 'Sariling offline na boses at utos ng Percipere: $status.';
+  }
+
+  @override
+  String voiceCheckModelsInstalled(String versions) {
+    return 'naka-install, bersyon $versions';
+  }
+
+  @override
+  String get voiceCheckModelsPartial => 'bahagi lang ang naka-install';
+
+  @override
+  String get voiceCheckModelsMissing => 'hindi pa naka-download';
+
+  @override
+  String voiceCheckModelsDownloading(String percent) {
+    return 'nagda-download, $percent porsiyento';
+  }
+
+  @override
+  String get voiceCheckModelsWaiting => 'naghihintay ng internet';
+
+  @override
+  String get voiceCheckModelsLowStorage => 'kulang ang espasyo';
+
+  @override
+  String get voiceCheckModelsFailed => 'hindi natapos ang pag-download';
+
+  @override
+  String get voiceCheckModeOffline => 'offline, sariling makina ng Percipere';
+
+  @override
+  String get voiceCheckOfflineVoice => 'Percipere offline';
+
+  @override
+  String get voiceCheckRedownload => 'I-download ulit ang mga boses';
+
+  @override
+  String get voiceCheckRedownloadStarted =>
+      'Sinimulan ulit ang pag-download ng mga boses.';
+
+  @override
+  String get voiceCheckDeleteModels => 'Burahin ang mga offline na boses';
+
+  @override
+  String get voiceCheckDeleteConfirm =>
+      'Burahin ang mga offline na boses at utos? Kailangan ng internet para ma-download ulit.';
+
+  @override
+  String get voiceCheckModelsDeleted =>
+      'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.';
 }

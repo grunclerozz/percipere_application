@@ -1,0 +1,283 @@
+﻿module,table,column,data_type,length,nullable,default,key_type,references,description,location,source_file
+Team & Staff,members,member_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,members,member_name,varchar,150,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,members,member_role,varchar,150,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,members,member_school,varchar,200,N,'',,,"school / course, edited in Settings -> Team",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,members,member_email,varchar,191,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,members,member_bio,varchar,400,N,'',,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_photo,varchar,255,N,'',,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_age,varchar,20,N,'',,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_sex,varchar,50,N,'',,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_address,varchar,255,N,'',,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_experiences,text,,Y,,,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_contribution,text,,Y,,,,[TO-BE: dropped by v12_remove_personal_columns] Legacy personal column; NOT in database.sql v12 - to be dropped by v12_remove_personal_columns.sql,Server DB (MariaDB 10.4),live DB only (not in database.sql v12)
+Team & Staff,members,member_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:16
+Team & Staff,roles,role_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:42
+Team & Staff,roles,role_name,varchar,50,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:42
+Team & Staff,roles,role_description,varchar,255,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:42
+Team & Staff,admins,admin_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_email,varchar,191,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_full_name,varchar,150,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_password_hash,varchar,255,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_member_id,int unsigned,,Y,,FK,members.member_id,-> members.member_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_role_id,int unsigned,,Y,,,,-> roles.role_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_status,"enum('active','suspended')",,N,'active',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_failed_login_attempts,int,,N,0,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_locked_until,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_last_login_at,datetime,,Y,,,,Last successful login,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_preferences,text,,Y,,,,Settings -> Preferences (JSON),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_session_version,int unsigned,,N,1,,,"bumped by ""Sign out other devices""",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+Team & Staff,admins,admin_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:58
+App Users & Auth,app_users,user_id,int unsigned,,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_full_name,varchar,100,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_email,varchar,150,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_phone_number,varchar,20,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_password_hash,varchar,255,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_status,"enum('pending_verification','pending_approval','active','suspended')",,N,'active',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_email_verified_at,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_otp_hash,varchar,255,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_otp_expires_at,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_otp_sent_at,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_position,varchar,100,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_phone_verified_at,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_created_at,datetime,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_users,user_last_login_at,datetime,,Y,,,,Last successful login,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:117
+App Users & Auth,app_tokens,token_id,int unsigned,,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_user_id,int unsigned,,N,,FK,app_users.user_id,-> app_users.user_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_hash,char,64,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_device,varchar,100,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_created_at,datetime,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_last_used_at,datetime,,N,current_timestamp(),,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,app_tokens,token_expires_at,datetime,,N,,,,30 days after last use,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:139
+App Users & Auth,api_limits,limit_key,char,64,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:158
+App Users & Auth,api_limits,limit_count,int unsigned,,N,0,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:158
+App Users & Auth,api_limits,limit_window_start,datetime,,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:158
+App Users & Auth,api_limits,limit_locked_until,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:158
+Feedback & Reports,feedback,feedback_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_category,varchar,60,N,'General Feedback',,,"the report's type, as the app labelled it",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_type_code,varchar,40,Y,,,,"the app's code for it (bug, feature, feedback, ...)",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_module,varchar,60,N,,,,as the app labelled it: the dashboard filters come from these,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_module_code,varchar,40,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_severity,varchar,40,N,'',,,'' when the app sent none (not a bug),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_severity_code,varchar,40,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_description,text,,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_email,varchar,191,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_user_id,int unsigned,,Y,,FK,app_users.user_id,-> app_users.user_id (signed-in app user who sent it),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_app_version,varchar,20,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_device,varchar,100,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_os_version,varchar,40,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_ticket_no,varchar,20,Y,,UK,,"PRC-YYYYMMDD-XXXX from the app's ""Report an issue""",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_source_screen,varchar,50,N,'',,,app screen the report was opened from,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_reporter_kind,"enum('account','guest')",,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_reporter_name,varchar,100,Y,,,,display name the app sent (null for guests),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_app_created_at,datetime,,Y,,,,"when the app wrote it (it may arrive later, offline)",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_status,"enum('Open','In Progress','Resolved')",,N,'Open',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_source,"enum('app','seed')",,N,'app',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_submitted_at,date,,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_resolved_at,date,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_archived_at,datetime,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_member_id,int unsigned,,Y,,FK,members.member_id,-> members.member_id (team member who last changed it),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_admin_id,int unsigned,,Y,,,admins.admin_id (missing FK),-> admins.admin_id (staff account who last changed it),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_created_at,timestamp,,N,current_timestamp(),,,when the server received it,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback,feedback_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:169
+Feedback & Reports,feedback_notes,note_id,int unsigned,,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_feedback_id,int unsigned,,N,,FK,feedback.feedback_id,-> feedback.feedback_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_member_id,int unsigned,,Y,,FK,members.member_id,-> members.member_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_admin_id,int unsigned,,Y,,,admins.admin_id (missing FK),-> admins.admin_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_text,text,,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Feedback & Reports,feedback_notes,note_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:213
+Audit & Settings,audit_log,log_id,int unsigned,,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:232
+Audit & Settings,audit_log,log_member_id,int unsigned,,Y,,FK,members.member_id,-> members.member_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:232
+Audit & Settings,audit_log,log_admin_id,int unsigned,,Y,,,admins.admin_id (missing FK),-> admins.admin_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:232
+Audit & Settings,audit_log,log_action,varchar,255,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:232
+Audit & Settings,audit_log,log_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:232
+Audit & Settings,app_settings,setting_key,varchar,64,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:251
+Audit & Settings,app_settings,setting_value,varchar,255,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:251
+Audit & Settings,app_settings,setting_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:251
+Audit & Settings,app_settings,setting_admin_id,int unsigned,,Y,,,,"-> admins.admin_id: who last changed it (kept by the code, no FK constraint)",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:251
+Library Catalog,categories,category_id,int unsigned,,N,,PK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:264
+Library Catalog,categories,category_name,varchar,80,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:264
+Library Catalog,categories,category_is_active,tinyint,,N,1,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:264
+Library Catalog,categories,category_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:264
+Library Catalog,categories,category_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:264
+Library Catalog,languages,language_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,languages,language_name,varchar,40,N,,UK,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,languages,language_code,varchar,10,Y,,,,"e.g. fil, en: lets the app pick the reading voice",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,languages,language_is_active,tinyint,,N,1,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,languages,language_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,languages,language_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:273
+Library Catalog,books,book_id,int unsigned,,N,,PK,,Primary key,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_title,varchar,200,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_author,varchar,150,N,'',,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_description,text,,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_category_id,int unsigned,,N,,FK,categories.category_id,-> categories.category_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_language_id,int unsigned,,N,,FK,languages.language_id,-> languages.language_id,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_format,"enum('pdf','epub')",,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_file_path,varchar,80,N,,,,random name inside storage/books/,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_file_name,varchar,255,N,,,,"the name it was uploaded with, for display",Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_file_size,int unsigned,,N,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_file_hash,char,64,N,,,,SHA-256 of the file: lets the app check its copy,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_cover_path,varchar,80,Y,,,,random name inside storage/covers/,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_cover_mime,varchar,20,Y,,,,,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_is_active,tinyint,,N,1,,,0 = hidden from the app (never deleted by accident),Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_version,int unsigned,,N,1,,,+1 whenever the file or the details change,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_admin_id,int unsigned,,Y,,FK,admins.admin_id,-> admins.admin_id: who last saved it,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_created_at,timestamp,,N,current_timestamp(),,,Row creation time,Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Library Catalog,books,book_updated_at,timestamp,,N,current_timestamp(),,,Last update time (auto) [on update current_timestamp()],Server DB (MariaDB 10.4),live DB percipere_dashboard (information_schema); percipere_web fix/webapp-api percipere_dashboard/database.sql:283
+Users & Auth,users,id,TEXT,,N,,PK,,"Local UUID, primary key",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,display_name,TEXT,,N,,,,Display name (legacy; copied to first_name in v2),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,email,TEXT,,Y,,UK,,Login name; unique case-insensitive via partial index idx_users_email; NULL for guests/legacy PIN accounts,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,secret_hash,TEXT,,N,,,,Password/PIN hash (name kept from v1),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,secret_salt,TEXT,,N,,,,Salt for secret_hash,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,remote_id,TEXT,,Y,,,,Server user id from v1; duplicate of server_id (v2 copied remote_id into server_id),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,created_at,INTEGER,,N,,,,Epoch ms UTC,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,updated_at,INTEGER,,N,,,,Epoch ms UTC,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,last_login_at,INTEGER,,Y,,,,Epoch ms UTC,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,first_name,TEXT,,Y,,,,Added v2,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,last_name,TEXT,,Y,,,,Added v2,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,secret_kind,TEXT,,N,'pin',,,How secret_hash was made: 'pin' | 'pbkdf2-sha256:<n>' | 'none' (guest). No CHECK constraint,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,security_question,TEXT,,Y,,,,Question id for forgot-password,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,security_answer_hash,TEXT,,Y,,,,Hashed normalized answer,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,security_answer_salt,TEXT,,Y,,,,Salt for answer hash,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,is_guest,INTEGER,,N,0,,,Boolean 0/1 (no CHECK),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,profiling_completed,INTEGER,,N,0,,,Boolean 0/1 (no CHECK),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,fingerprint_enabled,INTEGER,,N,0,,,Boolean 0/1 (no CHECK),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,synced,INTEGER,,N,0,,,1 once the server has this version,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Users & Auth,users,server_id,TEXT,,Y,,,,Server app_users.user_id as text (server key is INT),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:47 (v1); ALTERs 165-177 (v2)
+Settings,preferences,user_id,TEXT,,N,,PK,,users.id or the literal 'device' - NO foreign key (intentional),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:64 (v1)
+Settings,preferences,key,TEXT,,N,,PK,,Setting name,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:64 (v1)
+Settings,preferences,value,TEXT,,N,,,,JSON text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:64 (v1)
+Settings,preferences,updated_at,INTEGER,,N,,,,Epoch ms,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:64 (v1)
+Library (legacy),documents_legacy,id,INTEGER,,N,,PK,,[DEPRECATED] Autoincrement,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,user_id,TEXT,,Y,,FK,users.id,[DEPRECATED] FK users.id,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,title,TEXT,,N,,,,[DEPRECATED] ,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,full_text,TEXT,,N,,,,[DEPRECATED] Extracted text,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,source_type,TEXT,,N,,,,[DEPRECATED] CHECK in list below,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,language,TEXT,,N,'fil',,,[DEPRECATED] ,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,created_at,INTEGER,,N,,,,[DEPRECATED] Epoch ms,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,updated_at,INTEGER,,N,,,,[DEPRECATED] Epoch ms,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,last_opened_at,INTEGER,,Y,,,,[DEPRECATED] ,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,last_position,INTEGER,,N,0,,,[DEPRECATED] Sentence/char position,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Library (legacy),documents_legacy,thumbnail_path,TEXT,,Y,,,,[DEPRECATED] Added v3,Android local DB (SQLite),"percipere_app/lib/core/db/migrations.dart:75 (v1), rebuilt 210 (v3), renamed 354 (v4)"
+Telemetry & Evaluation,usage_logs,id,INTEGER,,N,,PK,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,session_id,TEXT,,N,,,,[DEPRECATED] Random per-install/session id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,event_type,TEXT,,N,,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,screen,TEXT,,Y,,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,input_mode,TEXT,,Y,,,,[DEPRECATED] CHECK list below,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,payload,TEXT,,Y,,,,[DEPRECATED] JSON text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,created_at,INTEGER,,N,,,,[DEPRECATED] Epoch ms,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Telemetry & Evaluation,usage_logs,uploaded_at,INTEGER,,Y,,,,[DEPRECATED] NULL = not uploaded,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:93 (v1)
+Sync,outbox,id,INTEGER,,N,,PK,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,type,TEXT,,N,,,,[DEPRECATED] CHECK list below,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,payload,TEXT,,N,,,,[DEPRECATED] JSON text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,status,TEXT,,N,'pending',,,[DEPRECATED] CHECK list below,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,attempts,INTEGER,,N,0,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,last_error,TEXT,,Y,,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,next_attempt_at,INTEGER,,Y,,,,[DEPRECATED] Epoch ms,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,created_at,INTEGER,,N,,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Sync,outbox,updated_at,INTEGER,,N,,,,[DEPRECATED] ,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:110 (v1)
+Telemetry & Evaluation,sus_responses,id,INTEGER,,N,,PK,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,user_id,TEXT,,Y,,FK,users.id,FK users.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,answers,TEXT,,N,,,,JSON array (10 ints) - candidate for normalization,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,score,REAL,,N,,,,CHECK 0..100,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,language,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,input_mode,TEXT,,Y,,,,"No CHECK here, unlike usage_logs",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,sus_responses,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:129 (v1)
+Telemetry & Evaluation,wer_results,id,INTEGER,,N,,PK,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,session_id,TEXT,,N,,,,"Logical grouping, no FK",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,locale,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,on_device,INTEGER,,N,,,,CHECK 0/1,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,reference,TEXT,,N,,,,Reference text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,hypothesis,TEXT,,N,,,,Recognized text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,substitutions,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,deletions,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,insertions,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,reference_words,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,wer,REAL,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Telemetry & Evaluation,wer_results,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:142 (v1)
+Users & Auth,login_attempts,key,TEXT,,N,,PK,,Prefix + lowercased email,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:188 (v2)
+Users & Auth,login_attempts,failures,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:188 (v2)
+Users & Auth,login_attempts,locked_until,INTEGER,,Y,,,,Epoch ms,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:188 (v2)
+Users & Auth,login_attempts,updated_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:188 (v2)
+Library,library_items,id,TEXT,,N,,PK,,UUID v4,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,user_id,TEXT,,Y,,FK,users.id,FK users.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,source,TEXT,,N,,,,CHECK list,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,format,TEXT,,N,,,,CHECK list,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,language,TEXT,,N,'fil',,,Language code (server: languages.language_code),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,title,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,author,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,cover_path,TEXT,,Y,,,,Local file path,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,file_path,TEXT,,Y,,,,Local file path,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,text_ref,TEXT,,N,'db',,,Where text lives: 'db' or file,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,full_text,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,text_path,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,chapters,TEXT,,Y,,,,JSON text - candidate for child table,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,total_sentences,INTEGER,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,word_count,INTEGER,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,chapter_index,INTEGER,,N,0,,,Reading position,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,sentence_index,INTEGER,,N,0,,,Reading position,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,percent,REAL,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,finished,INTEGER,,N,0,,,Boolean 0/1,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,last_opened_at,INTEGER,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,updated_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,book_id,TEXT,,Y,,,,"Catalog book id from server (books.book_id, INT on server) - logical link, no FK possible",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,book_version,INTEGER,,Y,,,,Version downloaded (books.book_version),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,remote_version,INTEGER,,Y,,,,Latest version known on server,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,category,TEXT,,Y,,,,Category NAME text (server: categories.category_id),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,description,TEXT,,Y,,,,books.book_description,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,cover_url,TEXT,,Y,,,,Server cover URL,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,file_size,INTEGER,,Y,,,,books.book_file_size,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,downloaded,INTEGER,,N,0,,,Boolean 0/1,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,is_new,INTEGER,,N,0,,,Boolean 0/1,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,unavailable,INTEGER,,N,0,,,Boolean; book removed/hidden on server (soft state),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,local_only,INTEGER,,N,0,,,1 = never synced (user's own documents),Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,synced,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_items,legacy_id,INTEGER,,Y,,,,documents_legacy.id this row was migrated from - no FK,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:253 (v4)
+Library,library_favorites,id,TEXT,,N,,PK,,UUID,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,item_id,TEXT,,N,,FK,library_items.id,FK library_items.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,chapter_index,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,sentence_index,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,label,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,updated_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_favorites,synced,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:299 (v4)
+Library,library_collections,id,TEXT,,N,,PK,,UUID,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collections,user_id,TEXT,,Y,,FK,users.id,FK users.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collections,name,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collections,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collections,updated_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collections,synced,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:314 (v4)
+Library,library_collection_items,collection_id,TEXT,,N,,PK/FK,library_collections.id,FK library_collections.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:324 (v4)
+Library,library_collection_items,item_id,TEXT,,N,,PK/FK,library_items.id,FK library_items.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:324 (v4)
+Library,library_collection_items,added_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:324 (v4)
+Library,library_collection_items,synced,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:324 (v4)
+Percy (voice assistant),percy_turns,id,INTEGER,,N,,PK,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,user_id,TEXT,,Y,,FK,users.id,FK users.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,text,TEXT,,N,,,,User utterance,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,intent,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,confidence,REAL,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,outcome,TEXT,,N,,,,"acted, confirmed, corrected, declined, asked, fallback, chat, answered, notAvailable, matcher (comment only, no CHECK)",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,screen,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,model_version,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Percy (voice assistant),percy_turns,created_at,INTEGER,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:364 (v5)
+Reports,issue_reports,id,TEXT,,N,,PK,,UUID,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,ticket_no,TEXT,,N,,UK,,PRC-YYYYMMDD-XXXX,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,user_id,TEXT,,Y,,FK,users.id,FK users.id,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,type,TEXT,,N,,,,Report type code,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,module,TEXT,,N,,,,Module code,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,severity,TEXT,,Y,,,,Only for bugs,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,description,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,email,TEXT,,Y,,,,Reply email,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,app_version,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,os_version,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,device_model,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,source_screen,TEXT,,N,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,created_at,INTEGER,,N,,,,Epoch ms,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,sync_status,TEXT,,N,'pending',,,"pending | sent | failed (comment only, no CHECK)",Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,server_id,TEXT,,Y,,,,feedback.feedback_id as text,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,attempts,INTEGER,,N,0,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,last_error,TEXT,,Y,,,,,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)
+Reports,issue_reports,server_status,TEXT,,Y,,,,Added v7: open | in_progress | resolved | closed; NULL = not asked yet,Android local DB (SQLite),percipere_app/lib/core/db/migrations.dart:392 (v6); server_status ALTER 383 (v7)

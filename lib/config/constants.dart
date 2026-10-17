@@ -49,6 +49,13 @@ abstract final class AppDimens {
 
 /// Timing constants.
 abstract final class AppDurations {
+  /// Longest wait for the camera to open; a camera that never answers is
+  /// reported (and the phone's own camera offered) instead of silence.
+  static const Duration cameraStartLimit = Duration(seconds: 10);
+
+  /// Longest wait for a photo to be taken.
+  static const Duration captureLimit = Duration(seconds: 10);
+
   /// How long a Document Box caption ("Bilis: 1.2x") stays before fading.
   static const Duration captionVisible = Duration(seconds: 2);
 

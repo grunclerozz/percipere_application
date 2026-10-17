@@ -21,6 +21,21 @@ FOLD = {
 # Words removed only as the wake word ("Percy, …", "hey Percy …").
 WAKE_WORDS = {"percy", "persi", "percey"}
 
+# Common automatic-speech-recognition spellings. These are token replacements
+# only; the original text is retained in Percy logs for the team to review.
+CORRECTIONS = {
+    "aklatann": "aklatan", "aklatam": "aklatan", "libary": "library",
+    "seting": "settings", "setings": "settings", "settngs": "settings",
+    "maglarawn": "maglarawan", "maglarwan": "maglarawan",
+    "ilarawn": "ilarawan", "deskribe": "describe", "describ": "describe",
+    "tutoryal": "tutorial", "tutoriyal": "tutorial",
+}
+
+# Polite words and speech disfluencies that do not change an intent. "ano" is
+# handled below because it introduces meaningful questions such as
+# "ano ang kaya mo".
+FILLERS = {"po", "opo", "pakisuyo", "pakiusap", "please", "nga", "naman"}
+
 # Never removed: negation changes the meaning (kept here for documentation).
 NEGATION_WORDS = {"hindi", "huwag", "wag", "ayoko", "no", "not"}
 
@@ -31,20 +46,27 @@ _KEEP = re.compile(r"[^a-z0-9 ]")
 
 
 def preprocess(text: str) -> str:
-    """Lowercase, fold accents, drop punctuation and the wake word."""
+    """Normalize text without removing negation or meaningful questions."""
     t = text.lower()
     t = "".join(FOLD.get(ch, ch) for ch in t)
     t = t.replace("-", "").replace("'", "").replace("’", "")
     t = _KEEP.sub(" ", t)
     words = t.split()
+    corrected = [CORRECTIONS.get(w, w) for w in words]
     kept = []
-    for i, w in enumerate(words):
+    for i, w in enumerate(corrected):
         if w in WAKE_WORDS:
             continue
-        if w == "hey" and i + 1 < len(words) and words[i + 1] in WAKE_WORDS:
+        if w == "hey" and i + 1 < len(corrected) and corrected[i + 1] in WAKE_WORDS:
+            continue
+        if w in FILLERS:
+            continue
+        # "ano" is a filler only when it does not start a question. Keep it
+        # in "ano ang kaya mo?" and if dropping fillers would erase input.
+        if w == "ano" and i + 1 < len(corrected) and corrected[i + 1] not in {"ang", "itong", "iyan", "yun"}:
             continue
         kept.append(w)
-    return " ".join(kept)
+    return " ".join(kept) or " ".join(corrected)
 
 
 def word_features(clean: str) -> list[str]:

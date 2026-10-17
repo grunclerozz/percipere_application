@@ -2,6 +2,121 @@
 
 Newest first. **Proposed** = awaiting the user's approval; becomes **Decided** once approved.
 
+## 2026-10-15 — Offline voice with the app's own engines (no Google packs)
+**Decided (user request, after 881dd1a still failed offline on the tablet):** offline voice
+must work without users installing anything. Android can't install Google's speech packs for
+an app, so Percipere downloads its **own** engines once, at first launch (sherpa-onnx).
+Scope: offline **voice commands** and **reading aloud / prompts**, Filipino + English. Percy's
+free conversation and dictation stay on Android's recognizer (later: `docs/todo.md`).
+
+- **Commands — tried keyword spotting first, rejected on evidence.** sherpa-onnx's
+  phone-based KWS (zh-en 3M, 9 MB) with our own Filipino spelling→phone rules found **2 %**
+  of Filipino words in real speech (59 Google FLEURS recordings) and ~65 % of clean
+  synthetic *English* single words; Vosk has no Tagalog model. **Chosen: Whisper tiny
+  fine-tuned for Filipino/Taglish** (`KarlShane11/handsfree-whisper-tiny-tl`, MIT) +
+  Silero VAD, run through the **unchanged** command matcher. FLEURS test WER: stock tiny 97 %,
+  stock base 64 %, **Filipino tiny 45 %**, Filipino base 37 % (80 MB, 2–3× slower; can
+  replace tiny on the server alone). The 80 MB token embedding is stored int8 (43 MB total).
+  The VAD cut first syllables ("basahin" → "hina"): each segment is recognized with 0.4 s of
+  audio before it. End of speech: 0.7 s of silence (`VoiceConfig.offlineEndOfSpeech`), no
+  partial results; commands still run through the matcher and "Ito ba ang ibig mong
+  sabihin…?". Order: **app's offline recognizer first for commands (also online)** → the
+  Android plan of 2026-10-14 when the model isn't there. The 1.3 s pause, beeps and the
+  question stay for the Android path.
+- **Voices.** No prebuilt sherpa-onnx Tagalog voice exists: converted Meta **MMS-TTS `tgl`**
+  (CC-BY-NC 4.0 — fine for the non-commercial thesis). int8 dynamic quantization made it
+  5× slower; instead decoder weights int8 + rest float16, expanded at load (114 → 43 MB, fp32
+  speed, near-identical audio). English: **Piper `en_US-ljspeech-medium` int8** (MIT, public
+  domain data), eSpeak data reduced to English. Order: an **installed** Android voice →
+  the app's voice → Android's (possibly network) voice only as a last resort; a failing
+  Android voice is retried with the app's voice. Numbers are spelled in Filipino for the
+  Tagalog voice; text is cut into short pieces (first ≤ 70 characters) so speech starts soon.
+- **Download.** First launch, before Welcome/tutorial: `OfflineVoiceSetupScreen` (spoken
+  wait line, size, every 20 %, "Handa na…"). Server: `GET /api/v1/models` or the static
+  `models/manifest.json` (dashboard `models/` folder); fallback: GitHub release
+  `voice-models-v1` (also built into the app). Resumable (HTTP Range into `.part`), size +
+  SHA-256 checked, free space checked, 4 tries alternating server/GitHub, resumes when the
+  connection returns. Total **85.9 MB** download / 108 MB installed.
+- **Native:** `AudioBridge.kt` (16 kHz mic stream with the echo canceller; PCM playback).
+  Engines run in their own isolates. While the first-launch screen is open the app may speak
+  Filipino with Google's network voice (`networkFilipinoProvider`).
+- **Emulator check** (release build, `Percipere_Light`, archives served from the PC as the
+  dashboard's `models/` folder): manifest → download → SHA-256 → unpack → engines load →
+  offline command session (`offline=true`) all work. It found that `tokens.txt` written on
+  Windows (CRLF) makes the native reader **end the app**: archives rebuilt with LF, the app
+  removes carriage returns from it when unpacking, and a crash guard marks a model broken after two loads that
+  never returned (not loaded or downloaded again until "I-download ulit"). Installed models
+  are updated only to a higher `version` (or the same version from another file); the
+  built-in list never downgrades a newer install.
+- APK: the fat release APK grew 186 → 252 MB (ONNX Runtime + sherpa-onnx for three ABIs);
+  install the split arm64 APK on the tablet (`flutter build apk --release --split-per-abi`:
+  `app-arm64-v8a-release.apk`, 94 MB).
+- Known limits: measured on a PC, the emulator and synthetic/FLEURS speech only — the tablet
+  test decides (accuracy with real users, speed on the Exynos 1380). Synthetic command test:
+  10/18 right + 3 asked. sherpa-onnx's Android library includes eSpeak NG (GPL-3.0): note for
+  any public release.
+
+## 2026-10-14 — Voice regression, offline voice, Voice check
+**Decided (user request):** voice got slower and missed commands in noise on the Galaxy Tab
+S10 Lite, and only worked online. Investigated before changing anything.
+
+- **What changed in the voice path since it felt good** (git, oldest first):
+  - `f24085c` (10-07): the 4 s "wait for the user to start" (`waitForSpeech`) was passed to
+    `speech_to_text` as `pauseFor`; the plugin also hands it to Android as
+    `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS` (the silence that *ends* speech), so
+    the recognizer itself held results back up to 4 s; `changePauseFor` only shortened the
+    plugin's Dart timer. Sessions could last 30 s.
+  - `2c42e95` (10-10): `commandPause` 1.2 → 1.0 s (slower speakers cut off mid-command, then
+    repeat); cut-off words carried into the next session (in noise this joins noise words to
+    the command); "listening" tone when the mic opens; reading pauses for speech; warm-up.
+  - `c4b7975` (10-13): prompts and Percy follow the user's speech speed. At "Mabagal" (0.75,
+    now offered in the setup) every prompt is a third longer, and the mic only opens after
+    the prompt ends (+0.45 s) — the clearest "slow to react" change. Kept (the user asked for
+    it); listed for the tablet test.
+  - `d8f7eab` (10-13): Percy asks again after 9 s of silence; speaking cancels an open session.
+  - Long-standing (baseline): the recognizer locale came from the plugin's list, which on
+    Android 13+ holds only the *offline* recognizer's languages — a Filipino user could get
+    `en-US` even online. A missing offline pack switched to online recognition for good;
+    offline, a network error then stopped listening ("Walang internet…"), offline English was
+    never tried. TTS: an engine error never resolved `speak()`, so each failed sentence (e.g. a
+    network voice offline) meant 5 s+ of silence; `en-PH` was chosen when merely "available"
+    (possibly a network voice). No connectivity check: online sessions offline failed slowly.
+  - Most likely causes, in order: (1) prompts at the slower speed + the 4 s silence handed to
+    Android (delay); (2) 30 s sessions and carried-over words in noise, whole-phrase-only
+    partial matching, English locale for Filipino (missed commands); (3) offline: permanent
+    switch to online, no offline English, TTS waits on failed network voices. Not provable
+    without the tablet's `[VOICE]` log — the Voice check screen and the checklist confirm it.
+- **Offline, plainly.** STT is Android's `SpeechRecognizer` through `speech_to_text`: the
+  default recognition service (on the Tab usually Google; Samsung's may be the default —
+  Voice check shows which), on-device when `onDevice: true` and the language is installed.
+  A Filipino on-device pack is often **not** offered (Google's on-device list is short and
+  varies by device/version); Voice check says yes/no from the phone itself and offers the
+  download only when the phone lists it. Fallback built: offline English + our bilingual
+  matcher (every command has English words) + Percy's classifier (trained on Taglish).
+  Alternatives considered: **Vosk** (~50 MB small models, fast, streaming, offline) has no
+  ready Filipino model — we'd have to train one; **whisper.cpp** (tiny 75 MB / base 140 MB,
+  multilingual incl. Tagalog) has no streaming partials and needs ~1–3 s per command on a
+  mid-range tablet, with weak Tagalog accuracy at tiny/base. Not adopted now; revisit only if
+  the tablet test shows offline English isn't enough.
+- **Fix.** `SttSpeechInput` times silences itself (nothing handed to Android). Commands:
+  1.3 s pause, 10 s sessions, judged after 4 s of words at most; Percy 2.2 s / 20 s;
+  dictation unchanged. Partial results also run a command said word for word at the *end*
+  (twice in a row, not after "hindi/huwag"); final results use the recognizer's second guess
+  when it names a command. "Ito ba ang ibig mong sabihin: …?" for unsure matches. Listening
+  plan (architecture.md, Voice): offline app language → online → offline English (said once)
+  → one spoken message and stop (resumes when the connection is back); network errors switch
+  to offline at once; Wi-Fi-without-internet isn't trusted for 60 s. A "stopped" tone when
+  listening ends without a command. TTS: errors end the wait at once and skip that voice;
+  local voices preferred; `en-PH` only if installed; the Reader retries a failed sentence
+  once. Recognizer setup no longer hangs if the plugin's locale query never answers (3 s).
+  "buksan ang Aklatan" on screens without an Aklatan row opened the focused item: now the
+  Library. Voice check screen (Settings). Module audit: camera open/capture time limits,
+  camera hints don't talk over a command being said, Percy's model preloads.
+- **Nothing in the voice path waits on the network.** Online recognition is used only when
+  the phone has a network and the language isn't installed offline; the network check is a
+  local state read in the background. ElevenLabs only in a developer build with its switch.
+  Report sync, session check and the Aklatan catalog run in the background.
+
 ## 2026-10-13 (2) — Percy stays in the conversation; Percy voice analysis
 **Decided (user):** `docs/prompts/revisions.md` items 4 and 7.
 

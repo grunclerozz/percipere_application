@@ -23,10 +23,30 @@ abstract final class Env {
     'API_CLEARTEXT_HOSTS',
   );
 
-  /// Whether plain `http://` to [host] is allowed: only the host the app
-  /// was built for (when that address is `http://`) and [cleartextHosts].
+  /// Whether [host] is on a private network or this device: `localhost`,
+  /// `127.x`, `10.x`, `172.16`-`172.31` and `192.168.x` (a phone hotspot or
+  /// a school Wi-Fi). Plain HTTP stays on the local network.
+  static bool isPrivateHost(String host) {
+    final h = host.toLowerCase();
+    if (h == 'localhost') return true;
+    final m = RegExp(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$')
+        .firstMatch(h);
+    if (m == null) return false;
+    final p = [for (var i = 1; i <= 4; i++) int.parse(m.group(i)!)];
+    if (p.any((n) => n > 255)) return false;
+    return p[0] == 10 ||
+        p[0] == 127 ||
+        (p[0] == 172 && p[1] >= 16 && p[1] <= 31) ||
+        (p[0] == 192 && p[1] == 168);
+  }
+
+  /// Whether plain `http://` to [host] is allowed: private-network
+  /// addresses and `localhost` ([isPrivateHost]), the host the app was built
+  /// for (when that address is `http://`) and [cleartextHosts]. Everything
+  /// else needs `https://`.
   static bool allowsCleartext(String host) {
     final h = host.toLowerCase();
+    if (isPrivateHost(h)) return true;
     final built = Uri.tryParse(apiBaseUrl);
     if (built != null &&
         built.scheme == 'http' &&

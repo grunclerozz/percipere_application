@@ -16,6 +16,28 @@ served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percip
 - Requirement (as of 2026-10-13, per the status history in `05-current-status.md`): the app needs the dashboard branch
   **`fix/webapp-api`** (REST routes). It was **not merged** then; current state **unverified**.
 - HTTP client: `apiDio()` in `lib/core/network/api_dio.dart` (timeouts + `CleartextGuard`).
+- **Cleartext rule (2026-10-17):** `http://` is allowed to private-network hosts (10.x,
+  172.16–31.x, 192.168.x), `localhost`/127.x, the build's own `API_BASE_URL` host and
+  `API_CLEARTEXT_HOSTS`; everything else needs `https://` (`Env.allowsCleartext`, enforced by
+  `CleartextGuard`; Dart's HTTP client ignores Android's network security config, which stays
+  strict for the Android stack).
+- **Test connection (2026-10-17):** developer Settings row "Subukan ang koneksyon sa server" →
+  `lib/core/network/server_health.dart` calls `GET {address}/api/v1/health` (falls back to
+  `/api/v1/index.php/health`) and speaks OK or the reason (no network, wrong address, unreachable,
+  server down, http blocked, timeout). The health reply has `status` and `time` but **no server
+  version**. The Aklatan says briefly whether the server answered.
+- Guide for the students: `docs/connection-guide-app.md`.
+
+### Audit of the app's calls (2026-10-17)
+All use the saved server address (changing it applies at once) and `apiDio()` (timeouts, guard):
+accounts, books (list/file/cover), reports, the offline-voice model list, image description.
+Fixed: image description used the build-time address and a plain `Dio`.
+Dashboard endpoints the app uses that the dashboard router (`api/v1/index.php`, branch
+`feat/admin-roles`) does **not** have:
+- `GET /api/v1/models` (voice-model manifest): the app falls back to `models/manifest.json`, then
+  to the GitHub release.
+- `POST /api/describe-image` (Maglarawan online detail): not found; the app uses the mock unless
+  built with `USE_MOCK_API=false`, and would fail without it.
 
 ## Errors
 Success = the plain JSON resource. Failure = `{"error": {"code", "message", "fields"?, "retry_after"?}}`

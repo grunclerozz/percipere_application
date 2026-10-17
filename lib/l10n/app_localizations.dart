@@ -4886,6 +4886,78 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Sige, kunan natin ulit.'**
   String get qualityRetaking;
+
+  /// Hidden developer row: test the connection to the web app.
+  ///
+  /// In fil, this message translates to:
+  /// **'Subukan ang koneksyon sa server'**
+  String get setServerTest;
+
+  /// No description provided for @serverTestRunning.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sinusubukan ang koneksyon sa server.'**
+  String get serverTestRunning;
+
+  /// No description provided for @serverTestOk.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakakonekta sa server. Handa na.'**
+  String get serverTestOk;
+
+  /// No description provided for @serverTestNotConfigured.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang address ng server. Ilagay muna ang address.'**
+  String get serverTestNotConfigured;
+
+  /// No description provided for @serverTestNoNetwork.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang network ang tablet. I-on ang Wi-Fi o ang hotspot.'**
+  String get serverTestNoNetwork;
+
+  /// No description provided for @serverTestWrongAddress.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mali ang address ng server. Tingnan ang IP at ang folder.'**
+  String get serverTestWrongAddress;
+
+  /// No description provided for @serverTestUnreachable.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi maabot ang server. Siguraduhing nasa parehong hotspot ang tablet at ang computer.'**
+  String get serverTestUnreachable;
+
+  /// No description provided for @serverTestServerDown.
+  ///
+  /// In fil, this message translates to:
+  /// **'Bukas ang computer pero hindi gumagana ang server. Buksan ang MAMP o XAMPP at ang database.'**
+  String get serverTestServerDown;
+
+  /// No description provided for @serverTestHttpBlocked.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https.'**
+  String get serverTestHttpBlocked;
+
+  /// No description provided for @serverTestTimeout.
+  ///
+  /// In fil, this message translates to:
+  /// **'Natagalan ang sagot ng server. Subukan ulit.'**
+  String get serverTestTimeout;
+
+  /// No description provided for @serverOnline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nakakonekta sa server.'**
+  String get serverOnline;
+
+  /// No description provided for @serverOffline.
+  ///
+  /// In fil, this message translates to:
+  /// **'Walang koneksyon sa server. Offline na mga aklat lang ang magagamit.'**
+  String get serverOffline;
 }
 
 class _AppLocalizationsDelegate

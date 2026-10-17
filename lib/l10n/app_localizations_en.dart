@@ -2989,4 +2989,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qualityRetaking => 'Okay, let\'s take it again.';
+
+  @override
+  String get setServerTest => 'Test the server connection';
+
+  @override
+  String get serverTestRunning => 'Testing the server connection.';
+
+  @override
+  String get serverTestOk => 'Connected to the server. Ready.';
+
+  @override
+  String get serverTestNotConfigured =>
+      'No server address yet. Enter the address first.';
+
+  @override
+  String get serverTestNoNetwork =>
+      'The tablet has no network. Turn on Wi-Fi or the hotspot.';
+
+  @override
+  String get serverTestWrongAddress =>
+      'The server address is wrong. Check the IP and the folder.';
+
+  @override
+  String get serverTestUnreachable =>
+      'Cannot reach the server. Make sure the tablet and the computer are on the same hotspot.';
+
+  @override
+  String get serverTestServerDown =>
+      'The computer answers but the server is not working. Start MAMP or XAMPP and the database.';
+
+  @override
+  String get serverTestHttpBlocked =>
+      'Plain http is not allowed for that address. Use an address on the local network, or https.';
+
+  @override
+  String get serverTestTimeout =>
+      'The server took too long to answer. Try again.';
+
+  @override
+  String get serverOnline => 'Connected to the server.';
+
+  @override
+  String get serverOffline =>
+      'No connection to the server. Only offline books are available.';
 }

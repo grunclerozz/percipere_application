@@ -2945,4 +2945,48 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get qualityRetaking => 'Sige, kunan natin ulit.';
+
+  @override
+  String get setServerTest => 'Subukan ang koneksyon sa server';
+
+  @override
+  String get serverTestRunning => 'Sinusubukan ang koneksyon sa server.';
+
+  @override
+  String get serverTestOk => 'Nakakonekta sa server. Handa na.';
+
+  @override
+  String get serverTestNotConfigured =>
+      'Wala pang address ng server. Ilagay muna ang address.';
+
+  @override
+  String get serverTestNoNetwork =>
+      'Walang network ang tablet. I-on ang Wi-Fi o ang hotspot.';
+
+  @override
+  String get serverTestWrongAddress =>
+      'Mali ang address ng server. Tingnan ang IP at ang folder.';
+
+  @override
+  String get serverTestUnreachable =>
+      'Hindi maabot ang server. Siguraduhing nasa parehong hotspot ang tablet at ang computer.';
+
+  @override
+  String get serverTestServerDown =>
+      'Bukas ang computer pero hindi gumagana ang server. Buksan ang MAMP o XAMPP at ang database.';
+
+  @override
+  String get serverTestHttpBlocked =>
+      'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https.';
+
+  @override
+  String get serverTestTimeout =>
+      'Natagalan ang sagot ng server. Subukan ulit.';
+
+  @override
+  String get serverOnline => 'Nakakonekta sa server.';
+
+  @override
+  String get serverOffline =>
+      'Walang koneksyon sa server. Offline na mga aklat lang ang magagamit.';
 }

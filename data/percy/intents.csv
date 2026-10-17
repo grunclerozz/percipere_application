@@ -229,7 +229,7 @@ wag na pala ituloy,cancel,Claude,Starter (Claude),
 cancel ko na,cancel,Claude,Starter (Claude),
 i-cancel mo,cancel,Claude,Starter (Claude),
 ayaw ko na pala,cancel,Claude,Starter (Claude),
-tulungan mo ako,help,Claude,Starter (Claude),
+tulungan mo ako,ask_question,,Generated (Claude),moved from help
 help me,help,Claude,Starter (Claude),
 pa-help,help,Claude,Starter (Claude),
 patulong,help,Claude,Starter (Claude),
@@ -237,7 +237,7 @@ patulong naman,help,Claude,Starter (Claude),
 paano ba ito,help,Claude,Starter (Claude),
 paano po ito,help,Claude,Starter (Claude),
 di ko alam gagawin,help,Claude,Starter (Claude),
-hindi ko alam ang gagawin,help,Claude,Starter (Claude),
+hindi ko alam ang gagawin,ask_question,,Generated (Claude),moved from help
 ano ang gagawin ko dito,help,Claude,Starter (Claude),
 paano gumamit,help,Claude,Starter (Claude),
 paano gamitin ang app,help,Claude,Starter (Claude),
@@ -437,21 +437,7 @@ nag-crash ang app gusto kong i-report,report_issue,,Starter (Claude),Phase 10
 hindi gumagana ang camera i-report ko,report_issue,,Starter (Claude),Phase 10
 mag-ulat ng problema,report_issue,,Starter (Claude),Phase 10
 report bug,report_issue,,Starter (Claude),Phase 10
-sino ka,greeting,Claude,Starter (Claude),
-sino ka ba,greeting,Claude,Starter (Claude),
-ano ka,greeting,Claude,Starter (Claude),
-sino ka po,greeting,Claude,Starter (Claude),
-ikaw ba si percy,greeting,Claude,Starter (Claude),
-who are you,greeting,Claude,Starter (Claude),
-ano ang kaya mo,greeting,Claude,Starter (Claude),
-ano ang kaya mo percy,greeting,Claude,Starter (Claude),
-anong kaya mo,greeting,Claude,Starter (Claude),
-ano ang magagawa mo,greeting,Claude,Starter (Claude),
-ano ang maitutulong mo,greeting,Claude,Starter (Claude),
-what can you do,greeting,Claude,Starter (Claude),
-what do you do,greeting,Claude,Starter (Claude),
 ipakilala mo ang sarili mo,greeting,Claude,Starter (Claude),
-magpakilala ka,greeting,Claude,Starter (Claude),
 basahin ang dokumento,read,,Generated (Codex),
 basahin ang dokumento ngayon,read,,Generated (Codex),
 basahin ang dokumento muna,read,,Generated (Codex),
@@ -1022,3 +1008,994 @@ set speed to medium ngayon,set_speed,,Generated (Codex),
 set speed to medium muna,set_speed,,Generated (Codex),
 set speed to medium para sa akin,set_speed,,Generated (Codex),
 set speed to medium ulit,set_speed,,Generated (Codex),
+anong kaya mong gawin,ask_question,,Generated (Claude),percy_abilities
+ano ang kaya mo,ask_question,,Generated (Claude),percy_abilities
+anong kaya mo,ask_question,,Generated (Claude),percy_abilities
+ano pwede mong gawin,ask_question,,Generated (Claude),percy_abilities
+ano ang magagawa mo,ask_question,,Generated (Claude),percy_abilities
+ano ang maitutulong mo,ask_question,,Generated (Claude),percy_abilities
+anu kaya mu,ask_question,,Generated (Claude),percy_abilities
+anong mga kaya mong gawin,ask_question,,Generated (Claude),percy_abilities
+ano ang mga kaya mo,ask_question,,Generated (Claude),percy_abilities
+ano bang kaya mong gawin,ask_question,,Generated (Claude),percy_abilities
+ano ba ang kaya mo,ask_question,,Generated (Claude),percy_abilities
+ano ang mga magagawa mo,ask_question,,Generated (Claude),percy_abilities
+what can you do,ask_question,,Generated (Claude),percy_abilities
+what do you do,ask_question,,Generated (Claude),percy_abilities
+what are you able to do,ask_question,,Generated (Claude),percy_abilities
+what are your abilities,ask_question,,Generated (Claude),percy_abilities
+what can you help me with,ask_question,,Generated (Claude),percy_abilities
+how can you help me,ask_question,,Generated (Claude),percy_abilities
+what are you capable of,ask_question,,Generated (Claude),percy_abilities
+excuse me what are you able to do,ask_question,,Generated (Claude),percy_abilities
+anong kaya mu,ask_question,,Generated (Claude),percy_abilities
+anu ung kaya mu,ask_question,,Generated (Claude),percy_abilities
+pwede bang magtanong ano ang magagawa mo,ask_question,,Generated (Claude),percy_abilities
+please tell me what do you do,ask_question,,Generated (Claude),percy_abilities
+pakisabi ano ang mga magagawa mo,ask_question,,Generated (Claude),percy_abilities
+tell me what are your abilities,ask_question,,Generated (Claude),percy_abilities
+pakisabi ano pwede mong gawin,ask_question,,Generated (Claude),percy_abilities
+sabihin mo ano ang mga kaya mo,ask_question,,Generated (Claude),percy_abilities
+pwede bang magtanong ano ang mga magagawa mo,ask_question,,Generated (Claude),percy_abilities
+pakisabi ano ba ang kaya mo,ask_question,,Generated (Claude),percy_abilities
+ano ang maitutulong mu,ask_question,,Generated (Claude),percy_abilities
+anong purpose mo,ask_question,,Generated (Claude),percy_purpose
+ano ang layunin mo,ask_question,,Generated (Claude),percy_purpose
+para saan ka,ask_question,,Generated (Claude),percy_purpose
+ano ang purpose mo,ask_question,,Generated (Claude),percy_purpose
+ano ang silbi mo,ask_question,,Generated (Claude),percy_purpose
+anong gamit mo,ask_question,,Generated (Claude),percy_purpose
+ano ang gamit mo,ask_question,,Generated (Claude),percy_purpose
+bakit ka ginawa,ask_question,,Generated (Claude),percy_purpose
+para saan ka ginawa,ask_question,,Generated (Claude),percy_purpose
+ano ang trabaho mo,ask_question,,Generated (Claude),percy_purpose
+anu purpose mu,ask_question,,Generated (Claude),percy_purpose
+ano ang tungkulin mo,ask_question,,Generated (Claude),percy_purpose
+para saan ba ang isang katulad mo,ask_question,,Generated (Claude),percy_purpose
+what's your purpose,ask_question,,Generated (Claude),percy_purpose
+what is your purpose,ask_question,,Generated (Claude),percy_purpose
+why do you exist,ask_question,,Generated (Claude),percy_purpose
+why were you made,ask_question,,Generated (Claude),percy_purpose
+what are you for,ask_question,,Generated (Claude),percy_purpose
+what is your job,ask_question,,Generated (Claude),percy_purpose
+what are you used for,ask_question,,Generated (Claude),percy_purpose
+ano ung tungkulin mo,ask_question,,Generated (Claude),percy_purpose
+quick question why do you exist,ask_question,,Generated (Claude),percy_purpose
+can you tell me what are you for,ask_question,,Generated (Claude),percy_purpose
+ano ung gamit mo,ask_question,,Generated (Claude),percy_purpose
+anu ang silbi mo,ask_question,,Generated (Claude),percy_purpose
+sabihin mo ano ang tungkulin mo,ask_question,,Generated (Claude),percy_purpose
+anu ang trabaho mo,ask_question,,Generated (Claude),percy_purpose
+pra saan ka,ask_question,,Generated (Claude),percy_purpose
+excuse me ano ang trabaho mo,ask_question,,Generated (Claude),percy_purpose
+excuse me what are you used for,ask_question,,Generated (Claude),percy_purpose
+gusto kong malaman ano ang tungkulin mo,ask_question,,Generated (Claude),percy_purpose
+pakisabi ano ang purpose mo,ask_question,,Generated (Claude),percy_purpose
+sino ka,ask_question,,Generated (Claude),percy_who
+sino ka ba,ask_question,,Generated (Claude),percy_who
+ano ka,ask_question,,Generated (Claude),percy_who
+ano pangalan mo,ask_question,,Generated (Claude),percy_who
+ano ang pangalan mo,ask_question,,Generated (Claude),percy_who
+anong pangalan mo,ask_question,,Generated (Claude),percy_who
+ikaw ba si percy,ask_question,,Generated (Claude),percy_who
+ikaw ba ang percy,ask_question,,Generated (Claude),percy_who
+anu pangalan mu,ask_question,,Generated (Claude),percy_who
+sino ka ba talaga,ask_question,,Generated (Claude),percy_who
+magpakilala ka,ask_question,,Generated (Claude),percy_who
+pakilala ka naman,ask_question,,Generated (Claude),percy_who
+ano ang tawag sa'yo,ask_question,,Generated (Claude),percy_who
+sino itong kausap ko,ask_question,,Generated (Claude),percy_who
+who are you,ask_question,,Generated (Claude),percy_who
+what are you,ask_question,,Generated (Claude),percy_who
+what's your name,ask_question,,Generated (Claude),percy_who
+what is your name,ask_question,,Generated (Claude),percy_who
+introduce yourself,ask_question,,Generated (Claude),percy_who
+are you percy,ask_question,,Generated (Claude),percy_who
+who am i talking to,ask_question,,Generated (Claude),percy_who
+i want to know what are you,ask_question,,Generated (Claude),percy_who
+excuse me ano ang tawag sa'yo,ask_question,,Generated (Claude),percy_who
+tell me what is your name,ask_question,,Generated (Claude),percy_who
+gusto kong malaman sino ka,ask_question,,Generated (Claude),percy_who
+anu ung pangalan mu,ask_question,,Generated (Claude),percy_who
+tell me what's your name,ask_question,,Generated (Claude),percy_who
+i want to know what's your name,ask_question,,Generated (Claude),percy_who
+tanong ko lang ano pangalan mo,ask_question,,Generated (Claude),percy_who
+sabihin mo anu pangalan mu,ask_question,,Generated (Claude),percy_who
+can you tell me what is your name,ask_question,,Generated (Claude),percy_who
+anu ang pangalan mo,ask_question,,Generated (Claude),percy_who
+i want to know who are you,ask_question,,Generated (Claude),percy_who
+tao ka ba,ask_question,,Generated (Claude),percy_human
+robot ka ba,ask_question,,Generated (Claude),percy_human
+totoong tao ka ba,ask_question,,Generated (Claude),percy_human
+buhay ka ba,ask_question,,Generated (Claude),percy_human
+tao ba ang kausap ko,ask_question,,Generated (Claude),percy_human
+makina ka ba,ask_question,,Generated (Claude),percy_human
+computer ka ba,ask_question,,Generated (Claude),percy_human
+ikaw ba ay tao,ask_question,,Generated (Claude),percy_human
+tao ba ito,ask_question,,Generated (Claude),percy_human
+kausap ko ba ay tao,ask_question,,Generated (Claude),percy_human
+may tao ba sa likod mo,ask_question,,Generated (Claude),percy_human
+artificial intelligence ka ba,ask_question,,Generated (Claude),percy_human
+ai ka ba,ask_question,,Generated (Claude),percy_human
+are you a human,ask_question,,Generated (Claude),percy_human
+are you a robot,ask_question,,Generated (Claude),percy_human
+are you a real person,ask_question,,Generated (Claude),percy_human
+are you human,ask_question,,Generated (Claude),percy_human
+am i talking to a person,ask_question,,Generated (Claude),percy_human
+are you an ai,ask_question,,Generated (Claude),percy_human
+are you alive,ask_question,,Generated (Claude),percy_human
+pakisabi ai ka ba,ask_question,,Generated (Claude),percy_human
+please tell me are you a human,ask_question,,Generated (Claude),percy_human
+sabihin mo robot ka ba,ask_question,,Generated (Claude),percy_human
+sabihin mo makina ka ba,ask_question,,Generated (Claude),percy_human
+pwede bang magtanong ikaw ba ay tao,ask_question,,Generated (Claude),percy_human
+please tell me are you human,ask_question,,Generated (Claude),percy_human
+i want to know are you alive,ask_question,,Generated (Claude),percy_human
+pakisabi buhay ka ba,ask_question,,Generated (Claude),percy_human
+excuse me ikaw ba ay tao,ask_question,,Generated (Claude),percy_human
+tanong ko lang tao ba ito,ask_question,,Generated (Claude),percy_human
+pwede bang magtanong tao ka ba,ask_question,,Generated (Claude),percy_human
+i want to know are you a real person,ask_question,,Generated (Claude),percy_human
+sino gumawa sa'yo,ask_question,,Generated (Claude),percy_creator
+sino ang gumawa sa iyo,ask_question,,Generated (Claude),percy_creator
+sino ang gumawa sayo,ask_question,,Generated (Claude),percy_creator
+sino lumikha sa iyo,ask_question,,Generated (Claude),percy_creator
+sino ang nag-develop sa iyo,ask_question,,Generated (Claude),percy_creator
+sino gumawa sa app na ito,ask_question,,Generated (Claude),percy_creator
+sino ang gumawa ng percipere,ask_question,,Generated (Claude),percy_creator
+sino ang may gawa sa'yo,ask_question,,Generated (Claude),percy_creator
+sino nag-program sa'yo,ask_question,,Generated (Claude),percy_creator
+sino ang nagtayo ng app na ito,ask_question,,Generated (Claude),percy_creator
+sinong gumawa sa'yo,ask_question,,Generated (Claude),percy_creator
+who made you,ask_question,,Generated (Claude),percy_creator
+who created you,ask_question,,Generated (Claude),percy_creator
+who built you,ask_question,,Generated (Claude),percy_creator
+who developed you,ask_question,,Generated (Claude),percy_creator
+who made this app,ask_question,,Generated (Claude),percy_creator
+who programmed you,ask_question,,Generated (Claude),percy_creator
+who is behind this app,ask_question,,Generated (Claude),percy_creator
+tanong ko lang sino nag-program sa'yo,ask_question,,Generated (Claude),percy_creator
+pakisabi sinong gumawa sa'yo,ask_question,,Generated (Claude),percy_creator
+sino ung gumawa ng percipere,ask_question,,Generated (Claude),percy_creator
+sino ang nagtayo ng app na to,ask_question,,Generated (Claude),percy_creator
+sino ung may gawa sa'yo,ask_question,,Generated (Claude),percy_creator
+sino gumawa sa app nah ito,ask_question,,Generated (Claude),percy_creator
+excuse me who programmed you,ask_question,,Generated (Claude),percy_creator
+sino gumawa sa app na to,ask_question,,Generated (Claude),percy_creator
+gusto kong malaman sino ang gumawa sayo,ask_question,,Generated (Claude),percy_creator
+pakisabi sino nag-program sa'yo,ask_question,,Generated (Claude),percy_creator
+excuse me sino lumikha sa iyo,ask_question,,Generated (Claude),percy_creator
+sino ang nagtayo ng app nah ito,ask_question,,Generated (Claude),percy_creator
+ano ang Percipere,ask_question,,Generated (Claude),app_what
+ano ang percipere app,ask_question,,Generated (Claude),app_what
+para saan ang app na ito,ask_question,,Generated (Claude),app_what
+para saan ang app na to,ask_question,,Generated (Claude),app_what
+ano ang app na ito,ask_question,,Generated (Claude),app_what
+ano ba ang percipere,ask_question,,Generated (Claude),app_what
+anong klaseng app ito,ask_question,,Generated (Claude),app_what
+ano ang ginagawa ng app na ito,ask_question,,Generated (Claude),app_what
+para saan ang percipere,ask_question,,Generated (Claude),app_what
+ano ang silbi ng app na ito,ask_question,,Generated (Claude),app_what
+ano ito,ask_question,,Generated (Claude),app_what
+anu ang percipere,ask_question,,Generated (Claude),app_what
+ano ang gamit ng app na ito,ask_question,,Generated (Claude),app_what
+ipaliwanag mo ang app na ito,ask_question,,Generated (Claude),app_what
+what does this app do,ask_question,,Generated (Claude),app_what
+what is percipere,ask_question,,Generated (Claude),app_what
+what is this app,ask_question,,Generated (Claude),app_what
+what is this app for,ask_question,,Generated (Claude),app_what
+what is percipere for,ask_question,,Generated (Claude),app_what
+tell me about this app,ask_question,,Generated (Claude),app_what
+explain this app,ask_question,,Generated (Claude),app_what
+tell me tell me about this app,ask_question,,Generated (Claude),app_what
+pwede bang magtanong ipaliwanag mo ang app na ito,ask_question,,Generated (Claude),app_what
+anu ung percipere,ask_question,,Generated (Claude),app_what
+excuse me ano ito,ask_question,,Generated (Claude),app_what
+sabihin mo ano ang app na ito,ask_question,,Generated (Claude),app_what
+ano ung percipere app,ask_question,,Generated (Claude),app_what
+tanong ko lang ano ba ang percipere,ask_question,,Generated (Claude),app_what
+pakisabi para saan ang percipere,ask_question,,Generated (Claude),app_what
+pra saan ang app na ito,ask_question,,Generated (Claude),app_what
+ipaliwanag mo ang app nah ito,ask_question,,Generated (Claude),app_what
+gusto kong malaman para saan ang app na ito,ask_question,,Generated (Claude),app_what
+pakisabi anu ang percipere,ask_question,,Generated (Claude),app_what
+anong features nito,ask_question,,Generated (Claude),app_features
+ano ang mga features ng app,ask_question,,Generated (Claude),app_features
+ano ang mga feature nito,ask_question,,Generated (Claude),app_features
+anong mga feature meron,ask_question,,Generated (Claude),app_features
+ano ang mga kayang gawin ng app,ask_question,,Generated (Claude),app_features
+ano ang laman ng app na ito,ask_question,,Generated (Claude),app_features
+ano ang meron sa app na ito,ask_question,,Generated (Claude),app_features
+ano ang mga bahagi ng app,ask_question,,Generated (Claude),app_features
+ano pa ang meron sa app,ask_question,,Generated (Claude),app_features
+ano ang mga function ng app,ask_question,,Generated (Claude),app_features
+anu features nito,ask_question,,Generated (Claude),app_features
+ano ang mga pwedeng gawin sa app na ito,ask_question,,Generated (Claude),app_features
+ilista mo ang mga feature,ask_question,,Generated (Claude),app_features
+what are the features,ask_question,,Generated (Claude),app_features
+what features does this app have,ask_question,,Generated (Claude),app_features
+what can this app do,ask_question,,Generated (Claude),app_features
+what does the app have,ask_question,,Generated (Claude),app_features
+list the features,ask_question,,Generated (Claude),app_features
+what can i do in this app,ask_question,,Generated (Claude),app_features
+what are the app's functions,ask_question,,Generated (Claude),app_features
+ano ang mga pwedeng gawin sa app nah ito,ask_question,,Generated (Claude),app_features
+excuse me what are the features,ask_question,,Generated (Claude),app_features
+anu ang laman ng app na ito,ask_question,,Generated (Claude),app_features
+ano ung mga function ng app,ask_question,,Generated (Claude),app_features
+gusto kong malaman ano ang mga function ng app,ask_question,,Generated (Claude),app_features
+quick question what are the app's functions,ask_question,,Generated (Claude),app_features
+anu ang mga bahagi ng app,ask_question,,Generated (Claude),app_features
+ilista mu ung mga feature,ask_question,,Generated (Claude),app_features
+i want to know list the features,ask_question,,Generated (Claude),app_features
+ano pa ung meron sa app,ask_question,,Generated (Claude),app_features
+anu ung mga kayang gawin ng app,ask_question,,Generated (Claude),app_features
+excuse me what are the app's functions,ask_question,,Generated (Claude),app_features
+paano magbasa ng dokumento,ask_question,,Generated (Claude),read_document
+paano ko mababasa ang dokumento,ask_question,,Generated (Claude),read_document
+paano magpabasa ng papel,ask_question,,Generated (Claude),read_document
+paano gumagana ang pagbabasa,ask_question,,Generated (Claude),read_document
+paano mo babasahin ang dokumento,ask_question,,Generated (Claude),read_document
+paano magpabasa sa app,ask_question,,Generated (Claude),read_document
+paano mo ako babasahan,ask_question,,Generated (Claude),read_document
+paano magbasa ng bago,ask_question,,Generated (Claude),read_document
+paano magsimulang magbasa,ask_question,,Generated (Claude),read_document
+pano magbasa ng dokumento,ask_question,,Generated (Claude),read_document
+paano magpabasa ng sulat,ask_question,,Generated (Claude),read_document
+paano ko papabasahin ang libro,ask_question,,Generated (Claude),read_document
+paano ko pababasahin ang papel,ask_question,,Generated (Claude),read_document
+how do i read a document,ask_question,,Generated (Claude),read_document
+how do i read something,ask_question,,Generated (Claude),read_document
+how does reading work,ask_question,,Generated (Claude),read_document
+how can i have a document read to me,ask_question,,Generated (Claude),read_document
+how do i start reading,ask_question,,Generated (Claude),read_document
+how do you read documents,ask_question,,Generated (Claude),read_document
+how do i make you read,ask_question,,Generated (Claude),read_document
+sabihin mo paano ko pababasahin ang papel,ask_question,,Generated (Claude),read_document
+paano mu babasahin ang dokumento,ask_question,,Generated (Claude),read_document
+pano mu ako babasahan,ask_question,,Generated (Claude),read_document
+pano magbasa ng bago,ask_question,,Generated (Claude),read_document
+pano ko pababasahin ang papel,ask_question,,Generated (Claude),read_document
+pano magpabasa sa app,ask_question,,Generated (Claude),read_document
+pano magsimulang magbasa,ask_question,,Generated (Claude),read_document
+paano ko pababasahin ung papel,ask_question,,Generated (Claude),read_document
+pano magpabasa ng papel,ask_question,,Generated (Claude),read_document
+i want to know how does reading work,ask_question,,Generated (Claude),read_document
+paano mu ako babasahan,ask_question,,Generated (Claude),read_document
+pano ko mababasa ung dokumento,ask_question,,Generated (Claude),read_document
+paano mag-scan,ask_question,,Generated (Claude),scan_document
+paano mag-scan ng dokumento,ask_question,,Generated (Claude),scan_document
+paano mag scan,ask_question,,Generated (Claude),scan_document
+paano gamitin ang camera,ask_question,,Generated (Claude),scan_document
+paano kumuha ng litrato ng papel,ask_question,,Generated (Claude),scan_document
+paano i-scan ang papel,ask_question,,Generated (Claude),scan_document
+paano ko i-scan ang dokumento,ask_question,,Generated (Claude),scan_document
+paano magpa-scan,ask_question,,Generated (Claude),scan_document
+paano kunan ng picture ang papel,ask_question,,Generated (Claude),scan_document
+pano mag scan,ask_question,,Generated (Claude),scan_document
+paano ko gagamitin ang camera para magbasa,ask_question,,Generated (Claude),scan_document
+paano ko ipapabasa ang printed na papel,ask_question,,Generated (Claude),scan_document
+paano magbasa ng nakalimbag na papel,ask_question,,Generated (Claude),scan_document
+how do i scan,ask_question,,Generated (Claude),scan_document
+how can i scan a document,ask_question,,Generated (Claude),scan_document
+how do i scan a page,ask_question,,Generated (Claude),scan_document
+how do i use the camera,ask_question,,Generated (Claude),scan_document
+how do i take a photo of a document,ask_question,,Generated (Claude),scan_document
+how do i scan a paper,ask_question,,Generated (Claude),scan_document
+how to scan,ask_question,,Generated (Claude),scan_document
+pano kunan ng picture ang papel,ask_question,,Generated (Claude),scan_document
+pano ko i-scan ung dokumento,ask_question,,Generated (Claude),scan_document
+pwede bang magtanong paano mag-scan,ask_question,,Generated (Claude),scan_document
+gusto kong malaman paano kumuha ng litrato ng papel,ask_question,,Generated (Claude),scan_document
+tanong ko lang paano magpa-scan,ask_question,,Generated (Claude),scan_document
+please tell me how do i take a photo of a document,ask_question,,Generated (Claude),scan_document
+sabihin mo paano magbasa ng nakalimbag na papel,ask_question,,Generated (Claude),scan_document
+i want to know how do i use the camera,ask_question,,Generated (Claude),scan_document
+paano kunan ng picture ung papel,ask_question,,Generated (Claude),scan_document
+excuse me paano ko i-scan ang dokumento,ask_question,,Generated (Claude),scan_document
+pano ko gagamitin ung camera pra magbasa,ask_question,,Generated (Claude),scan_document
+please tell me how do i scan a paper,ask_question,,Generated (Claude),scan_document
+paano mag-upload,ask_question,,Generated (Claude),upload_document
+paano mag upload,ask_question,,Generated (Claude),upload_document
+paano mag-upload ng file,ask_question,,Generated (Claude),upload_document
+paano mag-upload ng dokumento,ask_question,,Generated (Claude),upload_document
+paano magdagdag ng file,ask_question,,Generated (Claude),upload_document
+paano pumili ng file,ask_question,,Generated (Claude),upload_document
+paano ako mag-a-upload ng pdf,ask_question,,Generated (Claude),upload_document
+paano ko ilalagay ang file,ask_question,,Generated (Claude),upload_document
+pano mag upload ng file,ask_question,,Generated (Claude),upload_document
+paano magbukas ng file mula sa phone,ask_question,,Generated (Claude),upload_document
+paano ko gagamitin ang file sa phone ko,ask_question,,Generated (Claude),upload_document
+paano mag-import ng dokumento,ask_question,,Generated (Claude),upload_document
+how do i upload,ask_question,,Generated (Claude),upload_document
+how do i upload a file,ask_question,,Generated (Claude),upload_document
+how do i upload a document,ask_question,,Generated (Claude),upload_document
+how to upload,ask_question,,Generated (Claude),upload_document
+how do i add a file,ask_question,,Generated (Claude),upload_document
+how do i pick a file,ask_question,,Generated (Claude),upload_document
+how do i import a document,ask_question,,Generated (Claude),upload_document
+sabihin mo paano ko ilalagay ang file,ask_question,,Generated (Claude),upload_document
+pakisabi paano ko gagamitin ang file sa phone ko,ask_question,,Generated (Claude),upload_document
+pano ko gagamitin ung file sa phone ko,ask_question,,Generated (Claude),upload_document
+excuse me paano mag-import ng dokumento,ask_question,,Generated (Claude),upload_document
+i want to know how do i upload,ask_question,,Generated (Claude),upload_document
+excuse me pano mag upload ng file,ask_question,,Generated (Claude),upload_document
+pano ako mag-a-upload ng pdf,ask_question,,Generated (Claude),upload_document
+pano mag-import ng dokumento,ask_question,,Generated (Claude),upload_document
+gusto kong malaman pano mag upload ng file,ask_question,,Generated (Claude),upload_document
+tell me how do i add a file,ask_question,,Generated (Claude),upload_document
+pano mag-upload ng file,ask_question,,Generated (Claude),upload_document
+pano magbukas ng file mula sa phone,ask_question,,Generated (Claude),upload_document
+pwede bang PDF,ask_question,,Generated (Claude),pdf_support
+kaya mo ba ang pdf,ask_question,,Generated (Claude),pdf_support
+nababasa ba ang pdf,ask_question,,Generated (Claude),pdf_support
+pwede ba ang pdf file,ask_question,,Generated (Claude),pdf_support
+pwede bang magbasa ng pdf,ask_question,,Generated (Claude),pdf_support
+anong mga file ang kaya mong basahin,ask_question,,Generated (Claude),pdf_support
+anong uri ng file ang pwede,ask_question,,Generated (Claude),pdf_support
+pwede ba ang epub,ask_question,,Generated (Claude),pdf_support
+kaya mo bang magbasa ng libro,ask_question,,Generated (Claude),pdf_support
+pwede bang larawan ang basahin,ask_question,,Generated (Claude),pdf_support
+pwede ba ang litrato ng papel,ask_question,,Generated (Claude),pdf_support
+anong format ng file ang tinatanggap,ask_question,,Generated (Claude),pdf_support
+can you read a pdf,ask_question,,Generated (Claude),pdf_support
+can i use a pdf,ask_question,,Generated (Claude),pdf_support
+does it work with pdf,ask_question,,Generated (Claude),pdf_support
+what files can you read,ask_question,,Generated (Claude),pdf_support
+what file types are supported,ask_question,,Generated (Claude),pdf_support
+can you read epub,ask_question,,Generated (Claude),pdf_support
+can you read images of text,ask_question,,Generated (Claude),pdf_support
+tanong ko lang anong format ng file ang tinatanggap,ask_question,,Generated (Claude),pdf_support
+anong uri ng file ung pwede,ask_question,,Generated (Claude),pdf_support
+can you tell me can you read images of text,ask_question,,Generated (Claude),pdf_support
+tanong ko lang pwede bang larawan ang basahin,ask_question,,Generated (Claude),pdf_support
+sabihin mo pwede bang larawan ang basahin,ask_question,,Generated (Claude),pdf_support
+pakisabi anong format ng file ang tinatanggap,ask_question,,Generated (Claude),pdf_support
+quick question what files can you read,ask_question,,Generated (Claude),pdf_support
+kaya mo ba ung pdf,ask_question,,Generated (Claude),pdf_support
+sabihin mo pwede ba ang pdf file,ask_question,,Generated (Claude),pdf_support
+pwede ba ung pdf file,ask_question,,Generated (Claude),pdf_support
+nababasa ba ung pdf,ask_question,,Generated (Claude),pdf_support
+pede bang larawan ung basahin,ask_question,,Generated (Claude),pdf_support
+paano kita kakausapin,ask_question,,Generated (Claude),talk_to_percy
+paano kita tatawagin,ask_question,,Generated (Claude),talk_to_percy
+paano kita makakausap,ask_question,,Generated (Claude),talk_to_percy
+paano kita gigisingin,ask_question,,Generated (Claude),talk_to_percy
+paano ka tawagin,ask_question,,Generated (Claude),talk_to_percy
+paano ko tatawagin si percy,ask_question,,Generated (Claude),talk_to_percy
+paano ako makikipag-usap sa'yo,ask_question,,Generated (Claude),talk_to_percy
+pano kita kakausapin,ask_question,,Generated (Claude),talk_to_percy
+paano ka kausapin,ask_question,,Generated (Claude),talk_to_percy
+paano ka magsimulang makinig,ask_question,,Generated (Claude),talk_to_percy
+paano ka tatawagin kapag kailangan ko,ask_question,,Generated (Claude),talk_to_percy
+how do i talk to you,ask_question,,Generated (Claude),talk_to_percy
+how do i call you,ask_question,,Generated (Claude),talk_to_percy
+how do i wake you up,ask_question,,Generated (Claude),talk_to_percy
+how can i speak to you,ask_question,,Generated (Claude),talk_to_percy
+how do i start talking to you,ask_question,,Generated (Claude),talk_to_percy
+how do i call percy,ask_question,,Generated (Claude),talk_to_percy
+how do i get your attention,ask_question,,Generated (Claude),talk_to_percy
+pwede bang magtanong paano kita makakausap,ask_question,,Generated (Claude),talk_to_percy
+excuse me how do i get your attention,ask_question,,Generated (Claude),talk_to_percy
+pwede bang magtanong paano ko tatawagin si percy,ask_question,,Generated (Claude),talk_to_percy
+pano kta kakausapin,ask_question,,Generated (Claude),talk_to_percy
+pano ka tawagin,ask_question,,Generated (Claude),talk_to_percy
+sabihin mo paano ako makikipag-usap sa'yo,ask_question,,Generated (Claude),talk_to_percy
+can you tell me how do i call percy,ask_question,,Generated (Claude),talk_to_percy
+paano kta gigisingin,ask_question,,Generated (Claude),talk_to_percy
+tell me how do i call percy,ask_question,,Generated (Claude),talk_to_percy
+pano ka kausapin,ask_question,,Generated (Claude),talk_to_percy
+pano kta gigisingin,ask_question,,Generated (Claude),talk_to_percy
+i want to know how do i call you,ask_question,,Generated (Claude),talk_to_percy
+ano ang push to talk,ask_question,,Generated (Claude),push_to_talk
+ano ang push-to-talk,ask_question,,Generated (Claude),push_to_talk
+ano ang ibig sabihin ng push to talk,ask_question,,Generated (Claude),push_to_talk
+paano gumamit ng push to talk,ask_question,,Generated (Claude),push_to_talk
+paano magsalita sa app,ask_question,,Generated (Claude),push_to_talk
+paano magbigay ng utos gamit ang boses,ask_question,,Generated (Claude),push_to_talk
+paano ako magsasalita sa app,ask_question,,Generated (Claude),push_to_talk
+bakit kailangan pindutin habang nagsasalita,ask_question,,Generated (Claude),push_to_talk
+paano ko ibibigay ang utos,ask_question,,Generated (Claude),push_to_talk
+ano ang pindutin nang matagal,ask_question,,Generated (Claude),push_to_talk
+anu ang push to talk,ask_question,,Generated (Claude),push_to_talk
+paano gumagana ang pagsasalita sa app,ask_question,,Generated (Claude),push_to_talk
+what is push to talk,ask_question,,Generated (Claude),push_to_talk
+what is push-to-talk,ask_question,,Generated (Claude),push_to_talk
+how does push to talk work,ask_question,,Generated (Claude),push_to_talk
+how do i speak to the app,ask_question,,Generated (Claude),push_to_talk
+how do i give a voice command,ask_question,,Generated (Claude),push_to_talk
+why do i have to hold the screen,ask_question,,Generated (Claude),push_to_talk
+how do i talk to the app,ask_question,,Generated (Claude),push_to_talk
+sabihin mo paano ako magsasalita sa app,ask_question,,Generated (Claude),push_to_talk
+pano ko ibibigay ang utos,ask_question,,Generated (Claude),push_to_talk
+tanong ko lang paano magsalita sa app,ask_question,,Generated (Claude),push_to_talk
+excuse me ano ang push-to-talk,ask_question,,Generated (Claude),push_to_talk
+paano gumagana ung pagsasalita sa app,ask_question,,Generated (Claude),push_to_talk
+excuse me how do i talk to the app,ask_question,,Generated (Claude),push_to_talk
+anu ung pindutin nang matagal,ask_question,,Generated (Claude),push_to_talk
+excuse me paano gumagana ang pagsasalita sa app,ask_question,,Generated (Claude),push_to_talk
+pwede bang magtanong paano magbigay ng utos gamit ang boses,ask_question,,Generated (Claude),push_to_talk
+tell me how do i give a voice command,ask_question,,Generated (Claude),push_to_talk
+pwede bang magtanong ano ang ibig sabihin ng push to talk,ask_question,,Generated (Claude),push_to_talk
+pano magbigay ng utos gamit ang boses,ask_question,,Generated (Claude),push_to_talk
+ano ang mga gesture,ask_question,,Generated (Claude),gestures
+ano ang mga galaw,ask_question,,Generated (Claude),gestures
+anong mga galaw ang pwede,ask_question,,Generated (Claude),gestures
+ano ang mga galaw ng daliri,ask_question,,Generated (Claude),gestures
+paano gamitin ang mga gesture,ask_question,,Generated (Claude),gestures
+paano gumamit ng galaw,ask_question,,Generated (Claude),gestures
+ano ang ibig sabihin ng swipe,ask_question,,Generated (Claude),gestures
+ano ang gesture pad,ask_question,,Generated (Claude),gestures
+ano ang mga swipe,ask_question,,Generated (Claude),gestures
+anu ang mga gesture,ask_question,,Generated (Claude),gestures
+anong galaw ang para bumalik,ask_question,,Generated (Claude),gestures
+paano lumipat ng pagpipilian,ask_question,,Generated (Claude),gestures
+paano pumili gamit ang daliri,ask_question,,Generated (Claude),gestures
+what are the gestures,ask_question,,Generated (Claude),gestures
+what gestures can i use,ask_question,,Generated (Claude),gestures
+how do i use gestures,ask_question,,Generated (Claude),gestures
+what do the swipes do,ask_question,,Generated (Claude),gestures
+what is the gesture pad,ask_question,,Generated (Claude),gestures
+how do i move around with my fingers,ask_question,,Generated (Claude),gestures
+how do i go back with a gesture,ask_question,,Generated (Claude),gestures
+pwede bang magtanong ano ang gesture pad,ask_question,,Generated (Claude),gestures
+excuse me anong galaw ang para bumalik,ask_question,,Generated (Claude),gestures
+excuse me paano gamitin ang mga gesture,ask_question,,Generated (Claude),gestures
+paano gamitin ung mga gesture,ask_question,,Generated (Claude),gestures
+pakisabi anu ang mga gesture,ask_question,,Generated (Claude),gestures
+anu ung ibig sabihin ng swipe,ask_question,,Generated (Claude),gestures
+anu ung mga gesture,ask_question,,Generated (Claude),gestures
+anong galaw ang pra bumalik,ask_question,,Generated (Claude),gestures
+anong mga galaw ang pede,ask_question,,Generated (Claude),gestures
+ano ung mga swipe,ask_question,,Generated (Claude),gestures
+ano ung gesture pad,ask_question,,Generated (Claude),gestures
+tanong ko lang paano gumamit ng galaw,ask_question,,Generated (Claude),gestures
+ano pwede kong sabihin,ask_question,,Generated (Claude),what_can_i_say
+ano ang pwede kong sabihin,ask_question,,Generated (Claude),what_can_i_say
+anong mga utos ang pwede,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga utos,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga voice command,ask_question,,Generated (Claude),what_can_i_say
+anong mga salita ang pwede kong gamitin,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga pwedeng sabihin sa app,ask_question,,Generated (Claude),what_can_i_say
+ano pwede kong ipagawa sa'yo,ask_question,,Generated (Claude),what_can_i_say
+ano ang pwede kong ipagawa,ask_question,,Generated (Claude),what_can_i_say
+anu pwede kong sabihin,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga boses na utos,ask_question,,Generated (Claude),what_can_i_say
+magbigay ka ng halimbawa ng utos,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga halimbawa ng utos,ask_question,,Generated (Claude),what_can_i_say
+what can i say,ask_question,,Generated (Claude),what_can_i_say
+what commands can i use,ask_question,,Generated (Claude),what_can_i_say
+what are the voice commands,ask_question,,Generated (Claude),what_can_i_say
+what can i ask you,ask_question,,Generated (Claude),what_can_i_say
+what can i tell you to do,ask_question,,Generated (Claude),what_can_i_say
+give me examples of commands,ask_question,,Generated (Claude),what_can_i_say
+what are the commands,ask_question,,Generated (Claude),what_can_i_say
+anu ang pwede kong sabihin,ask_question,,Generated (Claude),what_can_i_say
+anu ang mga utos,ask_question,,Generated (Claude),what_can_i_say
+quick question what are the voice commands,ask_question,,Generated (Claude),what_can_i_say
+anu ung mga voice command,ask_question,,Generated (Claude),what_can_i_say
+ano ang mga boses nah utos,ask_question,,Generated (Claude),what_can_i_say
+gusto kong malaman magbigay ka ng halimbawa ng utos,ask_question,,Generated (Claude),what_can_i_say
+tanong ko lang ano ang mga pwedeng sabihin sa app,ask_question,,Generated (Claude),what_can_i_say
+please tell me what commands can i use,ask_question,,Generated (Claude),what_can_i_say
+anu ang mga pwedeng sabihin sa app,ask_question,,Generated (Claude),what_can_i_say
+pakisabi anong mga utos ang pwede,ask_question,,Generated (Claude),what_can_i_say
+please tell me what can i ask you,ask_question,,Generated (Claude),what_can_i_say
+anong mga salita ung pede kong gamitin,ask_question,,Generated (Claude),what_can_i_say
+paano gamitin ang aklatan,ask_question,,Generated (Claude),library_use
+ano ang aklatan,ask_question,,Generated (Claude),library_use
+para saan ang aklatan,ask_question,,Generated (Claude),library_use
+ano ang meron sa aklatan,ask_question,,Generated (Claude),library_use
+paano gumamit ng aklatan,ask_question,,Generated (Claude),library_use
+paano maghanap ng libro,ask_question,,Generated (Claude),library_use
+paano magbukas ng libro sa aklatan,ask_question,,Generated (Claude),library_use
+ano ang laman ng aklatan,ask_question,,Generated (Claude),library_use
+paano ko gagamitin ang aklatan,ask_question,,Generated (Claude),library_use
+pano gamitin ang aklatan,ask_question,,Generated (Claude),library_use
+paano ako makakabasa ng libro sa aklatan,ask_question,,Generated (Claude),library_use
+paano ituloy ang binabasa kong libro,ask_question,,Generated (Claude),library_use
+how do i use the library,ask_question,,Generated (Claude),library_use
+what is the library,ask_question,,Generated (Claude),library_use
+what is aklatan,ask_question,,Generated (Claude),library_use
+what is in the library,ask_question,,Generated (Claude),library_use
+how do i find a book,ask_question,,Generated (Claude),library_use
+how do i open a book in the library,ask_question,,Generated (Claude),library_use
+how do i continue my book,ask_question,,Generated (Claude),library_use
+anu ang meron sa aklatan,ask_question,,Generated (Claude),library_use
+paano ko gagamitin ung aklatan,ask_question,,Generated (Claude),library_use
+please tell me how do i use the library,ask_question,,Generated (Claude),library_use
+gusto kong malaman ano ang meron sa aklatan,ask_question,,Generated (Claude),library_use
+gusto kong malaman paano magbukas ng libro sa aklatan,ask_question,,Generated (Claude),library_use
+excuse me paano gamitin ang aklatan,ask_question,,Generated (Claude),library_use
+pano maghanap ng libro,ask_question,,Generated (Claude),library_use
+pano gamitin ung aklatan,ask_question,,Generated (Claude),library_use
+can you tell me what is the library,ask_question,,Generated (Claude),library_use
+pano magbukas ng libro sa aklatan,ask_question,,Generated (Claude),library_use
+pwede bang magtanong paano maghanap ng libro,ask_question,,Generated (Claude),library_use
+pano ko gagamitin ung aklatan,ask_question,,Generated (Claude),library_use
+paano mag-download ng libro,ask_question,,Generated (Claude),library_download
+paano mag download ng libro,ask_question,,Generated (Claude),library_download
+paano i-download ang libro,ask_question,,Generated (Claude),library_download
+paano kumuha ng libro,ask_question,,Generated (Claude),library_download
+paano ko madadownload ang libro,ask_question,,Generated (Claude),library_download
+paano magbasa ng libro nang walang internet,ask_question,,Generated (Claude),library_download
+paano mag-save ng libro sa phone,ask_question,,Generated (Claude),library_download
+pano mag download ng libro,ask_question,,Generated (Claude),library_download
+paano kumuha ng libro mula sa aklatan,ask_question,,Generated (Claude),library_download
+paano maglagay ng libro sa phone ko,ask_question,,Generated (Claude),library_download
+paano ko ide-download ang aklat,ask_question,,Generated (Claude),library_download
+paano mag-alis ng download,ask_question,,Generated (Claude),library_download
+how do i download a book,ask_question,,Generated (Claude),library_download
+how can i download a book,ask_question,,Generated (Claude),library_download
+how do i save a book offline,ask_question,,Generated (Claude),library_download
+how do i get a book,ask_question,,Generated (Claude),library_download
+how do i read a book without internet,ask_question,,Generated (Claude),library_download
+how do i remove a download,ask_question,,Generated (Claude),library_download
+how to download books,ask_question,,Generated (Claude),library_download
+pano mag-alis ng download,ask_question,,Generated (Claude),library_download
+sabihin mo paano kumuha ng libro mula sa aklatan,ask_question,,Generated (Claude),library_download
+can you tell me how to download books,ask_question,,Generated (Claude),library_download
+pakisabi paano ko ide-download ang aklat,ask_question,,Generated (Claude),library_download
+sabihin mo paano magbasa ng libro nang walang internet,ask_question,,Generated (Claude),library_download
+quick question how can i download a book,ask_question,,Generated (Claude),library_download
+pano ko madadownload ang libro,ask_question,,Generated (Claude),library_download
+tanong ko lang paano ko madadownload ang libro,ask_question,,Generated (Claude),library_download
+tell me how do i remove a download,ask_question,,Generated (Claude),library_download
+pano i-download ung libro,ask_question,,Generated (Claude),library_download
+pano ko madadownload ung libro,ask_question,,Generated (Claude),library_download
+pwede bang magtanong paano mag download ng libro,ask_question,,Generated (Claude),library_download
+paano mag-favorite,ask_question,,Generated (Claude),library_favorite
+paano mag favorite,ask_question,,Generated (Claude),library_favorite
+paano maglagay ng paborito,ask_question,,Generated (Claude),library_favorite
+paano mag-paborito ng libro,ask_question,,Generated (Claude),library_favorite
+paano idagdag sa mga paborito,ask_question,,Generated (Claude),library_favorite
+paano markahan ang paborito,ask_question,,Generated (Claude),library_favorite
+paano ko ilalagay sa favorites,ask_question,,Generated (Claude),library_favorite
+paano makita ang mga paborito ko,ask_question,,Generated (Claude),library_favorite
+pano mag favorite ng libro,ask_question,,Generated (Claude),library_favorite
+ano ang mga paborito,ask_question,,Generated (Claude),library_favorite
+paano mag-save ng paboritong libro,ask_question,,Generated (Claude),library_favorite
+paano alisin sa paborito,ask_question,,Generated (Claude),library_favorite
+how do i favorite a book,ask_question,,Generated (Claude),library_favorite
+how do i add a favorite,ask_question,,Generated (Claude),library_favorite
+how do i mark a book as favorite,ask_question,,Generated (Claude),library_favorite
+how do i see my favorites,ask_question,,Generated (Claude),library_favorite
+what are favorites,ask_question,,Generated (Claude),library_favorite
+how do i add to favorites,ask_question,,Generated (Claude),library_favorite
+how do i remove a favorite,ask_question,,Generated (Claude),library_favorite
+anu ung mga paborito,ask_question,,Generated (Claude),library_favorite
+pano markahan ang paborito,ask_question,,Generated (Claude),library_favorite
+quick question how do i mark a book as favorite,ask_question,,Generated (Claude),library_favorite
+i want to know how do i add to favorites,ask_question,,Generated (Claude),library_favorite
+tanong ko lang paano mag-favorite,ask_question,,Generated (Claude),library_favorite
+pwede bang magtanong paano makita ang mga paborito ko,ask_question,,Generated (Claude),library_favorite
+i want to know how do i favorite a book,ask_question,,Generated (Claude),library_favorite
+sabihin mo paano mag-favorite,ask_question,,Generated (Claude),library_favorite
+pakisabi paano markahan ang paborito,ask_question,,Generated (Claude),library_favorite
+ano ung mga paborito,ask_question,,Generated (Claude),library_favorite
+pano mag-favorite,ask_question,,Generated (Claude),library_favorite
+pano makita ung mga paborito ko,ask_question,,Generated (Claude),library_favorite
+ano ang collections,ask_question,,Generated (Claude),library_collections
+ano ang koleksyon,ask_question,,Generated (Claude),library_collections
+ano ang mga koleksyon,ask_question,,Generated (Claude),library_collections
+paano gumawa ng koleksyon,ask_question,,Generated (Claude),library_collections
+paano magdagdag sa koleksyon,ask_question,,Generated (Claude),library_collections
+para saan ang koleksyon,ask_question,,Generated (Claude),library_collections
+paano mag-ayos ng mga libro,ask_question,,Generated (Claude),library_collections
+paano ko pagsasama-samahin ang mga libro,ask_question,,Generated (Claude),library_collections
+paano gumawa ng collection,ask_question,,Generated (Claude),library_collections
+anu ang collections,ask_question,,Generated (Claude),library_collections
+paano palitan ang pangalan ng koleksyon,ask_question,,Generated (Claude),library_collections
+paano mag-organize ng mga aklat,ask_question,,Generated (Claude),library_collections
+what are collections,ask_question,,Generated (Claude),library_collections
+what is a collection,ask_question,,Generated (Claude),library_collections
+how do i make a collection,ask_question,,Generated (Claude),library_collections
+how do i add a book to a collection,ask_question,,Generated (Claude),library_collections
+how do i organize my books,ask_question,,Generated (Claude),library_collections
+what are collections for,ask_question,,Generated (Claude),library_collections
+how do i create a collection,ask_question,,Generated (Claude),library_collections
+pano gumawa ng collection,ask_question,,Generated (Claude),library_collections
+paano palitan ung pangalan ng koleksyon,ask_question,,Generated (Claude),library_collections
+excuse me how do i create a collection,ask_question,,Generated (Claude),library_collections
+anu ung mga koleksyon,ask_question,,Generated (Claude),library_collections
+excuse me paano gumawa ng collection,ask_question,,Generated (Claude),library_collections
+please tell me what are collections,ask_question,,Generated (Claude),library_collections
+anu ung collections,ask_question,,Generated (Claude),library_collections
+pra saan ang koleksyon,ask_question,,Generated (Claude),library_collections
+excuse me how do i add a book to a collection,ask_question,,Generated (Claude),library_collections
+anu ung koleksyon,ask_question,,Generated (Claude),library_collections
+sabihin mo paano palitan ang pangalan ng koleksyon,ask_question,,Generated (Claude),library_collections
+anu ang koleksyon,ask_question,,Generated (Claude),library_collections
+ano ang maglarawan,ask_question,,Generated (Claude),describe_what
+ano ang maglarawan na feature,ask_question,,Generated (Claude),describe_what
+para saan ang maglarawan,ask_question,,Generated (Claude),describe_what
+ano ang ginagawa ng maglarawan,ask_question,,Generated (Claude),describe_what
+ano ba ang maglarawan,ask_question,,Generated (Claude),describe_what
+ano ang larawan na feature,ask_question,,Generated (Claude),describe_what
+anu ang maglarawan,ask_question,,Generated (Claude),describe_what
+ano ang ibig sabihin ng maglarawan,ask_question,,Generated (Claude),describe_what
+ano ang kayang gawin ng maglarawan,ask_question,,Generated (Claude),describe_what
+ipaliwanag ang maglarawan,ask_question,,Generated (Claude),describe_what
+para saan ang paglalarawan ng larawan,ask_question,,Generated (Claude),describe_what
+what is maglarawan,ask_question,,Generated (Claude),describe_what
+what does maglarawan do,ask_question,,Generated (Claude),describe_what
+what is the describe feature,ask_question,,Generated (Claude),describe_what
+what is maglarawan for,ask_question,,Generated (Claude),describe_what
+explain maglarawan,ask_question,,Generated (Claude),describe_what
+what is the picture description feature,ask_question,,Generated (Claude),describe_what
+tell me about maglarawan,ask_question,,Generated (Claude),describe_what
+quick question what does maglarawan do,ask_question,,Generated (Claude),describe_what
+ano ang larawan nah feature,ask_question,,Generated (Claude),describe_what
+excuse me what is maglarawan,ask_question,,Generated (Claude),describe_what
+ano ung ginagawa ng maglarawan,ask_question,,Generated (Claude),describe_what
+anu ang maglarawan na feature,ask_question,,Generated (Claude),describe_what
+sabihin mo ano ang ibig sabihin ng maglarawan,ask_question,,Generated (Claude),describe_what
+gusto kong malaman ano ang maglarawan na feature,ask_question,,Generated (Claude),describe_what
+anu ang ibig sabihin ng maglarawan,ask_question,,Generated (Claude),describe_what
+anu ba ang maglarawan,ask_question,,Generated (Claude),describe_what
+please tell me what does maglarawan do,ask_question,,Generated (Claude),describe_what
+tell me tell me about maglarawan,ask_question,,Generated (Claude),describe_what
+excuse me explain maglarawan,ask_question,,Generated (Claude),describe_what
+paano ilarawan ang larawan,ask_question,,Generated (Claude),describe_how
+paano maglarawan ng larawan,ask_question,,Generated (Claude),describe_how
+paano ilarawan ang litrato,ask_question,,Generated (Claude),describe_how
+kaya mo bang maglarawan ng larawan,ask_question,,Generated (Claude),describe_how
+pwede mo bang ilarawan ang picture,ask_question,,Generated (Claude),describe_how
+paano ko ipapalarawan ang larawan,ask_question,,Generated (Claude),describe_how
+paano gamitin ang maglarawan,ask_question,,Generated (Claude),describe_how
+paano magpalarawan ng litrato,ask_question,,Generated (Claude),describe_how
+kaya mo bang ilarawan ang litrato,ask_question,,Generated (Claude),describe_how
+pano ilarawan ang larawan,ask_question,,Generated (Claude),describe_how
+pwede bang ilarawan ang larawan offline,ask_question,,Generated (Claude),describe_how
+kaya mo ba ang detalyadong paglalarawan,ask_question,,Generated (Claude),describe_how
+can you describe pictures,ask_question,,Generated (Claude),describe_how
+can you describe an image,ask_question,,Generated (Claude),describe_how
+how do i describe a picture,ask_question,,Generated (Claude),describe_how
+how do i get a picture described,ask_question,,Generated (Claude),describe_how
+how do i use maglarawan,ask_question,,Generated (Claude),describe_how
+can you describe photos offline,ask_question,,Generated (Claude),describe_how
+can you give a detailed description of a picture,ask_question,,Generated (Claude),describe_how
+pano maglarawan ng larawan,ask_question,,Generated (Claude),describe_how
+tanong ko lang pano ilarawan ang larawan,ask_question,,Generated (Claude),describe_how
+sabihin mo kaya mo bang maglarawan ng larawan,ask_question,,Generated (Claude),describe_how
+pano ilarawan ung larawan,ask_question,,Generated (Claude),describe_how
+sabihin mo pwede mo bang ilarawan ang picture,ask_question,,Generated (Claude),describe_how
+pano ilarawan ung litrato,ask_question,,Generated (Claude),describe_how
+tell me can you describe an image,ask_question,,Generated (Claude),describe_how
+pano magpalarawan ng litrato,ask_question,,Generated (Claude),describe_how
+excuse me can you describe photos offline,ask_question,,Generated (Claude),describe_how
+sabihin mo paano ilarawan ang larawan,ask_question,,Generated (Claude),describe_how
+tell me can you describe pictures,ask_question,,Generated (Claude),describe_how
+gusto kong malaman paano ilarawan ang litrato,ask_question,,Generated (Claude),describe_how
+paano lakihan ang text,ask_question,,Generated (Claude),settings_text_size
+paano palakihin ang letra,ask_question,,Generated (Claude),settings_text_size
+paano palakihin ang teksto,ask_question,,Generated (Claude),settings_text_size
+paano lakihan ang font,ask_question,,Generated (Claude),settings_text_size
+paano baguhin ang laki ng text,ask_question,,Generated (Claude),settings_text_size
+paano gawing mas malaki ang sulat,ask_question,,Generated (Claude),settings_text_size
+paano paliitin ang text,ask_question,,Generated (Claude),settings_text_size
+paano ayusin ang laki ng letra,ask_question,,Generated (Claude),settings_text_size
+pano lakihan ang text,ask_question,,Generated (Claude),settings_text_size
+masyadong maliit ang letra paano,ask_question,,Generated (Claude),settings_text_size
+paano ko papalakihin ang binabasa,ask_question,,Generated (Claude),settings_text_size
+paano baguhin ang sukat ng teksto,ask_question,,Generated (Claude),settings_text_size
+how do i make the text bigger,ask_question,,Generated (Claude),settings_text_size
+how do i increase the text size,ask_question,,Generated (Claude),settings_text_size
+how do i change the font size,ask_question,,Generated (Claude),settings_text_size
+how do i make the text smaller,ask_question,,Generated (Claude),settings_text_size
+the text is too small,ask_question,,Generated (Claude),settings_text_size
+how do i enlarge the text,ask_question,,Generated (Claude),settings_text_size
+how do i change the text size,ask_question,,Generated (Claude),settings_text_size
+pano lakihan ung text,ask_question,,Generated (Claude),settings_text_size
+i want to know how do i make the text bigger,ask_question,,Generated (Claude),settings_text_size
+sabihin mo paano lakihan ang text,ask_question,,Generated (Claude),settings_text_size
+pano paliitin ung text,ask_question,,Generated (Claude),settings_text_size
+pano palakihin ung letra,ask_question,,Generated (Claude),settings_text_size
+quick question how do i increase the text size,ask_question,,Generated (Claude),settings_text_size
+excuse me paano lakihan ang font,ask_question,,Generated (Claude),settings_text_size
+pwede bang magtanong paano paliitin ang text,ask_question,,Generated (Claude),settings_text_size
+pakisabi pano lakihan ang text,ask_question,,Generated (Claude),settings_text_size
+pano baguhin ung sukat ng teksto,ask_question,,Generated (Claude),settings_text_size
+pano gawing mas malaki ang sulat,ask_question,,Generated (Claude),settings_text_size
+pano palakihin ang teksto,ask_question,,Generated (Claude),settings_text_size
+paano bagalan ang boses,ask_question,,Generated (Claude),settings_voice_speed
+paano pabagalin ang boses,ask_question,,Generated (Claude),settings_voice_speed
+paano bilisan ang boses,ask_question,,Generated (Claude),settings_voice_speed
+paano pabilisin ang pagbasa,ask_question,,Generated (Claude),settings_voice_speed
+paano baguhin ang bilis ng pagbabasa,ask_question,,Generated (Claude),settings_voice_speed
+masyadong mabilis ang boses paano,ask_question,,Generated (Claude),settings_voice_speed
+paano pabagalin ang pagbasa,ask_question,,Generated (Claude),settings_voice_speed
+paano ayusin ang bilis ng boses,ask_question,,Generated (Claude),settings_voice_speed
+pano bagalan ang boses,ask_question,,Generated (Claude),settings_voice_speed
+paano gawing mas mabagal ang pagsasalita,ask_question,,Generated (Claude),settings_voice_speed
+paano baguhin ang bilis ng boses,ask_question,,Generated (Claude),settings_voice_speed
+ang bilis mo magbasa paano pabagalin,ask_question,,Generated (Claude),settings_voice_speed
+how do i slow down the voice,ask_question,,Generated (Claude),settings_voice_speed
+how do i speed up the voice,ask_question,,Generated (Claude),settings_voice_speed
+how do i change the reading speed,ask_question,,Generated (Claude),settings_voice_speed
+the voice is too fast,ask_question,,Generated (Claude),settings_voice_speed
+how do i make you talk slower,ask_question,,Generated (Claude),settings_voice_speed
+how do i change the speech speed,ask_question,,Generated (Claude),settings_voice_speed
+how do i make the reading faster,ask_question,,Generated (Claude),settings_voice_speed
+pano bagalan ung boses,ask_question,,Generated (Claude),settings_voice_speed
+i want to know how do i speed up the voice,ask_question,,Generated (Claude),settings_voice_speed
+ung bilis mo magbasa paano pabagalin,ask_question,,Generated (Claude),settings_voice_speed
+ang bilis mu magbasa paano pabagalin,ask_question,,Generated (Claude),settings_voice_speed
+can you tell me how do i make the reading faster,ask_question,,Generated (Claude),settings_voice_speed
+paano gawing mas mabagal ung pagsasalita,ask_question,,Generated (Claude),settings_voice_speed
+pakisabi paano bilisan ang boses,ask_question,,Generated (Claude),settings_voice_speed
+pano pabagalin ung pagbasa,ask_question,,Generated (Claude),settings_voice_speed
+excuse me masyadong mabilis ang boses paano,ask_question,,Generated (Claude),settings_voice_speed
+pano baguhin ung bilis ng pagbabasa,ask_question,,Generated (Claude),settings_voice_speed
+excuse me how do i change the reading speed,ask_question,,Generated (Claude),settings_voice_speed
+paano pabagalin ung pagbasa,ask_question,,Generated (Claude),settings_voice_speed
+paano palitan ang kulay,ask_question,,Generated (Claude),settings_color
+paano baguhin ang kulay,ask_question,,Generated (Claude),settings_color
+paano palitan ang kulay ng screen,ask_question,,Generated (Claude),settings_color
+paano gawing dark mode,ask_question,,Generated (Claude),settings_color
+paano palitan ang theme,ask_question,,Generated (Claude),settings_color
+paano baguhin ang kulay ng teksto,ask_question,,Generated (Claude),settings_color
+anong mga kulay ang meron,ask_question,,Generated (Claude),settings_color
+paano gawing mas maliwanag ang screen,ask_question,,Generated (Claude),settings_color
+pano palitan ang kulay,ask_question,,Generated (Claude),settings_color
+paano gamitin ang dark mode,ask_question,,Generated (Claude),settings_color
+paano baguhin ang tema ng app,ask_question,,Generated (Claude),settings_color
+ano ang mga tema ng app,ask_question,,Generated (Claude),settings_color
+how do i change the colors,ask_question,,Generated (Claude),settings_color
+how do i change the color,ask_question,,Generated (Claude),settings_color
+how do i turn on dark mode,ask_question,,Generated (Claude),settings_color
+how do i change the theme,ask_question,,Generated (Claude),settings_color
+what colors are there,ask_question,,Generated (Claude),settings_color
+how do i change the text color,ask_question,,Generated (Claude),settings_color
+what themes does the app have,ask_question,,Generated (Claude),settings_color
+pano gawing mas maliwanag ung screen,ask_question,,Generated (Claude),settings_color
+tanong ko lang ano ang mga tema ng app,ask_question,,Generated (Claude),settings_color
+pano baguhin ang tema ng app,ask_question,,Generated (Claude),settings_color
+pwede bang magtanong paano baguhin ang tema ng app,ask_question,,Generated (Claude),settings_color
+pano palitan ang theme,ask_question,,Generated (Claude),settings_color
+paano baguhin ung kulay,ask_question,,Generated (Claude),settings_color
+sabihin mo paano baguhin ang tema ng app,ask_question,,Generated (Claude),settings_color
+anong mga kulay ung meron,ask_question,,Generated (Claude),settings_color
+excuse me pano palitan ang kulay,ask_question,,Generated (Claude),settings_color
+tell me how do i change the theme,ask_question,,Generated (Claude),settings_color
+please tell me how do i turn on dark mode,ask_question,,Generated (Claude),settings_color
+excuse me paano palitan ang kulay ng screen,ask_question,,Generated (Claude),settings_color
+gumagana ka ba kahit walang internet,ask_question,,Generated (Claude),offline_works
+gumagana ka ba offline,ask_question,,Generated (Claude),offline_works
+kailangan ba ng internet,ask_question,,Generated (Claude),offline_works
+gumagana ba ito nang walang internet,ask_question,,Generated (Claude),offline_works
+pwede ba ito offline,ask_question,,Generated (Claude),offline_works
+kailangan ko ba ng wifi,ask_question,,Generated (Claude),offline_works
+kailangan ba ng data,ask_question,,Generated (Claude),offline_works
+magagamit ko ba ito nang walang signal,ask_question,,Generated (Claude),offline_works
+gumagana ka ba kahit offline,ask_question,,Generated (Claude),offline_works
+gumagana ka ba ng walang net,ask_question,,Generated (Claude),offline_works
+pwede bang walang internet,ask_question,,Generated (Claude),offline_works
+kailan kailangan ang internet,ask_question,,Generated (Claude),offline_works
+gumagana ba ang app kapag walang wifi,ask_question,,Generated (Claude),offline_works
+do you work without internet,ask_question,,Generated (Claude),offline_works
+do you work offline,ask_question,,Generated (Claude),offline_works
+do i need internet,ask_question,,Generated (Claude),offline_works
+does this work offline,ask_question,,Generated (Claude),offline_works
+can i use this without wifi,ask_question,,Generated (Claude),offline_works
+do i need data,ask_question,,Generated (Claude),offline_works
+when do i need internet,ask_question,,Generated (Claude),offline_works
+pede bang walang internet,ask_question,,Generated (Claude),offline_works
+excuse me gumagana ka ba kahit offline,ask_question,,Generated (Claude),offline_works
+magagamit ko ba to nang walang signal,ask_question,,Generated (Claude),offline_works
+gusto kong malaman pwede bang walang internet,ask_question,,Generated (Claude),offline_works
+quick question can i use this without wifi,ask_question,,Generated (Claude),offline_works
+tanong ko lang kailangan ba ng internet,ask_question,,Generated (Claude),offline_works
+excuse me gumagana ba ito nang walang internet,ask_question,,Generated (Claude),offline_works
+pakisabi kailangan ko ba ng wifi,ask_question,,Generated (Claude),offline_works
+gumagana ba ung app kapag walang wifi,ask_question,,Generated (Claude),offline_works
+quick question when do i need internet,ask_question,,Generated (Claude),offline_works
+pakisabi kailan kailangan ang internet,ask_question,,Generated (Claude),offline_works
+excuse me pwede ba ito offline,ask_question,,Generated (Claude),offline_works
+ligtas ba ang mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ligtas ba ang dokumento ko,ask_question,,Generated (Claude),privacy_documents
+saan napupunta ang mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ipinapadala ba ang mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+nakikita ba ng iba ang mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ligtas ba ang data ko,ask_question,,Generated (Claude),privacy_documents
+private ba ang mga file ko,ask_question,,Generated (Claude),privacy_documents
+sino ang nakakakita ng dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ipinapadala ba sa internet ang mga scan ko,ask_question,,Generated (Claude),privacy_documents
+ligtas ba ang mga scan ko,ask_question,,Generated (Claude),privacy_documents
+ano ang ginagawa mo sa mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+sinesave ba ang mga larawan ko,ask_question,,Generated (Claude),privacy_documents
+are my documents safe,ask_question,,Generated (Claude),privacy_documents
+is my data safe,ask_question,,Generated (Claude),privacy_documents
+where do my documents go,ask_question,,Generated (Claude),privacy_documents
+are my files private,ask_question,,Generated (Claude),privacy_documents
+do you send my documents anywhere,ask_question,,Generated (Claude),privacy_documents
+who can see my documents,ask_question,,Generated (Claude),privacy_documents
+is my privacy protected,ask_question,,Generated (Claude),privacy_documents
+can you tell me is my data safe,ask_question,,Generated (Claude),privacy_documents
+ano ang ginagawa mu sa mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ligtas ba ung dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ipinapadala ba ung mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+gusto kong malaman ligtas ba ang dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ano ung ginagawa mo sa mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+excuse me ligtas ba ang mga scan ko,ask_question,,Generated (Claude),privacy_documents
+excuse me do you send my documents anywhere,ask_question,,Generated (Claude),privacy_documents
+tell me where do my documents go,ask_question,,Generated (Claude),privacy_documents
+sabihin mo ligtas ba ang mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+saan napupunta ung mga dokumento ko,ask_question,,Generated (Claude),privacy_documents
+ipinapadala ba sa internet ung mga scan ko,ask_question,,Generated (Claude),privacy_documents
+nakikita mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+alam mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+binabasa mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+sinasave mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+ligtas ba ang password ko,ask_question,,Generated (Claude),privacy_password
+sinasabi mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+naririnig mo ba ang password,ask_question,,Generated (Claude),privacy_password
+ano ang ginagawa mo sa password ko,ask_question,,Generated (Claude),privacy_password
+nakikita ba ni percy ang password,ask_question,,Generated (Claude),privacy_password
+itinatago mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+ibinabahagi mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+sinasabi mo ba nang malakas ang password,ask_question,,Generated (Claude),privacy_password
+can you see my password,ask_question,,Generated (Claude),privacy_password
+do you know my password,ask_question,,Generated (Claude),privacy_password
+do you read my password,ask_question,,Generated (Claude),privacy_password
+do you save my password,ask_question,,Generated (Claude),privacy_password
+is my password safe,ask_question,,Generated (Claude),privacy_password
+do you say my password out loud,ask_question,,Generated (Claude),privacy_password
+what do you do with my password,ask_question,,Generated (Claude),privacy_password
+sinasabi mo ba ung password ko,ask_question,,Generated (Claude),privacy_password
+sinasave mu ba ung password ko,ask_question,,Generated (Claude),privacy_password
+sinasabi mu ba ung password ko,ask_question,,Generated (Claude),privacy_password
+i want to know do you save my password,ask_question,,Generated (Claude),privacy_password
+gusto kong malaman alam mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+excuse me ano ang ginagawa mo sa password ko,ask_question,,Generated (Claude),privacy_password
+naririnig mo ba ung password,ask_question,,Generated (Claude),privacy_password
+sabihin mo itinatago mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+quick question can you see my password,ask_question,,Generated (Claude),privacy_password
+binabasa mu ba ang password ko,ask_question,,Generated (Claude),privacy_password
+pwede bang magtanong alam mo ba ang password ko,ask_question,,Generated (Claude),privacy_password
+ibinabahagi mu ba ung password ko,ask_question,,Generated (Claude),privacy_password
+paano mag-register,ask_question,,Generated (Claude),register_account
+paano mag register,ask_question,,Generated (Claude),register_account
+paano gumawa ng account,ask_question,,Generated (Claude),register_account
+paano magkaroon ng account,ask_question,,Generated (Claude),register_account
+paano mag-sign up,ask_question,,Generated (Claude),register_account
+paano ako magpaparehistro,ask_question,,Generated (Claude),register_account
+kailangan ko ba ng account,ask_question,,Generated (Claude),register_account
+paano gumawa ng bagong account,ask_question,,Generated (Claude),register_account
+pano mag register,ask_question,,Generated (Claude),register_account
+paano mag-create ng account,ask_question,,Generated (Claude),register_account
+paano ako makakapag-login,ask_question,,Generated (Claude),register_account
+ano ang kailangan para mag-register,ask_question,,Generated (Claude),register_account
+how do i register,ask_question,,Generated (Claude),register_account
+how do i create an account,ask_question,,Generated (Claude),register_account
+how do i sign up,ask_question,,Generated (Claude),register_account
+do i need an account,ask_question,,Generated (Claude),register_account
+how do i make an account,ask_question,,Generated (Claude),register_account
+how do i log in,ask_question,,Generated (Claude),register_account
+what do i need to register,ask_question,,Generated (Claude),register_account
+pwede bang magtanong paano ako makakapag-login,ask_question,,Generated (Claude),register_account
+pwede bang magtanong paano magkaroon ng account,ask_question,,Generated (Claude),register_account
+pwede bang magtanong paano mag-register,ask_question,,Generated (Claude),register_account
+pwede bang magtanong ano ang kailangan para mag-register,ask_question,,Generated (Claude),register_account
+sabihin mo paano mag-sign up,ask_question,,Generated (Claude),register_account
+excuse me paano magkaroon ng account,ask_question,,Generated (Claude),register_account
+gusto kong malaman ano ang kailangan para mag-register,ask_question,,Generated (Claude),register_account
+pwede bang magtanong paano mag-create ng account,ask_question,,Generated (Claude),register_account
+excuse me how do i create an account,ask_question,,Generated (Claude),register_account
+sabihin mo paano mag-register,ask_question,,Generated (Claude),register_account
+quick question how do i sign up,ask_question,,Generated (Claude),register_account
+pano magkaroon ng account,ask_question,,Generated (Claude),register_account
+nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+nakalimutan ko ang password ko,ask_question,,Generated (Claude),forgot_password
+paano kung nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+ano ang gagawin ko kung nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+paano mag-reset ng password,ask_question,,Generated (Claude),forgot_password
+paano ibalik ang password,ask_question,,Generated (Claude),forgot_password
+nawala ang password ko,ask_question,,Generated (Claude),forgot_password
+hindi ko maalala ang password,ask_question,,Generated (Claude),forgot_password
+paano palitan ang password,ask_question,,Generated (Claude),forgot_password
+pano kung nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+hindi ako makapag-login nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+paano mabawi ang account ko,ask_question,,Generated (Claude),forgot_password
+i forgot my password,ask_question,,Generated (Claude),forgot_password
+what if i forget my password,ask_question,,Generated (Claude),forgot_password
+how do i reset my password,ask_question,,Generated (Claude),forgot_password
+how do i recover my password,ask_question,,Generated (Claude),forgot_password
+i lost my password,ask_question,,Generated (Claude),forgot_password
+i can't remember my password,ask_question,,Generated (Claude),forgot_password
+how do i get my account back,ask_question,,Generated (Claude),forgot_password
+paano ibalik ung password,ask_question,,Generated (Claude),forgot_password
+can you tell me how do i get my account back,ask_question,,Generated (Claude),forgot_password
+hindi ako makapag-login nakalimutan ko ung password,ask_question,,Generated (Claude),forgot_password
+excuse me paano palitan ang password,ask_question,,Generated (Claude),forgot_password
+gusto kong malaman nawala ang password ko,ask_question,,Generated (Claude),forgot_password
+pakisabi ano ang gagawin ko kung nakalimutan ko ang password,ask_question,,Generated (Claude),forgot_password
+nawala ung password ko,ask_question,,Generated (Claude),forgot_password
+gusto kong malaman paano palitan ang password,ask_question,,Generated (Claude),forgot_password
+excuse me i forgot my password,ask_question,,Generated (Claude),forgot_password
+tell me how do i recover my password,ask_question,,Generated (Claude),forgot_password
+pano kung nakalimutan ko ung password,ask_question,,Generated (Claude),forgot_password
+pano mabawi ang account ko,ask_question,,Generated (Claude),forgot_password
+pwede bang guest lang,ask_question,,Generated (Claude),guest_mode
+pwede bang bisita lang,ask_question,,Generated (Claude),guest_mode
+pwede ba akong gumamit nang walang account,ask_question,,Generated (Claude),guest_mode
+kailangan ba ng account para magamit,ask_question,,Generated (Claude),guest_mode
+ano ang guest mode,ask_question,,Generated (Claude),guest_mode
+ano ang subukan muna,ask_question,,Generated (Claude),guest_mode
+paano gumamit bilang guest,ask_question,,Generated (Claude),guest_mode
+pwede ko bang subukan muna ang app,ask_question,,Generated (Claude),guest_mode
+ano ang bisita,ask_question,,Generated (Claude),guest_mode
+pwede bang hindi mag-register,ask_question,,Generated (Claude),guest_mode
+ano ang mawawala kung guest lang ako,ask_question,,Generated (Claude),guest_mode
+paano subukan ang app nang walang account,ask_question,,Generated (Claude),guest_mode
+can i just be a guest,ask_question,,Generated (Claude),guest_mode
+can i use it without an account,ask_question,,Generated (Claude),guest_mode
+what is guest mode,ask_question,,Generated (Claude),guest_mode
+do i need an account to use it,ask_question,,Generated (Claude),guest_mode
+can i try the app first,ask_question,,Generated (Claude),guest_mode
+can i skip registering,ask_question,,Generated (Claude),guest_mode
+what do i lose as a guest,ask_question,,Generated (Claude),guest_mode
+anu ang subukan muna,ask_question,,Generated (Claude),guest_mode
+pwede ko bang subukan muna ung app,ask_question,,Generated (Claude),guest_mode
+pede ko bang subukan muna ung app,ask_question,,Generated (Claude),guest_mode
+ano ung bisita,ask_question,,Generated (Claude),guest_mode
+pakisabi paano subukan ang app nang walang account,ask_question,,Generated (Claude),guest_mode
+pakisabi pwede ko bang subukan muna ang app,ask_question,,Generated (Claude),guest_mode
+paano subukan ung app nang walang account,ask_question,,Generated (Claude),guest_mode
+pakisabi pwede bang guest lang,ask_question,,Generated (Claude),guest_mode
+please tell me can i just be a guest,ask_question,,Generated (Claude),guest_mode
+sabihin mo ano ang subukan muna,ask_question,,Generated (Claude),guest_mode
+pede bang bisita lang,ask_question,,Generated (Claude),guest_mode
+quick question can i skip registering,ask_question,,Generated (Claude),guest_mode
+kailangan ko ng tulong mo,ask_question,,Generated (Claude),help_me
+pwede mo ba akong tulungan,ask_question,,Generated (Claude),help_me
+pakitulungan mo ako,ask_question,,Generated (Claude),help_me
+can you help me,ask_question,,Generated (Claude),help_me
+kailangan kita,ask_question,,Generated (Claude),help_me
+may itatanong ako,ask_question,,Generated (Claude),help_me
+may tanong ako sa'yo,ask_question,,Generated (Claude),help_me
+pwede ba akong magtanong,ask_question,,Generated (Claude),help_me
+i need your help,ask_question,,Generated (Claude),help_me
+i have a question,ask_question,,Generated (Claude),help_me
+can i ask you something,ask_question,,Generated (Claude),help_me
+pede mu ba akong tulungan,ask_question,,Generated (Claude),help_me
+can you tell me i have a question,ask_question,,Generated (Claude),help_me
+pwede bang magtanong tulong po,ask_question,,Generated (Claude),help_me
+can you tell me help me,ask_question,,Generated (Claude),help_me
+tanong ko lang tulungan mo ako,ask_question,,Generated (Claude),help_me
+tell me help me,ask_question,,Generated (Claude),help_me
+kailangan kta,ask_question,,Generated (Claude),help_me
+excuse me pakitulungan mo ako,ask_question,,Generated (Claude),help_me
+pwede bang magtanong pwede mo ba akong tulungan,ask_question,,Generated (Claude),help_me
+sabihin mo may itatanong ako,ask_question,,Generated (Claude),help_me
+sabihin mo kailangan ko ng tulong mo,ask_question,,Generated (Claude),help_me
+excuse me may tanong ako sa'yo,ask_question,,Generated (Claude),help_me
+naliligaw ako,ask_question,,Generated (Claude),stuck_lost
+naliligaw na ako,ask_question,,Generated (Claude),stuck_lost
+hindi ko alam kung nasaan ako,ask_question,,Generated (Claude),stuck_lost
+ano ang gagawin ko,ask_question,,Generated (Claude),stuck_lost
+hindi ko maintindihan,ask_question,,Generated (Claude),stuck_lost
+nawawala ako sa app,ask_question,,Generated (Claude),stuck_lost
+hindi ko alam kung paano magsimula,ask_question,,Generated (Claude),stuck_lost
+paano ako magsisimula,ask_question,,Generated (Claude),stuck_lost
+ano ang unang gagawin ko,ask_question,,Generated (Claude),stuck_lost
+naguluhan ako sa app,ask_question,,Generated (Claude),stuck_lost
+i don't know what to do,ask_question,,Generated (Claude),stuck_lost
+i'm lost,ask_question,,Generated (Claude),stuck_lost
+i am confused,ask_question,,Generated (Claude),stuck_lost
+i don't understand,ask_question,,Generated (Claude),stuck_lost
+what should i do,ask_question,,Generated (Claude),stuck_lost
+where do i start,ask_question,,Generated (Claude),stuck_lost
+i don't know how to start,ask_question,,Generated (Claude),stuck_lost
+anu ung unang gagawin ko,ask_question,,Generated (Claude),stuck_lost
+please tell me i'm lost,ask_question,,Generated (Claude),stuck_lost
+i want to know i am confused,ask_question,,Generated (Claude),stuck_lost
+anu ang unang gagawin ko,ask_question,,Generated (Claude),stuck_lost
+hindi ko alam kung pano magsimula,ask_question,,Generated (Claude),stuck_lost
+tanong ko lang nawawala ako sa app,ask_question,,Generated (Claude),stuck_lost
+anu ang gagawin ko,ask_question,,Generated (Claude),stuck_lost
+hindi ko alam ung gagawin,ask_question,,Generated (Claude),stuck_lost
+sabihin mo paano ako magsisimula,ask_question,,Generated (Claude),stuck_lost
+excuse me nawawala ako sa app,ask_question,,Generated (Claude),stuck_lost
+naliligaw nah ako,ask_question,,Generated (Claude),stuck_lost
+quick question i don't understand,ask_question,,Generated (Claude),stuck_lost

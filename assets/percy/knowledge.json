@@ -1,0 +1,1875 @@
+{
+ "version": 1,
+ "about": "Percy's offline Q&A (docs/thesis/algorithms.md). Questions: Filipino, English, Taglish and common speech-recognition spellings.",
+ "suggestions": {
+  "fil": [
+   "ano ang kaya mo",
+   "paano mag-scan ng dokumento",
+   "paano gamitin ang Aklatan"
+  ],
+  "en": [
+   "what can you do",
+   "how do I scan a document",
+   "how do I use the Library"
+  ]
+ },
+ "topics": [
+  {
+   "id": "percy_abilities",
+   "title": {
+    "fil": "kung ano ang kaya kong gawin",
+    "en": "what I can do"
+   },
+   "questions": [
+    "anong kaya mong gawin",
+    "ano ang kaya mo",
+    "anong kaya mo",
+    "ano pwede mong gawin",
+    "ano ang magagawa mo",
+    "ano ang maitutulong mo",
+    "anu kaya mu",
+    "anong mga kaya mong gawin",
+    "ano ang mga kaya mo",
+    "ano bang kaya mong gawin",
+    "ano ba ang kaya mo",
+    "ano ang mga magagawa mo",
+    "what can you do",
+    "what do you do",
+    "what are you able to do",
+    "what are your abilities",
+    "what can you help me with",
+    "how can you help me",
+    "what are you capable of",
+    "excuse me what are you able to do",
+    "anong kaya mu",
+    "anu ung kaya mu",
+    "pwede bang magtanong ano ang magagawa mo",
+    "please tell me what do you do",
+    "pakisabi ano ang mga magagawa mo",
+    "tell me what are your abilities",
+    "pakisabi ano pwede mong gawin",
+    "sabihin mo ano ang mga kaya mo",
+    "pwede bang magtanong ano ang mga magagawa mo",
+    "pakisabi ano ba ang kaya mo",
+    "ano ang maitutulong mu"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Kaya ko pong tumulong magbasa ng mga dokumento, gamitin ang Aklatan, maglarawan ng mga larawan, at kontrolin ang app gamit ang boses, kahit walang internet. Gusto ninyo po bang subukan? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Kaya ko tumulong magbasa ng mga dokumento, gamitin ang Aklatan, maglarawan ng mga larawan, at kontrolin ang app gamit ang boses, kahit walang internet. Gusto mo bang subukan? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "I can help you read documents, use the Library, describe pictures, and control the app with your voice, even without internet. Would you like to try? Just say “open the Library”."
+     ],
+     "casual": [
+      "I can help you read documents, use the Library, describe pictures, and control the app with your voice, even without internet. Would you like to try? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "percy_purpose",
+   "title": {
+    "fil": "kung ano ang layunin ko",
+    "en": "what my purpose is"
+   },
+   "questions": [
+    "anong purpose mo",
+    "ano ang layunin mo",
+    "para saan ka",
+    "ano ang purpose mo",
+    "ano ang silbi mo",
+    "anong gamit mo",
+    "ano ang gamit mo",
+    "bakit ka ginawa",
+    "para saan ka ginawa",
+    "ano ang trabaho mo",
+    "anu purpose mu",
+    "ano ang tungkulin mo",
+    "para saan ba ang isang katulad mo",
+    "what's your purpose",
+    "what is your purpose",
+    "why do you exist",
+    "why were you made",
+    "what are you for",
+    "what is your job",
+    "what are you used for",
+    "ano ung tungkulin mo",
+    "quick question why do you exist",
+    "can you tell me what are you for",
+    "ano ung gamit mo",
+    "anu ang silbi mo",
+    "sabihin mo ano ang tungkulin mo",
+    "anu ang trabaho mo",
+    "pra saan ka",
+    "excuse me ano ang trabaho mo",
+    "excuse me what are you used for",
+    "gusto kong malaman ano ang tungkulin mo",
+    "pakisabi ano ang purpose mo"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Tinutulungan ko po ang mga may kapansanan sa paningin na magbasa ng mga dokumento, gamitin ang Aklatan, ilarawan ang mga larawan, at kontrolin ang app gamit ang boses, kahit walang internet. Gusto ninyo po bang magsimula? Sabihin lang ang “magbasa ng bago”."
+     ],
+     "casual": [
+      "Tinutulungan ko ang mga may kapansanan sa paningin na magbasa ng mga dokumento, gamitin ang Aklatan, ilarawan ang mga larawan, at kontrolin ang app gamit ang boses, kahit walang internet. Gusto mo bang magsimula? Sabihin lang ang “magbasa ng bago”."
+     ]
+    },
+    "en": {
+     "po": [
+      "I help visually impaired users read documents, use the Library, describe pictures, and control the app by voice, even offline. Would you like to start? Just say “read something new”."
+     ],
+     "casual": [
+      "I help visually impaired users read documents, use the Library, describe pictures, and control the app by voice, even offline. Would you like to start? Just say “read something new”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "percy_who",
+   "title": {
+    "fil": "kung sino ako",
+    "en": "who I am"
+   },
+   "questions": [
+    "sino ka",
+    "sino ka ba",
+    "ano ka",
+    "ano pangalan mo",
+    "ano ang pangalan mo",
+    "anong pangalan mo",
+    "ikaw ba si percy",
+    "ikaw ba ang percy",
+    "anu pangalan mu",
+    "sino ka ba talaga",
+    "magpakilala ka",
+    "pakilala ka naman",
+    "ano ang tawag sa'yo",
+    "sino itong kausap ko",
+    "who are you",
+    "what are you",
+    "what's your name",
+    "what is your name",
+    "introduce yourself",
+    "are you percy",
+    "who am i talking to",
+    "i want to know what are you",
+    "excuse me ano ang tawag sa'yo",
+    "tell me what is your name",
+    "gusto kong malaman sino ka",
+    "anu ung pangalan mu",
+    "tell me what's your name",
+    "i want to know what's your name",
+    "tanong ko lang ano pangalan mo",
+    "sabihin mo anu pangalan mu",
+    "can you tell me what is your name",
+    "anu ang pangalan mo",
+    "i want to know who are you"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ako po si Percy, ang voice assistant ng Percipere. Tinutulungan ko po kayong gamitin ang app gamit ang boses. Gusto ninyo po bang malaman ang kaya kong gawin? Itanong lang ang “ano ang kaya mo”."
+     ],
+     "casual": [
+      "Ako si Percy, ang voice assistant ng Percipere. Tinutulungan ko kang gamitin ang app gamit ang boses. Gusto mo bang malaman ang kaya kong gawin? Itanong lang ang “ano ang kaya mo”."
+     ]
+    },
+    "en": {
+     "po": [
+      "I'm Percy, the voice assistant of Percipere. I help you use the app with your voice. Want to know what I can do? Just ask “what can you do”."
+     ],
+     "casual": [
+      "I'm Percy, the voice assistant of Percipere. I help you use the app with your voice. Want to know what I can do? Just ask “what can you do”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "percy_human",
+   "title": {
+    "fil": "kung tao ba ako",
+    "en": "whether I am a person"
+   },
+   "questions": [
+    "tao ka ba",
+    "robot ka ba",
+    "totoong tao ka ba",
+    "buhay ka ba",
+    "tao ba ang kausap ko",
+    "makina ka ba",
+    "computer ka ba",
+    "ikaw ba ay tao",
+    "tao ba ito",
+    "kausap ko ba ay tao",
+    "may tao ba sa likod mo",
+    "artificial intelligence ka ba",
+    "ai ka ba",
+    "are you a human",
+    "are you a robot",
+    "are you a real person",
+    "are you human",
+    "am i talking to a person",
+    "are you an ai",
+    "are you alive",
+    "pakisabi ai ka ba",
+    "please tell me are you a human",
+    "sabihin mo robot ka ba",
+    "sabihin mo makina ka ba",
+    "pwede bang magtanong ikaw ba ay tao",
+    "please tell me are you human",
+    "i want to know are you alive",
+    "pakisabi buhay ka ba",
+    "excuse me ikaw ba ay tao",
+    "tanong ko lang tao ba ito",
+    "pwede bang magtanong tao ka ba",
+    "i want to know are you a real person"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Hindi po ako tao. Ako po si Percy, isang programa sa loob ng app na nakikinig at sumasagot gamit ang sariling kaalaman ng app, kahit walang internet. Gusto ninyo po bang subukan ako? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Hindi ako tao. Ako si Percy, isang programa sa loob ng app na nakikinig at sumasagot gamit ang sariling kaalaman ng app, kahit walang internet. Gusto mo bang subukan ako? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "No, I'm not a person. I'm Percy, a program inside the app that listens and answers using the app's own knowledge, even without internet. Want to try me? Just say “open the Library”."
+     ],
+     "casual": [
+      "No, I'm not a person. I'm Percy, a program inside the app that listens and answers using the app's own knowledge, even without internet. Want to try me? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "percy_creator",
+   "title": {
+    "fil": "kung sino ang gumawa sa akin",
+    "en": "who made me"
+   },
+   "questions": [
+    "sino gumawa sa'yo",
+    "sino ang gumawa sa iyo",
+    "sino ang gumawa sayo",
+    "sino lumikha sa iyo",
+    "sino ang nag-develop sa iyo",
+    "sino gumawa sa app na ito",
+    "sino ang gumawa ng percipere",
+    "sino ang may gawa sa'yo",
+    "sino nag-program sa'yo",
+    "sino ang nagtayo ng app na ito",
+    "sinong gumawa sa'yo",
+    "who made you",
+    "who created you",
+    "who built you",
+    "who developed you",
+    "who made this app",
+    "who programmed you",
+    "who is behind this app",
+    "tanong ko lang sino nag-program sa'yo",
+    "pakisabi sinong gumawa sa'yo",
+    "sino ung gumawa ng percipere",
+    "sino ang nagtayo ng app na to",
+    "sino ung may gawa sa'yo",
+    "sino gumawa sa app nah ito",
+    "excuse me who programmed you",
+    "sino gumawa sa app na to",
+    "gusto kong malaman sino ang gumawa sayo",
+    "pakisabi sino nag-program sa'yo",
+    "excuse me sino lumikha sa iyo",
+    "sino ang nagtayo ng app nah ito"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ginawa po ako ng mga estudyanteng nagbuo ng Percipere para sa kanilang thesis, para tumulong sa mga may kapansanan sa paningin sa Bataan. Gusto ninyo po bang malaman kung para saan ang app? Itanong lang ang “ano ang Percipere”."
+     ],
+     "casual": [
+      "Ginawa ako ng mga estudyanteng nagbuo ng Percipere para sa kanilang thesis, para tumulong sa mga may kapansanan sa paningin sa Bataan. Gusto mo bang malaman kung para saan ang app? Itanong lang ang “ano ang Percipere”."
+     ]
+    },
+    "en": {
+     "po": [
+      "I was made by the students who built Percipere for their thesis, to help visually impaired people in Bataan. Want to know what the app is for? Just ask “what is Percipere”."
+     ],
+     "casual": [
+      "I was made by the students who built Percipere for their thesis, to help visually impaired people in Bataan. Want to know what the app is for? Just ask “what is Percipere”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "app_what",
+   "title": {
+    "fil": "kung ano ang Percipere",
+    "en": "what Percipere is"
+   },
+   "questions": [
+    "ano ang Percipere",
+    "ano ang percipere app",
+    "para saan ang app na ito",
+    "para saan ang app na to",
+    "ano ang app na ito",
+    "ano ba ang percipere",
+    "anong klaseng app ito",
+    "ano ang ginagawa ng app na ito",
+    "para saan ang percipere",
+    "ano ang silbi ng app na ito",
+    "ano ito",
+    "anu ang percipere",
+    "ano ang gamit ng app na ito",
+    "ipaliwanag mo ang app na ito",
+    "what does this app do",
+    "what is percipere",
+    "what is this app",
+    "what is this app for",
+    "what is percipere for",
+    "tell me about this app",
+    "explain this app",
+    "tell me tell me about this app",
+    "pwede bang magtanong ipaliwanag mo ang app na ito",
+    "anu ung percipere",
+    "excuse me ano ito",
+    "sabihin mo ano ang app na ito",
+    "ano ung percipere app",
+    "tanong ko lang ano ba ang percipere",
+    "pakisabi para saan ang percipere",
+    "pra saan ang app na ito",
+    "ipaliwanag mo ang app nah ito",
+    "gusto kong malaman para saan ang app na ito",
+    "pakisabi anu ang percipere"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ang Percipere po ay app na bumabasa nang malakas ng mga nakalimbag at digital na teksto para sa mga may kapansanan sa paningin. Magagamit ito sa mga galaw, boses, at pindot, kahit walang internet. Gusto ninyo po bang magsimula? Sabihin lang ang “magbasa ng bago”."
+     ],
+     "casual": [
+      "Ang Percipere ay app na bumabasa nang malakas ng mga nakalimbag at digital na teksto para sa mga may kapansanan sa paningin. Magagamit ito sa mga galaw, boses, at pindot, kahit walang internet. Gusto mo bang magsimula? Sabihin lang ang “magbasa ng bago”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Percipere is an app that reads printed and digital text aloud for visually impaired users. You can use it with gestures, voice, and touch, even without internet. Want to start? Just say “read something new”."
+     ],
+     "casual": [
+      "Percipere is an app that reads printed and digital text aloud for visually impaired users. You can use it with gestures, voice, and touch, even without internet. Want to start? Just say “read something new”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "app_features",
+   "title": {
+    "fil": "kung anong mga feature ng app",
+    "en": "the app's features"
+   },
+   "questions": [
+    "anong features nito",
+    "ano ang mga features ng app",
+    "ano ang mga feature nito",
+    "anong mga feature meron",
+    "ano ang mga kayang gawin ng app",
+    "ano ang laman ng app na ito",
+    "ano ang meron sa app na ito",
+    "ano ang mga bahagi ng app",
+    "ano pa ang meron sa app",
+    "ano ang mga function ng app",
+    "anu features nito",
+    "ano ang mga pwedeng gawin sa app na ito",
+    "ilista mo ang mga feature",
+    "what are the features",
+    "what features does this app have",
+    "what can this app do",
+    "what does the app have",
+    "list the features",
+    "what can i do in this app",
+    "what are the app's functions",
+    "ano ang mga pwedeng gawin sa app nah ito",
+    "excuse me what are the features",
+    "anu ang laman ng app na ito",
+    "ano ung mga function ng app",
+    "gusto kong malaman ano ang mga function ng app",
+    "quick question what are the app's functions",
+    "anu ang mga bahagi ng app",
+    "ilista mu ung mga feature",
+    "i want to know list the features",
+    "ano pa ung meron sa app",
+    "anu ung mga kayang gawin ng app",
+    "excuse me what are the app's functions"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "May tatlong pangunahing bahagi po ang app: pagbabasa ng dokumento, ang Aklatan ng mga libro, at ang Maglarawan para sa mga larawan. Puwede rin pong palitan ang laki ng teksto, bilis ng boses, at kulay sa Mga Setting. Gusto ninyo po bang buksan ang isa? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "May tatlong pangunahing bahagi ang app: pagbabasa ng dokumento, ang Aklatan ng mga libro, at ang Maglarawan para sa mga larawan. Puwede rin palitan ang laki ng teksto, bilis ng boses, at kulay sa Mga Setting. Gusto mo bang buksan ang isa? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "The app has three main parts: reading documents, the Library of books, and Maglarawan for pictures. You can also change the text size, voice speed, and colors in Settings. Want to open one? Just say “open the Library”."
+     ],
+     "casual": [
+      "The app has three main parts: reading documents, the Library of books, and Maglarawan for pictures. You can also change the text size, voice speed, and colors in Settings. Want to open one? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "read_document",
+   "title": {
+    "fil": "paano magbasa ng dokumento",
+    "en": "how to read a document"
+   },
+   "questions": [
+    "paano magbasa ng dokumento",
+    "paano ko mababasa ang dokumento",
+    "paano magpabasa ng papel",
+    "paano gumagana ang pagbabasa",
+    "paano mo babasahin ang dokumento",
+    "paano magpabasa sa app",
+    "paano mo ako babasahan",
+    "paano magbasa ng bago",
+    "paano magsimulang magbasa",
+    "pano magbasa ng dokumento",
+    "paano magpabasa ng sulat",
+    "paano ko papabasahin ang libro",
+    "paano ko pababasahin ang papel",
+    "how do i read a document",
+    "how do i read something",
+    "how does reading work",
+    "how can i have a document read to me",
+    "how do i start reading",
+    "how do you read documents",
+    "how do i make you read",
+    "sabihin mo paano ko pababasahin ang papel",
+    "paano mu babasahin ang dokumento",
+    "pano mu ako babasahan",
+    "pano magbasa ng bago",
+    "pano ko pababasahin ang papel",
+    "pano magpabasa sa app",
+    "pano magsimulang magbasa",
+    "paano ko pababasahin ung papel",
+    "pano magpabasa ng papel",
+    "i want to know how does reading work",
+    "paano mu ako babasahan",
+    "pano ko mababasa ung dokumento"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sabihin po ang “magbasa ng bago”, at piliin kung kukunan ng litrato gamit ang camera o mag-upload ng file. Babasahin ko po ito nang malakas. Gusto ninyo po bang subukan ngayon? Sabihin lang ang “magbasa ng bago”."
+     ],
+     "casual": [
+      "Sabihin ang “magbasa ng bago”, at piliin kung kukunan ng litrato gamit ang camera o mag-upload ng file. Babasahin ko ito nang malakas. Gusto mo bang subukan ngayon? Sabihin lang ang “magbasa ng bago”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Say “read something new”, then choose whether to take a photo with the camera or upload a file. I will read it aloud. Want to try now? Just say “read something new”."
+     ],
+     "casual": [
+      "Say “read something new”, then choose whether to take a photo with the camera or upload a file. I will read it aloud. Want to try now? Just say “read something new”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "scan_document",
+   "title": {
+    "fil": "paano mag-scan",
+    "en": "how to scan"
+   },
+   "questions": [
+    "paano mag-scan",
+    "paano mag-scan ng dokumento",
+    "paano mag scan",
+    "paano gamitin ang camera",
+    "paano kumuha ng litrato ng papel",
+    "paano i-scan ang papel",
+    "paano ko i-scan ang dokumento",
+    "paano magpa-scan",
+    "paano kunan ng picture ang papel",
+    "pano mag scan",
+    "paano ko gagamitin ang camera para magbasa",
+    "paano ko ipapabasa ang printed na papel",
+    "paano magbasa ng nakalimbag na papel",
+    "how do i scan",
+    "how can i scan a document",
+    "how do i scan a page",
+    "how do i use the camera",
+    "how do i take a photo of a document",
+    "how do i scan a paper",
+    "how to scan",
+    "pano kunan ng picture ang papel",
+    "pano ko i-scan ung dokumento",
+    "pwede bang magtanong paano mag-scan",
+    "gusto kong malaman paano kumuha ng litrato ng papel",
+    "tanong ko lang paano magpa-scan",
+    "please tell me how do i take a photo of a document",
+    "sabihin mo paano magbasa ng nakalimbag na papel",
+    "i want to know how do i use the camera",
+    "paano kunan ng picture ung papel",
+    "excuse me paano ko i-scan ang dokumento",
+    "pano ko gagamitin ung camera pra magbasa",
+    "please tell me how do i scan a paper"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sabihin po ang “magbasa ng bago” at piliin ang “gamitin ang camera”. Itapat nang tuwid at hindi gumagalaw ang telepono sa papel, sa maliwanag na lugar. Gusto ninyo po bang subukan? Sabihin lang ang “gamitin ang camera”."
+     ],
+     "casual": [
+      "Sabihin ang “magbasa ng bago” at piliin ang “gamitin ang camera”. Itapat nang tuwid at hindi gumagalaw ang telepono sa papel, sa maliwanag na lugar. Gusto mo bang subukan? Sabihin lang ang “gamitin ang camera”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Say “read something new” and choose “use the camera”. Hold the phone steady and straight over the paper, in a bright place. Want to try? Just say “use the camera”."
+     ],
+     "casual": [
+      "Say “read something new” and choose “use the camera”. Hold the phone steady and straight over the paper, in a bright place. Want to try? Just say “use the camera”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "upload_document",
+   "title": {
+    "fil": "paano mag-upload",
+    "en": "how to upload"
+   },
+   "questions": [
+    "paano mag-upload",
+    "paano mag upload",
+    "paano mag-upload ng file",
+    "paano mag-upload ng dokumento",
+    "paano magdagdag ng file",
+    "paano pumili ng file",
+    "paano ako mag-a-upload ng pdf",
+    "paano ko ilalagay ang file",
+    "pano mag upload ng file",
+    "paano magbukas ng file mula sa phone",
+    "paano ko gagamitin ang file sa phone ko",
+    "paano mag-import ng dokumento",
+    "how do i upload",
+    "how do i upload a file",
+    "how do i upload a document",
+    "how to upload",
+    "how do i add a file",
+    "how do i pick a file",
+    "how do i import a document",
+    "sabihin mo paano ko ilalagay ang file",
+    "pakisabi paano ko gagamitin ang file sa phone ko",
+    "pano ko gagamitin ung file sa phone ko",
+    "excuse me paano mag-import ng dokumento",
+    "i want to know how do i upload",
+    "excuse me pano mag upload ng file",
+    "pano ako mag-a-upload ng pdf",
+    "pano mag-import ng dokumento",
+    "gusto kong malaman pano mag upload ng file",
+    "tell me how do i add a file",
+    "pano mag-upload ng file",
+    "pano magbukas ng file mula sa phone"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sabihin po ang “magbasa ng bago” at piliin ang “mag-upload”. Pagkatapos, piliin ang file sa telepono at babasahin ko po ito. Mananatili ang file sa telepono ninyo. Gusto ninyo po bang subukan? Sabihin lang ang “mag-upload”."
+     ],
+     "casual": [
+      "Sabihin ang “magbasa ng bago” at piliin ang “mag-upload”. Pagkatapos, piliin ang file sa telepono at babasahin ko ito. Mananatili ang file sa telepono mo. Gusto mo bang subukan? Sabihin lang ang “mag-upload”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Say “read something new” and choose “upload a file”. Then pick the file on your phone and I will read it. The file stays on your phone. Want to try? Just say “upload a file”."
+     ],
+     "casual": [
+      "Say “read something new” and choose “upload a file”. Then pick the file on your phone and I will read it. The file stays on your phone. Want to try? Just say “upload a file”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "pdf_support",
+   "title": {
+    "fil": "kung kaya ang PDF",
+    "en": "whether PDF works"
+   },
+   "questions": [
+    "pwede bang PDF",
+    "kaya mo ba ang pdf",
+    "nababasa ba ang pdf",
+    "pwede ba ang pdf file",
+    "pwede bang magbasa ng pdf",
+    "anong mga file ang kaya mong basahin",
+    "anong uri ng file ang pwede",
+    "pwede ba ang epub",
+    "kaya mo bang magbasa ng libro",
+    "pwede bang larawan ang basahin",
+    "pwede ba ang litrato ng papel",
+    "anong format ng file ang tinatanggap",
+    "can you read a pdf",
+    "can i use a pdf",
+    "does it work with pdf",
+    "what files can you read",
+    "what file types are supported",
+    "can you read epub",
+    "can you read images of text",
+    "tanong ko lang anong format ng file ang tinatanggap",
+    "anong uri ng file ung pwede",
+    "can you tell me can you read images of text",
+    "tanong ko lang pwede bang larawan ang basahin",
+    "sabihin mo pwede bang larawan ang basahin",
+    "pakisabi anong format ng file ang tinatanggap",
+    "quick question what files can you read",
+    "kaya mo ba ung pdf",
+    "sabihin mo pwede ba ang pdf file",
+    "pwede ba ung pdf file",
+    "nababasa ba ung pdf",
+    "pede bang larawan ung basahin"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, kaya ko pong basahin ang mga PDF, mga EPUB na libro sa Aklatan, at mga larawan o litrato ng teksto. Gusto ninyo po bang mag-upload ng file? Sabihin lang ang “mag-upload”."
+     ],
+     "casual": [
+      "Oo, kaya ko basahin ang mga PDF, mga EPUB na libro sa Aklatan, at mga larawan o litrato ng teksto. Gusto mo bang mag-upload ng file? Sabihin lang ang “mag-upload”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, I can read PDFs, EPUB books in the Library, and pictures or photos of text. Want to upload a file? Just say “upload a file”."
+     ],
+     "casual": [
+      "Yes, I can read PDFs, EPUB books in the Library, and pictures or photos of text. Want to upload a file? Just say “upload a file”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "talk_to_percy",
+   "title": {
+    "fil": "paano ako kakausapin",
+    "en": "how to talk to me"
+   },
+   "questions": [
+    "paano kita kakausapin",
+    "paano kita tatawagin",
+    "paano kita makakausap",
+    "paano kita gigisingin",
+    "paano ka tawagin",
+    "paano ko tatawagin si percy",
+    "paano ako makikipag-usap sa'yo",
+    "pano kita kakausapin",
+    "paano ka kausapin",
+    "paano ka magsimulang makinig",
+    "paano ka tatawagin kapag kailangan ko",
+    "how do i talk to you",
+    "how do i call you",
+    "how do i wake you up",
+    "how can i speak to you",
+    "how do i start talking to you",
+    "how do i call percy",
+    "how do i get your attention",
+    "pwede bang magtanong paano kita makakausap",
+    "excuse me how do i get your attention",
+    "pwede bang magtanong paano ko tatawagin si percy",
+    "pano kta kakausapin",
+    "pano ka tawagin",
+    "sabihin mo paano ako makikipag-usap sa'yo",
+    "can you tell me how do i call percy",
+    "paano kta gigisingin",
+    "tell me how do i call percy",
+    "pano ka kausapin",
+    "pano kta gigisingin",
+    "i want to know how do i call you"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Mag-swipe po pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Pagkatapos, pindutin nang matagal ang screen habang nagsasalita at bitawan kapag tapos na. Gusto ninyo po bang subukan? Sabihin lang ang “Percy”."
+     ],
+     "casual": [
+      "Mag-swipe pakaliwa gamit ang dalawang daliri, o sabihin ang “Percy”. Pagkatapos, pindutin nang matagal ang screen habang nagsasalita at bitawan kapag tapos na. Gusto mo bang subukan? Sabihin lang ang “Percy”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Swipe left with two fingers, or say “Percy”. Then press and hold the screen while you speak, and let go when you are done. Want to try? Just say “Percy”."
+     ],
+     "casual": [
+      "Swipe left with two fingers, or say “Percy”. Then press and hold the screen while you speak, and let go when you are done. Want to try? Just say “Percy”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "push_to_talk",
+   "title": {
+    "fil": "ang push to talk",
+    "en": "push to talk"
+   },
+   "questions": [
+    "ano ang push to talk",
+    "ano ang push-to-talk",
+    "ano ang ibig sabihin ng push to talk",
+    "paano gumamit ng push to talk",
+    "paano magsalita sa app",
+    "paano magbigay ng utos gamit ang boses",
+    "paano ako magsasalita sa app",
+    "bakit kailangan pindutin habang nagsasalita",
+    "paano ko ibibigay ang utos",
+    "ano ang pindutin nang matagal",
+    "anu ang push to talk",
+    "paano gumagana ang pagsasalita sa app",
+    "what is push to talk",
+    "what is push-to-talk",
+    "how does push to talk work",
+    "how do i speak to the app",
+    "how do i give a voice command",
+    "why do i have to hold the screen",
+    "how do i talk to the app",
+    "sabihin mo paano ako magsasalita sa app",
+    "pano ko ibibigay ang utos",
+    "tanong ko lang paano magsalita sa app",
+    "excuse me ano ang push-to-talk",
+    "paano gumagana ung pagsasalita sa app",
+    "excuse me how do i talk to the app",
+    "anu ung pindutin nang matagal",
+    "excuse me paano gumagana ang pagsasalita sa app",
+    "pwede bang magtanong paano magbigay ng utos gamit ang boses",
+    "tell me how do i give a voice command",
+    "pwede bang magtanong ano ang ibig sabihin ng push to talk",
+    "pano magbigay ng utos gamit ang boses"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ang push to talk po ay pagpindot nang matagal sa screen habang nagsasalita, at pagbitaw kapag tapos na. May tunog po kapag nakikinig na ako. Gusto ninyo po bang subukan? Pindutin nang matagal at sabihin ang “tulong”."
+     ],
+     "casual": [
+      "Ang push to talk ay pagpindot nang matagal sa screen habang nagsasalita, at pagbitaw kapag tapos na. May tunog kapag nakikinig na ako. Gusto mo bang subukan? Pindutin nang matagal at sabihin ang “tulong”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Push to talk means pressing and holding the screen while you speak, and letting go when you are done. You hear a tone when I am listening. Want to try? Press and hold and say “help”."
+     ],
+     "casual": [
+      "Push to talk means pressing and holding the screen while you speak, and letting go when you are done. You hear a tone when I am listening. Want to try? Press and hold and say “help”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "gestures",
+   "title": {
+    "fil": "ang mga gesture",
+    "en": "the gestures"
+   },
+   "questions": [
+    "ano ang mga gesture",
+    "ano ang mga galaw",
+    "anong mga galaw ang pwede",
+    "ano ang mga galaw ng daliri",
+    "paano gamitin ang mga gesture",
+    "paano gumamit ng galaw",
+    "ano ang ibig sabihin ng swipe",
+    "ano ang gesture pad",
+    "ano ang mga swipe",
+    "anu ang mga gesture",
+    "anong galaw ang para bumalik",
+    "paano lumipat ng pagpipilian",
+    "paano pumili gamit ang daliri",
+    "what are the gestures",
+    "what gestures can i use",
+    "how do i use gestures",
+    "what do the swipes do",
+    "what is the gesture pad",
+    "how do i move around with my fingers",
+    "how do i go back with a gesture",
+    "pwede bang magtanong ano ang gesture pad",
+    "excuse me anong galaw ang para bumalik",
+    "excuse me paano gamitin ang mga gesture",
+    "paano gamitin ung mga gesture",
+    "pakisabi anu ang mga gesture",
+    "anu ung ibig sabihin ng swipe",
+    "anu ung mga gesture",
+    "anong galaw ang pra bumalik",
+    "anong mga galaw ang pede",
+    "ano ung mga swipe",
+    "ano ung gesture pad",
+    "tanong ko lang paano gumamit ng galaw"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Mag-swipe po pakanan o pakaliwa para lumipat, mag-double tap para pumili, at mag-tap para ulitin ang huling sinabi. Mag-swipe pakanan gamit ang dalawang daliri para bumalik, at mag-tap gamit ang tatlong daliri para sa tulong. Gusto ninyo po bang ulitin ang pagtuturo? Sabihin lang ang “tutorial”."
+     ],
+     "casual": [
+      "Mag-swipe pakanan o pakaliwa para lumipat, mag-double tap para pumili, at mag-tap para ulitin ang huling sinabi. Mag-swipe pakanan gamit ang dalawang daliri para bumalik, at mag-tap gamit ang tatlong daliri para sa tulong. Gusto mo bang ulitin ang pagtuturo? Sabihin lang ang “tutorial”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Swipe right or left to move, double tap to choose, and tap to hear the last thing said again. Swipe right with two fingers to go back, and tap with three fingers for help. Want to repeat the lesson? Just say “tutorial”."
+     ],
+     "casual": [
+      "Swipe right or left to move, double tap to choose, and tap to hear the last thing said again. Swipe right with two fingers to go back, and tap with three fingers for help. Want to repeat the lesson? Just say “tutorial”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "what_can_i_say",
+   "title": {
+    "fil": "ang mga puwedeng sabihin",
+    "en": "what you can say"
+   },
+   "questions": [
+    "ano pwede kong sabihin",
+    "ano ang pwede kong sabihin",
+    "anong mga utos ang pwede",
+    "ano ang mga utos",
+    "ano ang mga voice command",
+    "anong mga salita ang pwede kong gamitin",
+    "ano ang mga pwedeng sabihin sa app",
+    "ano pwede kong ipagawa sa'yo",
+    "ano ang pwede kong ipagawa",
+    "anu pwede kong sabihin",
+    "ano ang mga boses na utos",
+    "magbigay ka ng halimbawa ng utos",
+    "ano ang mga halimbawa ng utos",
+    "what can i say",
+    "what commands can i use",
+    "what are the voice commands",
+    "what can i ask you",
+    "what can i tell you to do",
+    "give me examples of commands",
+    "what are the commands",
+    "anu ang pwede kong sabihin",
+    "anu ang mga utos",
+    "quick question what are the voice commands",
+    "anu ung mga voice command",
+    "ano ang mga boses nah utos",
+    "gusto kong malaman magbigay ka ng halimbawa ng utos",
+    "tanong ko lang ano ang mga pwedeng sabihin sa app",
+    "please tell me what commands can i use",
+    "anu ang mga pwedeng sabihin sa app",
+    "pakisabi anong mga utos ang pwede",
+    "please tell me what can i ask you",
+    "anong mga salita ung pede kong gamitin"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Puwede po ninyong sabihin ang “buksan ang Aklatan”, “magbasa ng bago”, “bumalik”, “bilisan”, “ulitin”, o “tulong”. Puwede rin po kayong magtanong sa akin tungkol sa app. Gusto ninyo po bang subukan? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Puwede mong sabihin ang “buksan ang Aklatan”, “magbasa ng bago”, “bumalik”, “bilisan”, “ulitin”, o “tulong”. Puwede rin kang magtanong sa akin tungkol sa app. Gusto mo bang subukan? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "You can say “open the Library”, “read something new”, “go back”, “faster”, “repeat”, or “help”. You can also ask me questions about the app. Want to try? Just say “open the Library”."
+     ],
+     "casual": [
+      "You can say “open the Library”, “read something new”, “go back”, “faster”, “repeat”, or “help”. You can also ask me questions about the app. Want to try? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "library_use",
+   "title": {
+    "fil": "paano gamitin ang Aklatan",
+    "en": "how to use the Library"
+   },
+   "questions": [
+    "paano gamitin ang aklatan",
+    "ano ang aklatan",
+    "para saan ang aklatan",
+    "ano ang meron sa aklatan",
+    "paano gumamit ng aklatan",
+    "paano maghanap ng libro",
+    "paano magbukas ng libro sa aklatan",
+    "ano ang laman ng aklatan",
+    "paano ko gagamitin ang aklatan",
+    "pano gamitin ang aklatan",
+    "paano ako makakabasa ng libro sa aklatan",
+    "paano ituloy ang binabasa kong libro",
+    "how do i use the library",
+    "what is the library",
+    "what is aklatan",
+    "what is in the library",
+    "how do i find a book",
+    "how do i open a book in the library",
+    "how do i continue my book",
+    "anu ang meron sa aklatan",
+    "paano ko gagamitin ung aklatan",
+    "please tell me how do i use the library",
+    "gusto kong malaman ano ang meron sa aklatan",
+    "gusto kong malaman paano magbukas ng libro sa aklatan",
+    "excuse me paano gamitin ang aklatan",
+    "pano maghanap ng libro",
+    "pano gamitin ung aklatan",
+    "can you tell me what is the library",
+    "pano magbukas ng libro sa aklatan",
+    "pwede bang magtanong paano maghanap ng libro",
+    "pano ko gagamitin ung aklatan"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ang Aklatan po ay ang koleksyon ninyo ng mga libro at dokumento. Mag-swipe para lumipat ng aytem, mag-double tap para buksan, at sabihin ang “hanapin” para maghanap. Gusto ninyo po bang buksan ito? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Ang Aklatan ay ang koleksyon mo ng mga libro at dokumento. Mag-swipe para lumipat ng aytem, mag-double tap para buksan, at sabihin ang “hanapin” para maghanap. Gusto mo bang buksan ito? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "The Library is your collection of books and documents. Swipe to move between items, double tap to open one, and say “search” to look for something. Want to open it? Just say “open the Library”."
+     ],
+     "casual": [
+      "The Library is your collection of books and documents. Swipe to move between items, double tap to open one, and say “search” to look for something. Want to open it? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "library_download",
+   "title": {
+    "fil": "paano mag-download ng libro",
+    "en": "how to download a book"
+   },
+   "questions": [
+    "paano mag-download ng libro",
+    "paano mag download ng libro",
+    "paano i-download ang libro",
+    "paano kumuha ng libro",
+    "paano ko madadownload ang libro",
+    "paano magbasa ng libro nang walang internet",
+    "paano mag-save ng libro sa phone",
+    "pano mag download ng libro",
+    "paano kumuha ng libro mula sa aklatan",
+    "paano maglagay ng libro sa phone ko",
+    "paano ko ide-download ang aklat",
+    "paano mag-alis ng download",
+    "how do i download a book",
+    "how can i download a book",
+    "how do i save a book offline",
+    "how do i get a book",
+    "how do i read a book without internet",
+    "how do i remove a download",
+    "how to download books",
+    "pano mag-alis ng download",
+    "sabihin mo paano kumuha ng libro mula sa aklatan",
+    "can you tell me how to download books",
+    "pakisabi paano ko ide-download ang aklat",
+    "sabihin mo paano magbasa ng libro nang walang internet",
+    "quick question how can i download a book",
+    "pano ko madadownload ang libro",
+    "tanong ko lang paano ko madadownload ang libro",
+    "tell me how do i remove a download",
+    "pano i-download ung libro",
+    "pano ko madadownload ung libro",
+    "pwede bang magtanong paano mag download ng libro"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Buksan po ang detalye ng libro sa Aklatan at sabihin ang “i-download”. Kailangan po ng internet sa pag-download, pero mababasa ninyo ito kahit offline pagkatapos. Gusto ninyo po bang tingnan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Buksan ang detalye ng libro sa Aklatan at sabihin ang “i-download”. Kailangan ng internet sa pag-download, pero mababasa mo ito kahit offline pagkatapos. Gusto mo bang tingnan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Open the book's details in the Library and say “download”. You need internet to download, but you can read it offline afterwards. Want to look at the Library? Just say “open the Library”."
+     ],
+     "casual": [
+      "Open the book's details in the Library and say “download”. You need internet to download, but you can read it offline afterwards. Want to look at the Library? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "library_favorite",
+   "title": {
+    "fil": "paano mag-favorite",
+    "en": "how to favorite a book"
+   },
+   "questions": [
+    "paano mag-favorite",
+    "paano mag favorite",
+    "paano maglagay ng paborito",
+    "paano mag-paborito ng libro",
+    "paano idagdag sa mga paborito",
+    "paano markahan ang paborito",
+    "paano ko ilalagay sa favorites",
+    "paano makita ang mga paborito ko",
+    "pano mag favorite ng libro",
+    "ano ang mga paborito",
+    "paano mag-save ng paboritong libro",
+    "paano alisin sa paborito",
+    "how do i favorite a book",
+    "how do i add a favorite",
+    "how do i mark a book as favorite",
+    "how do i see my favorites",
+    "what are favorites",
+    "how do i add to favorites",
+    "how do i remove a favorite",
+    "anu ung mga paborito",
+    "pano markahan ang paborito",
+    "quick question how do i mark a book as favorite",
+    "i want to know how do i add to favorites",
+    "tanong ko lang paano mag-favorite",
+    "pwede bang magtanong paano makita ang mga paborito ko",
+    "i want to know how do i favorite a book",
+    "sabihin mo paano mag-favorite",
+    "pakisabi paano markahan ang paborito",
+    "ano ung mga paborito",
+    "pano mag-favorite",
+    "pano makita ung mga paborito ko"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Buksan po ang detalye ng libro sa Aklatan at sabihin ang “paborito”. Para makita ang mga paborito, sabihin ang “mga paborito” sa Aklatan. Gusto ninyo po bang buksan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Buksan ang detalye ng libro sa Aklatan at sabihin ang “paborito”. Para makita ang mga paborito, sabihin ang “mga paborito” sa Aklatan. Gusto mo bang buksan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Open the book's details in the Library and say “favorites”. To see your favorites, say “favorites” in the Library. Want to open the Library? Just say “open the Library”."
+     ],
+     "casual": [
+      "Open the book's details in the Library and say “favorites”. To see your favorites, say “favorites” in the Library. Want to open the Library? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "library_collections",
+   "title": {
+    "fil": "ang mga koleksyon",
+    "en": "collections"
+   },
+   "questions": [
+    "ano ang collections",
+    "ano ang koleksyon",
+    "ano ang mga koleksyon",
+    "paano gumawa ng koleksyon",
+    "paano magdagdag sa koleksyon",
+    "para saan ang koleksyon",
+    "paano mag-ayos ng mga libro",
+    "paano ko pagsasama-samahin ang mga libro",
+    "paano gumawa ng collection",
+    "anu ang collections",
+    "paano palitan ang pangalan ng koleksyon",
+    "paano mag-organize ng mga aklat",
+    "what are collections",
+    "what is a collection",
+    "how do i make a collection",
+    "how do i add a book to a collection",
+    "how do i organize my books",
+    "what are collections for",
+    "how do i create a collection",
+    "pano gumawa ng collection",
+    "paano palitan ung pangalan ng koleksyon",
+    "excuse me how do i create a collection",
+    "anu ung mga koleksyon",
+    "excuse me paano gumawa ng collection",
+    "please tell me what are collections",
+    "anu ung collections",
+    "pra saan ang koleksyon",
+    "excuse me how do i add a book to a collection",
+    "anu ung koleksyon",
+    "sabihin mo paano palitan ang pangalan ng koleksyon",
+    "anu ang koleksyon"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ang koleksyon po ay grupo ng mga libro na pinili ninyo, tulad ng isang istante. Sabihin ang “gumawa ng koleksyon” sa Aklatan, at “idagdag sa koleksyon” sa isang libro. Gusto ninyo po bang buksan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ],
+     "casual": [
+      "Ang koleksyon ay grupo ng mga libro na pinili mo, tulad ng isang istante. Sabihin ang “gumawa ng koleksyon” sa Aklatan, at “idagdag sa koleksyon” sa isang libro. Gusto mo bang buksan ang Aklatan? Sabihin lang ang “buksan ang Aklatan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "A collection is a group of books you choose, like a shelf. Say “new collection” in the Library, and “add to collection” on a book. Want to open the Library? Just say “open the Library”."
+     ],
+     "casual": [
+      "A collection is a group of books you choose, like a shelf. Say “new collection” in the Library, and “add to collection” on a book. Want to open the Library? Just say “open the Library”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "describe_what",
+   "title": {
+    "fil": "ang Maglarawan",
+    "en": "Maglarawan"
+   },
+   "questions": [
+    "ano ang maglarawan",
+    "ano ang maglarawan na feature",
+    "para saan ang maglarawan",
+    "ano ang ginagawa ng maglarawan",
+    "ano ba ang maglarawan",
+    "ano ang larawan na feature",
+    "anu ang maglarawan",
+    "ano ang ibig sabihin ng maglarawan",
+    "ano ang kayang gawin ng maglarawan",
+    "ipaliwanag ang maglarawan",
+    "para saan ang paglalarawan ng larawan",
+    "what is maglarawan",
+    "what does maglarawan do",
+    "what is the describe feature",
+    "what is maglarawan for",
+    "explain maglarawan",
+    "what is the picture description feature",
+    "tell me about maglarawan",
+    "quick question what does maglarawan do",
+    "ano ang larawan nah feature",
+    "excuse me what is maglarawan",
+    "ano ung ginagawa ng maglarawan",
+    "anu ang maglarawan na feature",
+    "sabihin mo ano ang ibig sabihin ng maglarawan",
+    "gusto kong malaman ano ang maglarawan na feature",
+    "anu ang ibig sabihin ng maglarawan",
+    "anu ba ang maglarawan",
+    "please tell me what does maglarawan do",
+    "tell me tell me about maglarawan",
+    "excuse me explain maglarawan"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Ang Maglarawan po ay bahagi ng app na naglalarawan ng mga larawan, litrato man o mula sa file. Nasasabi nito ang mga bagay at tekstong makikita, kahit offline. Gusto ninyo po bang subukan? Sabihin lang ang “maglarawan”."
+     ],
+     "casual": [
+      "Ang Maglarawan ay bahagi ng app na naglalarawan ng mga larawan, litrato man o mula sa file. Nasasabi nito ang mga bagay at tekstong makikita, kahit offline. Gusto mo bang subukan? Sabihin lang ang “maglarawan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Maglarawan is the part of the app that describes pictures, whether from the camera or a file. It tells you the objects and text it sees, even offline. Want to try? Just say “describe”."
+     ],
+     "casual": [
+      "Maglarawan is the part of the app that describes pictures, whether from the camera or a file. It tells you the objects and text it sees, even offline. Want to try? Just say “describe”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "describe_how",
+   "title": {
+    "fil": "paano maglarawan ng larawan",
+    "en": "how to describe a picture"
+   },
+   "questions": [
+    "paano ilarawan ang larawan",
+    "paano maglarawan ng larawan",
+    "paano ilarawan ang litrato",
+    "kaya mo bang maglarawan ng larawan",
+    "pwede mo bang ilarawan ang picture",
+    "paano ko ipapalarawan ang larawan",
+    "paano gamitin ang maglarawan",
+    "paano magpalarawan ng litrato",
+    "kaya mo bang ilarawan ang litrato",
+    "pano ilarawan ang larawan",
+    "pwede bang ilarawan ang larawan offline",
+    "kaya mo ba ang detalyadong paglalarawan",
+    "can you describe pictures",
+    "can you describe an image",
+    "how do i describe a picture",
+    "how do i get a picture described",
+    "how do i use maglarawan",
+    "can you describe photos offline",
+    "can you give a detailed description of a picture",
+    "pano maglarawan ng larawan",
+    "tanong ko lang pano ilarawan ang larawan",
+    "sabihin mo kaya mo bang maglarawan ng larawan",
+    "pano ilarawan ung larawan",
+    "sabihin mo pwede mo bang ilarawan ang picture",
+    "pano ilarawan ung litrato",
+    "tell me can you describe an image",
+    "pano magpalarawan ng litrato",
+    "excuse me can you describe photos offline",
+    "sabihin mo paano ilarawan ang larawan",
+    "tell me can you describe pictures",
+    "gusto kong malaman paano ilarawan ang litrato"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, sabihin po ang “maglarawan” at kumuha o pumili ng larawan. Nailalarawan ko ito kahit offline, at mas detalyadong paglalarawan ang planong idagdag sa hinaharap. Gusto ninyo po bang subukan? Sabihin lang ang “maglarawan”."
+     ],
+     "casual": [
+      "Oo, sabihin ang “maglarawan” at kumuha o pumili ng larawan. Nailalarawan ko ito kahit offline, at mas detalyadong paglalarawan ang planong idagdag sa hinaharap. Gusto mo bang subukan? Sabihin lang ang “maglarawan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, say “describe”, then take a photo or pick a picture. I can describe it even offline, and a more detailed description is planned for the future. Want to try? Just say “describe”."
+     ],
+     "casual": [
+      "Yes, say “describe”, then take a photo or pick a picture. I can describe it even offline, and a more detailed description is planned for the future. Want to try? Just say “describe”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "settings_text_size",
+   "title": {
+    "fil": "paano lakihan ang teksto",
+    "en": "how to make the text bigger"
+   },
+   "questions": [
+    "paano lakihan ang text",
+    "paano palakihin ang letra",
+    "paano palakihin ang teksto",
+    "paano lakihan ang font",
+    "paano baguhin ang laki ng text",
+    "paano gawing mas malaki ang sulat",
+    "paano paliitin ang text",
+    "paano ayusin ang laki ng letra",
+    "pano lakihan ang text",
+    "masyadong maliit ang letra paano",
+    "paano ko papalakihin ang binabasa",
+    "paano baguhin ang sukat ng teksto",
+    "how do i make the text bigger",
+    "how do i increase the text size",
+    "how do i change the font size",
+    "how do i make the text smaller",
+    "the text is too small",
+    "how do i enlarge the text",
+    "how do i change the text size",
+    "pano lakihan ung text",
+    "i want to know how do i make the text bigger",
+    "sabihin mo paano lakihan ang text",
+    "pano paliitin ung text",
+    "pano palakihin ung letra",
+    "quick question how do i increase the text size",
+    "excuse me paano lakihan ang font",
+    "pwede bang magtanong paano paliitin ang text",
+    "pakisabi pano lakihan ang text",
+    "pano baguhin ung sukat ng teksto",
+    "pano gawing mas malaki ang sulat",
+    "pano palakihin ang teksto"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sa Reader, sabihin po ang “palakihin ang teksto” o “paliitin ang teksto”, o mag-pinch sa screen. Mababago rin po ito sa Mga Setting. Gusto ninyo po bang subukan? Sabihin lang ang “palakihin ang teksto”."
+     ],
+     "casual": [
+      "Sa Reader, sabihin ang “palakihin ang teksto” o “paliitin ang teksto”, o mag-pinch sa screen. Mababago rin ito sa Mga Setting. Gusto mo bang subukan? Sabihin lang ang “palakihin ang teksto”."
+     ]
+    },
+    "en": {
+     "po": [
+      "In the Reader, say “bigger text” or “smaller text”, or pinch the screen. You can also change it in Settings. Want to try? Just say “bigger text”."
+     ],
+     "casual": [
+      "In the Reader, say “bigger text” or “smaller text”, or pinch the screen. You can also change it in Settings. Want to try? Just say “bigger text”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "settings_voice_speed",
+   "title": {
+    "fil": "paano bagalan ang boses",
+    "en": "how to slow down the voice"
+   },
+   "questions": [
+    "paano bagalan ang boses",
+    "paano pabagalin ang boses",
+    "paano bilisan ang boses",
+    "paano pabilisin ang pagbasa",
+    "paano baguhin ang bilis ng pagbabasa",
+    "masyadong mabilis ang boses paano",
+    "paano pabagalin ang pagbasa",
+    "paano ayusin ang bilis ng boses",
+    "pano bagalan ang boses",
+    "paano gawing mas mabagal ang pagsasalita",
+    "paano baguhin ang bilis ng boses",
+    "ang bilis mo magbasa paano pabagalin",
+    "how do i slow down the voice",
+    "how do i speed up the voice",
+    "how do i change the reading speed",
+    "the voice is too fast",
+    "how do i make you talk slower",
+    "how do i change the speech speed",
+    "how do i make the reading faster",
+    "pano bagalan ung boses",
+    "i want to know how do i speed up the voice",
+    "ung bilis mo magbasa paano pabagalin",
+    "ang bilis mu magbasa paano pabagalin",
+    "can you tell me how do i make the reading faster",
+    "paano gawing mas mabagal ung pagsasalita",
+    "pakisabi paano bilisan ang boses",
+    "pano pabagalin ung pagbasa",
+    "excuse me masyadong mabilis ang boses paano",
+    "pano baguhin ung bilis ng pagbabasa",
+    "excuse me how do i change the reading speed",
+    "paano pabagalin ung pagbasa"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sabihin po ang “bagalan” para pabagalin o “bilisan” para pabilisin, o piliin ang Mabagal, Katamtaman, o Mabilis sa Mga Setting. Gusto ninyo po bang subukan? Sabihin lang ang “bagalan”."
+     ],
+     "casual": [
+      "Sabihin ang “bagalan” para pabagalin o “bilisan” para pabilisin, o piliin ang Mabagal, Katamtaman, o Mabilis sa Mga Setting. Gusto mo bang subukan? Sabihin lang ang “bagalan”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Say “slower” to slow down or “faster” to speed up, or choose Slow, Normal, or Fast in Settings. Want to try? Just say “slower”."
+     ],
+     "casual": [
+      "Say “slower” to slow down or “faster” to speed up, or choose Slow, Normal, or Fast in Settings. Want to try? Just say “slower”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "settings_color",
+   "title": {
+    "fil": "paano palitan ang kulay",
+    "en": "how to change the colors"
+   },
+   "questions": [
+    "paano palitan ang kulay",
+    "paano baguhin ang kulay",
+    "paano palitan ang kulay ng screen",
+    "paano gawing dark mode",
+    "paano palitan ang theme",
+    "paano baguhin ang kulay ng teksto",
+    "anong mga kulay ang meron",
+    "paano gawing mas maliwanag ang screen",
+    "pano palitan ang kulay",
+    "paano gamitin ang dark mode",
+    "paano baguhin ang tema ng app",
+    "ano ang mga tema ng app",
+    "how do i change the colors",
+    "how do i change the color",
+    "how do i turn on dark mode",
+    "how do i change the theme",
+    "what colors are there",
+    "how do i change the text color",
+    "what themes does the app have",
+    "pano gawing mas maliwanag ung screen",
+    "tanong ko lang ano ang mga tema ng app",
+    "pano baguhin ang tema ng app",
+    "pwede bang magtanong paano baguhin ang tema ng app",
+    "pano palitan ang theme",
+    "paano baguhin ung kulay",
+    "sabihin mo paano baguhin ang tema ng app",
+    "anong mga kulay ung meron",
+    "excuse me pano palitan ang kulay",
+    "tell me how do i change the theme",
+    "please tell me how do i turn on dark mode",
+    "excuse me paano palitan ang kulay ng screen"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sabihin po ang “buksan ang Mga Setting”, pagkatapos piliin ang kulay o tema: Cream at Navy, Dark mode na dilaw ang teksto, o Dark mode na puti ang teksto. Gusto ninyo po bang buksan ang Mga Setting? Sabihin lang ang “buksan ang Mga Setting”."
+     ],
+     "casual": [
+      "Sabihin ang “buksan ang Mga Setting”, pagkatapos piliin ang kulay o tema: Cream at Navy, Dark mode na dilaw ang teksto, o Dark mode na puti ang teksto. Gusto mo bang buksan ang Mga Setting? Sabihin lang ang “buksan ang Mga Setting”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Say “open Settings”, then choose a color or theme: Cream and Navy, Dark mode with yellow text, or Dark mode with white text. Want to open Settings? Just say “open Settings”."
+     ],
+     "casual": [
+      "Say “open Settings”, then choose a color or theme: Cream and Navy, Dark mode with yellow text, or Dark mode with white text. Want to open Settings? Just say “open Settings”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "offline_works",
+   "title": {
+    "fil": "kung gumagana ako nang walang internet",
+    "en": "whether I work offline"
+   },
+   "questions": [
+    "gumagana ka ba kahit walang internet",
+    "gumagana ka ba offline",
+    "kailangan ba ng internet",
+    "gumagana ba ito nang walang internet",
+    "pwede ba ito offline",
+    "kailangan ko ba ng wifi",
+    "kailangan ba ng data",
+    "magagamit ko ba ito nang walang signal",
+    "gumagana ka ba kahit offline",
+    "gumagana ka ba ng walang net",
+    "pwede bang walang internet",
+    "kailan kailangan ang internet",
+    "gumagana ba ang app kapag walang wifi",
+    "do you work without internet",
+    "do you work offline",
+    "do i need internet",
+    "does this work offline",
+    "can i use this without wifi",
+    "do i need data",
+    "when do i need internet",
+    "pede bang walang internet",
+    "excuse me gumagana ka ba kahit offline",
+    "magagamit ko ba to nang walang signal",
+    "gusto kong malaman pwede bang walang internet",
+    "quick question can i use this without wifi",
+    "tanong ko lang kailangan ba ng internet",
+    "excuse me gumagana ba ito nang walang internet",
+    "pakisabi kailangan ko ba ng wifi",
+    "gumagana ba ung app kapag walang wifi",
+    "quick question when do i need internet",
+    "pakisabi kailan kailangan ang internet",
+    "excuse me pwede ba ito offline"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, gumagana po ako kahit walang internet. Kailangan lang po ng internet para sa account, sa mga libro mula sa Aklatan, at sa isang beses na pag-download ng boses. Gusto ninyo po bang subukan ang pagbabasa? Sabihin lang ang “magbasa ng bago”."
+     ],
+     "casual": [
+      "Oo, gumagana ako kahit walang internet. Kailangan lang ng internet para sa account, sa mga libro mula sa Aklatan, at sa isang beses na pag-download ng boses. Gusto mo bang subukan ang pagbabasa? Sabihin lang ang “magbasa ng bago”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, I work even without internet. Internet is only needed for your account, the books from the Library, and the one-time voice download. Want to try reading? Just say “read something new”."
+     ],
+     "casual": [
+      "Yes, I work even without internet. Internet is only needed for your account, the books from the Library, and the one-time voice download. Want to try reading? Just say “read something new”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "privacy_documents",
+   "title": {
+    "fil": "kung ligtas ang mga dokumento",
+    "en": "whether your documents are safe"
+   },
+   "questions": [
+    "ligtas ba ang mga dokumento ko",
+    "ligtas ba ang dokumento ko",
+    "saan napupunta ang mga dokumento ko",
+    "ipinapadala ba ang mga dokumento ko",
+    "nakikita ba ng iba ang mga dokumento ko",
+    "ligtas ba ang data ko",
+    "private ba ang mga file ko",
+    "sino ang nakakakita ng dokumento ko",
+    "ipinapadala ba sa internet ang mga scan ko",
+    "ligtas ba ang mga scan ko",
+    "ano ang ginagawa mo sa mga dokumento ko",
+    "sinesave ba ang mga larawan ko",
+    "are my documents safe",
+    "is my data safe",
+    "where do my documents go",
+    "are my files private",
+    "do you send my documents anywhere",
+    "who can see my documents",
+    "is my privacy protected",
+    "can you tell me is my data safe",
+    "ano ang ginagawa mu sa mga dokumento ko",
+    "ligtas ba ung dokumento ko",
+    "ipinapadala ba ung mga dokumento ko",
+    "gusto kong malaman ligtas ba ang dokumento ko",
+    "ano ung ginagawa mo sa mga dokumento ko",
+    "excuse me ligtas ba ang mga scan ko",
+    "excuse me do you send my documents anywhere",
+    "tell me where do my documents go",
+    "sabihin mo ligtas ba ang mga dokumento ko",
+    "saan napupunta ung mga dokumento ko",
+    "ipinapadala ba sa internet ung mga scan ko"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, ligtas po. Ang mga dokumentong sini-scan o ina-upload ninyo ay nananatili sa telepono ninyo at hindi ipinapadala sa server. Gusto ninyo po bang magbasa ng dokumento? Sabihin lang ang “magbasa ng bago”."
+     ],
+     "casual": [
+      "Oo, ligtas. Ang mga dokumentong sini-scan o ina-upload mo ay nananatili sa telepono mo at hindi ipinapadala sa server. Gusto mo bang magbasa ng dokumento? Sabihin lang ang “magbasa ng bago”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, they are safe. The documents you scan or upload stay on your phone and are never sent to a server. Want to read a document? Just say “read something new”."
+     ],
+     "casual": [
+      "Yes, they are safe. The documents you scan or upload stay on your phone and are never sent to a server. Want to read a document? Just say “read something new”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "privacy_password",
+   "title": {
+    "fil": "kung nakikita ko ang password",
+    "en": "whether I can see your password"
+   },
+   "questions": [
+    "nakikita mo ba ang password ko",
+    "alam mo ba ang password ko",
+    "binabasa mo ba ang password ko",
+    "sinasave mo ba ang password ko",
+    "ligtas ba ang password ko",
+    "sinasabi mo ba ang password ko",
+    "naririnig mo ba ang password",
+    "ano ang ginagawa mo sa password ko",
+    "nakikita ba ni percy ang password",
+    "itinatago mo ba ang password ko",
+    "ibinabahagi mo ba ang password ko",
+    "sinasabi mo ba nang malakas ang password",
+    "can you see my password",
+    "do you know my password",
+    "do you read my password",
+    "do you save my password",
+    "is my password safe",
+    "do you say my password out loud",
+    "what do you do with my password",
+    "sinasabi mo ba ung password ko",
+    "sinasave mu ba ung password ko",
+    "sinasabi mu ba ung password ko",
+    "i want to know do you save my password",
+    "gusto kong malaman alam mo ba ang password ko",
+    "excuse me ano ang ginagawa mo sa password ko",
+    "naririnig mo ba ung password",
+    "sabihin mo itinatago mo ba ang password ko",
+    "quick question can you see my password",
+    "binabasa mu ba ang password ko",
+    "pwede bang magtanong alam mo ba ang password ko",
+    "ibinabahagi mu ba ung password ko"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Hindi po. Hindi ko kailanman binabasa, sinasabi, o sine-save ang password ninyo. Ang sinasabi lang ng app ay ang haba nito. Gusto ninyo po bang malaman kung paano mag-register? Itanong lang ang “paano mag-register”."
+     ],
+     "casual": [
+      "Hindi. Hindi ko kailanman binabasa, sinasabi, o sine-save ang password mo. Ang sinasabi lang ng app ay ang haba nito. Gusto mo bang malaman kung paano mag-register? Itanong lang ang “paano mag-register”."
+     ]
+    },
+    "en": {
+     "po": [
+      "No. I never read, say, or save your password. The app only tells you how long it is. Want to know how to register? Just ask “how do I register”."
+     ],
+     "casual": [
+      "No. I never read, say, or save your password. The app only tells you how long it is. Want to know how to register? Just ask “how do I register”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "register_account",
+   "title": {
+    "fil": "paano mag-register",
+    "en": "how to register"
+   },
+   "questions": [
+    "paano mag-register",
+    "paano mag register",
+    "paano gumawa ng account",
+    "paano magkaroon ng account",
+    "paano mag-sign up",
+    "paano ako magpaparehistro",
+    "kailangan ko ba ng account",
+    "paano gumawa ng bagong account",
+    "pano mag register",
+    "paano mag-create ng account",
+    "paano ako makakapag-login",
+    "ano ang kailangan para mag-register",
+    "how do i register",
+    "how do i create an account",
+    "how do i sign up",
+    "do i need an account",
+    "how do i make an account",
+    "how do i log in",
+    "what do i need to register",
+    "pwede bang magtanong paano ako makakapag-login",
+    "pwede bang magtanong paano magkaroon ng account",
+    "pwede bang magtanong paano mag-register",
+    "pwede bang magtanong ano ang kailangan para mag-register",
+    "sabihin mo paano mag-sign up",
+    "excuse me paano magkaroon ng account",
+    "gusto kong malaman ano ang kailangan para mag-register",
+    "pwede bang magtanong paano mag-create ng account",
+    "excuse me how do i create an account",
+    "sabihin mo paano mag-register",
+    "quick question how do i sign up",
+    "pano magkaroon ng account"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Sa unang screen, piliin po ang Register at sundin ang mga tanong. Kailangan po ng internet at email para makuha ang code. Gusto ninyo po bang magsimula? Sabihin lang ang “register”."
+     ],
+     "casual": [
+      "Sa unang screen, piliin ang Register at sundin ang mga tanong. Kailangan ng internet at email para makuha ang code. Gusto mo bang magsimula? Sabihin lang ang “register”."
+     ]
+    },
+    "en": {
+     "po": [
+      "On the first screen, choose Register and follow the questions. You need internet and an email address to get the code. Want to start? Just say “register”."
+     ],
+     "casual": [
+      "On the first screen, choose Register and follow the questions. You need internet and an email address to get the code. Want to start? Just say “register”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "forgot_password",
+   "title": {
+    "fil": "nakalimutan ang password",
+    "en": "a forgotten password"
+   },
+   "questions": [
+    "nakalimutan ko ang password",
+    "nakalimutan ko ang password ko",
+    "paano kung nakalimutan ko ang password",
+    "ano ang gagawin ko kung nakalimutan ko ang password",
+    "paano mag-reset ng password",
+    "paano ibalik ang password",
+    "nawala ang password ko",
+    "hindi ko maalala ang password",
+    "paano palitan ang password",
+    "pano kung nakalimutan ko ang password",
+    "hindi ako makapag-login nakalimutan ko ang password",
+    "paano mabawi ang account ko",
+    "i forgot my password",
+    "what if i forget my password",
+    "how do i reset my password",
+    "how do i recover my password",
+    "i lost my password",
+    "i can't remember my password",
+    "how do i get my account back",
+    "paano ibalik ung password",
+    "can you tell me how do i get my account back",
+    "hindi ako makapag-login nakalimutan ko ung password",
+    "excuse me paano palitan ang password",
+    "gusto kong malaman nawala ang password ko",
+    "pakisabi ano ang gagawin ko kung nakalimutan ko ang password",
+    "nawala ung password ko",
+    "gusto kong malaman paano palitan ang password",
+    "excuse me i forgot my password",
+    "tell me how do i recover my password",
+    "pano kung nakalimutan ko ung password",
+    "pano mabawi ang account ko"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Makipag-ugnayan po sa staff ng Percipere para ma-reset ang password ninyo. Hindi ko po ito makikita o masasabi. Gusto ninyo po bang mag-report ng problema? Sabihin lang ang “mag-report”."
+     ],
+     "casual": [
+      "Makipag-ugnayan sa staff ng Percipere para ma-reset ang password mo. Hindi ko ito makikita o masasabi. Gusto mo bang mag-report ng problema? Sabihin lang ang “mag-report”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Please contact the Percipere staff so your password can be reset. I cannot see or say it. Want to report a problem? Just say “report a problem”."
+     ],
+     "casual": [
+      "Please contact the Percipere staff so your password can be reset. I cannot see or say it. Want to report a problem? Just say “report a problem”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "guest_mode",
+   "title": {
+    "fil": "kung puwede bilang bisita",
+    "en": "whether you can use it as a guest"
+   },
+   "questions": [
+    "pwede bang guest lang",
+    "pwede bang bisita lang",
+    "pwede ba akong gumamit nang walang account",
+    "kailangan ba ng account para magamit",
+    "ano ang guest mode",
+    "ano ang subukan muna",
+    "paano gumamit bilang guest",
+    "pwede ko bang subukan muna ang app",
+    "ano ang bisita",
+    "pwede bang hindi mag-register",
+    "ano ang mawawala kung guest lang ako",
+    "paano subukan ang app nang walang account",
+    "can i just be a guest",
+    "can i use it without an account",
+    "what is guest mode",
+    "do i need an account to use it",
+    "can i try the app first",
+    "can i skip registering",
+    "what do i lose as a guest",
+    "anu ang subukan muna",
+    "pwede ko bang subukan muna ung app",
+    "pede ko bang subukan muna ung app",
+    "ano ung bisita",
+    "pakisabi paano subukan ang app nang walang account",
+    "pakisabi pwede ko bang subukan muna ang app",
+    "paano subukan ung app nang walang account",
+    "pakisabi pwede bang guest lang",
+    "please tell me can i just be a guest",
+    "sabihin mo ano ang subukan muna",
+    "pede bang bisita lang",
+    "quick question can i skip registering"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, puwede po. Piliin ang “Subukan muna” sa unang screen. Naka-save lang po ang mga gamit ninyo sa telepono, kaya mawawala ito kapag nabura ang app. Gusto ninyo po bang mag-register? Itanong lang ang “paano mag-register”."
+     ],
+     "casual": [
+      "Oo, puwede. Piliin ang “Subukan muna” sa unang screen. Naka-save lang ang mga gamit mo sa telepono, kaya mawawala ito kapag nabura ang app. Gusto mo bang mag-register? Itanong lang ang “paano mag-register”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, you can. Choose “Try first” on the first screen. Your things are only saved on this phone, so they are lost if the app is deleted. Want to register? Just ask “how do I register”."
+     ],
+     "casual": [
+      "Yes, you can. Choose “Try first” on the first screen. Your things are only saved on this phone, so they are lost if the app is deleted. Want to register? Just ask “how do I register”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "help_me",
+   "title": {
+    "fil": "kung paano ako tutulong",
+    "en": "how I can help"
+   },
+   "questions": [
+    "tulungan mo ako",
+    "help",
+    "pwede mo ba akong tulungan",
+    "pakitulungan mo ako",
+    "can you help me",
+    "kailangan kita",
+    "may itatanong ako",
+    "may tanong ako sa'yo",
+    "pwede ba akong magtanong",
+    "i need your help",
+    "i have a question",
+    "can i ask you something",
+    "pede mu ba akong tulungan",
+    "can you tell me i have a question",
+    "pwede bang magtanong tulong po",
+    "can you tell me help me",
+    "tanong ko lang tulungan mo ako",
+    "tell me help me",
+    "kailangan kta",
+    "excuse me pakitulungan mo ako",
+    "pwede bang magtanong pwede mo ba akong tulungan",
+    "sabihin mo may itatanong ako",
+    "sabihin mo kailangan ko ng tulong mo",
+    "excuse me may tanong ako sa'yo"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Opo, narito po ako para tumulong. Puwede po kayong magtanong tungkol sa app, o sabihin ang “tulong” para sa gabay sa screen na ito. Ano po ang gusto ninyong malaman? Subukan ang “ano ang kaya mo”."
+     ],
+     "casual": [
+      "Oo, narito ako para tumulong. Puwede kang magtanong tungkol sa app, o sabihin ang “tulong” para sa gabay sa screen na ito. Ano ang gusto mong malaman? Subukan ang “ano ang kaya mo”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Yes, I'm here to help. You can ask me about the app, or say “help” for a guide to this screen. What would you like to know? Try “what can you do”."
+     ],
+     "casual": [
+      "Yes, I'm here to help. You can ask me about the app, or say “help” for a guide to this screen. What would you like to know? Try “what can you do”."
+     ]
+    }
+   }
+  },
+  {
+   "id": "stuck_lost",
+   "title": {
+    "fil": "kapag naliligaw ang gumagamit",
+    "en": "what to do when lost"
+   },
+   "questions": [
+    "hindi ko alam ang gagawin",
+    "naliligaw ako",
+    "naliligaw na ako",
+    "hindi ko alam kung nasaan ako",
+    "ano ang gagawin ko",
+    "hindi ko maintindihan",
+    "nawawala ako sa app",
+    "hindi ko alam kung paano magsimula",
+    "paano ako magsisimula",
+    "ano ang unang gagawin ko",
+    "naguluhan ako sa app",
+    "i don't know what to do",
+    "i'm lost",
+    "i am confused",
+    "i don't understand",
+    "what should i do",
+    "where do i start",
+    "i don't know how to start",
+    "anu ung unang gagawin ko",
+    "please tell me i'm lost",
+    "i want to know i am confused",
+    "anu ang unang gagawin ko",
+    "hindi ko alam kung pano magsimula",
+    "tanong ko lang nawawala ako sa app",
+    "anu ang gagawin ko",
+    "hindi ko alam ung gagawin",
+    "sabihin mo paano ako magsisimula",
+    "excuse me nawawala ako sa app",
+    "naliligaw nah ako",
+    "quick question i don't understand"
+   ],
+   "answer": {
+    "fil": {
+     "po": [
+      "Huwag po kayong mag-alala. Sabihin ang “nasaan ako” para malaman kung nasaan kayo, o “tulong” para sa gabay, o “bumalik” para umatras. Gusto ninyo po bang ulitin ang pagtuturo? Sabihin lang ang “tutorial”."
+     ],
+     "casual": [
+      "Huwag kang mag-alala. Sabihin ang “nasaan ako” para malaman kung nasaan ka, o “tulong” para sa gabay, o “bumalik” para umatras. Gusto mo bang ulitin ang pagtuturo? Sabihin lang ang “tutorial”."
+     ]
+    },
+    "en": {
+     "po": [
+      "Don't worry. Say “where am I” to find out where you are, “help” for a guide, or “go back” to step back. Want to repeat the lesson? Just say “tutorial”."
+     ],
+     "casual": [
+      "Don't worry. Say “where am I” to find out where you are, “help” for a guide, or “go back” to step back. Want to repeat the lesson? Just say “tutorial”."
+     ]
+    }
+   }
+  }
+ ]
+}

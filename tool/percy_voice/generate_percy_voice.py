@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Generates Percy's bundled voice clips with ElevenLabs.
 
-Reads every FIXED Percy sentence (assets/percy/responses.json, the persona
-greeting, and the ARB keys in extra_arb_keys.json), asks the ElevenLabs
+Reads every FIXED Percy sentence (assets/percy/responses.json, the answers in
+assets/percy/knowledge.json, the persona greeting, and the ARB keys in
+extra_arb_keys.json), asks the ElevenLabs
 text-to-speech API for one small mono mp3 per sentence, and writes them to
 assets/percy/voice/ together with manifest.json.
 
@@ -85,6 +86,11 @@ def collect():
         for entry in responses.get(section, {}).values():
             for lang, line in lines_in(entry):
                 add(lang, line)
+    with open(os.path.join(ROOT, "assets", "percy", "knowledge.json"), encoding="utf-8") as f:
+        knowledge = json.load(f)
+    for topic in knowledge.get("topics", []):
+        for lang, line in lines_in(topic.get("answer")):
+            add(lang, line)
     with open(os.path.join(ROOT, "assets", "percy", "persona.json"), encoding="utf-8") as f:
         persona = json.load(f)
     for lang, line in lines_in(persona.get("greeting")):
@@ -158,6 +164,9 @@ def main():
                         help="list what would be generated; no API call, no key needed")
     parser.add_argument("--prune", action="store_true",
                         help="delete clips of sentences that no longer exist")
+    parser.add_argument("--check", action="store_true",
+                        help="compare the manifest with the current lines: 'N of M have clips'; "
+                             "no API call, no key needed")
     parser.add_argument("--limit", type=int, default=0,
                         help="generate at most N new clips (try a few first)")
     args = parser.parse_args()
@@ -180,6 +189,21 @@ def main():
             todo.append((key, lang, text))
 
     stale = [k for k in clips if k not in wanted]
+    if args.check:
+        have = len(wanted) - len(todo)
+        chars_left = sum(len(t) for _, _, t in todo)
+        print(f"{have} of {len(wanted)} lines have clips "
+              f"({sum(1 for k, v in wanted.items() if v[0] == 'fil')} fil, "
+              f"{sum(1 for k, v in wanted.items() if v[0] == 'en')} en in total)")
+        print(f"Missing: {len(todo)} lines ({chars_left} characters)")
+        print(f"Stale clips (text no longer used): {len(stale)}")
+        for _, lang, text in todo[:5]:
+            print(f"  missing [{lang}] {text}")
+        if len(todo) > 5:
+            print(f"  ... and {len(todo) - 5} more")
+        print("All lines have clips." if not todo else "Not finished: run the script without --check.")
+        return 0
+
     chars = sum(len(t) for _, _, t in todo)
     print(f"Fixed sentences: {len(wanted)} "
           f"({sum(1 for v in wanted.values() if v[0] == 'fil')} fil, "

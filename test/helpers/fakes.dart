@@ -36,6 +36,7 @@ import 'package:percipere_app/core/network/image_description_repository.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/percy/intent_classifier.dart';
+import 'package:percipere_app/core/percy/knowledge_base.dart';
 import 'package:percipere_app/core/percy/percy_controller.dart';
 import 'package:percipere_app/core/percy/percy_log_export.dart';
 import 'package:percipere_app/core/percy/percy_responses.dart';
@@ -1157,6 +1158,7 @@ PercyBrain testPercyBrain() => _percyBrain ??= PercyBrain(
     File(PercyConfig.responsesAsset).readAsStringSync(),
     random: math.Random(7),
   ),
+  KnowledgeBase.parse(File(PercyConfig.knowledgeAsset).readAsStringSync()),
 );
 
 /// One account in [FakeAccountApi].

@@ -43,4 +43,19 @@ abstract final class PercyConfig {
 
   /// What Percy says, per intent, politeness and language.
   static const String responsesAsset = 'assets/percy/responses.json';
+
+  /// Questions and answers about Percy and the app.
+  static const String knowledgeAsset = 'assets/percy/knowledge.json';
+
+  /// A question this similar (0–1, cosine) to a knowledge question gets the
+  /// answer at once.
+  static const double knowledgeAnswer = 0.55;
+
+  /// From here up to [knowledgeAnswer] Percy asks "Ito ba ang tinatanong
+  /// mo?" with the closest topic; below it suggests example questions.
+  static const double knowledgeAsk = 0.35;
+
+  /// A sentence this similar to a knowledge question is answered even when
+  /// the classifier did not call it a question.
+  static const double knowledgeRescue = 0.85;
 }

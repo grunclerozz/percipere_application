@@ -403,6 +403,47 @@ Log lines: `start skipped: the app is speaking`, `noisy room (level …)`, `unce
 `[OFFLINE VOICE] microphone: …`, `[TTS] engine switch …`, `[TTS] android voice: …`,
 `[TTS] no answer from the engine: stopping it`.
 
+## Percy answers questions (2026-10-18, branch `feat/percy-knowledge`)
+Percy used to understand commands only ("Anong kaya mo?" fell to "not yet"). Now it answers questions
+about itself and the app, offline, with no AI service.
+- **Knowledge base:** `assets/percy/knowledge.json`: 32 topics (Percy: abilities, purpose, who, human,
+  creator; the app; reading, scan, upload, PDF; talking, push to talk, gestures, what to say; Aklatan: use,
+  download, favorite, collections; Maglarawan; text size, voice speed, colors; offline, privacy of
+  documents and passwords, register, forgotten password, guest; help, stuck). Each has about 30 example
+  questions (Filipino, English, Taglish, speech-recognition spellings) and a Filipino (po / casual) and
+  English answer: 1-3 sentences + one follow-up ("Gusto ninyo po bang subukan? Sabihin lang ang “…”.").
+  Edit the JSON to change an answer; no retraining for answers.
+- **Retrieval:** `lib/core/percy/knowledge_base.dart`, TF-IDF + cosine similarity over the example
+  questions, topic score = best question (algorithm 5 in `docs/thesis/algorithms.md`). Thresholds in
+  `lib/config/percy_config.dart`: >= 0.55 answer, 0.35-0.55 "Ito ba ang tinatanong mo: …?" (yes answers,
+  no suggests three example questions), < 0.35 "Hindi ko po sigurado…" + three example questions.
+- **Routing:** new intent `ask_question` (`data/percy/intents.csv`, 993 rows, source "Generated (Claude)").
+  `DialogueManager._askedQuestion` runs after the report-issue rule: the classifier says ask_question
+  (>= 0.30), or a sentence with a question word is >= 0.85 similar to a known question. Commands stay
+  commands; the old keyword `IntroRule` and the `introduction` line are no longer used (the `sino ka` /
+  `ano ang kaya mo` rows moved from `greeting` to `ask_question`). `tulungan mo ako` and `hindi ko alam
+  ang gagawin` moved from `help` to `ask_question`; the other `help` phrases (help me, patulong, i need
+  help, naguguluhan ako, ...) stay commands and are not in the knowledge base; a bare "help" is still the
+  exact command (the controller's matcher goes first).
+- **Retrained provisionally** (`train.py --provisional`, `test_team.csv` excluded, report
+  `data/percy/reports/report-2026-10-18.md`). Fixed team test set (58 sentences, 10 intents):
+  accuracy **0.966 -> 0.914**, macro F1 **0.971 -> 0.939** (LR, balanced). The new mistakes: "anong gagawin ko"
+  (help -> ask_question 0.46: Percy now answers with the stuck topic), "proceed" 0.23 and "pillin" 0.20
+  (select -> ask_question, below the 0.30 line so they fall back instead of acting); the two "paano
+  gamitin" help -> tutorial mistakes were there before. >= 0.60 band: 47 sentences, 100 %.
+  `ask_question` itself is **not evaluated** on the team set (no team questions yet); the all-data
+  70/15/15 split gives accuracy 0.936 / macro F1 0.896 (not comparable with before: new class).
+  Retrieval alone (not in the list): leave-one-out 87.8 % of 345.
+- **Voice clips:** `generate_percy_voice.py` now also reads the knowledge answers (dry run: 590 lines, 333
+  fil + 257 en, 23,762 characters, 0 have clips), has `--check` ("N of M lines have clips", no key) and
+  Settings > Percy shows "N sa M na linya ang may clip" counting the knowledge answers too. Hand-off for
+  a teammate: `docs/percy-voice-handoff.md`. **Waiting for the clips**; the app works without them.
+- Tests: `test/core/percy/knowledge_test.dart` (every example question -> right topic alone and through
+  the real classifier + dialogue manager, in both languages; task-named questions; unseen wordings;
+  leave-one-out; ask back; suggestions; no command row answered as a question).
+- **Unverified:** real speech-recognition output on the tablet; how the answers sound (long: 3-4
+  sentences); that casual Filipino answers read naturally (derived from the "po" text by rules).
+
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein
 similarity. **≥ 0.8 run, 0.6–0.8 ask "Ang ibig mo bang sabihin ay …?"**, below → not understood.
@@ -417,7 +458,7 @@ filter against the sentences just read).
   1–2-grams + char 3–5-grams, model from `assets/percy/model.json`) → `slots.dart` →
   `dialogue_manager.dart` → CommandBus action → reply from `assets/percy/responses.json` /
   `persona.json`. Controller: `percy_controller.dart`.
-- **Dataset:** `data/percy/intents.csv` (529 rows, 527 distinct, **27 intents**).
+- **Dataset:** `data/percy/intents.csv` (2,000 rows since 2026-10-18, **33 intents** incl. `ask_question`; 529 rows / 27 intents when this section was written).
   Guide for the team: `docs/percy-dataset-guide.md`.
 - **Training:** `scripts/percy/train.py` (+ `validate_dataset.py`, `percy_text.py`), venv
   `scripts/percy/.venv`, commands in `scripts/percy/README.md`. Outputs `assets/percy/model.json`,

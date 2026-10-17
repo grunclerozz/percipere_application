@@ -23,6 +23,7 @@ import '../voice/understanding.dart';
 import '../voice/voice_controller.dart';
 import 'dialogue_manager.dart';
 import 'intent_classifier.dart';
+import 'knowledge_base.dart';
 import 'percy_analysis.dart';
 import 'percy_responses.dart';
 
@@ -30,13 +31,16 @@ import 'percy_responses.dart';
 @immutable
 class PercyBrain {
   /// Creates a brain.
-  const PercyBrain(this.model, this.responses);
+  const PercyBrain(this.model, this.responses, [this.knowledge]);
 
   /// The intent classifier.
   final IntentModel model;
 
   /// Persona and response templates.
   final PercyResponses responses;
+
+  /// Answers to questions about Percy and the app.
+  final KnowledgeBase? knowledge;
 }
 
 /// Loads the bundled model (parsed off the UI isolate) and the lines.
@@ -48,11 +52,20 @@ final percyBrainProvider = FutureProvider<PercyBrain>((ref) async {
     await rootBundle.loadString(PercyConfig.personaAsset),
     await rootBundle.loadString(PercyConfig.responsesAsset),
   );
+  KnowledgeBase? knowledge;
+  try {
+    knowledge = KnowledgeBase.parse(
+      await rootBundle.loadString(PercyConfig.knowledgeAsset),
+    );
+  } on Object catch (e) {
+    // Percy still works without answers to questions.
+    debugPrint('[PERCY] knowledge failed to load: $e');
+  }
   debugPrint(
     '[PERCY] model ${model.version} (${model.type}) loaded in '
     '${watch.elapsedMilliseconds} ms',
   );
-  return PercyBrain(model, responses);
+  return PercyBrain(model, responses, knowledge);
 });
 
 /// How long Percy waits in silence: [reprompt] before asking once more,
@@ -194,7 +207,11 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
     }
     if (!ref.mounted) return;
     final brain = _brain!;
-    _manager = DialogueManager(model: brain.model, responses: brain.responses);
+    _manager = DialogueManager(
+      model: brain.model,
+      responses: brain.responses,
+      knowledge: brain.knowledge,
+    );
     state = const PercyState(active: true);
     _reprompted = false;
     _lastLine = null;

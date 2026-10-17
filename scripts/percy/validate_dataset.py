@@ -33,6 +33,8 @@ INTENTS = [
     "report_issue",  # Phase 10
     # Percy smarter (feat/percy-smarter): not in the bundled model until retrained.
     "describe_image", "more_detail", "read_image_text", "tutorial", "set_speed",
+    # Percy knowledge (feat/percy-knowledge): questions about Percy and the app.
+    "ask_question",
 ]
 # Intents whose team-written test phrases are required before retraining.
 NEW_INTENTS = ["describe_image", "more_detail", "read_image_text", "tutorial", "set_speed"]
@@ -40,6 +42,7 @@ MIN_TEAM_TEST = 8
 COLUMNS = ["text", "intent", "author", "source", "notes"]
 STARTER = "Starter (Claude)"
 GENERATED = "Generated (Codex)"
+GENERATED_CLAUDE = "Generated (Claude)"
 MIN_EXAMPLES = 30
 
 
@@ -62,7 +65,7 @@ def source_kind(row: dict) -> str:
     src = row.get("source", "")
     if src == STARTER:
         return "starter"
-    if src == GENERATED:
+    if src in (GENERATED, GENERATED_CLAUDE):
         return "generated"
     return "team"
 

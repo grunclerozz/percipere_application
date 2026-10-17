@@ -38,7 +38,7 @@ Format:
   percy_analysis_panel, percy_flow, startup_screen, report_issue (2), assistant_flow all pass. Full suite and
   release build **not run** (the task asked for analyze + changed-code tests only; no native change).
   Leave-one-out retrieval accuracy 87.8 % of 345 held-out questions.
-- Commit: see `git log` (pushed: branch `feat/percy-knowledge` only, not `main`)
+- Commit: `12f7880` on `feat/percy-knowledge`, merged into local `main` (pushed: branch only, not `main`)
 - Follow-ups: teammate runs the handoff steps and pushes `assets/percy/voice`; team writes real test questions
   for `ask_question` (then rerun `train.py` for the official score); tablet test of the answers.
 

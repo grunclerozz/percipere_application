@@ -1,7 +1,7 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (merged `feat/voice-hold-interrupt` and
-`docs/database-masterlist-v2` into `main`).** Every agent updates this file at the end of a
+**Last updated: 2026-10-17 by Claude Code (voice reliability fix on `fix/voice-reliability`,
+commit `f4a1a65`; merge into `main` left to the user — the agent's merge was blocked).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
@@ -23,6 +23,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Voice reliability: "say it twice", "hold twice", false "not working", noise ask-back, 20-command CSV test (`fix/voice-reliability`) | Claude Code → user | built 2026-10-17, analyze clean, changed-code tests pass; **not merged into `main` yet** (user merges), release build not run (JDK not reachable from the agent session). Tablet test: `docs/testing/voice-reliability-checklist.md` |
 | Percy smarter (`feat/percy-smarter`, now merged into `main`) | team, then Claude Code | **provisionally retrained** 2026-10-16 (`model.json` new, evaluated on 58 team rows only; 5 new intents not evaluated). Waiting for team test phrases, then rerun `train.py` for the official evaluation + `docs/thesis/percy-evaluation.md`. Merged into `main` 2026-10-17, not pushed |
 | Voice: hold to interrupt, false-error fix, latency, noise (`feat/voice-hold-interrupt`, now merged into `main`) | Claude Code | Phase B done 2026-10-16 (hold time config, TalkBack action, Percy turn drop, stale-error fix; tests for changed files pass). Waiting for user's tablet test; Phase C (latency, noise) after review. Merged into `main` 2026-10-17, not pushed |
 | Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15); the local `tool/voice_models/` download folder is now git-ignored |
@@ -45,6 +46,7 @@ task: `docs/handoff/worklog.md`.
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
+| `fix/voice-reliability` | `f4a1a65` + docs commit | voice reliability fix, from `main`; **merge into `main` pending (user)**. Not pushed. |
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
 | `origin/main` | `54b6567` | last pushed state of the app |

@@ -2103,6 +2103,17 @@ class AppLocalizationsFil extends AppLocalizations {
   String get valuePercyChatty => 'Madaldal';
 
   @override
+  String get setPercyVoice => 'Boses ni Percy';
+
+  @override
+  String valuePercyVoiceClips(String have, String total) {
+    return 'ElevenLabs (offline), $have sa $total na linya ang may clip';
+  }
+
+  @override
+  String get valuePercyVoiceNone => 'Offline na boses ng app (wala pang clip)';
+
+  @override
   String get setPercyLogging => 'I-save ang usapan kay Percy (pang-training)';
 
   @override

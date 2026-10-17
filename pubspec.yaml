@@ -75,6 +75,7 @@ flutter:
     - assets/percy/model.json
     - assets/percy/persona.json
     - assets/percy/responses.json
+    - assets/percy/voice/
 
   fonts:
     - family: Montserrat

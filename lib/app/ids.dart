@@ -125,6 +125,9 @@ abstract final class Ids {
   /// Settings: how much Percy says.
   static const String settingPercyTalk = 'settings.percyTalk';
 
+  /// Settings: which voice Percy speaks with and how many lines have clips.
+  static const String settingPercyVoice = 'settings.percyVoice';
+
   /// Settings: keep Percy's turn log for retraining.
   static const String settingPercyLogging = 'settings.percyLogging';
 

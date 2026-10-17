@@ -17,6 +17,21 @@ Format:
 
 ---
 
+## 2026-10-17 — Percy's ElevenLabs voice from bundled clips
+- Agent: Claude Code
+- Branch: `feat/percy-elevenlabs` (from `main`), merged into `main`
+- Changed: `tool/percy_voice/` (generator, README, ARB key list), `assets/percy/voice/manifest.json`
+  (empty), `.gitignore` (.env), `lib/core/percy/percy_clips.dart` (hash key, manifest, `PercyClips`,
+  providers), `percy_responses.dart` (`fixedSentences`), `announcer.dart` (clip first, offline voice
+  fallback, stop covers the clip), `bootstrap.dart`, `AudioBridge.kt` (`playClip`: mp3 decode + rate),
+  Settings row "Boses ni Percy" (`setting_items.dart`, ids, ARB fil/en), `pubspec.yaml` asset folder,
+  test `test/core/percy/percy_clips_test.dart`. Details in `03-voice-and-percy.md`.
+- Checks: `flutter analyze` clean; changed-area tests (accessibility, percy, settings, voice, reader) pass;
+  debug APK builds (Kotlin compiles); release build NOT run. The generator was run only with `--dry-run` (no API call, no key).
+- Commit: see `git log` (pushed: no)
+- Follow-ups: **user runs the generator** (README), listens to a few clips, commits `assets/percy/voice/`;
+  tablet test of clip playback, speed, push-to-talk stop; release build + emulator check of `playClip`.
+
 ## 2026-10-17 — Voice at startup / after upload, loading screen, push-to-talk
 - Agent: Claude Code
 - Branch: `fix/voice-startup-ptt` (from `main` `df31ebe`; `fix/voice-reliability` merged in first because the

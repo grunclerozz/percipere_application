@@ -1,0 +1,26 @@
+{
+  "about": "ARB keys (lib/l10n/app_fil.arb and app_en.arb) that Percy speaks as fixed text. Sentences with {placeholders} are skipped by the script.",
+  "keys": [
+    "tutorialPercy",
+    "tutorialIntro",
+    "tutorialSwipeRight",
+    "tutorialSwipeLeft",
+    "tutorialDoubleTap",
+    "tutorialTap",
+    "tutorialBack",
+    "tutorialHelp",
+    "tutorialLongPress",
+    "tutorialSay",
+    "tutorialVoiceInfo",
+    "tutorialDone",
+    "tutorialGood",
+    "tutorialGoodAlt",
+    "tutorialWrong",
+    "tutorialMovingOn",
+    "tutorialSkipped",
+    "tutorialSkipQuestion",
+    "tutorialNoMic",
+    "percyMicNeeded",
+    "percyUnavailable"
+  ]
+}

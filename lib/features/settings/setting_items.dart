@@ -20,6 +20,7 @@ import '../../core/auth/biometrics.dart';
 import '../../core/auth/session.dart';
 import '../../core/auth/session_store.dart';
 import '../../core/network/server_address.dart';
+import '../../core/percy/percy_clips.dart';
 import '../../core/percy/percy_log_export.dart';
 import '../../core/percy/percy_responses.dart';
 import '../../core/platform/system_settings.dart';
@@ -116,6 +117,14 @@ String readingVoiceName(
   final number = options?.numberOf(pref) ?? 0;
   final short = TtsVoice(name: name, locale: '').shortName;
   return number == 0 ? short : l.valueVoiceNamed('$number', short);
+}
+
+/// "ElevenLabs (offline), N of M lines" when clips are bundled, else the
+/// app's offline voice.
+String _percyVoiceValue(SettingContext c) {
+  final stats = c.ref.watch(percyClipStatsProvider).value;
+  if (stats == null || stats.withClips == 0) return c.l.valuePercyVoiceNone;
+  return c.l.valuePercyVoiceClips('${stats.withClips}', '${stats.total}');
 }
 
 /// The "Reading voice" row: Female / Male (or voices by name) from the
@@ -383,6 +392,27 @@ List<SettingItem> settingItemsFor(
     },
     adjust: (s, d) =>
         s.copyWith(percyTalk: _cycle(PercyTalk.values, s.percyTalk, d)),
+  ),
+  SettingItem(
+    id: Ids.settingPercyVoice,
+    kind: SettingKind.link,
+    label: (l) => l.setPercyVoice,
+    value: _percyVoiceValue,
+    icon: Icons.play_arrow,
+    open: (ref, bus) {
+      // Says the value again; there is nothing to open.
+      final c = SettingContext(
+        ref.read(settingsProvider),
+        bus.strings,
+        ref,
+      );
+      return ref
+          .read(announcerProvider.notifier)
+          .say(
+            '${bus.strings.setPercyVoice}: ${_percyVoiceValue(c)}',
+            rate: ref.read(settingsProvider).readingRate,
+          );
+    },
   ),
   SettingItem(
     id: Ids.settingPercyLogging,

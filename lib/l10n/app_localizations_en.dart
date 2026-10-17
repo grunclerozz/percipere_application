@@ -2155,6 +2155,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get valuePercyChatty => 'Chatty';
 
   @override
+  String get setPercyVoice => 'Percy\'s voice';
+
+  @override
+  String valuePercyVoiceClips(String have, String total) {
+    return 'ElevenLabs (offline), $have of $total lines have clips';
+  }
+
+  @override
+  String get valuePercyVoiceNone => 'The app\'s offline voice (no clips yet)';
+
+  @override
   String get setPercyLogging => 'Save talks with Percy (for training)';
 
   @override

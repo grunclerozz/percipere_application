@@ -38,7 +38,7 @@ Format:
   takes no file list and would run the whole suite): 18 files pass (auth, welcome, setup/profiling, tutorial,
   screens/layout, startup, offline voice setup, voice understanding/ptt, smart voice). Full suite not run.
   `flutter build apk --release` OK (JDK 17 reachable; 252.8 MB; also compiles `AudioBridge.kt`). Not run on a device.
-- Commit: see `git log` on the branch (pushed: no)
+- Commit: `c4135c7` (pushed: no)
 - Follow-ups: tablet test `docs/testing/tutorial-first-checklist.md`; first launch **without voice models**
   (with and without internet) is **unverified**: the download screen comes first, then the tutorial; voice then depends
   on Android's recognizer. A returning user who logged out may see the tutorial once (accepted).

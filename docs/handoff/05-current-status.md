@@ -61,7 +61,7 @@ task: `docs/handoff/worklog.md`.
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
-| `feat/tutorial-first` | see worklog | from `main` `b7b035a`; tutorial before Welcome; **not merged, not pushed** |
+| `feat/tutorial-first` | `c4135c7` | from `main` `b7b035a`; tutorial before Welcome; **not merged, not pushed** |
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
 | `fix/voice-startup-ptt` | `fc2a5cc` (merge `87ddbaa`) | from `main` `df31ebe`, merged `fix/voice-reliability` first (only docs conflicted), then the startup/PTT work; **merged into `main`**. Not pushed. |

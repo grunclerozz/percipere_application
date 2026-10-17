@@ -42,3 +42,4 @@ If a decision is reversed, don't delete the old row: add a new row that says wha
 Standing rules that came from decisions: privacy under RA 10173 (minimum data, own documents
 stay on the device), passwords never logged or spoken, end-of-phase quality check
 (all in `docs/agent-rules.md`).
+| 2026-10-17 | **Percy's fixed lines use bundled ElevenLabs clips** (generated once by the user with a script, per sentence, mp3 in `assets/percy/voice/`); dynamic text keeps the offline voice | Natural voice offline with no API key in the app and no server (the only ElevenLabs use is the user's one-time generation run); agent rule 6 still holds | `docs/handoff/03-voice-and-percy.md`, `tool/percy_voice/README.md` |

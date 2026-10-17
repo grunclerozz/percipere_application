@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
+import 'percy_clips.dart';
 import 'percy_intent.dart';
 
 /// How formally Percy talks.
@@ -106,6 +107,38 @@ class PercyResponses {
     if (items.length == 1) return items.single;
     final or = dialogue('or', lang, p);
     return '${items.sublist(0, items.length - 1).join(', ')} $or ${items.last}';
+  }
+
+  /// Every sentence Percy says that has no `{placeholders}`, as (language,
+  /// sentence): the ones that can have a bundled voice clip. Mirrors what
+  /// `tool/percy_voice/generate_percy_voice.py` reads from these two files.
+  Set<(String, String)> fixedSentences() {
+    final found = <(String, String)>{};
+    void addFrom(Object? entry) {
+      if (entry is! Map) return;
+      for (final lang in const ['fil', 'en']) {
+        final byLang = entry[lang];
+        if (byLang is! Map) continue;
+        for (final lines in byLang.values) {
+          if (lines is! List) continue;
+          for (final line in lines) {
+            for (final s in PercyClipKey.sentences('$line')) {
+              if (!s.contains('{') && RegExp(r'\w').hasMatch(s)) {
+                found.add((lang, s));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (final section in const ['intents', 'dialogue']) {
+      for (final entry in _section(section).values) {
+        addFrom(entry);
+      }
+    }
+    addFrom(_persona['greeting']);
+    return found;
   }
 
   Map<String, Object?> _section(String name) =>

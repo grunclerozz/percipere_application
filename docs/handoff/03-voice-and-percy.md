@@ -270,6 +270,35 @@ counted`, `recognizer not ready yet: waiting`, `initialize() returned false (n/3
 `push-to-talk released: finishing in 400ms`, `auto-read skipped: the user is talking`,
 `speech still finishing after â€¦ms`.
 
+## Percy's bundled ElevenLabs voice (2026-10-17, branch `feat/percy-elevenlabs`)
+Percy's **fixed** sentences are spoken with the team's ElevenLabs voice (`u0P5zPuh3SvxTi9vSTCn`,
+not a secret) from clips bundled in the app: offline, **no API key in the app, no server**.
+- **Generation (run by the user, not by the app):** `tool/percy_voice/generate_percy_voice.py`
+  (commands in `tool/percy_voice/README.md`). Reads `assets/percy/responses.json` (intents,
+  dialogue), the `persona.json` greeting and the ARB keys in `tool/percy_voice/extra_arb_keys.json`
+  (tutorial lines, mic/unavailable messages), cuts them into **sentences** (the Announcer speaks one
+  sentence at a time), skips sentences with `{placeholders}`, and writes one mono mp3
+  (`mp3_22050_32`, model `eleven_multilingual_v2`) per sentence to `assets/percy/voice/`
+  plus `manifest.json` (hash -> file, lang, text, voice id, model, date). Key only from the
+  environment variable `ELEVENLABS_API_KEY`. Re-runs skip finished clips. Dry run: 325 sentences
+  (167 fil, 158 en), 8,507 characters.
+- **Key:** first 16 hex of `sha256("<lang>|<text>")`, whitespace collapsed (`PercyClipKey`,
+  `lib/core/percy/percy_clips.dart`); a test checks it equals the script's hash.
+- **Playback:** `Announcer._drain` asks `PercyClips.play` first; `notFound` or `failed` -> the
+  existing offline voice speaks the sentence (never silent); `stopped` -> nothing more. Document
+  reading (`ReaderController`) does not use this path. Native `playClip` in `AudioBridge.kt`
+  decodes the mp3 (MediaExtractor/MediaCodec) and plays it on the same `AudioTrack`, audio focus
+  and volume as the offline voice; speech speed = `PlaybackParams` speed (pitch kept, clamp 0.5-2).
+- **Push-to-talk:** `Announcer.stopAndWait` -> `_stopSpeech` stops the TTS **and** the clip
+  (`playStop`); a stop while the clip is still loading keeps it from starting.
+- **Settings > Percy** row "Boses ni Percy": "ElevenLabs (offline), N sa M na linya ang may clip"
+  (M = fixed sentences of `responses.json` + persona; ARB extras are not counted), or "Offline na
+  boses ng app (wala pang clip)" with zero clips. `assets/percy/voice/manifest.json` is committed
+  empty: **the app works with zero clips**.
+- Not changed: Percy's model, thresholds, the reader's voice. Lines with `{title}` etc. use the
+  offline voice. **Unverified on a device:** mp3 decoding and `PlaybackParams` on the tablet
+  (only the Dart side is tested, with fakes); release build not run.
+
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein
 similarity. **≥ 0.8 run, 0.6–0.8 ask "Ang ibig mo bang sabihin ay …?"**, below → not understood.

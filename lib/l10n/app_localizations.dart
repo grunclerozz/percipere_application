@@ -3494,6 +3494,24 @@ abstract class AppLocalizations {
   /// **'Madaldal'**
   String get valuePercyChatty;
 
+  /// Settings row: the voice Percy speaks with.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses ni Percy'**
+  String get setPercyVoice;
+
+  /// Percy voice value: bundled ElevenLabs clips.
+  ///
+  /// In fil, this message translates to:
+  /// **'ElevenLabs (offline), {have} sa {total} na linya ang may clip'**
+  String valuePercyVoiceClips(String have, String total);
+
+  /// Percy voice value: no bundled clips.
+  ///
+  /// In fil, this message translates to:
+  /// **'Offline na boses ng app (wala pang clip)'**
+  String get valuePercyVoiceNone;
+
   /// Settings row: keep Percy's turn log on the phone for retraining.
   ///
   /// In fil, this message translates to:

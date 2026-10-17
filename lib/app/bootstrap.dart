@@ -20,6 +20,7 @@ import '../core/offline_voice/model_catalog.dart';
 import '../core/offline_voice/model_store.dart';
 import '../core/offline_voice/offline_engines.dart';
 import '../core/offline_voice/offline_voice_setup.dart';
+import '../core/percy/percy_clips.dart';
 import '../core/platform/permissions.dart';
 import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
@@ -49,6 +50,7 @@ Future<List<Override>> bootstrap() async {
     unawaited(engines.load(store));
   }
 
+  final clipManifest = await loadPercyClipManifest();
   final tts = HybridTtsService(await FlutterTtsService.create(), engines);
   await tts.setPitch(settings.pitch);
   await tts.setVoicePreference(settings.readingVoice);
@@ -92,6 +94,9 @@ Future<List<Override>> bootstrap() async {
     initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
+    percyClipsProvider.overrideWithValue(
+      PercyClips(manifest: clipManifest, player: const ChannelClipPlayer()),
+    ),
     offlineEnginesProvider.overrideWithValue(engines),
     modelStoreProvider.overrideWithValue(store),
     offlineVoiceSetupPendingProvider.overrideWithValue(setupPending),

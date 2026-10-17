@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/voice_config.dart';
 import '../assistant/assistant_controller.dart';
+import '../percy/percy_clips.dart';
 import '../tts/reading_rate.dart';
 import '../tts/speech_language.dart';
 import '../tts/tts_service.dart';
@@ -236,7 +237,7 @@ class Announcer extends Notifier<SpeechState> {
     // drop it while a document sentence is playing.
     if (state.reading) {
       state = state.withReading(false);
-      unawaited(ref.read(ttsServiceProvider).stop());
+      unawaited(_stopSpeech());
     }
     if (interrupt) _interrupt();
 
@@ -306,7 +307,7 @@ class Announcer extends Notifier<SpeechState> {
     final reading = state.reading;
     if (reading) state = state.withReading(false);
     if (_current != null || reading) {
-      await ref.read(ttsServiceProvider).stop();
+      await _stopSpeech();
     }
   }
 
@@ -338,12 +339,18 @@ class Announcer extends Notifier<SpeechState> {
     if (focusGap > Duration.zero) await Future<void>.delayed(focusGap);
   }
 
+  /// Stops the voice and the Percy clip that is playing.
+  Future<void> _stopSpeech() => Future.wait([
+    ref.read(ttsServiceProvider).stop(),
+    ref.read(percyClipsProvider).stop(),
+  ]);
+
   void _interrupt() {
     _endHold(speak: false);
     _clearQueue();
     final current = _current;
     if (current != null && !current.protect) {
-      unawaited(ref.read(ttsServiceProvider).stop());
+      unawaited(_stopSpeech());
     }
   }
 
@@ -377,9 +384,16 @@ class Announcer extends Notifier<SpeechState> {
           if (ref.read(talkBackProvider)) {
             await _announceToScreenReader(u.text);
           } else {
-            await ref
-                .read(ttsServiceProvider)
-                .speak(u.text, languageTag: u.languageTag, rate: u.rate);
+            // A bundled clip when this sentence has one; otherwise (or if
+            // the clip cannot play) the offline voice, so it is never silent.
+            final clip = await ref
+                .read(percyClipsProvider)
+                .play(u.text, u.languageTag, u.rate);
+            if (clip == ClipResult.notFound || clip == ClipResult.failed) {
+              await ref
+                  .read(ttsServiceProvider)
+                  .speak(u.text, languageTag: u.languageTag, rate: u.rate);
+            }
           }
         } on Object catch (e) {
           debugPrint('Speech failed: $e');

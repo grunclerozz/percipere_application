@@ -59,3 +59,8 @@ tool/voice_models/dist/
 
 # Tablet voice logs shared for debugging (evidence only, never committed)
 voice_log.txt
+
+# Secrets (e.g. ELEVENLABS_API_KEY): never commit
+.env
+.env.*
+*.env

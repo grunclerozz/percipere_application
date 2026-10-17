@@ -343,6 +343,18 @@ The app's own models: put them on the server first (`tool/voice_models/README.md
 - [ ] Dictation (register name/email, collection names) works online as before.
 - [ ] Gestures, back navigation, the Reader and saved settings work as before.
 
+## 19. Final round before the defense (2026-10-17) — short list
+Use the release APK built for the defense. Record results in the log below.
+- [ ] **Quiet voice test:** 10 commands in a quiet room; count how many register on the first try.
+- [ ] **Noisy voice test:** same 10 commands with room noise (fan, talking); low-confidence ones are confirmed ("Ito ba ang ibig mong sabihin…?") instead of failing.
+- [ ] **Hold while Percy talks:** a long press interrupts Percy and starts listening, once, every time (needs the `fix/voice-reliability` branch merged).
+- [ ] **Airplane mode:** Reader, gestures, voice commands, Percy and downloaded books still work; Maglarawan gives the offline answer.
+- [ ] **Reader:** scan a page, read aloud, change speed and text size, go back. Blurry and dark photos give a tip and a retake offer.
+- [ ] **Maglarawan online and offline:** consent asked before the online description; offline gives the on-device answer.
+- [ ] **Aklatan download:** list loads from the server, a book downloads and opens, progress is saved.
+- [ ] **Report an issue:** "mag-report" from any screen; ticket number given; sent when the server is reachable.
+- [ ] **Server switch:** Settings → Address ng server → hotspot address → Subukan ang koneksyon says connected; change to a wrong address and read the reason; Ibalik sa orihinal works.
+
 ## Result log
 | Section | ✅ | ❌ | ⚠️ | Notes / bugs found |
 |---|---|---|---|---|
@@ -363,6 +375,7 @@ The app's own models: put them on the server first (`tool/voice_models/README.md
 | 16 Revisions round (items 1, 2, 3, 5, 6) | | | | |
 | 17 Offline voice / response time / noise | | | | |
 | 18 Offline voice without installing anything | | | | |
+| 19 Final round before the defense | | | | |
 
 ### Voice accuracy table (section 5)
 | Command | Tries | Understood | Wrong action | Not understood | Notes |

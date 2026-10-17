@@ -17,6 +17,23 @@ Format:
 
 ---
 
+## 2026-10-17 — Final check and defense prep (A5)
+- Agent: Claude Code
+- Branch: `main`
+- Changed: new `docs/defense-checklist.md`, `docs/demo-script.md`; `docs/testing/system-test-checklist.md`
+  §19 (short final tablet round) + result-log row; status board updated.
+- Checks: `flutter analyze` clean. 520 tests in the changed areas (algorithms, ocr, extraction, network,
+  settings, accessibility, voice, percy, offline_voice, describe, db, report, camera, settings screens,
+  voice/Percy flows, WER screen, release rules) pass; one runner crash ("did not complete") on
+  `wer_test_screen_test.dart` passed on rerun. Secrets scan of tracked files: none found (only test
+  fixture passwords). **Release build NOT done**: `JAVA_HOME` points to a missing Android Studio JDK and
+  no JDK exists on this PC; build it yourself. Full suite not run (as the prompt says).
+- Commit: see git log (pushed: no)
+- Follow-ups: **`fix/voice-reliability` (A2: say-twice / hold-twice / false "not available") is NOT merged
+  into `main`** (2 commits, `f4a1a65`, `efb1eee`); the checks above therefore do not cover it. Merge it
+  (user's call), then rerun the voice tests. Fix the JDK path, build the release APK with the demo
+  `--dart-define`s, run §19.
+
 ## 2026-10-17 — App connection for the defense (A4)
 - Agent: Claude Code
 - Branch: `chore/app-connection`

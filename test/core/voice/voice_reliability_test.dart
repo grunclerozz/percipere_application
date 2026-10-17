@@ -182,12 +182,22 @@ void main() {
   });
 
   group('noise: unsure commands are asked back', () {
+    /// The room at [level] for longer than [VoiceConfig.noiseSustain] (plus
+    /// the "listening" tone's [VoiceConfig.noiseToneSettle] and
+    /// [VoiceConfig.noiseOnsetLag], dropped as the start of the words),
+    /// once the app's own voice has died away ([VoiceConfig.noiseSettle]).
+    Future<void> room(double level) async {
+      await Future<void>.delayed(VoiceConfig.noiseSettle);
+      for (var i = 0; i < 13; i++) {
+        env.speech.soundLevel(level);
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+    }
+
     test('a noisy room: a near miss is asked back, politely', () async {
       await setUpWith();
       await listeningInVoiceMode();
-      for (var i = 0; i < VoiceConfig.noisyMinReadings; i++) {
-        env.speech.soundLevel(VoiceConfig.noisyLevel + 2);
-      }
+      await room(VoiceConfig.noisyLevel + 2);
       env.speech.hear('tilungan');
       await Future<void>.delayed(_afterDone);
       expect(env.tts.transcript, contains('Medyo maingay po'));
@@ -202,21 +212,20 @@ void main() {
     test('a quiet room: the same words are "not understood"', () async {
       await setUpWith();
       await listeningInVoiceMode();
-      for (var i = 0; i < VoiceConfig.noisyMinReadings; i++) {
-        env.speech.soundLevel(0);
-      }
+      await room(0);
       env.speech.hear('tilungan');
       await Future<void>.delayed(_afterDone);
       expect(env.tts.transcript, isNot(contains('Medyo maingay po')));
       expect(ran, isEmpty);
     });
 
-    test('an uncertain result counts like noise', () async {
+    test('an uncertain result is asked back, without "noisy"', () async {
       await setUpWith();
       await listeningInVoiceMode();
       env.speech.hearWith('tilungan', const [], confidence: 0.3);
       await Future<void>.delayed(_afterDone);
-      expect(env.tts.transcript, contains('Medyo maingay po'));
+      expect(env.tts.transcript, contains('Ito ba ang ibig mong sabihin'));
+      expect(env.tts.transcript, isNot(contains('Medyo maingay po')));
     });
 
     test('noise settings are in range', () {

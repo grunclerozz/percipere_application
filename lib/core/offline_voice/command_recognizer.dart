@@ -99,7 +99,9 @@ class CommandRecognizer {
         case 'loaded':
           ready.complete(message[1] as SendPort);
         case 'failed':
-          debugPrint('[OFFLINE VOICE] recognizer failed to load: ${message[1]}');
+          debugPrint(
+            '[OFFLINE VOICE] recognizer failed to load: ${message[1]}',
+          );
           if (!ready.isCompleted) ready.complete(null);
         case 'speech':
           events?.add(SpeechStarted(message[1] as int));
@@ -142,9 +144,11 @@ class CommandRecognizer {
     return recognizer = CommandRecognizer._(isolate, commands, replies);
   }
 
-  /// Starts [session], recognizing [language] (`tl` or `en`).
-  void begin(int session, String language) =>
-      _commands.send(['begin', session, language]);
+  /// Starts [session], recognizing [language] (`tl` or `en`). With [whole]
+  /// (push-to-talk) the speech is recognized in one piece on [flush], not
+  /// stretch by stretch: a pause mid-command doesn't split it.
+  void begin(int session, String language, {bool whole = false}) =>
+      _commands.send(['begin', session, language, whole]);
 
   /// Hands over 16 kHz mono PCM16 audio for [session].
   void feed(int session, Uint8List pcm16) => _commands.send([
@@ -214,8 +218,7 @@ Future<void> _recognizerWorker(List<Object> args) async {
           minSilenceDuration:
               VoiceConfig.offlineEndOfSpeech.inMilliseconds / 1000,
           minSpeechDuration: 0.2,
-          maxSpeechDuration:
-              VoiceConfig.commandSpeechMax.inMilliseconds / 1000,
+          maxSpeechDuration: VoiceConfig.commandSpeechMax.inMilliseconds / 1000,
         ),
         numThreads: 1,
         debug: false,
@@ -250,6 +253,10 @@ Future<void> _recognizerWorker(List<Object> args) async {
 
   var session = -1;
   var speechReported = false;
+  // Push-to-talk session: everything is recognized at once on flush, from
+  // a little before the speech began.
+  var whole = false;
+  int? speechFrom;
   // The session's audio, so each stretch of speech is recognized with a
   // little of what came before it: the voice detector starts a segment
   // only once speech is certain, which cuts the first syllable
@@ -280,23 +287,52 @@ Future<void> _recognizerWorker(List<Object> args) async {
     return out;
   }
 
+  void recognize(Float32List samples) {
+    final watch = Stopwatch()..start();
+    final stream = recognizer.createStream();
+    try {
+      stream.acceptWaveform(samples: samples, sampleRate: 16000);
+      recognizer.decode(stream);
+      final text = recognizer.getResult(stream).text;
+      out.send(['text', session, text, watch.elapsedMilliseconds]);
+    } on Object catch (e) {
+      out.send(['log', 'recognition failed: $e']);
+      out.send(['text', session, '', watch.elapsedMilliseconds]);
+    } finally {
+      stream.free();
+    }
+  }
+
+  /// Push-to-talk: all audio from [preRoll] before the first speech to the
+  /// end, in one piece (Whisper takes up to 30 s; a hold is at most 20 s).
+  void recognizeWhole() {
+    const preRoll = 16000 * 5 ~/ 10; // 0.5 s
+    final first = speechFrom;
+    if (first == null) return; // nothing but silence
+    final from = (first - preRoll).clamp(0, heardLength);
+    final samples = Float32List(heardLength - from);
+    var offset = 0;
+    for (final chunk in heard) {
+      final start = offset;
+      offset += chunk.length;
+      if (offset <= from) continue;
+      final a = from > start ? from - start : 0;
+      samples.setRange(start + a - from, offset - from, chunk, a);
+    }
+    recognize(samples);
+  }
+
   void recognizeSegments() {
     while (!vad.isEmpty()) {
       final segment = vad.front();
       vad.pop();
-      final watch = Stopwatch()..start();
-      final stream = recognizer.createStream();
-      try {
-        stream.acceptWaveform(samples: audioFor(segment), sampleRate: 16000);
-        recognizer.decode(stream);
-        final text = recognizer.getResult(stream).text;
-        out.send(['text', session, text, watch.elapsedMilliseconds]);
-      } on Object catch (e) {
-        out.send(['log', 'recognition failed: $e']);
-        out.send(['text', session, '', watch.elapsedMilliseconds]);
-      } finally {
-        stream.free();
+      if (whole) {
+        // Only where the speech began matters; recognized on flush.
+        final first = speechFrom;
+        if (first == null || segment.start < first) speechFrom = segment.start;
+        continue;
       }
+      recognize(audioFor(segment));
     }
   }
 
@@ -306,6 +342,8 @@ Future<void> _recognizerWorker(List<Object> args) async {
       case 'begin':
         session = message[1] as int;
         final lang = message[2] as String;
+        whole = message.length > 3 && message[3] == true;
+        speechFrom = null;
         vad.reset();
         speechReported = false;
         heard.clear();
@@ -333,6 +371,9 @@ Future<void> _recognizerWorker(List<Object> args) async {
         vad.acceptWaveform(samples);
         if (!speechReported && vad.isDetected()) {
           speechReported = true;
+          // The detector is sure only after some speech: about where it
+          // began (refined by the first segment).
+          speechFrom ??= (heardLength - 16000 * 4 ~/ 10).clamp(0, heardLength);
           out.send(['speech', session]);
         }
         recognizeSegments();
@@ -340,6 +381,7 @@ Future<void> _recognizerWorker(List<Object> args) async {
         if (message[1] != session) continue;
         vad.flush();
         recognizeSegments();
+        if (whole) recognizeWhole();
         out.send(['flushed', session]);
       case 'end':
         if (message[1] == session) {

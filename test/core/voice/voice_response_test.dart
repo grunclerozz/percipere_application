@@ -19,6 +19,13 @@ const _settle = Duration(milliseconds: 600);
 
 const _sentence = 'Ang mga bata ay naglalaro sa labas ng bahay.';
 
+/// Listening while reading (barge-in) is off while the half-duplex rule is
+/// on (2026-10-17, fix/voice-capture): these tests cover it for when it is
+/// switched back on.
+const String? _bargeInSkip = VoiceConfig.halfDuplex
+    ? 'half-duplex: the app never listens while it reads'
+    : null;
+
 void main() {
   late TestEnv env;
   late ProviderContainer container;
@@ -313,7 +320,14 @@ void main() {
       expect(env.speech.listening, isTrue);
       expect(env.speech.sessions.last.phrases, BargeIn.phrases);
       expect(BargeIn.phrases, containsAll(['i-pause', 'itigil', 'bilisan']));
-    });
+    }, skip: _bargeInSkip);
+
+    test('half-duplex: no listening while reading, also with the setting '
+        'on', () async {
+      await setUpWith(tts: FakeTts(autoComplete: false));
+      await startReading();
+      expect(env.speech.listening, isFalse);
+    }, skip: VoiceConfig.halfDuplex ? null : 'barge-in is on');
 
     test('a command over the app\'s own voice runs at once', () async {
       await setUpWith(tts: FakeTts(autoComplete: false));
@@ -324,7 +338,7 @@ void main() {
       env.speech.partial('ang mga bata ay naglalaro i-pause');
       await pumpEventQueue();
       expect(ran, [NavIntent.pause]);
-    });
+    }, skip: _bargeInSkip);
 
     test('its own voice is ignored and listening goes on', () async {
       await setUpWith(tts: FakeTts(autoComplete: false));
@@ -335,7 +349,7 @@ void main() {
       expect(ran, isEmpty);
       expect(env.tts.transcript, isNot(contains('Hindi ko')));
       expect(env.speech.sessions.length, greaterThan(sessions));
-    });
+    }, skip: _bargeInSkip);
 
     test('other commands are ignored while reading', () async {
       await setUpWith(tts: FakeTts(autoComplete: false));
@@ -343,7 +357,7 @@ void main() {
       env.speech.hear('camera');
       await pumpEventQueue();
       expect(ran, isEmpty);
-    });
+    }, skip: _bargeInSkip);
 
     test('switched off in Settings: no listening while reading', () async {
       await setUpWith(

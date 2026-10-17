@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/theme/app_palette.dart';
 import '../../l10n/app_localizations.dart';
 import '../startup/startup_tasks.dart';
+import '../voice/noise_monitor.dart';
 import '../voice/voice_activity.dart';
 
 /// "Estado ng boses" (developer setting, off by default): a small label at
 /// the bottom of every screen with what voice input is doing — loading,
-/// ready, speaking, listening or processing — and the last cold start's
-/// load time, so voice problems can be seen on the tablet. Touches pass
-/// through it.
+/// ready, speaking, listening or processing — the last cold start's load
+/// time, which recognizer and audio source the last session used, and the
+/// microphone level and the room's measured noise, so voice problems can
+/// be seen on the tablet. Touches pass through it.
 class VoiceStateOverlay extends ConsumerWidget {
   /// Creates the overlay.
   const VoiceStateOverlay({super.key});
@@ -21,7 +23,6 @@ class VoiceStateOverlay extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final activity = ref.watch(voiceActivityProvider);
     final startup = ref.watch(startupReportProvider);
-    final palette = context.palette;
     final name = switch (activity) {
       VoiceActivity.loading => l.voiceStateLoading,
       VoiceActivity.ready => l.voiceStateReady,
@@ -29,11 +30,32 @@ class VoiceStateOverlay extends ConsumerWidget {
       VoiceActivity.listening => l.voiceStateListening,
       VoiceActivity.processing => l.voiceStateProcessing,
     };
-    final text = [
-      l.voiceStateLabel(name),
-      if (startup != null)
-        l.voiceStateStartup((startup.inMilliseconds / 1000).toStringAsFixed(1)),
-    ].join(' · ');
+    final capture = ref.watch(voiceCaptureProvider);
+    return ListenableBuilder(
+      listenable: capture,
+      builder: (context, _) {
+        String shown(double? v) => v == null ? '–' : v.toStringAsFixed(0);
+        final text = [
+          [
+            l.voiceStateLabel(name),
+            if (startup != null)
+              l.voiceStateStartup(
+                (startup.inMilliseconds / 1000).toStringAsFixed(1),
+              ),
+          ].join(' · '),
+          l.voiceStateSource(capture.source),
+          [
+            l.voiceStateNoise(shown(capture.level), shown(capture.floor)),
+            if (capture.noisy) l.voiceStateNoisy,
+          ].join(' · '),
+        ].join('\n');
+        return _label(context, text);
+      },
+    );
+  }
+
+  Widget _label(BuildContext context, String text) {
+    final palette = context.palette;
     return SafeArea(
       child: Align(
         alignment: Alignment.bottomLeft,

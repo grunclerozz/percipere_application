@@ -273,4 +273,44 @@ abstract final class VoiceConfig {
   /// similar is asked back ("Ito po ba ang ibig ninyong sabihin…?") instead
   /// of "not understood". The quiet-room floor is 0.6 (`CommandMatcher`).
   static const double noisyAskScore = 0.45;
+
+  // ── Voice capture (2026-10-17, fix/voice-capture) ────────────────────────
+
+  /// Half-duplex: the microphone is never open while the app speaks (a
+  /// prompt, Percy, a clip or the document). Listening while reading
+  /// (barge-in) is off while this is true: on the tablet the microphone
+  /// heard the app's own voice through the speaker.
+  static const bool halfDuplex = true;
+
+  /// Android audio source of the app's own microphone (offline commands):
+  /// `voiceRecognition` (tuned for speech recognition, little processing)
+  /// or `voiceCommunication` (the phone's call processing: stronger echo
+  /// cancelling, but its filtering can hurt recognition). If the chosen
+  /// source can't be opened, the other one is tried.
+  static const String micAudioSource = 'voiceRecognition';
+
+  /// Ask the phone's acoustic echo canceller for the app's own microphone,
+  /// when it has one.
+  static const bool micEchoCanceller = true;
+
+  /// After the app stops speaking (or a tone), microphone levels are not
+  /// counted as room noise for this long: the speaker's echo and the
+  /// room's reverb are still dying away.
+  static const Duration noiseSettle = Duration(milliseconds: 700);
+
+  /// The same after one of the app's short tones (the "listening" cue).
+  static const Duration noiseToneSettle = Duration(milliseconds: 300);
+
+  /// The room counts as noisy only when its level stayed high for at least
+  /// this long (level readings taken while the app was silent and before
+  /// the user spoke).
+  static const Duration noiseSustain = Duration(seconds: 1);
+
+  /// Readings this long before the user's first words were recognized
+  /// already hold the start of those words (recognizers report speech a
+  /// moment late): they are not room noise.
+  static const Duration noiseOnsetLag = Duration(milliseconds: 700);
+
+  /// Room readings older than this are forgotten.
+  static const Duration noiseWindow = Duration(seconds: 8);
 }

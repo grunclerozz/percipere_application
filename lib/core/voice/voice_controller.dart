@@ -17,6 +17,7 @@ import '../accessibility/navigation_mode.dart';
 import '../assistant/assistant_controller.dart';
 import '../network/connectivity.dart';
 import '../offline_voice/offline_engines.dart';
+import '../offline_voice/offline_listener.dart';
 import '../percy/percy_controller.dart';
 import '../platform/permissions.dart';
 import '../platform/system_settings.dart';
@@ -24,6 +25,7 @@ import '../settings/settings_controller.dart';
 import '../tts/speech_language.dart';
 import 'barge_in.dart';
 import 'command_matcher.dart';
+import 'noise_monitor.dart';
 import 'reading_duck.dart';
 import 'speech_input.dart';
 import 'voice_readiness.dart';
@@ -322,10 +324,9 @@ class VoiceController extends Notifier<VoiceState> {
   /// meanwhile (one hold = one session).
   bool _holdStarting = false;
 
-  /// Microphone level readings at the start of the session (the room before
-  /// the user speaks), and how many were loud.
-  int _levelReadings = 0;
-  int _loudReadings = 0;
+  /// The room's noise floor, measured only while the app is silent and
+  /// before the user speaks (2026-10-17, fix/voice-capture).
+  final NoiseMonitor _noise = NoiseMonitor();
 
   /// The session was ended because its words never stopped changing.
   bool _capHit = false;
@@ -765,6 +766,8 @@ class VoiceController extends Notifier<VoiceState> {
   void _playCue() {
     if (!_cuePending) return;
     _stopCue();
+    // The tone itself is not room noise.
+    _noise.appSound();
     unawaited(ref.read(earconProvider).listening());
   }
 
@@ -1078,6 +1081,13 @@ class VoiceController extends Notifier<VoiceState> {
       return;
     }
     final session = _pttSession;
+    if (!_listening && _carry.isNotEmpty) {
+      // Between two sessions of the hold (the recognizer had ended one):
+      // what was heard runs now.
+      _restartTimer?.cancel();
+      _finishHeldCarry();
+      return;
+    }
     if (!_listening || session != _session) return;
     _log(
       'push-to-talk released: finishing in '
@@ -1095,6 +1105,54 @@ class VoiceController extends Notifier<VoiceState> {
 
   /// Whether a push-to-talk hold is open (the finger is down).
   bool get pushToTalkHeld => _pttHeld;
+
+  /// [session] is the open push-to-talk session and the finger is still
+  /// down (not released, not finishing).
+  bool _holdingSession(int session) =>
+      _pttHeld && !_pttFinishing && session == _pttSession;
+
+  /// Push-to-talk: the recognizer ended the session by itself (Android's
+  /// ends after a pause) while the finger is still down. What was heard is
+  /// kept and listening goes on; the release acts on all of it
+  /// (2026-10-17: a pause mid-command used to end it). Returns true when
+  /// it restarted.
+  bool _keepHolding(String said, String why) {
+    if (_dictation != null) return false;
+    final words = said.trim();
+    _log(
+      'push-to-talk: $why while held: listening on'
+      '${words.isEmpty ? '' : ' (keeping ${sensitive ? '•••' : '"$words"'})'}',
+    );
+    if (words.isNotEmpty) {
+      _carry = words;
+      _carryAt = DateTime.now();
+    }
+    _gotFinal = true;
+    _listening = false;
+    _session++;
+    _closedAt = DateTime.now();
+    _stopCap();
+    _restartTimer?.cancel();
+    _restartTimer = Timer(VoiceConfig.sessionGap, () {
+      if (!ref.mounted || _listening) return;
+      if (!_pttHeld) {
+        // Released meanwhile: act on what was heard.
+        _finishHeldCarry();
+        return;
+      }
+      unawaited(_start());
+    });
+    return true;
+  }
+
+  /// The finger was lifted between two push-to-talk sessions: what the
+  /// earlier ones heard runs now (or "nothing heard").
+  void _finishHeldCarry() {
+    final said = _carry.trim();
+    if (said.isEmpty) return _endEmpty();
+    _log('push-to-talk released between sessions: acting on what was heard');
+    _accept(said, via: 'push-to-talk');
+  }
 
   /// Whether the user asked to be heard, or gave a command, after [time]
   /// (the Reader then doesn't start reading over them).
@@ -1218,8 +1276,10 @@ class VoiceController extends Notifier<VoiceState> {
     return ref.read(activeScreenProvider)?.autoListen ?? false;
   }
 
-  /// Voice mode with "Makinig habang nagbabasa" on.
+  /// Voice mode with "Makinig habang nagbabasa" on — never while the
+  /// half-duplex rule is on ([VoiceConfig.halfDuplex]).
   bool get _bargeInAllowed =>
+      !VoiceConfig.halfDuplex &&
       _micGranted &&
       !ref.read(assistantActiveProvider) &&
       (ref.read(navigationModeProvider) == NavMode.voice ||
@@ -1346,6 +1406,9 @@ class VoiceController extends Notifier<VoiceState> {
 
   void _onSpeechChanged(SpeechState? previous, SpeechState next) {
     final wasBusy = previous != null && (previous.speaking || previous.reading);
+    // The room is measured only while the app is silent; afresh after it
+    // spoke.
+    _noise.appSpeaking(next.speaking || next.reading);
     if ((previous?.reading ?? false) && !next.reading) {
       // Listening to a document counts as using the app.
       noteActivity();
@@ -1438,6 +1501,16 @@ class VoiceController extends Notifier<VoiceState> {
     final freeSpeech = dictating && !probing;
     // Push-to-talk: the finger is down, so silences don't end the session.
     final ptt = _pttHeld;
+    final speech = ref.read(announcerProvider);
+    if (VoiceConfig.halfDuplex &&
+        !_holdStarting &&
+        !dictating &&
+        (speech.speaking || speech.reading)) {
+      // Half-duplex: never listen while the app speaks. Listening starts
+      // again when the speech has ended ([_onSpeechChanged]).
+      _log('start skipped: the app is speaking');
+      return;
+    }
     // Commands (and the Voice check test) may use the offline recognizer;
     // dictation and Percy need free speech (Android's recognizer).
     final plan = _planNow(commands: !freeSpeech && !percy);
@@ -1466,7 +1539,7 @@ class VoiceController extends Notifier<VoiceState> {
     _alternates = const [];
     _confidence = -1;
     _sessionHeardSound = false;
-    _levelReadings = _loudReadings = 0;
+    _noise.sessionStarted();
     _capHit = false;
     _doneTimer?.cancel();
     _stopCap();
@@ -1513,6 +1586,7 @@ class VoiceController extends Notifier<VoiceState> {
           ? BargeIn.phrases
           : ref.read(commandBusProvider).expectedPhrases(),
       dictation: freeSpeech,
+      pushToTalk: ptt,
       // Commands: short sessions (a noisy room can't hold one open) and a
       // short pause; Percy and dictation: longer, for whole sentences.
       listenFor: ptt
@@ -1558,6 +1632,13 @@ class VoiceController extends Notifier<VoiceState> {
       'phrases=${request.phrases.length}'
       '${carrying ? ' carrying="${sensitive ? '•••' : _carry}"' : ''}',
     );
+    ref
+        .read(voiceCaptureProvider)
+        .setSource(
+          plan.offline
+              ? 'app mic: ${ChannelMicStream.capture.value?.summary ?? VoiceConfig.micAudioSource}'
+              : 'Android recognizer',
+        );
     try {
       await _stt.listen(
         request,
@@ -1570,7 +1651,19 @@ class VoiceController extends Notifier<VoiceState> {
               confidence: confidence,
             ),
         onSoundLevel: (level) => _onSoundLevel(session, level),
+        onSpeechStart: () {
+          if (session == _session) _noise.userSpoke();
+        },
       );
+      if (plan.offline && session == _session) {
+        // The microphone has opened: what it really uses.
+        final capture = ChannelMicStream.capture.value;
+        if (capture != null) {
+          ref
+              .read(voiceCaptureProvider)
+              .setSource('app mic: ${capture.summary}');
+        }
+      }
     } on Object catch (e) {
       _log('listen() threw: $e');
       _listening = false;
@@ -1594,28 +1687,30 @@ class VoiceController extends Notifier<VoiceState> {
       );
       _playCue();
     }
-    if (_firstPartialAt == null &&
-        _levelReadings < VoiceConfig.noisyMinReadings) {
-      // The room before the user speaks.
-      _levelReadings++;
-      if (level >= VoiceConfig.noisyLevel) _loudReadings++;
-    }
+    // The room's noise (only while the app is silent and before the user's
+    // words: see NoiseMonitor).
+    _noise.add(level);
+    ref
+        .read(voiceCaptureProvider)
+        .setNoise(level: level, floor: _noise.floor, noisy: _noise.noisy);
     if (_firstSoundAt != null || level < VoiceConfig.speechStartLevel) return;
     _firstSoundAt = DateTime.now();
     _log('speech started (level ${level.toStringAsFixed(1)})');
   }
 
-  /// Whether the open session sounds like a noisy room: words that never
-  /// stopped changing, an uncertain result, or a loud room before the user
-  /// spoke.
-  bool get _soundsNoisy {
-    if (_capHit) return true;
-    if (_confidence >= 0 && _confidence < VoiceConfig.lowConfidence) {
-      return true;
-    }
-    return _levelReadings >= VoiceConfig.noisyMinReadings &&
-        _loudReadings / _levelReadings >= VoiceConfig.noisyShare;
-  }
+  /// Whether the room is really noisy: its level, measured while the app
+  /// was silent and before the user spoke, stayed high
+  /// ([VoiceConfig.noiseSustain]). Only then does the app say "Medyo
+  /// maingay po" (2026-10-17: it used to count the app's own echo and the
+  /// user's first word as noise).
+  bool get _soundsNoisy => _noise.noisy;
+
+  /// Whether the result itself is uncertain: words that never stopped
+  /// changing, or a low confidence from the recognizer. Asked back like in
+  /// noise, but without saying the room is noisy. A confidence of exactly
+  /// 0 means the recognizer gave none (Android's on-device recognizer).
+  bool get _soundsUncertain =>
+      _capHit || (_confidence > 0 && _confidence < VoiceConfig.lowConfidence);
 
   void _onResult(
     int session,
@@ -1647,6 +1742,8 @@ class VoiceController extends Notifier<VoiceState> {
       _lastWords = words;
     }
     if (words.trim().isNotEmpty) {
+      // The user's voice from here on (and a moment before): not room noise.
+      _noise.userSpoke();
       // Words prove the recognizer works; the user is already talking, so
       // a cue still waiting would only beep over them.
       _sessionHeardSound = true;
@@ -1705,11 +1802,16 @@ class VoiceController extends Notifier<VoiceState> {
         partial: sensitive ? '•' * said.length : said,
         heard: state.heard,
       );
-      if ((_dictation == null || _probe != null) && !sensitive) {
+      // Push-to-talk: the user may not be done ("basahin" … "ang Liham"):
+      // what was said runs on the release, not on a partial.
+      if ((_dictation == null || _probe != null) &&
+          !sensitive &&
+          !_holdingSession(session)) {
         _tryPartial(said);
       }
       return;
     }
+    if (_holdingSession(session) && _keepHolding(said, 'final result')) return;
     _gotFinal = true;
     _listening = false;
     var text = said.trim();
@@ -1795,7 +1897,15 @@ class VoiceController extends Notifier<VoiceState> {
   void _accept(String text, {required String via, NavIntent? intent}) {
     final decided = DateTime.now();
     final noisy = _soundsNoisy;
-    if (noisy) _log('noisy room or uncertain result: asking back if unsure');
+    final uncertain = !noisy && _soundsUncertain;
+    if (noisy) {
+      _log(
+        'noisy room (level ${_noise.floor?.toStringAsFixed(1)}): asking back '
+        'if unsure',
+      );
+    } else if (uncertain) {
+      _log('uncertain result: asking back if unsure');
+    }
     _cancelGiveUp('a late result arrived');
     _stopCue();
     _failures = 0;
@@ -1858,12 +1968,18 @@ class VoiceController extends Notifier<VoiceState> {
       markMatched(intent.name);
       unawaited(_handleIntent(intent));
     } else {
-      unawaited(_handle(text, noisy: noisy));
+      unawaited(_handle(text, noisy: noisy, uncertain: uncertain));
     }
   }
 
-  Future<void> _handle(String text, {required bool noisy}) async {
-    await ref.read(commandBusProvider).handleUtterance(text, noisy: noisy);
+  Future<void> _handle(
+    String text, {
+    required bool noisy,
+    required bool uncertain,
+  }) async {
+    await ref
+        .read(commandBusProvider)
+        .handleUtterance(text, noisy: noisy, uncertain: uncertain);
     if (ref.mounted) _scheduleAutoListen();
   }
 
@@ -1971,6 +2087,10 @@ class VoiceController extends Notifier<VoiceState> {
 
   /// The session ended (`done`) with no result and no error.
   void _endedWithoutResult() {
+    if (_holdingSession(_session) &&
+        _keepHolding(_withCarry(_lastWords), 'session ended')) {
+      return;
+    }
     _listening = false;
     _capTimer?.cancel();
     _capTimer = null;
@@ -2008,6 +2128,11 @@ class VoiceController extends Notifier<VoiceState> {
     _doneTimer?.cancel();
     _doneTimer = null;
     if (!_listening) return;
+    if (_quietEnds.contains(code) &&
+        _holdingSession(_session) &&
+        _keepHolding(_withCarry(_lastWords), code)) {
+      return;
+    }
     _listening = false;
     _capTimer?.cancel();
     _capTimer = null;

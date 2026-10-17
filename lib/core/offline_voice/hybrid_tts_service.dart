@@ -34,7 +34,14 @@ class HybridTtsService implements TtsService {
   final OfflineEngines engines;
 
   TtsRoute? _speaking;
-  final Map<String, TtsRoute> _logged = {};
+
+  /// The voice each language speaks with, kept for the whole run: prompts,
+  /// Percy and the Reader always sound the same. It changes only when that
+  /// voice fails, or from the network last resort once an offline voice is
+  /// there; every change is logged (`[TTS] engine switch`). (2026-10-17:
+  /// a failed Android voice used the offline voice for one sentence and
+  /// went back for the next — the voice kept changing.)
+  final Map<String, TtsRoute> _routes = {};
 
   /// Counts [stop] calls: a stop that lands while [speak] is still picking
   /// a voice must keep that text from being spoken afterwards (it used to
@@ -48,14 +55,39 @@ class HybridTtsService implements TtsService {
   @override
   bool lastFailed = false;
 
-  /// Which voice will speak [languageTag] now.
+  /// Which voice will speak [languageTag] now: the one it has spoken with
+  /// so far ([_routes]), else the best one there is.
   Future<TtsRoute> routeFor(String languageTag) async {
+    final kept = _routes[languageTag];
+    if (kept != null && kept != TtsRoute.androidAny) return kept;
+    final route = await _bestRoute(languageTag);
+    _setRoute(
+      languageTag,
+      route,
+      kept == null ? 'first use' : 'offline voice ready',
+    );
+    return route;
+  }
+
+  Future<TtsRoute> _bestRoute(String languageTag) async {
     if (await _androidHasLocal(languageTag)) return TtsRoute.androidLocal;
     final lang = OfflineSpeaker.languageOf(languageTag);
     if (lang != null && engines.voiceLanguages.contains(lang)) {
       return TtsRoute.bundled;
     }
     return TtsRoute.androidAny;
+  }
+
+  void _setRoute(String languageTag, TtsRoute route, String why) {
+    final before = _routes[languageTag];
+    if (before == route) return;
+    _routes[languageTag] = route;
+    debugPrint(
+      before == null
+          ? '[TTS] $languageTag speaks with: ${route.name}'
+          : '[TTS] engine switch for $languageTag: ${before.name} → '
+                '${route.name} ($why)',
+    );
   }
 
   Future<bool> _androidHasLocal(String languageTag) async {
@@ -85,10 +117,6 @@ class HybridTtsService implements TtsService {
     final stops = _stops;
     final route = await routeFor(languageTag);
     if (stops != _stops) return false;
-    if (_logged[languageTag] != route) {
-      _logged[languageTag] = route;
-      debugPrint('[TTS] $languageTag speaks with: ${route.name}');
-    }
     if (route == TtsRoute.bundled) {
       final speaker = await _bundledFor(languageTag);
       if (stops != _stops) return false;
@@ -111,7 +139,8 @@ class HybridTtsService implements TtsService {
       // voice says it instead.
       final speaker = await _bundledFor(languageTag);
       if (speaker != null && stops == _stops) {
-        debugPrint('[TTS] Android voice failed: using the offline voice');
+        // From now on, not just for this sentence.
+        _setRoute(languageTag, TtsRoute.bundled, 'Android voice failed');
         _speaking = TtsRoute.bundled;
         final again = await speaker.speak(text, tag: languageTag, rate: rate);
         lastFailed = false;
@@ -129,10 +158,7 @@ class HybridTtsService implements TtsService {
     stopped.complete();
     final speaker = engines.speaker;
     // Both: a stop may race with the start of either.
-    await Future.wait([
-      android.stop(),
-      if (speaker != null) speaker.stop(),
-    ]);
+    await Future.wait([android.stop(), if (speaker != null) speaker.stop()]);
     _speaking = null;
   }
 
@@ -156,8 +182,11 @@ class HybridTtsService implements TtsService {
   Future<List<TtsVoice>> listVoices() => android.listVoices();
 
   @override
-  Future<void> setVoicePreference(String preference) =>
-      android.setVoicePreference(preference);
+  Future<void> setVoicePreference(String preference) {
+    // The user chose another voice: pick the voices afresh.
+    _routes.clear();
+    return android.setVoicePreference(preference);
+  }
 
   @override
   Future<TtsReport> report(String languageTag) async {

@@ -24,6 +24,7 @@ class ListenRequest {
     this.pauseAfterSpeech = VoiceConfig.commandPause,
     this.dictation = false,
     this.offline = false,
+    this.pushToTalk = false,
   });
 
   /// Recognizer locale, e.g. `fil-PH`. Null uses the device's default.
@@ -52,6 +53,11 @@ class ListenRequest {
   /// Use the app's own offline recognizer (commands only; see
   /// `HybridSpeechInput`).
   final bool offline;
+
+  /// Push-to-talk: the finger is on the gesture area. Pauses in the speech
+  /// don't end the session; [SpeechInput.stop] (the release) does, and
+  /// everything heard while held is reported as one result.
+  final bool pushToTalk;
 }
 
 /// Called with each recognition result: the best [words], whether the
@@ -177,11 +183,14 @@ abstract interface class SpeechInput {
   Future<bool> downloadOffline(String languageTag);
 
   /// Starts a session. [onResult] gets partial and final results;
-  /// [onSoundLevel] the microphone level (for timing logs only).
+  /// [onSoundLevel] the microphone level (timing logs, the room's noise);
+  /// [onSpeechStart] when the recognizer's voice detector hears speech
+  /// begin (the app's own recognizer only; Android's doesn't say).
   Future<void> listen(
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   });
 
   /// Changes the silence that ends the open session, counted from now.
@@ -301,6 +310,7 @@ class SttSpeechInput implements SpeechInput {
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   }) async {
     final generation = ++_generation;
     final ended = _endedAt;

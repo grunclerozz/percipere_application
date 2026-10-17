@@ -17,6 +17,35 @@ Format:
 
 ---
 
+## 2026-10-17 — Voice capture: half-duplex, noise floor, push-to-talk capture, one output voice
+- Agent: Claude Code
+- Branch: `fix/voice-capture` (from `main` `b751007`), merged into `main`
+- Changed: root causes + fixes in `docs/handoff/03-voice-and-percy.md` → "Voice capture and one output
+  voice". New `lib/core/voice/noise_monitor.dart` (`NoiseMonitor`, `VoiceCaptureStatus`);
+  `voice_controller.dart` (half-duplex start guard, no barge-in, noise floor, noisy vs uncertain,
+  push-to-talk keeps listening through Android's own session ends, no partial runs while held);
+  `speech_input.dart` (`ListenRequest.pushToTalk`, `onSpeechStart`), `hybrid_speech_input.dart`,
+  `offline_listener.dart` (push-to-talk mode, `MicCapture`), `command_recognizer.dart` (whole-hold
+  decode with 0.5 s pre-roll), `AudioBridge.kt` (audio source choice + fallback, effects reported,
+  focus leak fixed), `hybrid_tts_service.dart` (one route per language, logged switches),
+  `tts_service.dart` (rate + pitch every utterance, stop on no answer), `announcer.dart` +
+  `command_bus.dart` + `percy_controller.dart` + `percy_clips.dart` (clips only for whole Percy lines),
+  `voice_state_overlay.dart` + ARB fil/en (source and noise lines), `setting_items.dart` (barge-in row
+  hidden), `voice_config.dart`. Tests: new `test/core/voice/voice_capture_test.dart`; updated
+  `engine_selection_test.dart`, `percy_clips_test.dart`, `voice_reliability_test.dart`,
+  `voice_response_test.dart` and `reader_controller_test.dart` (barge-in tests skipped while
+  half-duplex is on), `test/helpers/fakes.dart`. Docs 03/05/06/07. No `voice_log.txt` existed.
+- Checks: `flutter analyze` clean. Changed-area tests file by file (core voice, offline_voice, percy,
+  accessibility, settings, tts, gestures, features reader/settings + voice/Percy/startup/tutorial/
+  assistant/screens/auth flows): 42 files; after fixing 1 code bug (push-to-talk wait timer) and 2
+  outdated tests, the failed files and all of `test/core/voice` pass again (187 tests in the last
+  rerun). **Release build NOT done**: started, stopped by Claude Code because the PC ran low on
+  memory. Full suite not run (as asked). Kotlin change not compiled yet.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: user builds the release APK (this also compiles `AudioBridge.kt`) and runs the tablet
+  tests (quiet, TV on, Percy talking → hold, reading → hold, airplane mode); send `[VOICE …]`,
+  `[TTS] …`, `[OFFLINE VOICE] microphone:` lines if problems remain.
+
 ## 2026-10-17 — Percy's ElevenLabs voice from bundled clips
 - Agent: Claude Code
 - Branch: `feat/percy-elevenlabs` (from `main`), merged into `main`

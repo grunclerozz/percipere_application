@@ -8,6 +8,47 @@ import '../../config/voice_config.dart';
 import '../voice/speech_input.dart';
 import 'command_recognizer.dart';
 
+/// How the app's own microphone was opened: the Android audio source and
+/// which of the phone's clean-up effects are on (developer overlay, logs).
+@immutable
+class MicCapture {
+  /// Creates the description.
+  const MicCapture({
+    required this.source,
+    this.echoCanceller = false,
+    this.noiseSuppressor = false,
+    this.autoGain = false,
+  });
+
+  /// Reads the native answer (`micStart`).
+  factory MicCapture.fromMap(Map<Object?, Object?> map) => MicCapture(
+    source: '${map['source'] ?? 'unknown'}',
+    echoCanceller: map['aec'] == true,
+    noiseSuppressor: map['ns'] == true,
+    autoGain: map['agc'] == true,
+  );
+
+  /// `voiceRecognition` or `voiceCommunication`.
+  final String source;
+
+  /// The phone's acoustic echo canceller is on.
+  final bool echoCanceller;
+
+  /// The phone's noise suppressor is on.
+  final bool noiseSuppressor;
+
+  /// The phone's automatic gain control is on.
+  final bool autoGain;
+
+  /// Short form for logs and the overlay, e.g. `voiceRecognition AEC NS`.
+  String get summary => [
+    source,
+    if (echoCanceller) 'AEC',
+    if (noiseSuppressor) 'NS',
+    if (autoGain) 'AGC',
+  ].join(' ');
+}
+
 /// The microphone as 16 kHz mono PCM16 chunks. Abstract so tests can feed
 /// audio.
 abstract interface class MicStream {
@@ -31,6 +72,10 @@ class ChannelMicStream implements MicStream {
   );
   static const EventChannel _events = EventChannel('ph.bataan.percipere/mic');
 
+  /// How the microphone was last opened (null: not yet, or the phone
+  /// didn't say).
+  static final ValueNotifier<MicCapture?> capture = ValueNotifier(null);
+
   late final Stream<Uint8List> _audio = _events
       .receiveBroadcastStream()
       .where((e) => e is Uint8List)
@@ -42,12 +87,22 @@ class ChannelMicStream implements MicStream {
   @override
   Future<bool> start() async {
     try {
-      return await _control.invokeMethod<bool>('micStart', {
-            'sampleRate': 16000,
-            'noiseSuppressor': VoiceConfig.micNoiseSuppressor,
-            'autoGain': VoiceConfig.micAutoGain,
-          }) ??
-          false;
+      final answer = await _control.invokeMethod<Object?>('micStart', {
+        'sampleRate': 16000,
+        'source': VoiceConfig.micAudioSource,
+        'echoCanceller': VoiceConfig.micEchoCanceller,
+        'noiseSuppressor': VoiceConfig.micNoiseSuppressor,
+        'autoGain': VoiceConfig.micAutoGain,
+      });
+      if (answer is Map) {
+        final info = MicCapture.fromMap(answer);
+        if (capture.value?.summary != info.summary) {
+          debugPrint('[OFFLINE VOICE] microphone: ${info.summary}');
+        }
+        capture.value = info;
+        return answer['ok'] == true;
+      }
+      return answer == true;
     } on Object catch (e) {
       debugPrint('[OFFLINE VOICE] mic start failed: $e');
       return false;
@@ -69,8 +124,10 @@ abstract interface class SpeechRecognizerPort {
   /// What it heard.
   Stream<RecognizerEvent> get events;
 
-  /// Starts [session] in [language] (`tl` / `en`).
-  void begin(int session, String language);
+  /// Starts [session] in [language] (`tl` / `en`). With [whole]
+  /// (push-to-talk), stretches of speech aren't recognized one by one: all
+  /// of it is recognized at once on [flush].
+  void begin(int session, String language, {bool whole = false});
 
   /// Audio for [session].
   void feed(int session, Uint8List pcm16);
@@ -94,8 +151,8 @@ class SherpaRecognizerPort implements SpeechRecognizerPort {
   Stream<RecognizerEvent> get events => recognizer.events;
 
   @override
-  void begin(int session, String language) =>
-      recognizer.begin(session, language);
+  void begin(int session, String language, {bool whole = false}) =>
+      recognizer.begin(session, language, whole: whole);
 
   @override
   void feed(int session, Uint8List pcm16) => recognizer.feed(session, pcm16);
@@ -117,6 +174,11 @@ class SherpaRecognizerPort implements SpeechRecognizerPort {
 /// [VoiceConfig.offlineEndOfSpeech] of silence and the words are reported
 /// at once. Speech longer than [VoiceConfig.commandSpeechMax] (a noisy
 /// room) is cut and judged; [ListenRequest.listenFor] caps the session.
+///
+/// Push-to-talk ([ListenRequest.pushToTalk]): pauses don't end the session
+/// and there is no speech cap; [stop] (the release) ends it, and everything
+/// said while held is recognized at once and reported as one result
+/// (2026-10-17: the first pause used to end the command).
 class OfflineCommandListener {
   /// Creates a listener over [recognizer] and [mic].
   OfflineCommandListener(this.recognizer, this.mic, {this.onStatus}) {
@@ -140,6 +202,11 @@ class OfflineCommandListener {
   bool _flushing = false;
   SpeechResultCallback? _onResult;
   void Function(double level)? _onLevel;
+  void Function()? _onSpeechStart;
+
+  /// The open session is a push-to-talk one, and the words it has heard.
+  bool _hold = false;
+  final List<String> _heldWords = [];
   Timer? _wait;
   Timer? _cap;
   Timer? _speechCap;
@@ -171,6 +238,7 @@ class OfflineCommandListener {
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   }) {
     // Claimed now, so a cancel() arriving while the microphone opens
     // cancels this session.
@@ -185,7 +253,7 @@ class OfflineCommandListener {
         await mic.stop();
         return true;
       }
-      return _begin(session, request, onResult, onSoundLevel);
+      return _begin(session, request, onResult, onSoundLevel, onSpeechStart);
     });
   }
 
@@ -194,12 +262,16 @@ class OfflineCommandListener {
     ListenRequest request,
     SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   ) {
     _open = true;
     _flushing = false;
     _onResult = onResult;
     _onLevel = onSoundLevel;
-    recognizer.begin(session, languageFor(request.localeId));
+    _onSpeechStart = onSpeechStart;
+    _hold = request.pushToTalk;
+    _heldWords.clear();
+    recognizer.begin(session, languageFor(request.localeId), whole: _hold);
     _audioSub = mic.audio.listen(
       (chunk) {
         if (session != _session || !_open) return;
@@ -212,8 +284,9 @@ class OfflineCommandListener {
       },
     );
     _wait = Timer(request.pauseFor, () {
-      // Nobody spoke.
-      if (session == _session) unawaited(_finish(''));
+      if (session != _session) return;
+      // Nobody spoke (push-to-talk: held too long; what was said counts).
+      _hold ? _flush() : unawaited(_finish(''));
     });
     _cap = Timer(request.listenFor, () {
       if (session == _session) _flush();
@@ -239,9 +312,12 @@ class OfflineCommandListener {
     if (event.session != _session || !_open) return;
     switch (event) {
       case SpeechStarted():
-        // Speech has begun: no more "nobody spoke"; a long stretch of
-        // words is cut and judged.
+        _onSpeechStart?.call();
+        // Speech has begun: no more "nobody spoke".
         _wait?.cancel();
+        // Push-to-talk: only the release (or the session cap) ends it.
+        if (_hold) return;
+        // A long stretch of words is cut and judged.
         _speechCap ??= Timer(VoiceConfig.commandSpeechMax, _flush);
       case SpeechRecognized(:final text, :final millis):
         final words = CommandRecognizer.clean(text);
@@ -249,7 +325,10 @@ class OfflineCommandListener {
           '[OFFLINE VOICE] heard "${words.isEmpty ? '' : words}" '
           '(recognized in ${millis}ms)',
         );
-        if (words.isNotEmpty) {
+        if (_hold) {
+          // Reported together once the release has flushed everything.
+          if (words.isNotEmpty) _heldWords.add(words);
+        } else if (words.isNotEmpty) {
           unawaited(_finish(words));
         } else if (!_flushing) {
           // A cough or a click: keep listening for the command.
@@ -257,7 +336,7 @@ class OfflineCommandListener {
           _speechCap = null;
         }
       case RecognizerFlushed():
-        unawaited(_finish(''));
+        unawaited(_finish(_hold ? _heldWords.join(' ') : ''));
     }
   }
 
@@ -304,6 +383,9 @@ class OfflineCommandListener {
     _session++;
     _onResult = null;
     _onLevel = null;
+    _onSpeechStart = null;
+    _hold = false;
+    _heldWords.clear();
     if (wasOpen && report) onStatus?.call('notListening');
     if (!wasOpen && sub == null) {
       return queued ? _serial(() async {}) : Future.value();

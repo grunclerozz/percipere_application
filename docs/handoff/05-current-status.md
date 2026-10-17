@@ -1,14 +1,19 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (`fix/voice-startup-ptt`: loading screen,
-busy-voice fixes, push-to-talk; merged into `main` together with `fix/voice-reliability`).** Every agent updates this file at the end of a
+**Last updated: 2026-10-17 by Claude Code (`fix/voice-capture`: half-duplex, noise floor,
+push-to-talk capture, one output voice; merged into `main`).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
 ## At a glance
 - **App:** feature-complete for the thesis demo except the postponed phases (6D, 7, 8, 6E Part B).
   Almost everything built since 2026-10-07 **still waits for the user's tablet test**.
-- **Last code change:** `fix/voice-startup-ptt` (2026-10-17), merged into `main` with
+- **Last code change:** `fix/voice-capture` (2026-10-17), merged into `main`: never listens while
+  the app speaks (barge-in off), "Medyo maingay po" only for real sustained room noise, push-to-talk
+  keeps listening through pauses (whole-hold decoding), mic source/AEC/NS reported, one output voice
+  per language (no clip/voice mixing, no engine flip-flop, rate+pitch every utterance), overlay shows
+  source + noise. Root causes and tablet tests: `docs/handoff/03-voice-and-percy.md` → Voice capture.
+- **Before that:** `fix/voice-startup-ptt` (2026-10-17), merged into `main` with
   `fix/voice-reliability` inside it: startup loading screen, voice busy/startup fixes,
   push-to-talk, developer voice-state overlay. Tablet test: `docs/testing/voice-startup-ptt-checklist.md`.
 - **Earlier:** merge `d306cac` (2026-10-17) — brings `feat/percy-smarter`,
@@ -26,6 +31,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Voice capture + one output voice (`fix/voice-capture`, merged into `main` 2026-10-17) | Claude Code → user | built; analyze clean; changed-area tests pass (see worklog); **release build not done (stopped: PC low on memory), so the `AudioBridge.kt` change is not compiled yet**. Causes found by reading code (no `voice_log.txt`). Tablet: quiet room, TV on, Percy talking → hold, Reader reading → hold, airplane mode; read the overlay's source/noise lines |
 | Percy's ElevenLabs voice from bundled clips (`feat/percy-elevenlabs`, merged into `main` 2026-10-17) | Claude Code -> user | built; analyze clean; changed-area tests pass. **User must run `tool/percy_voice/generate_percy_voice.py` (see its README) and commit `assets/percy/voice/`**; until then the app speaks everything with the offline voice. Native mp3 playback untested on a device, release build not run |
 | Voice at startup / after upload + push-to-talk + loading screen (`fix/voice-startup-ptt`, merged into `main` 2026-10-17, brings `fix/voice-reliability` too) | Claude Code → user | built; analyze clean; 43 changed-area test files / 530 tests pass; release build NOT done (stopped: PC low on memory). **Cold-start load time not measured** (no AVD on the PC, no device run): read it on the tablet (overlay or `[STARTUP]` log). Checklist `docs/testing/voice-startup-ptt-checklist.md` |
 | Voice reliability: "say it twice", "hold twice", false "not working", noise ask-back, 20-command CSV test (`fix/voice-reliability`) | Claude Code → user | built 2026-10-17, analyze clean, changed-code tests pass; **not merged into `main` yet** (user merges), release build not run (JDK not reachable from the agent session). Tablet test: `docs/testing/voice-reliability-checklist.md` |

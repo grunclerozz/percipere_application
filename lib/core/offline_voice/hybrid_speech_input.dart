@@ -64,6 +64,7 @@ class HybridSpeechInput implements SpeechInput {
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   }) async {
     final listener = engines.listener;
     if (request.offline && listener != null) {
@@ -75,6 +76,7 @@ class HybridSpeechInput implements SpeechInput {
         request,
         onResult: onResult,
         onSoundLevel: onSoundLevel,
+        onSpeechStart: onSpeechStart,
       )) {
         return;
       }

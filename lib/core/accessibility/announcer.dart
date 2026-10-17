@@ -64,14 +64,18 @@ class _Utterance {
     this.screenId,
     this.languageTag,
     this.protect,
-    this.rate,
-  );
+    this.rate, {
+    this.clip = false,
+  });
 
   final String text;
   final String? screenId;
   final String languageTag;
   final bool protect;
   final double rate;
+
+  /// Played from Percy's bundled clip ([PercyClips]).
+  final bool clip;
   final Completer<void> done = Completer<void>();
 
   void complete() {
@@ -218,6 +222,12 @@ class Announcer extends Notifier<SpeechState> {
   }
 
   /// Speaks [text]. Completes when its last sentence finishes (or is dropped).
+  ///
+  /// Everything is spoken with the app's one voice (the Reader's), except
+  /// a line of Percy's ([percyVoice]) whose every sentence has a bundled
+  /// clip: that line is played from the clips. A line is never mixed (some
+  /// sentences in Percy's clip voice, others in the app's voice), and app
+  /// prompts never use the clips (2026-10-17: the voice kept changing).
   Future<void> say(
     String text, {
     bool interrupt = true,
@@ -225,6 +235,7 @@ class Announcer extends Notifier<SpeechState> {
     String? screenId,
     String? languageTag,
     double? rate,
+    bool percyVoice = false,
   }) {
     final sentences = splitSentences(text);
     if (sentences.isEmpty) return Future.value();
@@ -233,6 +244,8 @@ class Announcer extends Notifier<SpeechState> {
     final tag = languageTag ?? ref.read(speechLanguageProvider).ttsTag;
     // Prompts and Percy follow the user's speech speed, like the reader.
     final double speed = rate ?? ref.read(readingRateProvider);
+    final clips = ref.read(percyClipsProvider);
+    final clip = percyVoice && sentences.every((s) => clips.hasClip(s, tag));
     // A prompt always takes over from document reading: the engine would
     // drop it while a document sentence is playing.
     if (state.reading) {
@@ -242,7 +255,8 @@ class Announcer extends Notifier<SpeechState> {
     if (interrupt) _interrupt();
 
     final group = [
-      for (final s in sentences) _Utterance(s, sid, tag, protect, speed),
+      for (final s in sentences)
+        _Utterance(s, sid, tag, protect, speed, clip: clip),
     ];
     if (!interrupt && _holding) {
       // A question is waiting for its answer: queued notices come after.
@@ -384,11 +398,15 @@ class Announcer extends Notifier<SpeechState> {
           if (ref.read(talkBackProvider)) {
             await _announceToScreenReader(u.text);
           } else {
-            // A bundled clip when this sentence has one; otherwise (or if
-            // the clip cannot play) the offline voice, so it is never silent.
-            final clip = await ref
-                .read(percyClipsProvider)
-                .play(u.text, u.languageTag, u.rate);
+            // Percy's bundled clip for his lines that have one; otherwise
+            // (or if the clip cannot play) the app's voice, so it is never
+            // silent. Nothing of the clip carries over: the app's voice
+            // sets its own speed and pitch for every utterance.
+            final clip = u.clip
+                ? await ref
+                      .read(percyClipsProvider)
+                      .play(u.text, u.languageTag, u.rate)
+                : ClipResult.notFound;
             if (clip == ClipResult.notFound || clip == ClipResult.failed) {
               await ref
                   .read(ttsServiceProvider)

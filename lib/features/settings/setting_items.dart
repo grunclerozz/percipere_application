@@ -10,6 +10,7 @@ import '../../app/router.dart';
 import '../../app/theme/theme_settings.dart';
 import '../../config/env.dart';
 import '../../config/palette.dart';
+import '../../config/voice_config.dart';
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
@@ -330,13 +331,16 @@ List<SettingItem> settingItemsFor(
     value: (c) => c.settings.autoRead ? c.l.valueOn : c.l.valueOff,
     adjust: (s, d) => s.copyWith(autoRead: !s.autoRead),
   ),
-  SettingItem(
-    id: Ids.settingListenWhileReading,
-    kind: SettingKind.toggle,
-    label: (l) => l.setListenWhileReading,
-    value: (c) => c.settings.listenWhileReading ? c.l.valueOn : c.l.valueOff,
-    adjust: (s, d) => s.copyWith(listenWhileReading: !s.listenWhileReading),
-  ),
+  // Half-duplex: the app never listens while it reads, so the switch would
+  // do nothing (VoiceConfig.halfDuplex).
+  if (!VoiceConfig.halfDuplex)
+    SettingItem(
+      id: Ids.settingListenWhileReading,
+      kind: SettingKind.toggle,
+      label: (l) => l.setListenWhileReading,
+      value: (c) => c.settings.listenWhileReading ? c.l.valueOn : c.l.valueOff,
+      adjust: (s, d) => s.copyWith(listenWhileReading: !s.listenWhileReading),
+    ),
   SettingItem(
     id: Ids.settingVerbosity,
     kind: SettingKind.choice,

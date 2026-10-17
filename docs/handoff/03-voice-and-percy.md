@@ -77,6 +77,9 @@ voice depends on Google packs as before.
 | `lowConfidence` | 0.5 | Android confidence below this counts like noise |
 | `noisyAskScore` | 0.45 | in noise, commands this similar are asked back (quiet: 0.6) |
 | `micNoiseSuppressor` / `micAutoGain` | on / off | phone noise suppressor / AGC on the app's own mic (offline commands) |
+| `halfDuplex` | on | never listen while the app speaks; no barge-in (2026-10-17, `fix/voice-capture`) |
+| `micAudioSource` / `micEchoCanceller` | `voiceRecognition` / on | Android audio source and echo canceller of the app's own mic |
+| `noiseSettle` / `noiseSustain` / `noiseOnsetLag` / `noiseWindow` | 0.7 / 1 / 0.7 / 8 s | noise floor: ignore after app speech; stay high this long; drop before the user's words; forget |
 Silences on the Android path are timed by the app, never handed to Android (decision 2026-10-14).
 Earcons (`ToneGenerator`, channel `ph.bataan.percipere/sound`): "heard", "listening", "stopped".
 
@@ -284,6 +287,9 @@ not a secret) from clips bundled in the app: offline, **no API key in the app, n
   (167 fil, 158 en), 8,507 characters.
 - **Key:** first 16 hex of `sha256("<lang>|<text>")`, whitespace collapsed (`PercyClipKey`,
   `lib/core/percy/percy_clips.dart`); a test checks it equals the script's hash.
+- **Since 2026-10-17 (`fix/voice-capture`):** clips play only for Percy's own lines, and only when
+  every sentence of the line has one; app prompts (incl. the ARB extras such as tutorial lines)
+  always use the app voice. See "Voice capture and one output voice".
 - **Playback:** `Announcer._drain` asks `PercyClips.play` first; `notFound` or `failed` -> the
   existing offline voice speaks the sentence (never silent); `stopped` -> nothing more. Document
   reading (`ReaderController`) does not use this path. Native `playClip` in `AudioBridge.kt`
@@ -298,6 +304,104 @@ not a secret) from clips bundled in the app: offline, **no API key in the app, n
 - Not changed: Percy's model, thresholds, the reader's voice. Lines with `{title}` etc. use the
   offline voice. **Unverified on a device:** mp3 decoding and `PlaybackParams` on the tablet
   (only the Dart side is tested, with fakes); release build not run.
+
+## Voice capture and one output voice (2026-10-17, branch `fix/voice-capture`)
+**Tablet test after push-to-talk + loading screen:** recognition still poor; the mic sometimes
+heard the app's own voice (Percy / the Reader through the speaker) → "Medyo maingay po…" and wrong
+results; the output voice changed a lot, the tone sometimes got "stuck". No `voice_log.txt` was in
+the repo, so the causes below come from reading the code; each code cause has a test that
+reproduces it (`test/core/voice/voice_capture_test.dart`, `engine_selection_test.dart`,
+`percy_clips_test.dart`). **None is confirmed with a tablet log.**
+
+**Root causes (capture)**
+1. **"Too much noise" from the app's own voice and the user's first word.** The room was judged by
+   the first 5 level readings of each session (`noisyMinReadings`) before the first partial
+   result. Auto-listening opens 0.45 s after the app stops talking, so those readings held the
+   speaker's echo/reverb; with push-to-talk the user talks at once, so they held the user's own
+   first syllables (the recognizer reports words 0.3–0.6 s late). Either way: "noisy" → ask-back.
+   A low recognizer confidence (or 0.0, which Android's on-device recognizer gives when it has no
+   score) also said "Medyo maingay po", although the room was quiet.
+2. **The app listened while it read aloud.** "Makinig habang nagbabasa" (barge-in, on by default)
+   kept a session open during document reading; the echo filter only drops words that match the
+   read text, so misheard echo could still run a reading command (e.g. "bilisan" → faster,
+   which then *stays* faster: one possible "stuck" speed).
+3. **Push-to-talk ended at the first pause.** With the app's own recognizer, the voice detector's
+   end of speech (0.7 s) finished the session and the 4 s speech cap flushed it while the finger
+   was still down; with Android's recognizer, Android ends the session after a pause by itself,
+   and a strong partial ("basahin") ran before the rest ("… ang Liham").
+
+**Root causes (output voice)**
+4. **One reply, two voices.** The Announcer played a Percy ElevenLabs clip for *any* sentence
+   with a clip (also app prompts: the tutorial/mic lines in `extra_arb_keys.json`) and the app's
+   voice for the next sentence without one. (On the tablet `assets/percy/voice/` is still empty,
+   so this was not the cause there yet, but would have been once clips are added.)
+5. **Engine flip-flop.** When an Android voice failed, `HybridTtsService` spoke that one sentence
+   with the app's offline voice (MMS Tagalog / Piper: a different voice, no pitch) and went back
+   to the failing Android voice for the next one. A slow sentence that hit the 5 s + 150 ms/char
+   time limit counted as a failure while Google TTS was still talking → both voices at once.
+6. **Speed/pitch only sent on change.** `FlutterTtsService` set the speech rate only when it
+   changed and the pitch only at startup / in Settings; if the engine lost them (language/voice
+   switch, engine restart) the voice stayed at another tone/speed until the setting was changed.
+7. **Audio-focus leak in `AudioBridge.playPcm`.** A stop that landed between the generation check
+   and `requestFocus()` left a `GAIN_TRANSIENT_MAY_DUCK` focus held (never abandoned), which can
+   keep other sound (Google TTS runs in its own process) ducked → quieter/odd tone. **Unverified**
+   that this happened on the tablet.
+
+**Fixes**
+- **Half-duplex** (`VoiceConfig.halfDuplex = true`): no barge-in sessions while reading (the
+  Settings row "Makinig habang nagbabasa" is hidden while this is on); `_start` refuses to open
+  automatic sessions while a prompt, Percy, a clip or the document is playing (log `start skipped:
+  the app is speaking`); auto-listening starts only when the speech has ended + `afterSpeechGap`
+  (0.45 s). Push-to-talk and dictation already stop all speech and wait for it to end
+  (`Announcer.stopAndWait`: drain done + `audioFocusRelease` 200 ms) before the mic opens.
+- **Noise floor** (`lib/core/voice/noise_monitor.dart`, `NoiseMonitor`): level readings count as
+  room noise only while the app is silent, from `noiseSettle` (0.7 s) after its speech (`noiseToneSettle`
+  0.3 s after a tone);
+  never from the user (readings `noiseOnsetLag` 0.7 s before the first partial / the voice
+  detector's speech start are dropped, later ones ignored); measured afresh every time the app
+  stops speaking; forgotten after `noiseWindow` (8 s). Noisy = at least `noisyMinReadings`
+  readings spanning `noiseSustain` (1 s), `noisyShare` of them ≥ `noisyLevel` (thresholds
+  unchanged). Only then "Medyo maingay po. Ito po ba …?"; an uncertain result (confidence
+  0 < c < 0.5, or words that never stopped changing) is asked back with the plain "Ito ba ang ibig
+  mong sabihin …?" (`CommandBus.handleUtterance(noisy:, uncertain:)`). Both lower the ask-back
+  floor to `noisyAskScore` (confirm instead of refusing). Percy's thresholds unchanged.
+- **Push-to-talk capture:** `ListenRequest.pushToTalk`. App recognizer: no speech cap, segments
+  are not reported one by one; on the release Whisper decodes **all** the held audio at once, from
+  0.5 s before the first speech (pre-roll; `CommandRecognizer.begin(whole: true)`). Android
+  recognizer: no partial runs while held; if Android ends the session itself, the words are kept
+  and a new session opens at once (`_keepHolding`, log `push-to-talk: … while held: listening
+  on`); the release (after the 400 ms grace) acts on everything; a release between two sessions
+  acts at once. Ordinary sessions keep the 0.4 s pre-roll per segment.
+- **Mic source and effects** (`AudioBridge.kt` `micStart`): source from
+  `VoiceConfig.micAudioSource` (`voiceRecognition`, the Android source meant for speech
+  recognition; `voiceCommunication` is the other choice and the fallback when the first can't be
+  opened); `AcousticEchoCanceler` and `NoiseSuppressor` on when the phone has them
+  (`micEchoCanceller`, `micNoiseSuppressor`); **AGC stays off** (`micAutoGain`): it pumps the
+  background up between words (breaks the voice detector's end of speech and would make the noise
+  floor read high), and Whisper normalizes the level itself. The answer says what is really on;
+  log `[OFFLINE VOICE] microphone: voiceRecognition AEC NS`. **Android's recognizer**
+  (`speech_to_text`) picks its own source and effects: the app can't set them.
+- **One output voice:** app prompts never play Percy's clips; a Percy line
+  (`CommandBus.say(percyVoice: true)`, from `PercyController._say`) plays clips only when *every*
+  sentence has one, else the whole line uses the app voice. `HybridTtsService` keeps one route per
+  language for the run (`_routes`); it changes only when that voice fails (then for good) or from
+  the network last resort once an offline voice is ready; every change is logged `[TTS] engine
+  switch for fil-PH: androidLocal → bundled (Android voice failed)`. A new reading-voice choice in
+  Settings picks afresh. `FlutterTtsService` sets rate and pitch before **every** utterance (log
+  `[TTS] android voice: <name> (<tag>) rate … pitch …` when they change) and stops the engine when
+  it doesn't answer in time, so no second voice talks over it. `AudioBridge` requests audio focus
+  under the same lock as the stop check and always gives it back.
+- **Overlay** ("Estado ng boses (developer)"): adds "Pinakikinggan sa: app mic: voiceRecognition
+  AEC NS" / "Android recognizer" and "Lakas ng tunog: <last level> · kuwarto: <floor>" (+ MAINGAY)
+  (`VoiceCaptureStatus`, `voiceCaptureProvider`).
+
+Not changed: speech engines, Percy's thresholds, `noisyLevel`/`noisyShare`/`lowConfidence`,
+document language → voice language (an English document is still read by the English voice;
+"one voice" means one voice **per language**, kept for the whole run).
+Log lines: `start skipped: the app is speaking`, `noisy room (level …)`, `uncertain result`,
+`push-to-talk: … while held: listening on`, `push-to-talk released between sessions`,
+`[OFFLINE VOICE] microphone: …`, `[TTS] engine switch …`, `[TTS] android voice: …`,
+`[TTS] no answer from the engine: stopping it`.
 
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein

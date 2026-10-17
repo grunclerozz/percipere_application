@@ -187,6 +187,13 @@ class PercyClips {
   /// Whether a clip is loading or playing.
   bool get busy => _busy;
 
+  /// Whether [text] ([languageTag] like `fil-PH`) has a clip that can play.
+  bool hasClip(String text, String languageTag) {
+    if (player == null) return false;
+    final lang = PercyClipKey.languageOf(languageTag);
+    return lang != null && manifest.fileFor(lang, text) != null;
+  }
+
   /// Plays the clip for [text] ([languageTag] like `fil-PH`) at [rate] × normal
   /// speed. Does nothing (and answers [ClipResult.notFound]) when there is no
   /// clip.

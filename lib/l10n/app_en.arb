@@ -865,5 +865,8 @@
   "voiceStateSpeaking": "speaking",
   "voiceStateListening": "listening",
   "voiceStateProcessing": "processing",
-  "voiceStateStartup": "Startup: {seconds} s"
+  "voiceStateStartup": "Startup: {seconds} s",
+  "voiceStateSource": "Listening via: {source}",
+  "voiceStateNoise": "Sound level: {level} · room: {floor}",
+  "voiceStateNoisy": "NOISY"
 }

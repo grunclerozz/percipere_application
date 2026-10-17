@@ -127,6 +127,7 @@ void main() {
         'Sige po, sa Home tayo.',
         languageTag: 'fil-PH',
         rate: 1.25,
+        percyVoice: true,
       );
       expect(player.rates, [1.25], reason: 'speech speed is the clip rate');
       expect(env.tts.spoken, isEmpty);
@@ -134,31 +135,71 @@ void main() {
 
     test('no clip for the sentence: the offline voice speaks it', () async {
       await setUpWith();
-      await announcer().say('Aklat: Noli Me Tangere.', languageTag: 'fil-PH');
+      await announcer().say(
+        'Aklat: Noli Me Tangere.',
+        languageTag: 'fil-PH',
+        percyVoice: true,
+      );
       expect(player.rates, isEmpty);
       expect(env.tts.spoken, ['Aklat: Noli Me Tangere.']);
     });
 
-    test('mixed text: clip for the fixed sentence, voice for the rest', () async {
+    // 2026-10-17, fix/voice-capture: one line in two voices made the voice
+    // "keep changing".
+    test('mixed text: the whole line in the app voice, never two voices',
+        () async {
       await setUpWith();
       await announcer().say(
         'Sige po, sa Home tayo. Mayroon kayong 3 aklat.',
         languageTag: 'fil-PH',
+        percyVoice: true,
       );
-      expect(player.rates, hasLength(1));
-      expect(env.tts.spoken, ['Mayroon kayong 3 aklat.']);
+      expect(player.rates, isEmpty);
+      expect(env.tts.spoken, [
+        'Sige po, sa Home tayo.',
+        'Mayroon kayong 3 aklat.',
+      ]);
+    });
+
+    test("app prompts never use Percy's clips (one voice for the app)",
+        () async {
+      await setUpWith();
+      await announcer().say('Sige po, sa Home tayo.', languageTag: 'fil-PH');
+      expect(player.rates, isEmpty);
+      expect(env.tts.spoken, ['Sige po, sa Home tayo.']);
+    });
+
+    test('after a clip the app voice speaks at its own speed', () async {
+      await setUpWith();
+      await announcer().say(
+        'Sige po, sa Home tayo.',
+        languageTag: 'fil-PH',
+        rate: 1.5,
+        percyVoice: true,
+      );
+      await announcer().say('Mayroon kayong 3 aklat.', rate: 1.0);
+      expect(player.rates, [1.5]);
+      expect(env.tts.rates.last, 1.0);
     });
 
     test('a clip that cannot play falls back to the offline voice', () async {
       await setUpWith();
       player.result = ClipResult.failed;
-      await announcer().say('Sige po, sa Home tayo.', languageTag: 'fil-PH');
+      await announcer().say(
+        'Sige po, sa Home tayo.',
+        languageTag: 'fil-PH',
+        percyVoice: true,
+      );
       expect(env.tts.spoken, ['Sige po, sa Home tayo.']);
     });
 
     test('zero clips: everything is spoken by the offline voice', () async {
       await setUpWith(manifest: PercyClipManifest.empty);
-      await announcer().say('Sige po, sa Home tayo.', languageTag: 'fil-PH');
+      await announcer().say(
+        'Sige po, sa Home tayo.',
+        languageTag: 'fil-PH',
+        percyVoice: true,
+      );
       expect(player.rates, isEmpty);
       expect(env.tts.spoken, ['Sige po, sa Home tayo.']);
     });
@@ -169,6 +210,7 @@ void main() {
       final done = announcer().say(
         'Sige po, sa Home tayo.',
         languageTag: 'fil-PH',
+        percyVoice: true,
       );
       await pumpEventQueue();
       expect(player.rates, hasLength(1));

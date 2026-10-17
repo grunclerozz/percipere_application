@@ -384,11 +384,16 @@ class CommandBus {
   /// documents named from anywhere ("basahin ang Liham"), then the phrase
   /// matcher. Everyday phrasing is cleaned first ([Understanding.clean]).
   ///
-  /// [noisy]: the room was noisy or the recognizer unsure. A command that
-  /// is close but not close enough is then asked back ("Ito po ba ang ibig
-  /// ninyong sabihin…?", from [VoiceConfig.noisyAskScore]) instead of "not
-  /// understood". Percy's thresholds are not affected.
-  Future<void> handleUtterance(String heard, {bool noisy = false}) async {
+  /// [noisy]: the room was really noisy; [uncertain]: the recognizer was
+  /// unsure. A command that is close but not close enough is then asked
+  /// back (from [VoiceConfig.noisyAskScore]) instead of "not understood":
+  /// "Medyo maingay po. Ito po ba…?" only when [noisy], else the plain "Ang
+  /// ibig mo bang sabihin…?". Percy's thresholds are not affected.
+  Future<void> handleUtterance(
+    String heard, {
+    bool noisy = false,
+    bool uncertain = false,
+  }) async {
     if (await _userEndsAssistant()) return;
     _announcer.answered();
     // A Percy session gets everything that is said.
@@ -463,10 +468,10 @@ class CommandBus {
           _understood('document question outside the Reader');
           return say(_l10n.docNeedsOpenDoc);
         }
-        if (noisy) {
+        if (noisy || uncertain) {
           final guess = _matchCommand(cleaned, screen, matcher: _noisyMatcher);
           if (guess is Ambiguous) {
-            return _askBack(guess.target, guess.phrase, noisy: true);
+            return _askBack(guess.target, guess.phrase, noisy: noisy);
           }
         }
         _voice.markMatched('no command', done: true);
@@ -1263,9 +1268,19 @@ class CommandBus {
     await say(_l10n.commandNotAvailable);
   }
 
-  /// Speaks [text] in the prompt language.
-  Future<void> say(String text, {bool protect = false, String? screenId}) =>
-      _announcer.say(text, protect: protect, screenId: screenId);
+  /// Speaks [text] in the prompt language. [percyVoice]: a line of Percy's
+  /// (may play his bundled clips, [Announcer.say]).
+  Future<void> say(
+    String text, {
+    bool protect = false,
+    String? screenId,
+    bool percyVoice = false,
+  }) => _announcer.say(
+    text,
+    protect: protect,
+    screenId: screenId,
+    percyVoice: percyVoice,
+  );
 
   /// Asks the question in [text] and waits for the answer before saying
   /// [then] (and, with [split], what follows the question in [text]); see

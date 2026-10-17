@@ -338,7 +338,7 @@ class PercyController extends Notifier<PercyState> implements PercyEnvironment {
 
   Future<void> _say(String line) {
     _lastLine = line;
-    return _bus.say(line);
+    return _bus.say(line, percyVoice: true);
   }
 
   Future<void> _run(Future<void> Function() action) async {

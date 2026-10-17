@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/config/voice_config.dart';
 import 'package:percipere_app/core/accessibility/action_registry.dart';
 import 'package:percipere_app/core/accessibility/announcer.dart';
 import 'package:percipere_app/core/accessibility/navigation_mode.dart';
@@ -69,6 +70,7 @@ class FakeRecognizer implements SpeechRecognizerPort {
   final StreamController<RecognizerEvent> _events =
       StreamController.broadcast(sync: true);
   final List<(int, String)> begun = [];
+  final List<bool> whole = [];
   final List<int> flushed = [];
   final List<int> ended = [];
   int fed = 0;
@@ -77,7 +79,10 @@ class FakeRecognizer implements SpeechRecognizerPort {
   Stream<RecognizerEvent> get events => _events.stream;
 
   @override
-  void begin(int session, String language) => begun.add((session, language));
+  void begin(int session, String language, {bool whole = false}) {
+    begun.add((session, language));
+    this.whole.add(whole);
+  }
 
   @override
   void feed(int session, Uint8List pcm16) => fed++;
@@ -204,6 +209,61 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(recognizer.flushed, hasLength(1));
       expect(results, [('', true)]);
+    });
+
+    // 2026-10-17, fix/voice-capture: the first pause used to end a
+    // push-to-talk command ("basahin" … "ang Liham" ran as "basahin").
+    test('push-to-talk: a pause does not end it; the release reports '
+        'everything said as one result', () async {
+      var speechStarts = 0;
+      await listener.listen(
+        const ListenRequest(
+          localeId: 'fil-PH',
+          onDevice: true,
+          offline: true,
+          pushToTalk: true,
+        ),
+        onResult: (words, isFinal, {alternates = const [], confidence = -1}) =>
+            results.add((words, isFinal)),
+        onSpeechStart: () => speechStarts++,
+      );
+      expect(recognizer.whole.single, isTrue, reason: 'recognized at once');
+      recognizer
+        ..speechStarts()
+        ..says('basahin');
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(results, isEmpty, reason: 'still held');
+      expect(speechStarts, 1);
+      recognizer.says('ang Liham');
+      await listener.stop(); // the release
+      await Future<void>.delayed(Duration.zero);
+      expect(results, [('basahin ang Liham', true)]);
+      expect(statuses.last, 'done');
+    });
+
+    test('push-to-talk: no speech cap while held', () async {
+      await listener.listen(
+        const ListenRequest(
+          localeId: 'fil-PH',
+          onDevice: true,
+          offline: true,
+          pushToTalk: true,
+        ),
+        onResult: (words, isFinal, {alternates = const [], confidence = -1}) =>
+            results.add((words, isFinal)),
+      );
+      recognizer.speechStarts();
+      await Future<void>.delayed(
+        VoiceConfig.commandSpeechMax + const Duration(milliseconds: 200),
+      );
+      expect(recognizer.flushed, isEmpty);
+      expect(listener.listening, isTrue);
+    });
+
+    test('an ordinary command session is recognized stretch by stretch',
+        () async {
+      await listen();
+      expect(recognizer.whole.single, isFalse);
     });
 
     test('cancelled while the microphone opens: the microphone is closed '
@@ -409,6 +469,40 @@ void main() {
       await android.stop();
       expect(await done, isTrue);
       expect(bundled.spoken.single.$1, 'Next.');
+    });
+
+    // 2026-10-17, fix/voice-capture: after a failure the next sentence went
+    // back to the failed Android voice, so the voice kept changing.
+    test('after a failure the downloaded voice stays for that language',
+        () async {
+      android
+        ..installedVoices = const [
+          TtsVoice(name: 'en-us-x-sfg-local', locale: 'en-US'),
+        ]
+        ..autoComplete = false;
+      final done = tts.speak('Next.', languageTag: 'en-US');
+      await Future<void>.delayed(Duration.zero);
+      android.lastFailed = true;
+      await android.stop();
+      await done;
+      android
+        ..lastFailed = false
+        ..autoComplete = true;
+      await tts.speak('And then.', languageTag: 'en-US');
+      expect(await tts.routeFor('en-US'), TtsRoute.bundled);
+      expect(bundled.spoken.map((s) => s.$1), ['Next.', 'And then.']);
+      expect(android.spoken, ['Next.'], reason: 'only the failed try');
+    });
+
+    test('the voice chosen for a language is kept for the run', () async {
+      android.installedVoices = const [
+        TtsVoice(name: 'fil-ph-x-fie-local', locale: 'fil-PH'),
+      ];
+      expect(await tts.routeFor('fil-PH'), TtsRoute.androidLocal);
+      // Voices listed differently later (a voice list refresh) don't move
+      // the app to another engine mid-session.
+      android.installedVoices = const [];
+      expect(await tts.routeFor('fil-PH'), TtsRoute.androidLocal);
     });
 
     test('without the downloaded voice, Android speaks (online voice)',

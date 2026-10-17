@@ -5180,6 +5180,24 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Pagbukas: {seconds} s'**
   String voiceStateStartup(String seconds);
+
+  /// Developer voice-state overlay: the recognizer and Android audio source of the last listening session (technical names, e.g. 'app mic: voiceRecognition AEC NS').
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinakikinggan sa: {source}'**
+  String voiceStateSource(String source);
+
+  /// Developer voice-state overlay: the last microphone level and the room's measured noise level (about -2 silent to 10 loud; a dash when not measured).
+  ///
+  /// In fil, this message translates to:
+  /// **'Lakas ng tunog: {level} · kuwarto: {floor}'**
+  String voiceStateNoise(String level, String floor);
+
+  /// Developer voice-state overlay: shown when the room counts as noisy.
+  ///
+  /// In fil, this message translates to:
+  /// **'MAINGAY'**
+  String get voiceStateNoisy;
 }
 
 class _AppLocalizationsDelegate

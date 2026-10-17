@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:percipere_app/config/voice_config.dart';
 import 'package:percipere_app/core/accessibility/action_registry.dart';
 import 'package:percipere_app/core/accessibility/announcer.dart';
 import 'package:percipere_app/core/accessibility/nav_intent.dart';
@@ -34,6 +35,13 @@ const s4Start = 'Sa tulong ng Percipere';
 const s5Start = 'Maaari mong i-pause';
 
 const _file = FileSource(DocumentFile(path: 'x.pdf', kind: DocumentKind.pdf));
+
+/// Listening while reading (barge-in) is off while the half-duplex rule is
+/// on (2026-10-17, fix/voice-capture): these tests cover it for when it is
+/// switched back on.
+const String? _bargeInSkip = VoiceConfig.halfDuplex
+    ? 'half-duplex: the app never listens while it reads'
+    : null;
 
 void main() {
   late TestEnv env;
@@ -379,6 +387,21 @@ void main() {
         reason: 'an ordinary command session again',
       );
     },
+    skip: _bargeInSkip,
+  );
+
+  test(
+    'half-duplex: never listens while reading, listens once paused',
+    () async {
+      await setUpWith(mode: NavMode.voice);
+      unawaited(reader().play());
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      expect(env.speech.listening, isFalse);
+      unawaited(reader().pause(quiet: true));
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      expect(env.speech.listening, isTrue, reason: 'listens once paused');
+    },
+    skip: VoiceConfig.halfDuplex ? null : 'barge-in is on',
   );
 
   test('the user talking over the reading pauses it; with no command it '
@@ -399,7 +422,7 @@ void main() {
     await pumpEventQueue();
     expect(env.tts.spoken.length, spoken + 1);
     expect(env.tts.spoken.last, s1, reason: 'the paused sentence again');
-  });
+  }, skip: _bargeInSkip);
 
   test('…and a reading command heard meanwhile is what happens', () async {
     await setUpWith(mode: NavMode.voice);
@@ -422,7 +445,7 @@ void main() {
     await pumpEventQueue();
     expect(state().playing, isFalse);
     expect(env.tts.spoken.last, 'Naka-pause.');
-  });
+  }, skip: _bargeInSkip);
 
   test('speed strip while reading: the value is spoken once, then reading '
       'goes on at the new speed', () async {

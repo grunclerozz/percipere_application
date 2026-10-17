@@ -284,12 +284,19 @@ class FakeSpeechInput implements SpeechInput {
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
+    void Function()? onSpeechStart,
   }) async {
     sessions.add(request);
     _onResult = onResult;
     _onSoundLevel = onSoundLevel;
+    _onSpeechStart = onSpeechStart;
     listening = true;
   }
+
+  void Function()? _onSpeechStart;
+
+  /// The voice detector hears speech begin (the app's own recognizer).
+  void speechStarts() => _onSpeechStart?.call();
 
   /// The microphone delivers sound at [level] (Android's rms dB scale):
   /// proves the session is really listening.

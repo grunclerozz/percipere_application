@@ -2753,5 +2753,11 @@
   "voiceStateProcessing": "nagpoproseso",
   "@voiceStateProcessing": {"description": "Voice state."},
   "voiceStateStartup": "Pagbukas: {seconds} s",
-  "@voiceStateStartup": {"description": "Developer voice-state overlay: how long the last cold start took.", "placeholders": {"seconds": {"type": "String"}}}
+  "@voiceStateStartup": {"description": "Developer voice-state overlay: how long the last cold start took.", "placeholders": {"seconds": {"type": "String"}}},
+  "voiceStateSource": "Pinakikinggan sa: {source}",
+  "@voiceStateSource": {"description": "Developer voice-state overlay: the recognizer and Android audio source of the last listening session (technical names, e.g. 'app mic: voiceRecognition AEC NS').", "placeholders": {"source": {"type": "String"}}},
+  "voiceStateNoise": "Lakas ng tunog: {level} · kuwarto: {floor}",
+  "@voiceStateNoise": {"description": "Developer voice-state overlay: the last microphone level and the room's measured noise level (about -2 silent to 10 loud; a dash when not measured).", "placeholders": {"level": {"type": "String"}, "floor": {"type": "String"}}},
+  "voiceStateNoisy": "MAINGAY",
+  "@voiceStateNoisy": {"description": "Developer voice-state overlay: shown when the room counts as noisy."}
 }

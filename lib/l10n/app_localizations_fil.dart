@@ -3120,4 +3120,17 @@ class AppLocalizationsFil extends AppLocalizations {
   String voiceStateStartup(String seconds) {
     return 'Pagbukas: $seconds s';
   }
+
+  @override
+  String voiceStateSource(String source) {
+    return 'Pinakikinggan sa: $source';
+  }
+
+  @override
+  String voiceStateNoise(String level, String floor) {
+    return 'Lakas ng tunog: $level · kuwarto: $floor';
+  }
+
+  @override
+  String get voiceStateNoisy => 'MAINGAY';
 }

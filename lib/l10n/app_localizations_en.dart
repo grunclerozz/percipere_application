@@ -3164,4 +3164,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String voiceStateStartup(String seconds) {
     return 'Startup: $seconds s';
   }
+
+  @override
+  String voiceStateSource(String source) {
+    return 'Listening via: $source';
+  }
+
+  @override
+  String voiceStateNoise(String level, String floor) {
+    return 'Sound level: $level · room: $floor';
+  }
+
+  @override
+  String get voiceStateNoisy => 'NOISY';
 }

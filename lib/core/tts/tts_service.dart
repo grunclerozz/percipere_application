@@ -184,11 +184,21 @@ class FlutterTtsService implements TtsService {
       _currentLanguage = languageTag;
       await _applyVoice(languageTag);
     }
-    if (_currentRate != rate) {
-      // Android engine scale: 0.5 is normal speed.
-      await _tts.setSpeechRate(0.5 * rate);
-      _currentRate = rate;
+    // Speed and pitch are set again for every utterance, not only when they
+    // change: the engine can lose them (a language or voice switch, the
+    // engine restarting), and the voice then stayed at another tone or
+    // speed until the setting was changed (2026-10-17 tablet test: "the
+    // tone gets stuck"). Android engine scale: 0.5 is normal speed.
+    await _tts.setSpeechRate(0.5 * rate);
+    await _tts.setPitch(_pitch);
+    if (_currentRate != rate || _loggedVoice != _currentVoice?.name) {
+      _loggedVoice = _currentVoice?.name;
+      debugPrint(
+        '[TTS] android voice: ${_currentVoice?.name ?? 'engine default'} '
+        '($languageTag) rate $rate pitch $_pitch',
+      );
     }
+    _currentRate = rate;
     // Stopped while the voice was being set up: say nothing.
     if (stops != _stops) return false;
     // The engine's error path never resolves the call: an error ends the
@@ -202,6 +212,16 @@ class FlutterTtsService implements TtsService {
       failed.future.then((_) => 0),
     ]).timeout(limit, onTimeout: () => null);
     if (identical(_failed, failed)) _failed = null;
+    if (result == null) {
+      // No answer in time: silence it, so another voice saying the text
+      // again never talks over it.
+      debugPrint('[TTS] no answer from the engine: stopping it');
+      try {
+        await _tts.stop();
+      } on Object catch (e) {
+        debugPrint('[TTS] stop after no answer failed: $e');
+      }
+    }
     lastFailed = result == null || (result != 1 && failed.isCompleted);
     if (result != 1 && failed.isCompleted) {
       // The voice failed (e.g. a network voice while offline): another one
@@ -248,8 +268,17 @@ class FlutterTtsService implements TtsService {
     );
   }
 
+  /// The user's pitch (Settings), applied before every utterance.
+  double _pitch = 1.0;
+
+  /// The voice last written to the log.
+  String? _loggedVoice;
+
   @override
-  Future<void> setPitch(double pitch) async => _tts.setPitch(pitch);
+  Future<void> setPitch(double pitch) async {
+    _pitch = pitch;
+    await _tts.setPitch(pitch);
+  }
 
   @override
   Future<List<TtsVoice>> listVoices() async {

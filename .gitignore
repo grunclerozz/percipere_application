@@ -56,3 +56,6 @@ __pycache__/
 
 # Offline voice model archives (86 MB): uploaded to the server / GitHub release, not committed
 tool/voice_models/dist/
+
+# Tablet voice logs shared for debugging (evidence only, never committed)
+voice_log.txt

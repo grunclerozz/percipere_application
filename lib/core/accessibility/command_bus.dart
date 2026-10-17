@@ -260,12 +260,21 @@ class CommandBus {
   /// Handles a recognized gesture.
   Future<void> onGesture(GestureType gesture) async {
     final intent = gestureMap[gesture];
-    if (intent != null) await dispatch(intent);
+    if (intent == null) return;
+    // Push-to-talk: the listen command of a held finger listens until the
+    // finger lifts ([NavIntent.listenRelease]).
+    if (intent == NavIntent.listen) _voice.holdStarted();
+    await dispatch(intent);
   }
 
   /// Handles [intent] on the active screen: a pending question first (for
   /// [NavIntent.activate]), then the screen's override, then the default.
   Future<void> dispatch(NavIntent intent) async {
+    if (intent == NavIntent.listenRelease) {
+      // Only finishes a push-to-talk session: never a command of its own
+      // (it must not end Percy or count as activity).
+      return _voice.releaseHold();
+    }
     final claimsAssistant =
         activeScreen?.intentHandlers.containsKey(NavIntent.assistant) ?? false;
     if (intent == NavIntent.assistant && !claimsAssistant) {
@@ -310,6 +319,8 @@ class CommandBus {
         return help(screen);
       case NavIntent.listen:
         return _voice.listenNow();
+      case NavIntent.listenRelease:
+        return _voice.releaseHold(); // (handled above already)
       case NavIntent.home:
         return _goHome();
       case NavIntent.camera:
@@ -372,7 +383,12 @@ class CommandBus {
   /// commands, questions the app answers from its state ("nasaan ako?"),
   /// documents named from anywhere ("basahin ang Liham"), then the phrase
   /// matcher. Everyday phrasing is cleaned first ([Understanding.clean]).
-  Future<void> handleUtterance(String heard) async {
+  ///
+  /// [noisy]: the room was noisy or the recognizer unsure. A command that
+  /// is close but not close enough is then asked back ("Ito po ba ang ibig
+  /// ninyong sabihin…?", from [VoiceConfig.noisyAskScore]) instead of "not
+  /// understood". Percy's thresholds are not affected.
+  Future<void> handleUtterance(String heard, {bool noisy = false}) async {
     if (await _userEndsAssistant()) return;
     _announcer.answered();
     // A Percy session gets everything that is said.
@@ -441,18 +457,46 @@ class CommandBus {
         _voice.markMatched(phrase);
         return _run(target);
       case Ambiguous(:final target, :final phrase):
-        _misses = 0;
-        _voice.markMatched('unsure: "$phrase"', done: true);
-        _pending = _Pending(() => _run(target));
-        return ask(_l10n.voiceDidYouMean(phrase), split: true);
+        return _askBack(target, phrase, noisy: noisy);
       case NoMatch():
         if (Understanding.documentQuestion(text) != null) {
           _understood('document question outside the Reader');
           return say(_l10n.docNeedsOpenDoc);
         }
+        if (noisy) {
+          final guess = _matchCommand(cleaned, screen, matcher: _noisyMatcher);
+          if (guess is Ambiguous) {
+            return _askBack(guess.target, guess.phrase, noisy: true);
+          }
+        }
         _voice.markMatched('no command', done: true);
         return _notUnderstood(cleaned, screen);
     }
+  }
+
+  /// Matcher for a noisy room: asks back from a lower similarity.
+  static const CommandMatcher _noisyMatcher = CommandMatcher(
+    askThreshold: VoiceConfig.noisyAskScore,
+  );
+
+  /// "Did you mean …?": runs [target] on "oo" / double tap.
+  Future<void> _askBack(
+    CommandTarget target,
+    String phrase, {
+    required bool noisy,
+  }) {
+    _misses = 0;
+    _voice.markMatched(
+      '${noisy ? 'unsure (noisy)' : 'unsure'}: "$phrase"',
+      done: true,
+    );
+    _pending = _Pending(() => _run(target));
+    return ask(
+      noisy
+          ? _l10n.voiceNoisyDidYouMean(phrase)
+          : _l10n.voiceDidYouMean(phrase),
+      split: true,
+    );
   }
 
   void _understood(String what) {
@@ -889,10 +933,15 @@ class CommandBus {
     return (p != null && p.valid) ? p : null;
   }
 
-  MatchResult _matchCommand(String text, ScreenRegistration? screen) {
+  MatchResult _matchCommand(
+    String text,
+    ScreenRegistration? screen, {
+    CommandMatcher? matcher,
+  }) {
+    final m = matcher ?? _matcher;
     // The screen's own actions win over app-wide commands.
-    final local = _matcher.match(text, _screenPhrases(screen));
-    final global = _matcher.match(text, _globalPhrases);
+    final local = m.match(text, _screenPhrases(screen));
+    final global = m.match(text, _globalPhrases);
     if (local is Matched) {
       // Two commands in one phrase: the first one said runs — except
       // "buksan / open / piliin" followed by what to open ("open the

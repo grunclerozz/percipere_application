@@ -134,6 +134,9 @@ abstract final class Ids {
   /// Settings (developer builds): the Percy analysis panel.
   static const String settingPercyAnalysis = 'settings.percyAnalysis';
 
+  /// Developer setting: the voice-state overlay.
+  static const String settingVoiceStateOverlay = 'settings.voiceStateOverlay';
+
   /// Settings (developer builds): export Percy's turn log as CSV.
   static const String settingPercyExport = 'settings.percyExport';
 

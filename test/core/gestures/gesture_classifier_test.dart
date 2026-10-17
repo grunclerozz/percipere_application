@@ -118,22 +118,36 @@ void main() {
       expect(d.gestures, [GestureType.longPress]);
       d.classifier.pointerUp(1, const Offset(10, 10), d._now);
       d.wait(600);
-      expect(d.gestures, [GestureType.longPress], reason: 'no extra tap');
+      expect(d.gestures, [
+        GestureType.longPress,
+        GestureType.holdRelease,
+      ], reason: 'the lift ends the push-to-talk; no extra tap');
     });
   });
 
-  test('the hold time comes from VoiceConfig; a shorter rest is not a hold',
-      () {
-    expect(const GestureTuning().longPressDuration, VoiceConfig.holdToListen);
-    expect(VoiceConfig.holdToListen.inMilliseconds, inInclusiveRange(600, 800));
-    run((d) {
-      d.classifier.pointerDown(1, const Offset(10, 10), d._now);
-      d.wait(VoiceConfig.holdToListen.inMilliseconds - 100);
-      d.classifier.pointerUp(1, const Offset(10, 10), d._now);
-      d.wait(600);
-      expect(d.gestures, isNot(contains(GestureType.longPress)));
-    });
-  });
+  test(
+    'the hold time comes from VoiceConfig; a shorter rest is not a hold',
+    () {
+      expect(const GestureTuning().longPressDuration, VoiceConfig.holdToListen);
+      // Push-to-talk (2026-10-17): longer than the longest tap, so a slow tap
+      // stays a tap, and never under 0.3 s.
+      expect(
+        VoiceConfig.holdToListen,
+        greaterThan(const GestureTuning().tapMaxDuration),
+      );
+      expect(
+        VoiceConfig.holdToListen.inMilliseconds,
+        inInclusiveRange(300, 650),
+      );
+      run((d) {
+        d.classifier.pointerDown(1, const Offset(10, 10), d._now);
+        d.wait(VoiceConfig.holdToListen.inMilliseconds - 100);
+        d.classifier.pointerUp(1, const Offset(10, 10), d._now);
+        d.wait(600);
+        expect(d.gestures, isNot(contains(GestureType.longPress)));
+      });
+    },
+  );
 
   test('moving cancels the long press', () {
     run((d) {
@@ -213,5 +227,60 @@ void main() {
       gestureMap[GestureType.twoFingerSwipeUp],
       NavIntent.previousParagraph,
     );
+  });
+
+  group('push-to-talk (2026-10-17)', () {
+    test('a touch under 0.3 s never starts listening', () {
+      run((d) {
+        d.classifier.pointerDown(1, const Offset(10, 10), d._now);
+        d.wait(290);
+        d.classifier.pointerUp(1, const Offset(10, 10), d._now);
+        d.wait(600);
+        expect(d.gestures, isNot(contains(GestureType.longPress)));
+        expect(d.gestures, isNot(contains(GestureType.holdRelease)));
+      });
+    });
+
+    test('the hold is released when the system cancels the touch', () {
+      run((d) {
+        d.classifier.pointerDown(1, const Offset(10, 10), d._now);
+        d.wait(VoiceConfig.holdToListen.inMilliseconds + 50);
+        d.classifier.pointerCancel(1);
+        expect(d.gestures, [GestureType.longPress, GestureType.holdRelease]);
+      });
+    });
+
+    test('a hold still open when the surface goes away is released', () {
+      run((d) {
+        d.classifier.pointerDown(1, const Offset(10, 10), d._now);
+        d.wait(VoiceConfig.holdToListen.inMilliseconds + 50);
+        d.classifier.dispose();
+        expect(d.gestures, [GestureType.longPress, GestureType.holdRelease]);
+      });
+    });
+
+    test('the release maps to listenRelease', () {
+      expect(gestureMap[GestureType.holdRelease], NavIntent.listenRelease);
+      expect(gestureMap[GestureType.longPress], NavIntent.listen);
+    });
+
+    test("TalkBack (hold only): taps and swipes are TalkBack's, the held "
+        'touch of double-tap-and-hold still listens', () {
+      run((d) {
+        d.classifier.holdOnly = true;
+        d
+          ..session()
+          ..wait(400)
+          ..session(delta: const Offset(150, 0));
+        d.wait(400);
+        expect(d.gestures, isEmpty);
+        d.classifier.pointerDown(9, const Offset(10, 10), d._now);
+        d.wait(VoiceConfig.holdToListen.inMilliseconds + 50);
+        expect(d.classifier.holding, isTrue);
+        d.classifier.pointerUp(9, const Offset(10, 10), d._now);
+        expect(d.gestures, [GestureType.longPress, GestureType.holdRelease]);
+        expect(d.classifier.holding, isFalse);
+      });
+    });
   });
 }

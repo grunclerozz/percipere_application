@@ -24,6 +24,9 @@ enum GestureType {
   /// One finger held still.
   longPress,
 
+  /// The finger of a [longPress] lifted (push-to-talk ends).
+  holdRelease,
+
   /// Two fingers moving down together.
   twoFingerSwipeDown,
 
@@ -61,6 +64,7 @@ const Map<GestureType, NavIntent> gestureMap = {
   GestureType.twoFingerSwipeDown: NavIntent.nextParagraph,
   GestureType.twoFingerSwipeUp: NavIntent.previousParagraph,
   GestureType.longPress: NavIntent.listen,
+  GestureType.holdRelease: NavIntent.listenRelease,
   GestureType.twoFingerDoubleTap: NavIntent.stopSpeech,
   GestureType.threeFingerTap: NavIntent.help,
   GestureType.twoFingerSwipeLeft: NavIntent.assistant,

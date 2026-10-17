@@ -9,13 +9,22 @@ import 'gesture_map.dart';
 ///
 /// A "session" runs from the first finger down to the last finger up. The
 /// finger count of a session is the most fingers down at once.
+///
+/// A hold ([GestureType.longPress]) is followed by [GestureType.holdRelease]
+/// when the last finger lifts (push-to-talk). With [holdOnly] (TalkBack on:
+/// only its double-tap-and-hold reaches the app as touches) nothing but the
+/// hold and its release is reported.
 class GestureClassifier {
   /// Creates a classifier that reports gestures to [onGesture].
   GestureClassifier({
     required this.onGesture,
     this.onFirstTouch,
     this.tuning = const GestureTuning(),
+    this.holdOnly = false,
   });
+
+  /// Report only holds and their release.
+  bool holdOnly;
 
   /// Called for every recognized gesture.
   final void Function(GestureType gesture) onGesture;
@@ -34,6 +43,12 @@ class GestureClassifier {
   bool _consumed = false;
   bool _claimed = false;
   Timer? _longPressTimer;
+
+  /// A hold was reported and its release is still to come.
+  bool _holding = false;
+
+  /// Whether a hold is in progress (its release is still to come).
+  bool get holding => _holding;
 
   int _pendingTapFingers = 0;
   Timer? _tapTimer;
@@ -87,13 +102,21 @@ class GestureClassifier {
     if (_active.isEmpty) {
       _longPressTimer?.cancel();
       _consumed = true;
+      _releaseHold();
     }
   }
 
-  /// Cancels timers.
+  /// Cancels timers; a hold still open is released.
   void dispose() {
     _longPressTimer?.cancel();
     _tapTimer?.cancel();
+    _releaseHold();
+  }
+
+  void _releaseHold() {
+    if (!_holding) return;
+    _holding = false;
+    onGesture(GestureType.holdRelease);
   }
 
   double _travel(int pointer) =>
@@ -103,13 +126,15 @@ class GestureClassifier {
   void _onLongPress() {
     if (_active.length != 1 || _consumed) return;
     _consumed = true;
-    _flushPendingTap();
+    _holding = true;
+    if (!holdOnly) _flushPendingTap();
     onGesture(GestureType.longPress);
   }
 
   void _endSession(Duration end) {
     _longPressTimer?.cancel();
-    if (_consumed) return;
+    _releaseHold();
+    if (_consumed || holdOnly) return;
 
     final duration = end - _sessionStart;
     final fingers = _maxFingers;

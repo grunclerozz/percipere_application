@@ -5,6 +5,7 @@ import '../core/accessibility/accessibility_host.dart';
 import '../core/auth/session_guard.dart';
 import '../core/report/issue_report_sync.dart';
 import '../core/widgets/percy_analysis_panel.dart';
+import '../core/widgets/voice_state_overlay.dart';
 import '../features/offline_voice/offline_voice_host.dart';
 import '../l10n/app_localizations.dart';
 import 'locale_provider.dart';
@@ -39,6 +40,7 @@ class PercipereApp extends ConsumerWidget {
                 children: [
                   AccessibilityHost(child: child ?? const SizedBox.shrink()),
                   const PercyAnalysisPanel(),
+                  const VoiceStateOverlay(),
                 ],
               ),
             ),

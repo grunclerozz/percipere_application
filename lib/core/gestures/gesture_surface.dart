@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../accessibility/command_bus.dart';
 import '../accessibility/haptics.dart';
+import '../accessibility/nav_intent.dart';
 import '../accessibility/navigation_mode.dart';
 import 'gesture_classifier.dart';
 import 'gesture_map.dart';
@@ -13,7 +16,11 @@ import 'gesture_map.dart';
 /// [CommandBus].
 ///
 /// Used by the Gesture Pad, and as the whole-screen surface on Welcome.
-/// Disabled while TalkBack is on (TalkBack owns touch gestures then).
+/// While TalkBack is on, TalkBack owns touch gestures: only its
+/// double-tap-and-hold reaches the app as a held touch, so only the hold
+/// (push-to-talk) and its release are detected, and the same "listen now"
+/// is offered as TalkBack's long-press and custom action (no release
+/// comes from those: a silence ends that session).
 ///
 /// Buttons inside a surface call [GestureSurface.claimPointer] on pointer
 /// down so their taps don't also count as surface taps.
@@ -57,6 +64,18 @@ class _GestureSurfaceState extends ConsumerState<GestureSurface> {
     }
   }
 
+  /// TalkBack's long-press or custom action: listen now (without a hold to
+  /// release). Ignored while a held touch already started listening.
+  void _listenFromTalkBack() {
+    if (!mounted || _classifier.holding) return;
+    final handler = widget.onGesture;
+    if (handler != null) {
+      handler(GestureType.longPress);
+    } else {
+      unawaited(ref.read(commandBusProvider).dispatch(NavIntent.listen));
+    }
+  }
+
   @override
   void dispose() {
     _classifier.dispose();
@@ -66,45 +85,41 @@ class _GestureSurfaceState extends ConsumerState<GestureSurface> {
   @override
   Widget build(BuildContext context) {
     final talkBack = ref.watch(talkBackProvider);
+    _classifier.holdOnly = talkBack;
+    final surface = Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (e) => _classifier.pointerDown(
+        e.pointer,
+        e.localPosition,
+        e.timeStamp,
+        claimed: _claimed.remove(e.pointer),
+      ),
+      onPointerMove: (e) => _classifier.pointerMove(e.pointer, e.localPosition),
+      onPointerUp: (e) =>
+          _classifier.pointerUp(e.pointer, e.localPosition, e.timeStamp),
+      onPointerCancel: (e) => _classifier.pointerCancel(e.pointer),
+      // A swipe here is a command: content may still scroll (large
+      // text) but must not stretch or glow at the edges as if the
+      // swipe were meant for it.
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+        child: widget.child,
+      ),
+    );
     return _GestureSurfaceScope(
       state: this,
       child: talkBack
-          // TalkBack owns touch gestures, so the hold cannot be detected:
-          // the same action is offered in TalkBack's actions menu instead.
           ? Semantics(
               container: true,
+              onLongPress: _listenFromTalkBack,
               customSemanticsActions: {
                 CustomSemanticsAction(
                   label: AppLocalizations.of(context).gestureHoldListenAction,
-                ): () => _dispatch(GestureType.longPress),
+                ): _listenFromTalkBack,
               },
-              child: widget.child,
+              child: surface,
             )
-          : Listener(
-              behavior: HitTestBehavior.opaque,
-              onPointerDown: (e) => _classifier.pointerDown(
-                e.pointer,
-                e.localPosition,
-                e.timeStamp,
-                claimed: _claimed.remove(e.pointer),
-              ),
-              onPointerMove: (e) =>
-                  _classifier.pointerMove(e.pointer, e.localPosition),
-              onPointerUp: (e) => _classifier.pointerUp(
-                e.pointer,
-                e.localPosition,
-                e.timeStamp,
-              ),
-              onPointerCancel: (e) => _classifier.pointerCancel(e.pointer),
-              // A swipe here is a command: content may still scroll (large
-              // text) but must not stretch or glow at the edges as if the
-              // swipe were meant for it.
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context)
-                    .copyWith(overscroll: false),
-                child: widget.child,
-              ),
-            ),
+          : surface,
     );
   }
 }

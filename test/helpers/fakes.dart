@@ -248,6 +248,7 @@ class FakeSpeechInput implements SpeechInput {
   void Function(String code)? _onError;
   void Function(String status)? _onStatus;
   SpeechResultCallback? _onResult;
+  void Function(double level)? _onSoundLevel;
 
   @override
   Future<bool> initialize({
@@ -286,7 +287,25 @@ class FakeSpeechInput implements SpeechInput {
   }) async {
     sessions.add(request);
     _onResult = onResult;
+    _onSoundLevel = onSoundLevel;
     listening = true;
+  }
+
+  /// The microphone delivers sound at [level] (Android's rms dB scale):
+  /// proves the session is really listening.
+  void soundLevel([double level = 0]) => _onSoundLevel?.call(level);
+
+  /// Ends the session the way Android really does: `done` first, the error
+  /// that explains it a moment later.
+  Future<void> endLikeAndroid(
+    String code, {
+    Duration gap = const Duration(milliseconds: 20),
+  }) async {
+    listening = false;
+    _onStatus?.call('notListening');
+    _onStatus?.call('done');
+    await Future<void>.delayed(gap);
+    _onError?.call(code);
   }
 
   /// Pause changes made during sessions.

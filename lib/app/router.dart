@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/account.dart';
 import '../core/auth/session.dart';
 import '../core/offline_voice/offline_voice_setup.dart';
+import '../core/voice/voice_readiness.dart';
 import '../features/auth/auth_choice_screen.dart';
 import '../features/auth/fingerprint_offer_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
@@ -33,6 +34,7 @@ import '../features/settings/settings_screen.dart';
 import '../features/settings/voice_check_screen.dart';
 import '../features/settings/wer_test_screen.dart';
 import '../features/setup/profiling_screen.dart';
+import '../features/startup/startup_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../features/welcome/welcome_screen.dart';
 
@@ -82,6 +84,10 @@ abstract final class AppRoutes {
   /// First launch: downloading the offline voices. `extra`: an
   /// `OfflineVoiceNext` (where to go afterwards).
   static const String offlineVoice = '/voice-setup';
+
+  /// Every cold start: the loading screen ("Pakihintay po, inihahanda ang
+  /// Percipere."). `extra`: an `OfflineVoiceNext` (the first real screen).
+  static const String startup = '/start';
 
   /// Claim an old name + PIN account.
   static const String legacyAccount = '/login/legacy';
@@ -220,6 +226,14 @@ GoRouter buildRouter({
         ),
       ),
       GoRoute(
+        path: AppRoutes.startup,
+        builder: (context, state) => StartupScreen(
+          next: state.extra is OfflineVoiceNext
+              ? state.extra! as OfflineVoiceNext
+              : const OfflineVoiceNext(AppRoutes.welcome),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.legacyAccount,
         builder: (context, state) => const LegacyAccountScreen(),
       ),
@@ -318,11 +332,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       ? AppRoutes.authChoice
       : AppRoutes.welcome;
   final extra = account == null && expired ? true : null;
+  // Every cold start: the loading screen first (then the first screen).
+  final loading = ref.read(startupScreenProvider);
+  final first = loading
+      ? OfflineVoiceNext(
+          AppRoutes.startup,
+          extra: OfflineVoiceNext(location, extra: extra),
+        )
+      : OfflineVoiceNext(location, extra: extra);
   // First launch: the offline voices are downloaded before anything else.
   final setup = ref.read(offlineVoiceSetupPendingProvider);
   final router = buildRouter(
-    initialLocation: setup ? AppRoutes.offlineVoice : location,
-    initialExtra: setup ? OfflineVoiceNext(location, extra: extra) : extra,
+    initialLocation: setup ? AppRoutes.offlineVoice : first.location,
+    initialExtra: setup ? first : first.extra,
   );
   ref.onDispose(router.dispose);
   return router;

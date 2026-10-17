@@ -58,6 +58,9 @@ abstract final class PrefKeys {
   /// Developer option: the Percy analysis panel (bool).
   static const String percyAnalysis = 'percy.analysis';
 
+  /// Developer option: the voice-state overlay (bool).
+  static const String voiceStateOverlay = 'dev.voiceStateOverlay';
+
   /// True once the Maglarawan explanation has been read to this user.
   static const String describeIntroSeen = 'describe.introSeen';
 

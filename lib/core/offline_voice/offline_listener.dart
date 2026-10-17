@@ -44,6 +44,8 @@ class ChannelMicStream implements MicStream {
     try {
       return await _control.invokeMethod<bool>('micStart', {
             'sampleRate': 16000,
+            'noiseSuppressor': VoiceConfig.micNoiseSuppressor,
+            'autoGain': VoiceConfig.micAutoGain,
           }) ??
           false;
     } on Object catch (e) {
@@ -141,7 +143,6 @@ class OfflineCommandListener {
   Timer? _wait;
   Timer? _cap;
   Timer? _speechCap;
-  double _noiseFloor = -1;
 
   /// Whether a session is open.
   bool get listening => _open;
@@ -152,22 +153,52 @@ class OfflineCommandListener {
     return lang == 'en' ? 'en' : 'tl';
   }
 
+  /// Opening and closing the microphone, one after the other: a session
+  /// opened while the previous one was still closing got a microphone that
+  /// the old close then stopped (2026-10-17: commands said into a dead
+  /// microphone, "say it twice").
+  Future<void> _micQueue = Future.value();
+
+  Future<T> _serial<T>(Future<T> Function() task) {
+    final result = _micQueue.then((_) => task());
+    _micQueue = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
+  }
+
   /// Starts a session for [request]. False if the microphone can't be
   /// opened (the caller then uses another recognizer).
   Future<bool> listen(
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
-  }) async {
-    await _close(report: false);
+  }) {
+    // Claimed now, so a cancel() arriving while the microphone opens
+    // cancels this session.
+    final releasing = _close(report: false, queued: false);
     final session = ++_session;
-    if (!await mic.start()) return false;
-    if (session != _session) return true; // replaced meanwhile
+    return _serial(() async {
+      await releasing;
+      if (session != _session) return true; // cancelled or replaced
+      if (!await mic.start()) return false;
+      if (session != _session) {
+        // Cancelled while the microphone was opening.
+        await mic.stop();
+        return true;
+      }
+      return _begin(session, request, onResult, onSoundLevel);
+    });
+  }
+
+  bool _begin(
+    int session,
+    ListenRequest request,
+    SpeechResultCallback onResult,
+    void Function(double level)? onSoundLevel,
+  ) {
     _open = true;
     _flushing = false;
     _onResult = onResult;
     _onLevel = onSoundLevel;
-    _noiseFloor = -1;
     recognizer.begin(session, languageFor(request.localeId));
     _audioSub = mic.audio.listen(
       (chunk) {
@@ -194,14 +225,15 @@ class OfflineCommandListener {
   void _reportLevel(Uint8List chunk) {
     final level = _onLevel;
     if (level == null) return;
-    final db = levelOf(chunk);
-    // The room's noise: follows quiet moments quickly, loud ones slowly.
-    _noiseFloor = _noiseFloor < 0 || db < _noiseFloor
-        ? db
-        : _noiseFloor + 0.05;
-    // Android's rms dB scale (about −2 silent .. 10 loud), for the logs.
-    level(((db - _noiseFloor) / 3).clamp(-2, 10).toDouble());
+    // About Android's rms dB scale (−2 silent .. 10 loud), measured from a
+    // quiet room (−60 dBFS), so a steady noise shows as loud: the voice
+    // controller judges the room by it ([VoiceConfig.noisyLevel]).
+    level(soundLevel(levelOf(chunk)));
   }
+
+  /// A chunk's loudness [dbfs] on about Android's rms dB scale.
+  static double soundLevel(double dbfs) =>
+      ((dbfs + 60) / 3).clamp(-2, 10).toDouble();
 
   void _onEvent(RecognizerEvent event) {
     if (event.session != _session || !_open) return;
@@ -254,7 +286,11 @@ class OfflineCommandListener {
   /// Ends the session silently.
   Future<void> cancel() => _close(report: false);
 
-  Future<void> _close({required bool report}) async {
+  /// Closes the session at once (no more results or statuses from it);
+  /// the returned future completes once the microphone is released. With
+  /// [queued], the release waits its turn behind a microphone being opened.
+  /// Also cancels a session whose microphone is still opening.
+  Future<void> _close({required bool report, bool queued = true}) {
     final wasOpen = _open;
     _open = false;
     _flushing = false;
@@ -264,15 +300,20 @@ class OfflineCommandListener {
     _wait = _cap = _speechCap = null;
     final sub = _audioSub;
     _audioSub = null;
-    if (wasOpen) {
-      recognizer.end(_session);
-      _session++;
-    }
+    if (wasOpen) recognizer.end(_session);
+    _session++;
     _onResult = null;
     _onLevel = null;
     if (wasOpen && report) onStatus?.call('notListening');
-    await sub?.cancel();
-    if (wasOpen) await mic.stop();
+    if (!wasOpen && sub == null) {
+      return queued ? _serial(() async {}) : Future.value();
+    }
+    Future<void> release() async {
+      await sub?.cancel();
+      if (wasOpen) await mic.stop();
+    }
+
+    return queued ? _serial(release) : release();
   }
 
   /// Stops listening for good.

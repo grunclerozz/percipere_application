@@ -10,6 +10,7 @@ import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/core/settings/settings_controller.dart';
 import 'package:percipere_app/core/widgets/gesture_pad.dart';
+import 'package:percipere_app/features/home/home_screen.dart';
 import 'package:percipere_app/features/setup/profiling_screen.dart';
 import 'package:percipere_app/features/tutorial/tutorial_screen.dart';
 
@@ -117,9 +118,11 @@ void main() {
 
     await tester.say('oo');
     expect(env.tts.transcript, contains('Tapos na ang setup.'));
-    // A guest's first visit: Percy introduces itself in the tutorial.
-    expect(find.byType(TutorialScreen), findsOneWidget);
-    expect(env.tts.transcript, contains('Ako si Percy'));
+    // The tutorial now comes first (before Welcome): the setup goes
+    // straight to Home.
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(TutorialScreen), findsNothing);
+    expect(env.tts.transcript, isNot(contains('Ako si Percy')));
     final account = tester.scope.read(currentAccountProvider)!;
     expect(account.profilingCompleted, isTrue);
     final done = await tester.runAsync(

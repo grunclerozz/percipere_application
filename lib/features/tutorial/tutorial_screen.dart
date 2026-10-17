@@ -5,7 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/ids.dart';
 import '../../app/router.dart';
+import '../../config/tutorial_config.dart';
 import '../../core/accessibility/accessible_screen.dart';
+import '../../core/accessibility/action_registry.dart';
+import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
@@ -23,7 +26,8 @@ import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Whether [account] already finished or skipped the tutorial: a guest per
-/// device (first launch), a registered account per account.
+/// device, a registered account per account. (The first launch, before any
+/// account, uses the device scope: `initialTutorialSeenProvider`.)
 Future<bool> tutorialSeen(PreferencesDao prefs, Account account) async {
   final scope = account.isGuest ? PreferencesDao.deviceScope : account.id;
   return await prefs.get(PrefKeys.tutorialDone, userId: scope) == true;
@@ -71,13 +75,20 @@ enum TutorialStep {
 /// Controls tutorial ("Pag-aaral ng mga kontrol"): explains and lets the
 /// user practise each gesture and a voice command before using the app.
 ///
-/// Starts with Percy introducing itself. Shown once after the setup (right
-/// after registration, or a guest's first visit), then home; replayed from
+/// Starts with Percy introducing itself. Shown once on the first launch, after
+/// the loading screen and before Welcome (a new user must learn the controls
+/// before they can register or log in; it needs no account). Replayed from
 /// Settings ("Paano gamitin ang app") or by saying "paano gamitin" anywhere
-/// ([replay] true: finishing goes back instead of home). The whole
+/// ([replay] true: finishing goes back instead of to Welcome). The whole
 /// screen is the gesture surface. Skipped by saying "laktawan", the
 /// "Laktawan" button, or a two-finger swipe right (asked first after the
 /// introduction).
+///
+/// Skip rule (first launch only): until Percy's introduction has been spoken
+/// (at least [TutorialConfig.firstStepMinSpoken]) skipping is ignored, and
+/// the button is hidden; after [TutorialConfig.firstStepTimeout] it is
+/// allowed anyway so a failed voice never traps the user. A replay can skip
+/// at once. Moving past the first step waits for the same moment.
 class TutorialScreen extends ConsumerStatefulWidget {
   /// Creates the tutorial.
   const TutorialScreen({super.key, this.replay = false});
@@ -99,6 +110,12 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   TutorialStep _step = TutorialStep.percy;
   int _wrong = 0;
   bool _finishing = false;
+
+  /// Skipping is possible (always in a replay; on the first launch once the
+  /// introduction was heard, or after the safety timeout).
+  late bool _skipAllowed = widget.replay;
+  bool _watching = false;
+  Timer? _skipTimeout;
 
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
   CommandBus get _bus => ref.read(commandBusProvider);
@@ -142,15 +159,79 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     TutorialStep.done => l.tutorialDone,
   };
 
+  @override
+  void initState() {
+    super.initState();
+    if (_skipAllowed) return;
+    _skipTimeout = Timer(
+      TutorialConfig.firstStepTimeout,
+      () => _allowSkip(
+        'safety timeout after '
+        '${TutorialConfig.firstStepTimeout.inSeconds}s',
+      ),
+    );
+    // The host announces the screen (title + Percy's introduction) as soon
+    // as it becomes the active one; wait until that speech has ended.
+    ref.listenManual(activeScreenProvider, (previous, next) {
+      if (_watching || next?.id != TutorialScreen.screenId) return;
+      _watching = true;
+      unawaited(_awaitFirstStep());
+    });
+  }
+
+  @override
+  void dispose() {
+    _skipTimeout?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _awaitFirstStep() async {
+    // Let the host queue the entry announcement first.
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted || _skipAllowed) return;
+    // Counts as heard only if the speech lasted at least firstStepMinSpoken.
+    var longEnough = false;
+    final minTimer = Timer(
+      TutorialConfig.firstStepMinSpoken,
+      () => longEnough = true,
+    );
+    await ref.read(announcerProvider.notifier).idle();
+    minTimer.cancel();
+    if (!mounted || _skipAllowed) return;
+    if (longEnough) {
+      _allowSkip('first step heard');
+    } else {
+      // Failed or cut off: not heard. The safety timeout opens it.
+      debugPrint(
+        '[TUTORIAL] first step ended in under '
+        '${TutorialConfig.firstStepMinSpoken.inSeconds}s: speech failed or '
+        'was interrupted; skipping stays off until the timeout',
+      );
+    }
+  }
+
+  void _allowSkip(String reason) {
+    if (!mounted || _skipAllowed) return;
+    _skipTimeout?.cancel();
+    debugPrint('[TUTORIAL] skip allowed: $reason');
+    setState(() => _skipAllowed = true);
+  }
+
   // ── Steps ─────────────────────────────────────────────────────────────────
 
   Future<void> _onIntent(NavIntent intent) async {
     if (_finishing) return;
     final expected = _expected[_step];
-    if (intent == expected) return _correct(intent);
+    if (intent == expected) {
+      // The first step must be heard before moving on (its end is when
+      // skipping opens, and the next step talks about skipping).
+      if (_step == TutorialStep.percy && !_skipAllowed) return;
+      return _correct(intent);
+    }
     switch (intent) {
       case NavIntent.back:
         // Two fingers right: skip (asked first, except on the intro).
+        if (!_skipAllowed) return;
         if (_step == TutorialStep.percy || _step == TutorialStep.intro) {
           return _finish(skipped: true);
         }
@@ -194,6 +275,9 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 
   Future<void> _wrongTry() async {
     unawaited(ref.read(hapticsProvider).error());
+    // Step one is not left before it has been heard (not even by too many
+    // wrong tries).
+    if (_step == TutorialStep.percy && !_skipAllowed) return;
     _wrong++;
     if (_wrong >= TutorialScreen.maxTries) {
       return _advance(praise: _l.tutorialMovingOn);
@@ -244,7 +328,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   Future<void> _sayStep() => _bus.say(_text(_step, _l));
 
   Future<void> _finish({required bool skipped}) async {
-    if (_finishing) return;
+    if (_finishing || (skipped && !_skipAllowed)) return;
     _finishing = true;
     try {
       final account = ref.read(currentAccountProvider);
@@ -275,6 +359,8 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   Future<bool> _onUtterance(String text, CommandBus bus) async {
     final said = CommandMatcher.normalize(text);
     if (_skipWords.any((w) => said == w || said.startsWith('$w '))) {
+      // Ignored (not an error) until the first step has been heard.
+      if (!_skipAllowed) return true;
       await _finish(skipped: true);
       return true;
     }
@@ -301,14 +387,15 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     freeTextPrefixes: const [],
     beforeBack: null,
     actions: [
-      A11yAction(
-        id: Ids.tutorialSkip,
-        label: (l) => l.tutorialSkip,
-        voiceSynonyms: _skipWords,
-        focusable: false,
-        confirmation: (_) => '',
-        onActivate: (_) => _finish(skipped: true),
-      ),
+      if (_skipAllowed)
+        A11yAction(
+          id: Ids.tutorialSkip,
+          label: (l) => l.tutorialSkip,
+          voiceSynonyms: _skipWords,
+          focusable: false,
+          confirmation: (_) => '',
+          onActivate: (_) => _finish(skipped: true),
+        ),
     ],
     intentHandlers: {
       for (final intent in const [
@@ -338,6 +425,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 
     return AccessibleScreen(
       registration: _registration,
+      dependencies: [_skipAllowed],
       child: Scaffold(
         body: GestureSurface(
           child: SafeArea(
@@ -363,12 +451,13 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                           subtitleLines: 6,
                         ),
                         const Spacer(),
-                        SmallLink(
-                          label: l10n.tutorialSkip,
-                          icon: Icons.skip_next,
-                          focused: false,
-                          onPressed: () => _bus.activate(Ids.tutorialSkip),
-                        ),
+                        if (_skipAllowed)
+                          SmallLink(
+                            label: l10n.tutorialSkip,
+                            icon: Icons.skip_next,
+                            focused: false,
+                            onPressed: () => _bus.activate(Ids.tutorialSkip),
+                          ),
                       ],
                     ),
                   ),

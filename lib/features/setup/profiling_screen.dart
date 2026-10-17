@@ -38,7 +38,6 @@ import '../../core/widgets/live_speaking_zone.dart';
 import '../../core/widgets/page_padding.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
-import '../tutorial/tutorial_screen.dart';
 import 'setup_flow.dart';
 import 'setup_labels.dart';
 
@@ -223,16 +222,8 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
     if (widget.mode == SetupMode.redo && router.canPop()) {
       router.pop();
     } else {
-      // New users (and a guest's first visit) hear Percy's introduction and
-      // the controls tutorial before Home.
-      var seen = true;
-      try {
-        seen = await tutorialSeen(_prefs, account);
-      } on Object catch (e) {
-        debugPrint('Reading tutorialDone failed: $e');
-      }
-      if (!mounted) return;
-      router.go(seen ? AppRoutes.home : AppRoutes.tutorial);
+      // The controls tutorial already came first, before Welcome.
+      router.go(AppRoutes.home);
     }
   }
 

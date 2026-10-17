@@ -23,7 +23,7 @@ full tablet test, so "tablet-tested" is never claimed below.
 | Old name+PIN accounts | Upgrade to email/password | `features/auth/legacy_account_screen.dart`, `upgrade_account_screen.dart` | Done |
 | Account sync (old design) | Upload of local accounts | `core/auth/account_sync_repository.dart` | Mocked (superseded by server accounts) |
 | Profiling (setup) | Spoken step-by-step setup: mode, speed (Mabagal/Katamtaman/Mabilis), pitch, text size, color, font, theme…; redo from Settings | `features/setup/` | Done |
-| Tutorial | Starts with Percy's intro; once per account (guests once per device); replay by voice/Settings | `features/tutorial/tutorial_screen.dart` | Done, not tablet-tested |
+| Tutorial | **First launch only, before Welcome** (device flag, no account needed); starts with Percy's intro, which must be heard before skip/double-tap work (60 s safety timeout); replay by voice/Settings (skip allowed at once) | `features/tutorial/tutorial_screen.dart` | Done, not tablet-tested |
 
 ## Navigation and accessibility
 | Feature | Code | Status |

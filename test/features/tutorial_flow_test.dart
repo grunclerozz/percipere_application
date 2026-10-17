@@ -40,7 +40,7 @@ void main() {
     tester,
   ) async {
     final env = await start(tester);
-    tester.scope.read(routerProvider).go(AppRoutes.tutorial);
+    tester.scope.read(routerProvider).go(AppRoutes.tutorial, extra: true);
     await tester.pumpAndSettle();
 
     expect(find.byType(TutorialScreen), findsOneWidget);
@@ -77,7 +77,7 @@ void main() {
     final prefs = PreferencesDao(env.database.db);
     expect(await tester.runAsync(() => tutorialSeen(prefs, account)), isFalse);
 
-    tester.scope.read(routerProvider).go(AppRoutes.tutorial);
+    tester.scope.read(routerProvider).go(AppRoutes.tutorial, extra: true);
     await tester.pumpAndSettle();
     await tester.say('laktawan');
 

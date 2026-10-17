@@ -80,6 +80,14 @@ Future<List<Override>> bootstrap() async {
       store.installedAll().length < OfflineModelCatalog.names.length &&
       await prefs.get(PrefKeys.offlineVoiceSetupShown) != true;
 
+  // First launch: the controls tutorial comes before Welcome.
+  var tutorialSeen = true;
+  try {
+    tutorialSeen = await prefs.get(PrefKeys.tutorialDone) == true;
+  } on Object catch (e) {
+    debugPrint('Reading tutorialDone failed: $e');
+  }
+
   final micGranted =
       await const DevicePermissionService().status(AppPermission.microphone) ==
       PermissionAccess.granted;
@@ -91,6 +99,7 @@ Future<List<Override>> bootstrap() async {
     initialSettingsScopeProvider.overrideWithValue(restored.scope),
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
+    initialTutorialSeenProvider.overrideWithValue(tutorialSeen),
     initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),

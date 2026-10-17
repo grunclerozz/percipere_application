@@ -321,16 +321,20 @@ GoRouter buildRouter({
   );
 }
 
-/// The app-wide router. Starts where the saved session leads: Welcome with no session, "log in
-/// again" if it expired, otherwise the account's home.
+/// The app-wide router. Starts where the saved session leads: "log in again" if it expired,
+/// otherwise the account's home. With no session: the controls tutorial on the first launch
+/// (before Welcome, so a new user can learn the controls before registering), then Welcome.
 final routerProvider = Provider<GoRouter>((ref) {
   final account = ref.read(initialAccountProvider);
   final expired = ref.read(initialSessionExpiredProvider);
+  final tutorialSeen = ref.read(initialTutorialSeenProvider);
   final location = account != null
       ? AppRoutes.landing(account)
       : expired
       ? AppRoutes.authChoice
-      : AppRoutes.welcome;
+      : tutorialSeen
+      ? AppRoutes.welcome
+      : AppRoutes.tutorial;
   final extra = account == null && expired ? true : null;
   // Every cold start: the loading screen first (then the first screen).
   final loading = ref.read(startupScreenProvider);

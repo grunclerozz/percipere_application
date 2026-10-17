@@ -1,7 +1,7 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (`fix/voice-capture`: half-duplex, noise floor,
-push-to-talk capture, one output voice; merged into `main`).** Every agent updates this file at the end of a
+**Last updated: 2026-10-17 by Claude Code (`feat/tutorial-first`: controls tutorial before Welcome;
+branch, not merged; earlier `fix/voice-capture` is in `main`).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
@@ -31,6 +31,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Tutorial first (`feat/tutorial-first`, from `main` `b7b035a`): tutorial after the loading screen and **before Welcome** on the first launch (device flag), not after profiling any more; skip + double-tap blocked on step one until Percy's intro was heard (60 s safety timeout); replay from Settings unchanged | Claude Code → user | built; analyze clean; 18 changed-area test files pass; **release build OK** (252.8 MB); **not merged, not pushed**. Tablet: `docs/testing/tutorial-first-checklist.md` (first launch without voice models: unverified, test with and without internet) |
 | Voice capture + one output voice (`fix/voice-capture`, merged into `main` 2026-10-17) | Claude Code → user | built; analyze clean; changed-area tests pass (see worklog); **release build not done (stopped: PC low on memory), so the `AudioBridge.kt` change is not compiled yet**. Causes found by reading code (no `voice_log.txt`). Tablet: quiet room, TV on, Percy talking → hold, Reader reading → hold, airplane mode; read the overlay's source/noise lines |
 | Percy's ElevenLabs voice from bundled clips (`feat/percy-elevenlabs`, merged into `main` 2026-10-17) | Claude Code -> user | built; analyze clean; changed-area tests pass. **User must run `tool/percy_voice/generate_percy_voice.py` (see its README) and commit `assets/percy/voice/`**; until then the app speaks everything with the offline voice. Native mp3 playback untested on a device, release build not run |
 | Voice at startup / after upload + push-to-talk + loading screen (`fix/voice-startup-ptt`, merged into `main` 2026-10-17, brings `fix/voice-reliability` too) | Claude Code → user | built; analyze clean; 43 changed-area test files / 530 tests pass; release build NOT done (stopped: PC low on memory). **Cold-start load time not measured** (no AVD on the PC, no device run): read it on the tablet (overlay or `[STARTUP]` log). Checklist `docs/testing/voice-startup-ptt-checklist.md` |
@@ -60,6 +61,7 @@ task: `docs/handoff/worklog.md`.
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
+| `feat/tutorial-first` | see worklog | from `main` `b7b035a`; tutorial before Welcome; **not merged, not pushed** |
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
 | `fix/voice-startup-ptt` | `fc2a5cc` (merge `87ddbaa`) | from `main` `df31ebe`, merged `fix/voice-reliability` first (only docs conflicted), then the startup/PTT work; **merged into `main`**. Not pushed. |

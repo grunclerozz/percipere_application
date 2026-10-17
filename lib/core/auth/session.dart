@@ -83,6 +83,11 @@ final userPrefsProvider = Provider<PreferencesDao>(
   (ref) => PreferencesDao(ref.watch(appDatabaseProvider).db),
 );
 
+/// Whether the controls tutorial was finished or skipped on this device
+/// (device scope). Set by `bootstrap()`; true by default so only the real
+/// app shows the first-launch tutorial.
+final initialTutorialSeenProvider = Provider<bool>((ref) => true);
+
 /// True when a saved session was dropped at startup because the account has
 /// "stay logged in" off. Set by `bootstrap()`.
 final initialSessionExpiredProvider = Provider<bool>((ref) => false);

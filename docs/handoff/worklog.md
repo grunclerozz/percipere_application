@@ -17,6 +17,32 @@ Format:
 
 ---
 
+## 2026-10-17 — Controls tutorial first (before Welcome)
+- Agent: Claude Code
+- Branch: `feat/tutorial-first` (from `main` `b7b035a`), not merged
+- Changed: tutorial opens after the loading screen / voice download and **before Welcome** on the first launch:
+  `lib/core/auth/session.dart` (`initialTutorialSeenProvider`, default true), `lib/app/bootstrap.dart` (reads
+  `PrefKeys.tutorialDone` at device scope), `lib/app/router.dart` (no session + not seen -> `/tutorial`; saved
+  session and expired session as before), `lib/features/setup/profiling_screen.dart` (goes straight to Home, no
+  tutorial redirect). Skip rule in `lib/features/tutorial/tutorial_screen.dart` + `lib/config/tutorial_config.dart`
+  (`firstStepMinSpoken` 5 s, `firstStepTimeout` 60 s): on first launch the two-finger swipe, "laktawan"/"skip", the
+  button (hidden) **and the double-tap / wrong-try auto-advance on step one** are ignored until Percy's intro was
+  spoken >= 5 s; the timeout opens it and logs `[TUTORIAL] skip allowed: safety timeout`; replay is unlocked from the
+  start. No new ARB strings. The tutorial needs no account (device-scope prefs, speech language, command bus).
+  Tests: new `test/features/tutorial_first_test.dart` (16: start locations incl. loading + voice setup chains,
+  seen/expired/saved session, first-launch skip/swipe/voice/button/double-tap/wrong tries ignored, timeout + log,
+  heard -> skip/advance -> Welcome + device flag, replay from Settings returns to Settings); updated
+  `tutorial_flow_test.dart` (replays via `extra: true`) and `profiling_flow_test.dart` (ends on Home). Docs 02/05/06/07,
+  checklist `docs/testing/tutorial-first-checklist.md`.
+- Checks: `flutter analyze` clean. Changed-area tests file by file (own loop with crash retries; `tool/test_each.sh`
+  takes no file list and would run the whole suite): 18 files pass (auth, welcome, setup/profiling, tutorial,
+  screens/layout, startup, offline voice setup, voice understanding/ptt, smart voice). Full suite not run.
+  `flutter build apk --release` OK (JDK 17 reachable; 252.8 MB; also compiles `AudioBridge.kt`). Not run on a device.
+- Commit: see `git log` on the branch (pushed: no)
+- Follow-ups: tablet test `docs/testing/tutorial-first-checklist.md`; first launch **without voice models**
+  (with and without internet) is **unverified**: the download screen comes first, then the tutorial; voice then depends
+  on Android's recognizer. A returning user who logged out may see the tutorial once (accepted).
+
 ## 2026-10-17 — Voice capture: half-duplex, noise floor, push-to-talk capture, one output voice
 - Agent: Claude Code
 - Branch: `fix/voice-capture` (from `main` `b751007`), now on `main` (see Commit)

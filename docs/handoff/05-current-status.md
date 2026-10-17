@@ -23,6 +23,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Phase 6D algorithms (`feat/algorithms`, merged into `main` 2026-10-17): blur/dark/bright check + retake offer on camera captures, Otsu OCR fallback, WER calculator + hidden test screen, `docs/thesis/algorithms.md` | Claude Code → user | built, analyze clean, 34 changed-area test files pass; **release build not run** (no JDK reachable from the agent session). Tablet: tune `lib/config/image_quality_config.dart` from `[IMAGE QUALITY]` / `[OCR FALLBACK]` logs; try a blurry, a dark and a normal photo in Reader and Maglarawan; try the WER screen in a `PERCIPERE_DEV=true` build |
 | Percy smarter (`feat/percy-smarter`, now merged into `main`) | team, then Claude Code | **provisionally retrained** 2026-10-16 (`model.json` new, evaluated on 58 team rows only; 5 new intents not evaluated). Waiting for team test phrases, then rerun `train.py` for the official evaluation + `docs/thesis/percy-evaluation.md`. Merged into `main` 2026-10-17, not pushed |
 | Voice: hold to interrupt, false-error fix, latency, noise (`feat/voice-hold-interrupt`, now merged into `main`) | Claude Code | Phase B done 2026-10-16 (hold time config, TalkBack action, Percy turn drop, stale-error fix; tests for changed files pass). Waiting for user's tablet test; Phase C (latency, noise) after review. Merged into `main` 2026-10-17, not pushed |
 | Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15); the local `tool/voice_models/` download folder is now git-ignored |
@@ -39,7 +40,7 @@ task: `docs/handoff/worklog.md`.
 2. Decide on "Percy offline" (dictation + Percy on the app's own Whisper model) after the
    offline-commands tablet test (`docs/todo.md`).
 3. Phase 6E Part B (describing EPUB images) — **only after the user approves Part A**.
-4. Phase 6D (Laplacian blur check, Otsu, WER calculation) — `docs/specs/algorithms.md`.
+4. ~~Phase 6D~~ built 2026-10-17 (see table above); thesis write-up in `docs/thesis/algorithms.md`.
 5. Phase 7 (SUS, usage logs, Library sync) and Phase 8 (evaluation, polish) — postponed.
 
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
@@ -59,7 +60,7 @@ Pushing and merging are the user's call (`docs/agent-rules.md` §4).
 | 6C Maglarawan (image description) | done, reviewed, approved |
 | 6E Aklatan Part A | built 2026-10-06; books from the dashboard since 2026-10-11; awaiting tablet test |
 | 6E Part B (EPUB images) | not started — wait for approval |
-| 6D Core algorithms | postponed (user approved 6E first) |
+| 6D Core algorithms | built 2026-10-17, awaiting tablet tuning |
 | 7 (reports, SUS, sync), 8 (evaluation, polish) | postponed |
 | 9 Percy (self-built) | built 2026-10-10, retrained 2026-10-11; awaiting tablet test |
 | 10 Report an Issue | built 2026-10-11; awaiting tablet test |

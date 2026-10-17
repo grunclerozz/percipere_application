@@ -2931,4 +2931,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get voiceCheckModelsDeleted =>
       'The offline voices are deleted. When there is internet, I will download them again.';
+
+  @override
+  String get screenWerTest => 'Speech recognition test';
+
+  @override
+  String get werIntro => 'Read the sentence aloud. Press Listen, then say it.';
+
+  @override
+  String werSay(String phrase) {
+    return 'Say: $phrase';
+  }
+
+  @override
+  String get werListen => 'Listen';
+
+  @override
+  String get werNext => 'Next sentence';
+
+  @override
+  String get werExport => 'Export the results (CSV)';
+
+  @override
+  String get werClear => 'Delete the results';
+
+  @override
+  String get werClearConfirm => 'Delete all test results?';
+
+  @override
+  String get werCleared => 'The results are deleted.';
+
+  @override
+  String get werEmpty => 'No results yet.';
+
+  @override
+  String get werFailed => 'I could not listen properly. Try again.';
+
+  @override
+  String werResult(String heard, String percent, String s, String d, String i) {
+    return 'Heard: $heard. WER $percent percent. Wrong: $s, missing: $d, extra: $i.';
+  }
+
+  @override
+  String get qualityBlurry =>
+      'The photo is blurry. Please hold the phone steadier.';
+
+  @override
+  String get qualityTooDark =>
+      'The photo is too dark. Please move to a brighter place.';
+
+  @override
+  String get qualityTooBright =>
+      'The photo is too bright. Please avoid direct light.';
+
+  @override
+  String get qualityRetake => 'Do you want to take it again?';
+
+  @override
+  String get qualityRetaking => 'Okay, let\'s take it again.';
 }

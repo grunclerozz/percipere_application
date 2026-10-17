@@ -31,6 +31,7 @@ import '../features/report/my_reports_screen.dart';
 import '../features/report/report_issue_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/settings/voice_check_screen.dart';
+import '../features/settings/wer_test_screen.dart';
 import '../features/setup/profiling_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../features/welcome/welcome_screen.dart';
@@ -74,6 +75,9 @@ abstract final class AppRoutes {
 
   /// "Pagsusuri ng boses" (Voice check).
   static const String voiceCheck = '/settings/voice-check';
+
+  /// Hidden developer screen: speech recognition test (WER).
+  static const String werTest = '/settings/wer-test';
 
   /// First launch: downloading the offline voices. `extra`: an
   /// `OfflineVoiceNext` (where to go afterwards).
@@ -202,6 +206,10 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.voiceCheck,
         builder: (context, state) => const VoiceCheckScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.werTest,
+        builder: (context, state) => const WerTestScreen(),
       ),
       GoRoute(
         path: AppRoutes.offlineVoice,

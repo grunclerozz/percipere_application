@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import '../../core/accessibility/command_bus.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/algorithms/image_quality.dart';
 import '../../core/extraction/document_extractor.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/ocr/ocr_service.dart';
@@ -67,6 +69,14 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   bool _starting = false;
   final GuidanceTracker _tracker = GuidanceTracker();
 
+  /// A poor photo waiting for the answer to "kunan ulit?"; guidance and
+  /// auto-capture stay quiet meanwhile.
+  String? _heldPhoto;
+  Timer? _heldTimer;
+
+  /// How long a poor photo waits for an answer before the camera carries on.
+  static const Duration _heldFor = Duration(seconds: 30);
+
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
   CommandBus get _bus => ref.read(commandBusProvider);
 
@@ -80,6 +90,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _heldTimer?.cancel();
+    _dropHeldPhoto();
     unawaited(_session?.dispose());
     super.dispose();
   }
@@ -143,7 +155,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   }
 
   void _onFrame(FrameStats stats) {
-    if (!mounted || _capturing) return;
+    if (!mounted || _capturing || _heldPhoto != null) return;
     final now = DateTime.now();
     final step = _tracker.update(Guidance.of(stats), now);
     final speak = step.speak;
@@ -173,6 +185,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       if (!_live && !_capturing) await _bus.notAvailable();
       return;
     }
+    _heldTimer?.cancel();
+    _dropHeldPhoto();
     setState(() => _capturing = true);
     unawaited(ref.read(hapticsProvider).confirm());
     unawaited(_bus.say(_l.cameraCapturing, protect: true));
@@ -181,9 +195,14 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
         AppDurations.captureLimit,
       );
       if (!mounted) return;
-      _openReader(
-        DocumentFile(path: path, kind: DocumentKind.image, fromCamera: true),
+      final file = DocumentFile(
+        path: path,
+        kind: DocumentKind.image,
+        fromCamera: true,
       );
+      if (await _offerRetakeIfPoor(file)) return;
+      if (!mounted) return;
+      _openReader(file);
     } on Object catch (e) {
       debugPrint('Capture failed: $e');
       if (!mounted) return;
@@ -193,6 +212,61 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       await _stop();
       await _start();
     }
+  }
+
+  /// Measures the photo (Laplacian variance and brightness). If it is
+  /// blurry, too dark or too bright, says what to do and offers to take it
+  /// again; returns true when it asked (the answer carries on from here).
+  /// A failed measurement never blocks the photo.
+  Future<bool> _offerRetakeIfPoor(DocumentFile file) async {
+    final ImageQuality? quality;
+    // A photo that is not there cannot be measured; carry on without waiting.
+    if (!File(file.path).existsSync()) return false;
+    try {
+      final bytes = await File(file.path).readAsBytes();
+      quality = await measureImageQualityAsync(bytes);
+    } on Object catch (e) {
+      debugPrint('[IMAGE QUALITY] check failed: $e');
+      return false;
+    }
+    debugPrint('[IMAGE QUALITY] $quality');
+    final issue = quality?.issue;
+    if (issue == null || !mounted) return false;
+    final l = _l;
+    final tip = switch (issue) {
+      ImageIssue.blurry => l.qualityBlurry,
+      ImageIssue.tooDark => l.qualityTooDark,
+      ImageIssue.tooBright => l.qualityTooBright,
+    };
+    _dropHeldPhoto();
+    _heldPhoto = file.path;
+    _heldTimer?.cancel();
+    _heldTimer = Timer(_heldFor, _dropHeldPhoto);
+    _tracker.reset();
+    setState(() => _capturing = false);
+    unawaited(ref.read(hapticsProvider).error());
+    await _bus.offer(
+      '$tip ${l.qualityRetake}',
+      () async {
+        _dropHeldPhoto();
+        await _bus.say(_l.qualityRetaking);
+      },
+      onDecline: () {
+        if (_heldPhoto != file.path) return;
+        _heldPhoto = null;
+        _heldTimer?.cancel();
+        if (mounted) _openReader(file);
+      },
+    );
+    return true;
+  }
+
+  /// Forgets the photo waiting for an answer and deletes its file.
+  void _dropHeldPhoto() {
+    final path = _heldPhoto;
+    _heldPhoto = null;
+    if (path == null) return;
+    unawaited(File(path).delete().then((_) {}).catchError((_) {}));
   }
 
   Future<void> _useSystemCamera() async {

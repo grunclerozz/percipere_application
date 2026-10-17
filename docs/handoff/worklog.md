@@ -17,6 +17,25 @@ Format:
 
 ---
 
+## 2026-10-17 — Phase 6D algorithms (A3)
+- Agent: Claude Code
+- Branch: `feat/algorithms` (merged into `main`)
+- Changed: new `lib/core/algorithms/{wer,image_quality,otsu}.dart`, `lib/core/ocr/ocr_fallback.dart`,
+  `lib/config/{image_quality_config,wer_phrases}.dart`, `lib/core/db/daos/wer_dao.dart`,
+  `lib/features/settings/wer_test_screen.dart` (hidden, `PERCIPERE_DEV` Settings row + route
+  `/settings/wer-test`); camera capture check in `lib/features/camera/camera_screen.dart`
+  (tip + retake offer, 30 s expiry); Otsu fallback wired in `document_extractor.dart` (images the
+  Reader reads; not the Maglarawan picture); ARB strings (fil first) + regenerated l10n;
+  `docs/thesis/algorithms.md` (4 algorithms + tools not developed by us). Docs 02, 06, 07, 08 updated.
+- Checks: `flutter analyze` clean. 34 changed-area test files pass (algorithms, ocr, extraction,
+  settings, db, voice, camera, describe, reader, capture flows, WER screen). A first run caught a
+  real regression (camera tests hung reading a missing fake photo); fixed with an `existsSync`
+  guard and re-run green. Full suite NOT run. **Release build NOT run**: `JAVA_HOME` points to a
+  missing Android Studio JDK in the agent session; run `flutter build apk --release` yourself.
+- Commit: see git log (pushed: no)
+- Follow-ups: tablet tuning of thresholds (unverified); Percy results in the thesis doc are
+  still provisional (a6); `fix/voice-reliability` is still not merged into `main`.
+
 ## 2026-10-17 — Merge finished branches into main
 - Agent: Claude Code
 - Branch: `main`

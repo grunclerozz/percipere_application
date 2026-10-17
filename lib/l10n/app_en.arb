@@ -799,5 +799,22 @@
   "voiceCheckRedownloadStarted": "The voice download started again.",
   "voiceCheckDeleteModels": "Delete the offline voices",
   "voiceCheckDeleteConfirm": "Delete the offline voices and commands? Internet is needed to download them again.",
-  "voiceCheckModelsDeleted": "The offline voices are deleted. When there is internet, I will download them again."
+  "voiceCheckModelsDeleted": "The offline voices are deleted. When there is internet, I will download them again.",
+  "screenWerTest": "Speech recognition test",
+  "werIntro": "Read the sentence aloud. Press Listen, then say it.",
+  "werSay": "Say: {phrase}",
+  "werListen": "Listen",
+  "werNext": "Next sentence",
+  "werExport": "Export the results (CSV)",
+  "werClear": "Delete the results",
+  "werClearConfirm": "Delete all test results?",
+  "werCleared": "The results are deleted.",
+  "werEmpty": "No results yet.",
+  "werFailed": "I could not listen properly. Try again.",
+  "werResult": "Heard: {heard}. WER {percent} percent. Wrong: {s}, missing: {d}, extra: {i}.",
+  "qualityBlurry": "The photo is blurry. Please hold the phone steadier.",
+  "qualityTooDark": "The photo is too dark. Please move to a brighter place.",
+  "qualityTooBright": "The photo is too bright. Please avoid direct light.",
+  "qualityRetake": "Do you want to take it again?",
+  "qualityRetaking": "Okay, let's take it again."
 }

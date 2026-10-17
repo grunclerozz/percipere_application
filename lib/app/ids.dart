@@ -173,6 +173,13 @@ abstract final class Ids {
   /// Setting row: Voice check.
   static const String settingVoiceCheck = 'settings.voiceCheck';
 
+  /// Hidden developer screen: speech recognition test (Word Error Rate);
+  /// each action adds `.<name>`.
+  static const String werTest = 'werTest';
+
+  /// Settings (developer builds): the WER test.
+  static const String settingWerTest = 'settings.werTest';
+
   /// First launch: downloading the offline voices ("Mga boses at wika");
   /// each action adds `.<name>`.
   static const String offlineVoice = 'offlineVoice';

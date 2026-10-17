@@ -2886,4 +2886,63 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get voiceCheckModelsDeleted =>
       'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.';
+
+  @override
+  String get screenWerTest => 'Pagsubok ng pagkilala sa boses';
+
+  @override
+  String get werIntro =>
+      'Basahin nang malakas ang pangungusap. Pindutin ang Makinig, pagkatapos sabihin ito.';
+
+  @override
+  String werSay(String phrase) {
+    return 'Sabihin: $phrase';
+  }
+
+  @override
+  String get werListen => 'Makinig';
+
+  @override
+  String get werNext => 'Susunod na pangungusap';
+
+  @override
+  String get werExport => 'I-export ang mga resulta (CSV)';
+
+  @override
+  String get werClear => 'Burahin ang mga resulta';
+
+  @override
+  String get werClearConfirm => 'Burahin ang lahat ng resulta ng pagsubok?';
+
+  @override
+  String get werCleared => 'Nabura na ang mga resulta.';
+
+  @override
+  String get werEmpty => 'Wala pang resulta.';
+
+  @override
+  String get werFailed => 'Hindi ako nakinig nang maayos. Subukan ulit.';
+
+  @override
+  String werResult(String heard, String percent, String s, String d, String i) {
+    return 'Narinig: $heard. WER $percent porsyento. Mali: $s, kulang: $d, sobra: $i.';
+  }
+
+  @override
+  String get qualityBlurry =>
+      'Malabo ang larawan. Pakihawakan nang mas matatag ang telepono.';
+
+  @override
+  String get qualityTooDark =>
+      'Masyadong madilim ang larawan. Lumipat po sa mas maliwanag na lugar.';
+
+  @override
+  String get qualityTooBright =>
+      'Masyadong maliwanag ang larawan. Iwasan po ang direktang ilaw.';
+
+  @override
+  String get qualityRetake => 'Gusto mo bang kunan ulit?';
+
+  @override
+  String get qualityRetaking => 'Sige, kunan natin ulit.';
 }

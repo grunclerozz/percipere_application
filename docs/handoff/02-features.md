@@ -91,7 +91,7 @@ full tablet test, so "tablet-tested" is never claimed below.
 ## Not built / postponed
 | Item | Where planned | Status |
 |---|---|---|
-| Phase 6D algorithms: Laplacian blur check, Otsu, WER calculation | `docs/specs/algorithms.md` | Postponed |
+| Phase 6D algorithms: Laplacian blur/brightness check on camera captures, Otsu OCR fallback, WER calculator + hidden test screen | `docs/thesis/algorithms.md`, `docs/specs/algorithms.md` | Built 2026-10-17 (`feat/algorithms`), awaiting tablet tuning |
 | SUS questionnaire screen (`sus_responses` table exists) | Phase 7 | Postponed |
 | Usage logs (`usage_logs` table exists, unused) | Phase 7 | Postponed |
 | Phase 8 evaluation and polish | — | Postponed |

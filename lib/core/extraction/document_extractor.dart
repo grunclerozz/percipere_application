@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
+import '../ocr/ocr_fallback.dart';
 import '../ocr/ocr_service.dart';
 import '../ocr/text_cleanup.dart';
 import 'docx_extractor.dart';
@@ -119,7 +120,7 @@ class DefaultDocumentExtractor implements DocumentExtractor {
     try {
       switch (file.kind) {
         case DocumentKind.image:
-          final page = await recognizeOrThrow(_ocr, file.path);
+          final page = await recognizeWithOtsuFallback(_ocr, file.path);
           final text = await cleanTextAsync(page.text);
           return ExtractionResult(
             text: text,

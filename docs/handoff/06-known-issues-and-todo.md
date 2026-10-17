@@ -40,8 +40,8 @@ Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-qu
 | Issue / TODO | File(s) |
 |---|---|
 | Library sync across devices mocked (Phase 7) | `lib/core/library/library_sync_repository.dart` |
-| SUS screen and WER calculation not built (tables exist) | `lib/core/db/migrations.dart`, `docs/specs/algorithms.md` |
-| Phase 6D (Laplacian blur, Otsu) postponed | `docs/specs/algorithms.md` |
+| SUS screen not built (table exists); WER calculator + hidden test screen built 2026-10-17 | `lib/core/db/migrations.dart`, `docs/specs/algorithms.md` |
+| Phase 6D built 2026-10-17; the blur/dark/bright thresholds (`lib/config/image_quality_config.dart`) are unverified starting values: tune from the `[IMAGE QUALITY]` / `[OCR FALLBACK]` log lines on the tablet | `docs/thesis/algorithms.md` |
 | EPUB images (6E Part B) not started | `docs/specs/library.md` |
 | Unused tables `outbox`, `usage_logs`, `documents_legacy` (drops proposed) | `docs/database/proposed-changes.sql`, `open-questions.md` items 7–8 |
 | Duplicate columns `users.remote_id` vs `users.server_id`; `library_items.book_id` TEXT vs server INT | `docs/database/open-questions.md` items 9, 11 |

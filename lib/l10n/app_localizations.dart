@@ -4784,6 +4784,108 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Nabura na ang mga offline na boses. Kapag may internet, ida-download ko ulit.'**
   String get voiceCheckModelsDeleted;
+
+  /// Hidden developer screen: Word Error Rate test.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagsubok ng pagkilala sa boses'**
+  String get screenWerTest;
+
+  /// WER test: how it works.
+  ///
+  /// In fil, this message translates to:
+  /// **'Basahin nang malakas ang pangungusap. Pindutin ang Makinig, pagkatapos sabihin ito.'**
+  String get werIntro;
+
+  /// No description provided for @werSay.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sabihin: {phrase}'**
+  String werSay(String phrase);
+
+  /// No description provided for @werListen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Makinig'**
+  String get werListen;
+
+  /// No description provided for @werNext.
+  ///
+  /// In fil, this message translates to:
+  /// **'Susunod na pangungusap'**
+  String get werNext;
+
+  /// No description provided for @werExport.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-export ang mga resulta (CSV)'**
+  String get werExport;
+
+  /// No description provided for @werClear.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang mga resulta'**
+  String get werClear;
+
+  /// No description provided for @werClearConfirm.
+  ///
+  /// In fil, this message translates to:
+  /// **'Burahin ang lahat ng resulta ng pagsubok?'**
+  String get werClearConfirm;
+
+  /// No description provided for @werCleared.
+  ///
+  /// In fil, this message translates to:
+  /// **'Nabura na ang mga resulta.'**
+  String get werCleared;
+
+  /// No description provided for @werEmpty.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pang resulta.'**
+  String get werEmpty;
+
+  /// No description provided for @werFailed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi ako nakinig nang maayos. Subukan ulit.'**
+  String get werFailed;
+
+  /// No description provided for @werResult.
+  ///
+  /// In fil, this message translates to:
+  /// **'Narinig: {heard}. WER {percent} porsyento. Mali: {s}, kulang: {d}, sobra: {i}.'**
+  String werResult(String heard, String percent, String s, String d, String i);
+
+  /// Spoken after a camera capture that is blurry.
+  ///
+  /// In fil, this message translates to:
+  /// **'Malabo ang larawan. Pakihawakan nang mas matatag ang telepono.'**
+  String get qualityBlurry;
+
+  /// Spoken after a camera capture that is too dark.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong madilim ang larawan. Lumipat po sa mas maliwanag na lugar.'**
+  String get qualityTooDark;
+
+  /// Spoken after a camera capture that is too bright.
+  ///
+  /// In fil, this message translates to:
+  /// **'Masyadong maliwanag ang larawan. Iwasan po ang direktang ilaw.'**
+  String get qualityTooBright;
+
+  /// Offer after a poor capture; yes retakes, no keeps the photo.
+  ///
+  /// In fil, this message translates to:
+  /// **'Gusto mo bang kunan ulit?'**
+  String get qualityRetake;
+
+  /// After the user accepted the retake.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige, kunan natin ulit.'**
+  String get qualityRetaking;
 }
 
 class _AppLocalizationsDelegate

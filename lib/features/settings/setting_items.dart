@@ -406,6 +406,14 @@ List<SettingItem> settingItemsFor(
       adjust: (s, d) => s.copyWith(percyAnalysis: !s.percyAnalysis),
     ),
     SettingItem(
+      id: Ids.settingWerTest,
+      kind: SettingKind.link,
+      label: (l) => l.screenWerTest,
+      value: (c) => c.l.screenWerTest,
+      open: (ref, bus) =>
+          unawaited(ref.read(routerProvider).push(AppRoutes.werTest)),
+    ),
+    SettingItem(
       id: Ids.settingPercyExport,
       kind: SettingKind.link,
       label: (l) => l.setPercyExport,

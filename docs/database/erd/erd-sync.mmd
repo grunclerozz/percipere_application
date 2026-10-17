@@ -1,0 +1,23 @@
+---
+title: App tables that sync with server tables through /api/v1 (none is a foreign key; separate databases)
+---
+flowchart LR
+  subgraph APP["Android app (SQLite)"]
+    users["users<br/>server_id"]
+    issue_reports["issue_reports<br/>ticket_no, server_id, server_status"]
+    library_items["library_items<br/>book_id, book_version"]
+  end
+  subgraph WEB["Web dashboard (MySQL)"]
+    app_users["app_users<br/>user_id"]
+    app_tokens["app_tokens<br/>token_hash"]
+    feedback["feedback<br/>feedback_ticket_no"]
+    books["books<br/>book_id, book_version"]
+    categories["categories"]
+    languages["languages"]
+  end
+  users <-->|"POST /auth/register, /verify, /resend, /login, /password-reset(/request)<br/>GET /auth/me"| app_users
+  users -->|"POST /auth/login, /auth/logout"| app_tokens
+  issue_reports <-->|"POST /reports<br/>GET /reports/{ticket_no}"| feedback
+  books -->|"GET /books, /books/{id}, /books/{id}/file, /books/{id}/cover"| library_items
+  categories -.->|"names come inside /books"| books
+  languages -.->|"names come inside /books"| books

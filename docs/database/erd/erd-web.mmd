@@ -1,0 +1,186 @@
+---
+title: Percipere Web Dashboard (MySQL) ERD - schema v13
+---
+erDiagram
+  members {
+    int member_id PK
+    varchar member_name
+    varchar member_role
+    varchar member_school
+    varchar member_email UK
+    varchar member_bio
+    varchar member_photo
+    varchar member_age
+    varchar member_sex
+    varchar member_address
+    text member_experiences
+    text member_contribution
+    timestamp member_created_at
+  }
+  roles {
+    int role_id PK
+    varchar role_name UK
+    varchar role_description
+  }
+  admins {
+    int admin_id PK
+    varchar admin_email UK
+    varchar admin_full_name
+    varchar admin_password_hash
+    int admin_member_id FK
+    int admin_role_id FK
+    enum admin_status
+    int admin_failed_login_attempts
+    datetime admin_locked_until
+    datetime admin_last_login_at
+    text admin_preferences
+    int admin_session_version
+    timestamp admin_created_at
+    timestamp admin_updated_at
+  }
+  app_users {
+    int user_id PK
+    varchar user_full_name
+    varchar user_email UK
+    varchar user_phone_number
+    varchar user_password_hash
+    enum user_status
+    datetime user_email_verified_at
+    varchar user_otp_hash
+    datetime user_otp_expires_at
+    datetime user_otp_sent_at
+    varchar user_position
+    datetime user_phone_verified_at
+    datetime user_created_at
+    datetime user_last_login_at
+  }
+  app_tokens {
+    int token_id PK
+    int token_user_id FK
+    char token_hash UK
+    varchar token_device
+    datetime token_created_at
+    datetime token_last_used_at
+    datetime token_expires_at
+  }
+  feedback {
+    int feedback_id PK
+    varchar feedback_category
+    varchar feedback_type_code
+    varchar feedback_module
+    varchar feedback_module_code
+    varchar feedback_severity
+    varchar feedback_severity_code
+    text feedback_description
+    varchar feedback_email
+    int feedback_user_id FK
+    varchar feedback_app_version
+    varchar feedback_device
+    varchar feedback_os_version
+    varchar feedback_ticket_no UK
+    varchar feedback_source_screen
+    enum feedback_reporter_kind
+    varchar feedback_reporter_name
+    datetime feedback_app_created_at
+    enum feedback_status
+    enum feedback_source
+    date feedback_submitted_at
+    date feedback_resolved_at
+    datetime feedback_archived_at
+    int feedback_member_id FK
+    int feedback_admin_id FK
+    timestamp feedback_created_at
+    timestamp feedback_updated_at
+  }
+  feedback_notes {
+    int note_id PK
+    int note_feedback_id FK
+    int note_member_id FK
+    int note_admin_id FK
+    text note_text
+    timestamp note_created_at
+    timestamp note_updated_at
+  }
+  audit_log {
+    int log_id PK
+    int log_member_id FK
+    int log_admin_id FK
+    varchar log_action
+    timestamp log_created_at
+  }
+  admin_audit {
+    int audit_id PK
+    int audit_actor_admin_id FK
+    varchar audit_actor_name
+    int audit_target_admin_id FK
+    varchar audit_target_name
+    varchar audit_target_email
+    varchar audit_action
+    varchar audit_old_value
+    varchar audit_new_value
+    timestamp audit_created_at
+  }
+  app_settings {
+    varchar setting_key PK
+    varchar setting_value
+    timestamp setting_updated_at
+    int setting_admin_id FK
+  }
+  api_limits {
+    char limit_key PK
+    int limit_count
+    datetime limit_window_start
+    datetime limit_locked_until
+  }
+  categories {
+    int category_id PK
+    varchar category_name UK
+    tinyint category_is_active
+    timestamp category_created_at
+    timestamp category_updated_at
+  }
+  languages {
+    int language_id PK
+    varchar language_name UK
+    varchar language_code
+    tinyint language_is_active
+    timestamp language_created_at
+    timestamp language_updated_at
+  }
+  books {
+    int book_id PK
+    varchar book_title
+    varchar book_author
+    text book_description
+    int book_category_id FK
+    int book_language_id FK
+    enum book_format
+    varchar book_file_path
+    varchar book_file_name
+    int book_file_size
+    char book_file_hash
+    varchar book_cover_path
+    varchar book_cover_mime
+    tinyint book_is_active
+    int book_version
+    int book_admin_id FK
+    timestamp book_created_at
+    timestamp book_updated_at
+  }
+  members |o--o{ admins : "admin_member_id"
+  app_users ||--o{ app_tokens : "token_user_id"
+  members |o--o{ audit_log : "log_member_id"
+  admins |o--o{ books : "book_admin_id"
+  categories ||--o{ books : "book_category_id"
+  languages ||--o{ books : "book_language_id"
+  members |o--o{ feedback : "feedback_member_id"
+  app_users |o--o{ feedback : "feedback_user_id"
+  feedback ||--o{ feedback_notes : "note_feedback_id"
+  members |o--o{ feedback_notes : "note_member_id"
+  roles |o..o{ admins : "admin_role_id (code)"
+  admins |o..o{ audit_log : "log_admin_id (code)"
+  admins |o..o{ feedback : "feedback_admin_id (code)"
+  admins |o..o{ feedback_notes : "note_admin_id (code)"
+  admins |o..o{ app_settings : "setting_admin_id (code)"
+  admins |o..o{ admin_audit : "audit_actor_admin_id (code)"
+  admins |o..o{ admin_audit : "audit_target_admin_id (code)"

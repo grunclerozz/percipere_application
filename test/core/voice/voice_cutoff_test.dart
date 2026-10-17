@@ -62,11 +62,29 @@ void main() {
       'spoke, not on every silent restart', () async {
     await setUp();
     await listening();
+    expect(
+      env.earcon.listeningCues,
+      0,
+      reason: 'not before the microphone delivers sound',
+    );
+    env.speech.soundLevel();
     expect(env.earcon.listeningCues, 1);
     await Future<void>.delayed(const Duration(milliseconds: 1600));
     env.speech.silence();
     await Future<void>.delayed(_settle);
     expect(env.speech.listening, isTrue);
+    env.speech.soundLevel();
+    expect(env.earcon.listeningCues, 1);
+  });
+
+  test('no sound from the microphone: the cue plays anyway after '
+      '${VoiceConfig.cueFallback.inMilliseconds}ms', () async {
+    await setUp();
+    await listening();
+    expect(env.earcon.listeningCues, 0);
+    await Future<void>.delayed(
+      VoiceConfig.cueFallback + const Duration(milliseconds: 100),
+    );
     expect(env.earcon.listeningCues, 1);
   });
 

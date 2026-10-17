@@ -159,4 +159,73 @@ abstract final class VoiceConfig {
   /// recognizer acts on partial results long before its pause ends, ours
   /// only once the speech has ended. Raise it if commands get cut off.
   static const Duration offlineEndOfSpeech = Duration(milliseconds: 700);
+
+  // ── Reliability (2026-10-17, branch fix/voice-reliability) ───────────────
+
+  /// After a listening session is cancelled or stopped, the Android
+  /// recognizer is left alone this long before the next session starts.
+  /// Starting at once gave `error_busy`, and late errors of the cancelled
+  /// session were taken as the new session failing ("say it twice", "hold
+  /// twice").
+  static const Duration recognizerSettle = Duration(milliseconds: 300);
+
+  /// The "listening" tone plays when the microphone actually delivers sound
+  /// (first sound level), not when listening is requested: Android opens
+  /// the microphone 0.2–0.6 s later, and words said in between were lost.
+  /// If no sound has come after this long, the tone plays anyway.
+  static const Duration cueFallback = Duration(milliseconds: 1500);
+
+  /// Android reports the end of a failed session (`done`) a moment before
+  /// the error that explains it: the app waits this long for the error
+  /// before deciding what happened.
+  static const Duration errorAfterDone = Duration(milliseconds: 200);
+
+  /// A session event (end, error) this soon after the session started, when
+  /// the session before it was closed by the app just before, belongs to
+  /// that closed session: the new session is restarted quietly instead of
+  /// counting as a failure.
+  static const Duration staleEventWindow = Duration(milliseconds: 1000);
+
+  /// Sessions in a row that never got any sound from the microphone before
+  /// the app stops listening and says so (a dead recognizer). Sessions that
+  /// heard sound prove the recognizer works and never count.
+  static const int deadRecognizerAfter = 5;
+
+  /// After giving up, the "voice isn't working" message waits this long: a
+  /// late result that arrives meanwhile is acted on and the message is
+  /// dropped.
+  static const Duration giveUpGrace = Duration(milliseconds: 1500);
+
+  // ── Noise (2026-10-17) ───────────────────────────────────────────────────
+
+  /// Ask the phone's noise suppressor to clean the app's own microphone
+  /// (offline commands), when the phone has one. The Android recognizer
+  /// uses its own settings.
+  static const bool micNoiseSuppressor = true;
+
+  /// Ask the phone's automatic gain control for the app's own microphone.
+  /// Off: it also raises background noise between words, which keeps the
+  /// voice detector from hearing the end of a command.
+  static const bool micAutoGain = false;
+
+  /// Microphone level (about −2 silent to 10 loud) that counts as a noisy
+  /// room when heard before the user's words.
+  static const double noisyLevel = 4;
+
+  /// Share of the level readings before the user's words at or above
+  /// [noisyLevel] for the room to count as noisy (at least
+  /// [noisyMinReadings] readings).
+  static const double noisyShare = 0.5;
+
+  /// Fewest level readings to judge the room by.
+  static const int noisyMinReadings = 5;
+
+  /// The recognizer's confidence (0..1, when it gives one) below which a
+  /// result counts as uncertain, as in noise.
+  static const double lowConfidence = 0.5;
+
+  /// In a noisy room (or an uncertain result), a command at least this
+  /// similar is asked back ("Ito po ba ang ibig ninyong sabihin…?") instead
+  /// of "not understood". The quiet-room floor is 0.6 (`CommandMatcher`).
+  static const double noisyAskScore = 0.45;
 }

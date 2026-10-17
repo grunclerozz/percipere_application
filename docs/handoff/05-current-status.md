@@ -23,6 +23,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Voice reliability: "say it twice", "hold twice", false "not working", noise ask-back, 20-command CSV test (`fix/voice-reliability`) | Claude Code → user | built 2026-10-17, analyze clean, changed-code tests pass; **not merged into `main` yet** (user merges), release build not run (JDK not reachable from the agent session). Tablet test: `docs/testing/voice-reliability-checklist.md` |
 | App connection for the defense (`chore/app-connection`): runtime server address + Test connection + private-network cleartext rule + `docs/connection-guide-app.md` | Claude Code → user | built 2026-10-17; see worklog; tablet/MacBook test pending |
 | Final check + defense prep (A5, on `main`, 2026-10-17): analyze clean, changed-area tests pass, docs `defense-checklist.md` and `demo-script.md`, tablet list §19 | Claude Code → user | done except **release build (no JDK on the PC)**. `fix/voice-reliability` still **not merged** into `main` |
 | Phase 6D algorithms (`feat/algorithms`, merged into `main` 2026-10-17): blur/dark/bright check + retake offer on camera captures, Otsu OCR fallback, WER calculator + hidden test screen, `docs/thesis/algorithms.md` | Claude Code → user | built, analyze clean, 34 changed-area test files pass; **release build not run** (no JDK reachable from the agent session). Tablet: tune `lib/config/image_quality_config.dart` from `[IMAGE QUALITY]` / `[OCR FALLBACK]` logs; try a blurry, a dark and a normal photo in Reader and Maglarawan; try the WER screen in a `PERCIPERE_DEV=true` build |
@@ -50,6 +51,7 @@ task: `docs/handoff/worklog.md`.
 |---|---|---|
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
+| `fix/voice-reliability` | `f4a1a65` + docs commit | voice reliability fix, from `main`; **merge into `main` pending (user)**. Not pushed. |
 | `origin/main` | `54b6567` | last pushed state of the app |
 | `origin/batumbakla-patch-1` | `ba0207c` (2026-09-27) | teammate's README edits from before the baseline; **no common history with `main`**. Do not merge; ask the user. |
 Pushing and merging are the user's call (`docs/agent-rules.md` §4).

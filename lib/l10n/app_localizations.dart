@@ -344,6 +344,72 @@ abstract class AppLocalizations {
   /// **'Ito ba ang ibig mong sabihin: “{phrase}”? Sabihin ang oo o hindi.'**
   String voiceDidYouMean(String phrase);
 
+  /// Ask-back in a noisy room (or an uncertain result) instead of 'not understood'.
+  ///
+  /// In fil, this message translates to:
+  /// **'Medyo maingay po. Ito po ba ang ibig ninyong sabihin: “{phrase}”? Sabihin ang oo o hindi po.'**
+  String voiceNoisyDidYouMean(String phrase);
+
+  /// Developer: start the 20-command reliability test, quiet room.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagsubok ng 20 utos: tahimik na kuwarto'**
+  String get voiceTrialQuiet;
+
+  /// Developer: start the 20-command reliability test, noisy room.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagsubok ng 20 utos: maingay na kuwarto'**
+  String get voiceTrialNoisy;
+
+  /// Developer test: which command to say.
+  ///
+  /// In fil, this message translates to:
+  /// **'Utos {number} ng {total}. Sabihin po: {phrase}'**
+  String voiceTrialSay(String number, String total, String phrase);
+
+  /// Developer test: the command was not recognized; say it again.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi po tugma. Pakiulit po: {phrase}'**
+  String voiceTrialAgain(String phrase);
+
+  /// Developer test finished.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tapos na po ang pagsubok. {correct} sa {total} ang tama. Naka-save po ang resulta.'**
+  String voiceTrialDone(String correct, String total);
+
+  /// Developer test: stop the running test.
+  ///
+  /// In fil, this message translates to:
+  /// **'Ihinto ang pagsubok'**
+  String get voiceTrialStop;
+
+  /// Developer test stopped by the user.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inihinto po ang pagsubok. Naka-save po ang mga resulta hanggang dito.'**
+  String get voiceTrialStopped;
+
+  /// Developer test: share the CSV of the results.
+  ///
+  /// In fil, this message translates to:
+  /// **'I-share ang resulta ng pagsubok (CSV)'**
+  String get voiceTrialExport;
+
+  /// Developer test: nothing to share yet.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wala pa pong resulta ng pagsubok.'**
+  String get voiceTrialExportEmpty;
+
+  /// Developer test: sharing failed.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi po ma-share ang resulta.'**
+  String get voiceTrialExportFailed;
+
   /// User said no to an ask-back or offer.
   ///
   /// In fil, this message translates to:

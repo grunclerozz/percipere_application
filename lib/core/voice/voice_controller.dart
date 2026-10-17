@@ -103,7 +103,11 @@ class VoiceProbe {
     required this.sessionStart,
     required this.endOfSpeech,
     required this.decided,
+    this.noisy = false,
   });
+
+  /// The room sounded noisy, or the result was uncertain.
+  final bool noisy;
 
   /// What was heard (best guess).
   final String text;
@@ -285,6 +289,46 @@ class VoiceController extends Notifier<VoiceState> {
   Timer? _duckTimer;
   DateTime? _noDuckUntil;
 
+  // ── Reliability (2026-10-17) ─────────────────────────────────────────────
+
+  /// The "listening" cue waits for the microphone to deliver sound
+  /// ([VoiceConfig.cueFallback]).
+  bool _cuePending = false;
+  Timer? _cueTimer;
+
+  /// The open session has had sound from the microphone: the recognizer
+  /// works, so its failures are not a dead recognizer.
+  bool _sessionHeardSound = false;
+
+  /// When the app last closed (cancelled or stopped) a recognizer session.
+  DateTime? _closedAt;
+
+  /// Quiet restarts in a row after stale events ([_isStale]).
+  int _staleRestarts = 0;
+
+  /// Sessions in a row that never had sound from the microphone.
+  int _deadSessions = 0;
+
+  /// A `done` without a result, waiting for the error that may follow it
+  /// ([VoiceConfig.errorAfterDone]).
+  Timer? _doneTimer;
+
+  /// The "voice isn't working" message, waiting for a late result
+  /// ([VoiceConfig.giveUpGrace]).
+  Timer? _giveUpTimer;
+
+  /// [listenNow] is opening a session: nothing else may start or close one
+  /// meanwhile (one hold = one session).
+  bool _holdStarting = false;
+
+  /// Microphone level readings at the start of the session (the room before
+  /// the user speaks), and how many were loud.
+  int _levelReadings = 0;
+  int _loudReadings = 0;
+
+  /// The session was ended because its words never stopped changing.
+  bool _capHit = false;
+
   late SpeechInput _stt;
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
 
@@ -299,6 +343,9 @@ class VoiceController extends Notifier<VoiceState> {
         _heardTimer?.cancel();
         _duckTimer?.cancel();
         _capTimer?.cancel();
+        _cueTimer?.cancel();
+        _doneTimer?.cancel();
+        _giveUpTimer?.cancel();
         unawaited(_connection?.cancel());
         _session++;
         if (_listening) unawaited(_stt.cancel());
@@ -467,18 +514,48 @@ class VoiceController extends Notifier<VoiceState> {
         code == 'empty_final';
     _log(
       'session ended without speech: $code after ${lasted.inMilliseconds}ms '
-      '(${instant ? 'INSTANT' : 'normal'})',
+      '(${instant ? 'INSTANT' : 'normal'}'
+      '${_sessionHeardSound ? ', microphone had sound' : ', no sound'})',
     );
+    if (_isStale()) {
+      // An end or error of the session the app had just closed (a hold, a
+      // restart), landing on this one: not a failure of this session.
+      _staleRestarts++;
+      _log('stale $code of the closed session: restarting quietly');
+      if (_cuePending) _cueNext = true; // the user hasn't been cued yet
+      _stopCue();
+      _restartTimer?.cancel();
+      _restartTimer = Timer(VoiceConfig.sessionGap, () {
+        if (ref.mounted && !_listening) unawaited(_start());
+      });
+      return true;
+    }
     if (!instant && quietCode) {
       // Someone was just quiet: not a fault.
       _instantFailures = 0;
       _lastFailure = null;
       _sameFailures = 0;
+      _deadSessions = 0;
       return false;
     }
+    if (_sessionHeardSound) {
+      // The microphone delivered sound: the recognizer works (a transient
+      // error), so this never counts toward giving up.
+      _instantFailures = 0;
+      _lastFailure = null;
+      _sameFailures = 0;
+      _deadSessions = 0;
+      return false;
+    }
+    _deadSessions++;
     _instantFailures = instant ? _instantFailures + 1 : 0;
     _sameFailures = code == _lastFailure ? _sameFailures + 1 : 1;
     _lastFailure = code;
+    // "Not free yet" errors need more tries before the recognizer counts as
+    // dead.
+    final giveUpAfter = _transientErrors.contains(code)
+        ? VoiceConfig.deadRecognizerAfter
+        : _giveUpAfter;
 
     // A busy recognizer only needs more time (backoff); switching to online
     // recognition wouldn't help it.
@@ -488,7 +565,7 @@ class VoiceController extends Notifier<VoiceState> {
       if (!_onDeviceUnavailable) {
         if (!_online) {
           // Online recognition can't help without a network.
-          if (_sameFailures >= _giveUpAfter) {
+          if (_sameFailures >= giveUpAfter) {
             _giveUp(code);
             return true;
           }
@@ -504,11 +581,35 @@ class VoiceController extends Notifier<VoiceState> {
       _restartAfterBackoff();
       return true;
     }
-    if (_sameFailures >= _giveUpAfter) {
+    // A dead recognizer giving a mix of errors, never any sound.
+    if (_sameFailures >= giveUpAfter ||
+        _deadSessions >= VoiceConfig.deadRecognizerAfter * 2) {
       _giveUp(code);
       return true;
     }
     return false;
+  }
+
+  /// Codes that mean "the recognizer isn't free yet" (it is still ending
+  /// the previous session), not that it is broken.
+  static const Set<String> _transientErrors = {
+    'error_busy',
+    'error_client',
+    'done_without_result',
+  };
+
+  /// Whether the open session's end or error belongs to the session the app
+  /// closed just before it started: no sound yet, both within
+  /// [VoiceConfig.staleEventWindow], at most twice in a row.
+  bool _isStale() {
+    final start = _sessionStart;
+    final closed = _closedAt;
+    if (_sessionHeardSound || start == null || closed == null) return false;
+    if (_staleRestarts >= 2) return false;
+    final window = VoiceConfig.staleEventWindow;
+    return !start.isBefore(closed) &&
+        start.difference(closed) < window &&
+        DateTime.now().difference(start) < window;
   }
 
   bool get _ladderExhausted => _onDeviceUnavailable && _useDefaultLocale;
@@ -522,23 +623,61 @@ class VoiceController extends Notifier<VoiceState> {
     });
   }
 
-  /// Stops retrying and says so aloud.
+  /// Stops retrying and says so aloud — after [VoiceConfig.giveUpGrace]:
+  /// a late result that arrives meanwhile is acted on and the message is
+  /// dropped (2026-10-17: the message used to come and then the command ran
+  /// anyway). The session isn't discarded, so a late result is never lost.
   void _giveUp(String code) {
-    _log('giving up after repeated "$code"');
+    _log(
+      'giving up after repeated "$code" (message in '
+      '${VoiceConfig.giveUpGrace.inMilliseconds}ms unless a result comes)',
+    );
     _restartTimer?.cancel();
-    // Nothing the closed session still delivers may run after this message.
     _stopCap();
-    _session++;
-    unawaited(_cancelPlatform());
+    _stopCue();
     _endDictation();
     _oneShot = false;
     _budgetSpent = true;
     _listening = false;
     _sameFailures = 0;
     _instantFailures = 0;
+    _deadSessions = 0;
     state = VoiceState(heard: state.heard);
-    unawaited(ref.read(earconProvider).stopped());
-    unawaited(_say(_l.voiceRepeatedError));
+    _giveUpTimer?.cancel();
+    _giveUpTimer = Timer(VoiceConfig.giveUpGrace, () {
+      _giveUpTimer = null;
+      if (!ref.mounted) return;
+      _log('voice not working: saying so');
+      unawaited(ref.read(earconProvider).stopped());
+      unawaited(_say(_l.voiceRepeatedError));
+    });
+  }
+
+  /// Whether the "voice isn't working" message is waiting for a late result.
+  @visibleForTesting
+  bool get givingUp => _giveUpTimer != null;
+
+  /// Drops a pending "voice isn't working" message (a result came, or the
+  /// user asked to be heard again).
+  void _cancelGiveUp(String why) {
+    final timer = _giveUpTimer;
+    if (timer == null) return;
+    timer.cancel();
+    _giveUpTimer = null;
+    _log('"voice not working" message dropped: $why');
+  }
+
+  /// Plays the "listening" cue now, if one is waiting.
+  void _playCue() {
+    if (!_cuePending) return;
+    _stopCue();
+    unawaited(ref.read(earconProvider).listening());
+  }
+
+  void _stopCue() {
+    _cuePending = false;
+    _cueTimer?.cancel();
+    _cueTimer = null;
   }
 
   /// A Percy session started or ended (called by `PercyController`, which
@@ -559,7 +698,7 @@ class VoiceController extends Notifier<VoiceState> {
   /// repeated recognizer errors had stopped listening ([_giveUp]).
   void percyListenAgain() {
     _log('Percy asked again: listening on');
-    _sameFailures = _instantFailures = _failures = 0;
+    _sameFailures = _instantFailures = _failures = _deadSessions = 0;
     noteActivity();
     if (_wantsAutoListen && !_listening) _scheduleAutoListen();
   }
@@ -585,6 +724,8 @@ class VoiceController extends Notifier<VoiceState> {
       _logTiming(t, action: now, what: what);
       return;
     }
+    // The hold to listen closes and reopens the session itself.
+    if (what == NavIntent.listen.name || _holdStarting) return;
     if (_listening && (_sessionStart?.isBefore(now) ?? false)) {
       _log('command "$what" ran while listening: restarting the session');
       _abandonSession();
@@ -738,19 +879,37 @@ class VoiceController extends Notifier<VoiceState> {
   /// Long-press / "listen": stops any speech (including document reading)
   /// at once and listens now. Always works, also when listening while
   /// reading is off or unreliable.
+  ///
+  /// One hold opens one session: a second hold (or a doubled gesture) while
+  /// it is still opening is ignored, and no automatic restart may open or
+  /// close a session meanwhile (2026-10-17: the hold's own command restart
+  /// opened a session that the hold then cancelled, and the cancelled
+  /// session's late end killed the new one — "hold twice").
   Future<void> listenNow() async {
-    noteActivity();
-    await ref.read(announcerProvider.notifier).stop();
-    // A session listening through the reading may still be open: close it
-    // rather than wait for it to end.
-    await _closeSession();
-    if (!await ensureReady(requestPermission: true)) return;
-    if (!ref.mounted) return;
-    _oneShot = !_wantsAutoListen;
-    _sameFailures = _instantFailures = 0; // an explicit retry starts fresh
-    unawaited(ref.read(hapticsProvider).tick());
-    _cueNext = true;
-    await _start();
+    if (_holdStarting) {
+      _log('hold ignored: already opening a session for the last one');
+      return;
+    }
+    _holdStarting = true;
+    try {
+      noteActivity();
+      _cancelGiveUp('the user asked to be heard');
+      _restartTimer?.cancel();
+      await ref.read(announcerProvider.notifier).stop();
+      // A session listening through the reading may still be open: close it
+      // rather than wait for it to end.
+      await _closeSession();
+      if (!await ensureReady(requestPermission: true)) return;
+      if (!ref.mounted) return;
+      _oneShot = !_wantsAutoListen;
+      // An explicit retry starts fresh.
+      _sameFailures = _instantFailures = _deadSessions = _staleRestarts = 0;
+      unawaited(ref.read(hapticsProvider).tick());
+      _cueNext = true;
+      await _start();
+    } finally {
+      _holdStarting = false;
+    }
   }
 
   /// Makes sure the mic is allowed and the recognizer is initialized.
@@ -798,6 +957,7 @@ class VoiceController extends Notifier<VoiceState> {
       _log('cancelled by app (stopListening)');
       _session++;
       _listening = false;
+      _closedAt = DateTime.now();
       await _stt.cancel();
       _platformOpen = false;
     }
@@ -979,7 +1139,9 @@ class VoiceController extends Notifier<VoiceState> {
       return;
     }
     if (wasBusy) {
-      _cueNext = true;
+      // (A hold may already have opened the session while the speech was
+      // still stopping: that one has its cue.)
+      if (!_listening) _cueNext = true;
       _scheduleAutoListen();
     }
   }
@@ -989,7 +1151,7 @@ class VoiceController extends Notifier<VoiceState> {
     if (!_wantsAutoListen) return;
     final wait = (gap ?? VoiceConfig.afterSpeechGap) + _backoff;
     _restartTimer = Timer(wait, () {
-      if (!ref.mounted) return;
+      if (!ref.mounted || _holdStarting) return;
       if (!_appActive || _listening || _budgetSpent || !_wantsAutoListen) {
         return;
       }
@@ -1011,7 +1173,7 @@ class VoiceController extends Notifier<VoiceState> {
 
   Future<void> _startAuto() async {
     if (!await ensureReady(requestPermission: false)) return;
-    if (!ref.mounted || _listening) return;
+    if (!ref.mounted || _listening || _holdStarting) return;
     _oneShot = false;
     await _start();
   }
@@ -1057,7 +1219,12 @@ class VoiceController extends Notifier<VoiceState> {
     _partialTarget = null;
     _alternates = const [];
     _confidence = -1;
+    _sessionHeardSound = false;
+    _levelReadings = _loudReadings = 0;
+    _capHit = false;
+    _doneTimer?.cancel();
     _stopCap();
+    _stopCue();
     state = VoiceState(status: ListenStatus.listening, heard: state.heard);
     _sessionBargeIn = !dictating && _readingNow;
     final carriedAt = _carryAt;
@@ -1076,8 +1243,18 @@ class VoiceController extends Notifier<VoiceState> {
       );
     }
     if (_cueNext && !_sessionBargeIn) {
-      // "Your turn": the moment the microphone opens after the app spoke.
-      unawaited(ref.read(earconProvider).listening());
+      // "Your turn": played once the microphone really delivers sound
+      // ([_onSoundLevel]); Android opens it a moment after listen(), and
+      // words said before that were lost ("say it twice").
+      _cuePending = true;
+      _cueTimer = Timer(VoiceConfig.cueFallback, () {
+        if (!ref.mounted || session != _session || !_cuePending) return;
+        _log(
+          'no sound from the microphone after '
+          '${VoiceConfig.cueFallback.inMilliseconds}ms: cue anyway',
+        );
+        _playCue();
+      });
     }
     _cueNext = false;
     final request = ListenRequest(
@@ -1151,10 +1328,41 @@ class VoiceController extends Notifier<VoiceState> {
   }
 
   void _onSoundLevel(int session, double level) {
-    if (session != _session || _firstSoundAt != null) return;
-    if (level < VoiceConfig.speechStartLevel) return;
+    if (session != _session) return;
+    if (!_sessionHeardSound) {
+      // The microphone is live: the recognizer works, and it is the user's
+      // turn now.
+      _sessionHeardSound = true;
+      _deadSessions = 0;
+      _staleRestarts = 0;
+      final start = _sessionStart;
+      _log(
+        'microphone live'
+        '${start == null ? '' : ' after ${DateTime.now().difference(start).inMilliseconds}ms'}',
+      );
+      _playCue();
+    }
+    if (_firstPartialAt == null &&
+        _levelReadings < VoiceConfig.noisyMinReadings) {
+      // The room before the user speaks.
+      _levelReadings++;
+      if (level >= VoiceConfig.noisyLevel) _loudReadings++;
+    }
+    if (_firstSoundAt != null || level < VoiceConfig.speechStartLevel) return;
     _firstSoundAt = DateTime.now();
     _log('speech started (level ${level.toStringAsFixed(1)})');
+  }
+
+  /// Whether the open session sounds like a noisy room: words that never
+  /// stopped changing, an uncertain result, or a loud room before the user
+  /// spoke.
+  bool get _soundsNoisy {
+    if (_capHit) return true;
+    if (_confidence >= 0 && _confidence < VoiceConfig.lowConfidence) {
+      return true;
+    }
+    return _levelReadings >= VoiceConfig.noisyMinReadings &&
+        _loudReadings / _levelReadings >= VoiceConfig.noisyShare;
   }
 
   void _onResult(
@@ -1186,6 +1394,14 @@ class VoiceController extends Notifier<VoiceState> {
       _lastChangeAt = now;
       _lastWords = words;
     }
+    if (words.trim().isNotEmpty) {
+      // Words prove the recognizer works; the user is already talking, so
+      // a cue still waiting would only beep over them.
+      _sessionHeardSound = true;
+      _deadSessions = 0;
+      _stopCue();
+    }
+    if (isFinal) _doneTimer?.cancel();
     final shorter = _pauseAfterSpeech;
     if (shorter != null && !isFinal && words.trim().isNotEmpty) {
       // The user has started speaking: from now on a short silence ends it.
@@ -1203,6 +1419,7 @@ class VoiceController extends Notifier<VoiceState> {
       // changing, so what was heard is judged after a few seconds at most.
       _capTimer = Timer(VoiceConfig.commandSpeechMax, () {
         if (!ref.mounted || session != _session || !_listening) return;
+        _capHit = true;
         _log(
           'words still changing after '
           '${VoiceConfig.commandSpeechMax.inSeconds}s: ending the session',
@@ -1324,9 +1541,15 @@ class VoiceController extends Notifier<VoiceState> {
   /// [intent] for a command heard during reading.
   void _accept(String text, {required String via, NavIntent? intent}) {
     final decided = DateTime.now();
+    final noisy = _soundsNoisy;
+    if (noisy) _log('noisy room or uncertain result: asking back if unsure');
+    _cancelGiveUp('a late result arrived');
+    _stopCue();
     _failures = 0;
     _instantFailures = 0;
     _sameFailures = 0;
+    _deadSessions = 0;
+    _staleRestarts = 0;
     _lastFailure = null;
     _clearCarry();
 
@@ -1351,6 +1574,7 @@ class VoiceController extends Notifier<VoiceState> {
               sessionStart: _sessionStart,
               endOfSpeech: _lastChangeAt ?? _firstPartialAt,
               decided: decided,
+              noisy: noisy,
             ),
           );
         }
@@ -1381,12 +1605,12 @@ class VoiceController extends Notifier<VoiceState> {
       markMatched(intent.name);
       unawaited(_handleIntent(intent));
     } else {
-      unawaited(_handle(text));
+      unawaited(_handle(text, noisy: noisy));
     }
   }
 
-  Future<void> _handle(String text) async {
-    await ref.read(commandBusProvider).handleUtterance(text);
+  Future<void> _handle(String text, {required bool noisy}) async {
+    await ref.read(commandBusProvider).handleUtterance(text, noisy: noisy);
     if (ref.mounted) _scheduleAutoListen();
   }
 
@@ -1415,6 +1639,8 @@ class VoiceController extends Notifier<VoiceState> {
   /// results from it are ignored (they would run the command again).
   void _endSessionEarly() {
     _stopCap();
+    _stopCue();
+    _closedAt = DateTime.now();
     _session++;
     _listening = false;
     _gotFinal = true;
@@ -1431,6 +1657,7 @@ class VoiceController extends Notifier<VoiceState> {
       _session++;
       _listening = false;
       _gotFinal = true;
+      _closedAt = DateTime.now();
       unawaited(_cancelPlatform());
     }
     if (ref.mounted && state.listening) {
@@ -1448,6 +1675,7 @@ class VoiceController extends Notifier<VoiceState> {
     _log('closing the open session first');
     _session++;
     _listening = false;
+    _closedAt = DateTime.now();
     try {
       await _stt.cancel();
     } on Object catch (e) {
@@ -1474,14 +1702,29 @@ class VoiceController extends Notifier<VoiceState> {
     final done = status == 'done' || status == 'doneNoResult';
     if (done || status == 'notListening') _platformOpen = false;
     if (done && _listening && !_gotFinal) {
-      _listening = false;
-      _capTimer?.cancel();
-      _capTimer = null;
-      if (_salvage('done_without_result')) return;
-      if (_sessionBargeIn) _unduck(missed: true);
-      if (_failedSession('done_without_result')) return;
-      _endEmpty();
+      // Android sends `done` a moment before the error that explains it:
+      // wait for that error before deciding what happened (it used to be
+      // counted as "ended at once", and a busy recognizer as a dead one).
+      _doneTimer?.cancel();
+      final session = _session;
+      _doneTimer = Timer(VoiceConfig.errorAfterDone, () {
+        _doneTimer = null;
+        if (!ref.mounted || session != _session) return;
+        if (!_listening || _gotFinal) return;
+        _endedWithoutResult();
+      });
     }
+  }
+
+  /// The session ended (`done`) with no result and no error.
+  void _endedWithoutResult() {
+    _listening = false;
+    _capTimer?.cancel();
+    _capTimer = null;
+    if (_salvage('done_without_result')) return;
+    if (_sessionBargeIn) _unduck(missed: true);
+    if (_failedSession('done_without_result')) return;
+    _endEmpty();
   }
 
   /// Starts the next session soon with a new plan (after the failed
@@ -1509,6 +1752,8 @@ class VoiceController extends Notifier<VoiceState> {
     if (!ref.mounted) return;
     _log('ERROR $code (listening=$_listening)');
     _platformOpen = false;
+    _doneTimer?.cancel();
+    _doneTimer = null;
     if (!_listening) return;
     _listening = false;
     _capTimer?.cancel();
@@ -1561,7 +1806,10 @@ class VoiceController extends Notifier<VoiceState> {
         state = VoiceState(heard: state.heard);
         // Identical repeats are handled by _failedSession; this caps a mix
         // of different errors, and says so instead of failing silently.
-        if (++_failures < 8) {
+        // A busy recognizer works, it isn't free yet: not counted.
+        if (_transientErrors.contains(code)) {
+          _scheduleAutoListen();
+        } else if (++_failures < 8) {
           _scheduleAutoListen();
         } else {
           _failures = 0;

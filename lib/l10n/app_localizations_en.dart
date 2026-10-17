@@ -156,6 +156,48 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String voiceNoisyDidYouMean(String phrase) {
+    return 'It\'s a bit noisy. Is this what you meant: “$phrase”? Say yes or no.';
+  }
+
+  @override
+  String get voiceTrialQuiet => '20-command test: quiet room';
+
+  @override
+  String get voiceTrialNoisy => '20-command test: noisy room';
+
+  @override
+  String voiceTrialSay(String number, String total, String phrase) {
+    return 'Command $number of $total. Please say: $phrase';
+  }
+
+  @override
+  String voiceTrialAgain(String phrase) {
+    return 'That didn\'t match. Please say it again: $phrase';
+  }
+
+  @override
+  String voiceTrialDone(String correct, String total) {
+    return 'The test is finished. $correct of $total were right. The results are saved.';
+  }
+
+  @override
+  String get voiceTrialStop => 'Stop the test';
+
+  @override
+  String get voiceTrialStopped =>
+      'The test was stopped. The results so far are saved.';
+
+  @override
+  String get voiceTrialExport => 'Share the test results (CSV)';
+
+  @override
+  String get voiceTrialExportEmpty => 'There are no test results yet.';
+
+  @override
+  String get voiceTrialExportFailed => 'The results can\'t be shared.';
+
+  @override
   String get voiceCancelled => 'Okay.';
 
   @override

@@ -158,6 +158,48 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
+  String voiceNoisyDidYouMean(String phrase) {
+    return 'Medyo maingay po. Ito po ba ang ibig ninyong sabihin: “$phrase”? Sabihin ang oo o hindi po.';
+  }
+
+  @override
+  String get voiceTrialQuiet => 'Pagsubok ng 20 utos: tahimik na kuwarto';
+
+  @override
+  String get voiceTrialNoisy => 'Pagsubok ng 20 utos: maingay na kuwarto';
+
+  @override
+  String voiceTrialSay(String number, String total, String phrase) {
+    return 'Utos $number ng $total. Sabihin po: $phrase';
+  }
+
+  @override
+  String voiceTrialAgain(String phrase) {
+    return 'Hindi po tugma. Pakiulit po: $phrase';
+  }
+
+  @override
+  String voiceTrialDone(String correct, String total) {
+    return 'Tapos na po ang pagsubok. $correct sa $total ang tama. Naka-save po ang resulta.';
+  }
+
+  @override
+  String get voiceTrialStop => 'Ihinto ang pagsubok';
+
+  @override
+  String get voiceTrialStopped =>
+      'Inihinto po ang pagsubok. Naka-save po ang mga resulta hanggang dito.';
+
+  @override
+  String get voiceTrialExport => 'I-share ang resulta ng pagsubok (CSV)';
+
+  @override
+  String get voiceTrialExportEmpty => 'Wala pa pong resulta ng pagsubok.';
+
+  @override
+  String get voiceTrialExportFailed => 'Hindi po ma-share ang resulta.';
+
+  @override
   String get voiceCancelled => 'Sige.';
 
   @override

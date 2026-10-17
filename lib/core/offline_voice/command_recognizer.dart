@@ -226,7 +226,26 @@ Future<void> _recognizerWorker(List<Object> args) async {
     out.send(['failed', '$e']);
     return;
   }
-  out.send(['log', 'recognizer loaded (Whisper + Silero VAD)']);
+  // The first decode after loading is several times slower than the rest
+  // (the runtime sets itself up): done now on half a second of silence, so
+  // the user's first command isn't the slow one.
+  final warm = Stopwatch()..start();
+  try {
+    final stream = recognizer.createStream();
+    try {
+      stream.acceptWaveform(samples: Float32List(8000), sampleRate: 16000);
+      recognizer.decode(stream);
+    } finally {
+      stream.free();
+    }
+  } on Object catch (e) {
+    out.send(['log', 'warm-up failed: $e']);
+  }
+  out.send([
+    'log',
+    'recognizer loaded (Whisper + Silero VAD), warm-up '
+        '${warm.elapsedMilliseconds}ms',
+  ]);
   out.send(['loaded', inbox.sendPort]);
 
   var session = -1;

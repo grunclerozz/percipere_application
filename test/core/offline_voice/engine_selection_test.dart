@@ -40,6 +40,30 @@ class FakeMic implements MicStream {
   void send(int bytes) => _audio.add(Uint8List(bytes));
 }
 
+/// A microphone that takes a moment to open and to close, like the real
+/// one, and logs the calls in order.
+class SlowMic extends FakeMic {
+  final List<String> calls = [];
+  Completer<void>? opening;
+  Completer<void>? closing;
+
+  @override
+  Future<bool> start() async {
+    calls.add('start');
+    final gate = opening = Completer<void>();
+    await gate.future;
+    return open = opens;
+  }
+
+  @override
+  Future<void> stop() async {
+    calls.add('stop');
+    final gate = closing = Completer<void>();
+    await gate.future;
+    open = false;
+  }
+}
+
 /// A recognizer whose results the test decides.
 class FakeRecognizer implements SpeechRecognizerPort {
   final StreamController<RecognizerEvent> _events =
@@ -180,6 +204,63 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(recognizer.flushed, hasLength(1));
       expect(results, [('', true)]);
+    });
+
+    test('cancelled while the microphone opens: the microphone is closed '
+        'again, no session runs (2026-10-17)', () async {
+      final slow = SlowMic();
+      final l = OfflineCommandListener(recognizer, slow, onStatus: statuses.add);
+      final started = l.listen(
+        const ListenRequest(localeId: 'fil-PH', onDevice: true, offline: true),
+        onResult: (w, f, {alternates = const [], confidence = -1}) =>
+            results.add((w, f)),
+      );
+      await pumpEventQueue();
+      final cancelled = l.cancel();
+      slow.opening!.complete();
+      await pumpEventQueue();
+      slow.closing!.complete();
+      expect(await started, isTrue);
+      await cancelled;
+      expect(slow.calls, ['start', 'stop']);
+      expect(slow.open, isFalse);
+      expect(l.listening, isFalse);
+      expect(statuses, isEmpty);
+    });
+
+    test('a new session opens the microphone only after the old one is '
+        'released (2026-10-17: "say it twice")', () async {
+      final slow = SlowMic();
+      final l = OfflineCommandListener(recognizer, slow, onStatus: statuses.add);
+      Future<bool> open() => l.listen(
+        const ListenRequest(localeId: 'fil-PH', onDevice: true, offline: true),
+        onResult: (w, f, {alternates = const [], confidence = -1}) =>
+            results.add((w, f)),
+      );
+      final first = open();
+      await pumpEventQueue();
+      slow.opening!.complete();
+      expect(await first, isTrue);
+      // The command is heard: the session ends and its microphone starts
+      // closing; the next session is asked for at once.
+      recognizer.says('susunod');
+      final second = open();
+      await pumpEventQueue();
+      expect(slow.calls, ['start', 'stop'], reason: 'no start before the stop');
+      slow.closing!.complete();
+      await pumpEventQueue();
+      expect(slow.calls, ['start', 'stop', 'start']);
+      slow.opening!.complete();
+      expect(await second, isTrue);
+      expect(slow.open, isTrue);
+      expect(l.listening, isTrue);
+    });
+
+    test('sound levels are on about the Android scale, from a quiet room', () {
+      expect(OfflineCommandListener.soundLevel(-100), -2);
+      expect(OfflineCommandListener.soundLevel(-60), 0);
+      expect(OfflineCommandListener.soundLevel(-45), 5);
+      expect(OfflineCommandListener.soundLevel(0), 10);
     });
 
     test('cancel() ends silently', () async {

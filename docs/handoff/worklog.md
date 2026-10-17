@@ -69,6 +69,29 @@ Format:
 - Follow-ups: tablet tuning of thresholds (unverified); Percy results in the thesis doc are
   still provisional (a6); `fix/voice-reliability` is still not merged into `main`.
 
+## 2026-10-17 — Voice reliability: say twice, hold twice, false "not working", noise
+- Agent: Claude Code
+- Branch: `fix/voice-reliability` (from `main` `df0a3df`)
+- Changed: root causes and fixes in `docs/handoff/03-voice-and-percy.md` → "Voice reliability".
+  `lib/core/voice/voice_controller.dart` (done-before-error wait, stale events, sound-based
+  dead-recognizer check, give-up grace, tone on mic live, one hold = one session, noise judgement),
+  `lib/core/voice/speech_input.dart` (recognizer settle), `lib/core/offline_voice/offline_listener.dart`
+  (serialized mic, cancel during start, absolute level), `command_recognizer.dart` (warm-up),
+  `hybrid_tts_service.dart` + `lib/core/tts/tts_service.dart` (sticky stop), `AudioBridge.kt`
+  (NoiseSuppressor/AGC flags), `lib/core/accessibility/command_bus.dart` (`handleUtterance(noisy:)`),
+  `lib/config/voice_config.dart`, ARB (`voiceNoisyDidYouMean`, `voiceTrial*`), new
+  `lib/core/voice/voice_trial.dart` + developer rows in `voice_check_screen.dart` (20-command CSV test);
+  tests `test/core/voice/voice_reliability_test.dart` (new), `engine_selection_test.dart`,
+  `voice_controller_test.dart` (late result now kept), `voice_cutoff_test.dart` (tone waits for the mic),
+  `test/helpers/fakes.dart`; docs 03/05/06/07, `docs/testing/voice-reliability-checklist.md`.
+- Checks: `flutter analyze`: no issues. Problems 2–3 reproduced: 3 of the new tests fail on the old
+  code and pass now. Changed-code tests: 15 files / 214 tests passed, then the 4 voice files again
+  after the last edit (62 passed). Full suite and emulator not run (as asked). Release build NOT run:
+  the JDK path from `flutter doctor` was not reachable from the agent session.
+- Commit: `f4a1a65` (pushed: no). Merge into `main` not done: blocked by the agent's permission check.
+- Follow-ups: user merges `fix/voice-reliability` into `main`, builds the APK, runs
+  `docs/testing/voice-reliability-checklist.md` and sends the CSV + logs; tune noise thresholds from it.
+
 ## 2026-10-17 — Merge finished branches into main
 - Agent: Claude Code
 - Branch: `main`

@@ -1,31 +1,38 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (database masterlist v2: docs only).** Every agent updates this file at the end of a task
-(`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each task:
-`docs/handoff/worklog.md`.
+**Last updated: 2026-10-17 by Claude Code (merged `feat/voice-hold-interrupt` and
+`docs/database-masterlist-v2` into `main`).** Every agent updates this file at the end of a
+task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
+task: `docs/handoff/worklog.md`.
 
 ## At a glance
 - **App:** feature-complete for the thesis demo except the postponed phases (6D, 7, 8, 6E Part B).
   Almost everything built since 2026-10-07 **still waits for the user's tablet test**.
-- **Last code change:** `3bb1627` (2026-10-15) — offline voice with the app's own engines.
-- **Last full test run:** 2026-10-15, `bash tool/test_each.sh`: 81 files, 981 tests, 0 failures
-  (from the 2026-10-15 handoff; not re-run on 2026-10-16, docs-only day).
+- **Last code change:** merge `d306cac` (2026-10-17) — brings `feat/percy-smarter`,
+  `feat/voice-hold-interrupt` and the database masterlist v2 docs into `main`. Both merges were
+  clean (no conflicts).
+- **Last full test run:** 2026-10-15, `bash tool/test_each.sh`: 81 files, 981 tests, 0 failures.
+  After the 2026-10-17 merge: `flutter analyze` clean; the Percy/voice/settings/accessibility
+  test files (15 files) pass individually — see worklog entry below for the one file that
+  needs the known isolated-run workaround.
 - **Blocking the tablet test:** the 3 offline voice archives + `manifest.json` are not uploaded
-  yet (dashboard `models/` folder and GitHub release `voice-models-v1`); dashboard branch
+  yet (dashboard `models/` folder and GitHub release `voice-models-v1`) — kept out of `main`
+  as local, untracked, git-ignored files (`tool/voice_models/dist/`, 82 MB); dashboard branch
   `fix/webapp-api` merge state unverified.
 
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
-| Percy smarter (`feat/percy-smarter`) | team, then Claude Code | **provisionally retrained** 2026-10-16 (`model.json` new, evaluated on 58 team rows only; 5 new intents not evaluated). Waiting for team test phrases, then rerun `train.py` for the official evaluation + `docs/thesis/percy-evaluation.md`. Not pushed |
-| Voice: hold to interrupt, false-error fix, latency, noise (`feat/voice-hold-interrupt`) | Claude Code | Phase B done 2026-10-16 (hold time config, TalkBack action, Percy turn drop, stale-error fix; tests for changed files pass). Waiting for user's tablet test; Phase C (latency, noise) after review. Not pushed |
-| Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15) |
+| Percy smarter (`feat/percy-smarter`, now merged into `main`) | team, then Claude Code | **provisionally retrained** 2026-10-16 (`model.json` new, evaluated on 58 team rows only; 5 new intents not evaluated). Waiting for team test phrases, then rerun `train.py` for the official evaluation + `docs/thesis/percy-evaluation.md`. Merged into `main` 2026-10-17, not pushed |
+| Voice: hold to interrupt, false-error fix, latency, noise (`feat/voice-hold-interrupt`, now merged into `main`) | Claude Code | Phase B done 2026-10-16 (hold time config, TalkBack action, Percy turn drop, stale-error fix; tests for changed files pass). Waiting for user's tablet test; Phase C (latency, noise) after review. Merged into `main` 2026-10-17, not pushed |
+| Upload offline voice models (`tool/voice_models/dist/*` + `manifest.json`) | user | not done (as of 2026-10-15); the local `tool/voice_models/` download folder is now git-ignored |
 | Tablet test of everything since 2026-10-07 (checklists in `docs/testing/`, §15–18 of `system-test-checklist.md`) | user | waiting |
 | First test with the real dashboard (`docs/testing/first-tablet-test.md`) | user | waiting |
 | Dashboard: merge `fix/webapp-api` (REST) and `ui/rounded-no-shadow` | user | not merged as of 2026-10-13; now **unverified** |
 | Dashboard privacy: drop personal columns (`v12_remove_personal_columns.sql`), rewrite git history holding old personal data | user decides | open |
 | Percy: team adds sentences (`docs/percy-dataset-guide.md`), then retrain | team + agent | waiting for sentences |
-| Shared Claude Code + Codex docs (`docs/agent-rules.md`, `AGENTS.md`, this folder) | Claude Code | done 2026-10-16, not pushed |
+| Shared Claude Code + Codex docs (`docs/agent-rules.md`, `AGENTS.md`, this folder) | Claude Code | done 2026-10-16, merged into `main` 2026-10-17, not pushed |
+| Database masterlist v2 (`docs/database-masterlist-v2`, now merged into `main`) | Claude Code | docs only, merged 2026-10-17, not pushed |
 
 ## What's next (in order, unless the user says otherwise)
 1. User uploads the models and runs the tablet tests; agents fix what the tests find.
@@ -35,12 +42,11 @@
 4. Phase 6D (Laplacian blur check, Otsu, WER calculation) — `docs/specs/algorithms.md`.
 5. Phase 7 (SUS, usage logs, Library sync) and Phase 8 (evaluation, polish) — postponed.
 
-## Branches (checked 2026-10-16 with `git branch -a`, `git log`)
+## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
-| `docs/database-masterlist-v2` | docs commit (database masterlist v2) on top of `feat/voice-hold-interrupt` | **not pushed**. Only `docs/database/masterlist.{md,xlsx}` + worklog/status. |
-| `docs/database-masterlist` (current work branch) | today's docs commit on top of `55edf3c` | 4 commits **not pushed** beyond `origin/docs/database-masterlist` (`0e24bd8`): `881dd1a`, `3bb1627`, `55edf3c`, and today's. Contains all of `main`. |
-| `main` (local) | `de4cac8` | 4 commits **not pushed** beyond `origin/main` (`54b6567`). Does not contain `0e24bd8` or later. |
+| `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
+| `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
 | `origin/main` | `54b6567` | last pushed state of the app |
 | `origin/batumbakla-patch-1` | `ba0207c` (2026-09-27) | teammate's README edits from before the baseline; **no common history with `main`**. Do not merge; ask the user. |
 Pushing and merging are the user's call (`docs/agent-rules.md` §4).

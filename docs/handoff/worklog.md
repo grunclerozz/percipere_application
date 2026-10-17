@@ -17,6 +17,30 @@ Format:
 
 ---
 
+## 2026-10-17 — Merge finished branches into main
+- Agent: Claude Code
+- Branch: `main`
+- Changed: merged `feat/voice-hold-interrupt` (which contains `feat/percy-smarter`) into
+  `main`, then merged `docs/database-masterlist-v2` (which contains `docs/database-masterlist`)
+  into `main`. Both merges were clean — no conflicts, confirmed first with `git merge-tree`.
+  This brings in: Percy smarter (provisional retrain), voice hold-to-interrupt + false-error
+  fix, offline voice engines, the shared `docs/agent-rules.md`/`AGENTS.md` restructuring, and
+  the database masterlist v2 docs. `docs/database-masterlist`, `docs/database-masterlist-v2`,
+  `feat/percy-smarter` and `feat/voice-hold-interrupt` are all now fully contained in `main`
+  (not deleted, in case the user wants to keep them around). Also: found `tool/voice_models/`
+  (82 MB of downloaded model `.tar.gz` archives the user had pulled locally) untracked and
+  added `tool/voice_models/dist/` to `.gitignore` so those binaries are never committed.
+  Updated this worklog and `docs/handoff/05-current-status.md`.
+- Checks: `flutter analyze`: no issues. `test/core/{percy,voice,settings,accessibility}` (15
+  files): all pass when run file-by-file (the known random `flutter_tester` crash hit
+  `percy_settings_test.dart` once in a combined run; it passes alone and on retry — this PC's
+  known issue, see `docs/handoff/09-environment.md`). Full suite, release build and emulator
+  not run (not required for a merge task; no native-plugin code was added by this task itself).
+- Commit: `fd2dd21` (merge of `feat/voice-hold-interrupt`), `d306cac` (merge of
+  `docs/database-masterlist-v2`), plus a docs/`.gitignore` follow-up commit (pushed: no)
+- Follow-ups: user's tablet test (all the items already waiting in the table above); user
+  decides whether to delete the now-merged branches; user uploads the voice model archives.
+
 ## 2026-10-17 — Database masterlist v2 (read-only analysis)
 - Agent: Claude Code
 - Branch: `docs/database-masterlist-v2` (from `feat/voice-hold-interrupt`)

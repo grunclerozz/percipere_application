@@ -1,7 +1,7 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (`feat/tutorial-first`: controls tutorial before Welcome;
-branch, not merged; earlier `fix/voice-capture` is in `main`).** Every agent updates this file at the end of a
+**Last updated: 2026-10-18 by Claude Code (`feat/percy-knowledge`: Percy answers questions about itself and the app,
+merged into `main` locally; `feat/tutorial-first` still not merged).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
@@ -31,6 +31,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Percy answers questions (`feat/percy-knowledge`, merged into `main` locally 2026-10-18): offline knowledge base (32 topics, `assets/percy/knowledge.json`), TF-IDF + cosine retrieval, `ask_question` intent, provisional retrain (team set accuracy 0.966 -> 0.914, macro F1 0.971 -> 0.939), `--check` and a handoff guide for the clips | Claude Code -> user | built; analyze clean; Percy/settings/startup/report test files pass; no release build (per the task: analyze + changed-code tests only). **Percy ElevenLabs voice: ready, waiting for clips from teammate** (`docs/percy-voice-handoff.md`: 590 lines, 23,762 characters). Tablet: ask "Anong kaya mo?", "Paano mag-scan?", "nakikita mo ba ang password ko"; watch the log line `[PERCY] knowledge:` |
 | Tutorial first (`feat/tutorial-first`, from `main` `b7b035a`): tutorial after the loading screen and **before Welcome** on the first launch (device flag), not after profiling any more; skip + double-tap blocked on step one until Percy's intro was heard (60 s safety timeout); replay from Settings unchanged | Claude Code → user | built; analyze clean; 18 changed-area test files pass; **release build OK** (252.8 MB); **not merged, not pushed**. Tablet: `docs/testing/tutorial-first-checklist.md` (first launch without voice models: unverified, test with and without internet) |
 | Voice capture + one output voice (`fix/voice-capture`, merged into `main` 2026-10-17) | Claude Code → user | built; analyze clean; changed-area tests pass (see worklog); **release build not done (stopped: PC low on memory), so the `AudioBridge.kt` change is not compiled yet**. Causes found by reading code (no `voice_log.txt`). Tablet: quiet room, TV on, Percy talking → hold, Reader reading → hold, airplane mode; read the overlay's source/noise lines |
 | Percy's ElevenLabs voice from bundled clips (`feat/percy-elevenlabs`, merged into `main` 2026-10-17) | Claude Code -> user | built; analyze clean; changed-area tests pass. **User must run `tool/percy_voice/generate_percy_voice.py` (see its README) and commit `assets/percy/voice/`**; until then the app speaks everything with the offline voice. Native mp3 playback untested on a device, release build not run |
@@ -61,6 +62,7 @@ task: `docs/handoff/worklog.md`.
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
+| `feat/percy-knowledge` | see worklog | from `main` `9dcdfa7`; merged into local `main` 2026-10-18; **not pushed** unless the worklog says otherwise |
 | `feat/tutorial-first` | `c4135c7` | from `main` `b7b035a`; tutorial before Welcome; **not merged, not pushed** |
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |

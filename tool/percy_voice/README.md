@@ -8,12 +8,17 @@ no server: it plays the clip whose hash matches the sentence, and speaks everyth
 Voice id (not a secret): `u0P5zPuh3SvxTi9vSTCn`. Default model `eleven_multilingual_v2`
 (supports Filipino). Needs only Python 3 (no packages).
 
+A step-by-step guide for a non-technical teammate: `docs/percy-voice-handoff.md`.
+
 ## Run it (PowerShell, from the repo root)
 ```powershell
 cd "D:\Development\Flutter Projects\percipere_app"
 
 # 1. See what would be generated (no key, no API call)
 python tool\percy_voice\generate_percy_voice.py --dry-run
+
+# 1b. How many lines already have clips (no key, no API call)
+python tool\percy_voice\generate_percy_voice.py --check
 
 # 2. Set the key for THIS window only (never saved to a file)
 $env:ELEVENLABS_API_KEY = Read-Host "ElevenLabs API key"
@@ -29,11 +34,12 @@ Remove-Item Env:\ELEVENLABS_API_KEY
 ```
 It prints the characters used. Then commit `assets/percy/voice/` (the audio IS committed).
 
-Options: `--model eleven_v3` (sends `language_code` too), `--prune` (delete clips of sentences
+Options: `--check` ("N of M lines have clips", no API call), `--model eleven_v3` (sends `language_code` too), `--prune` (delete clips of sentences
 that no longer exist), `--dry-run`, `--limit N`.
 
 ## What it reads
-- `assets/percy/responses.json` (intents, dialogue) and the greeting in `assets/percy/persona.json`.
+- `assets/percy/responses.json` (intents, dialogue), the answers in `assets/percy/knowledge.json`
+  (questions about Percy and the app) and the greeting in `assets/percy/persona.json`.
 - ARB keys listed in `tool/percy_voice/extra_arb_keys.json` (tutorial lines, mic/unavailable messages).
 - Lines are cut into **sentences** (the app speaks one sentence at a time). Sentences with
   `{placeholders}` are skipped on purpose (offline voice).

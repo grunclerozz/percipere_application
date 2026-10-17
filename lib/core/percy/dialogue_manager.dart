@@ -9,6 +9,7 @@ import '../tts/reading_rate.dart';
 import '../voice/understanding.dart';
 import '../voice/voice_commands.dart';
 import 'intent_classifier.dart';
+import 'knowledge_base.dart';
 import 'percy_intent.dart';
 import 'percy_responses.dart';
 import 'percy_text.dart';
@@ -152,6 +153,10 @@ enum TurnOutcome {
 
   /// An exact command handled by the app's phrase matcher.
   matcher,
+
+  /// A question about Percy or the app, answered from the knowledge base
+  /// (or asked back / suggested examples).
+  knowledge,
 }
 
 /// One turn's result: what to say, then what to do.
@@ -164,6 +169,7 @@ class PercyReply {
     required this.outcome,
     this.intent,
     this.confidence,
+    this.topic,
   });
 
   /// What Percy says first (may be empty).
@@ -180,6 +186,9 @@ class PercyReply {
 
   /// The classifier's confidence in [intent], if it was used.
   final double? confidence;
+
+  /// The knowledge topic answered or asked about, if any.
+  final String? topic;
 }
 
 /// One remembered turn.
@@ -210,6 +219,12 @@ final class _OfferLibrary extends _Pending {
   _OfferLibrary(super.now);
 }
 
+/// "Ito ba ang tinatanong mo: …?" (the closest knowledge topic).
+final class _ConfirmTopic extends _Pending {
+  _ConfirmTopic(super.now, this.topic);
+  final KnowledgeTopic topic;
+}
+
 /// Percy's frame-based dialogue manager: classifier → thresholds → slots →
 /// pending questions → a [PercyReply]. The frame: current screen, open
 /// document (via the environment), last intent, pending question, last
@@ -219,6 +234,7 @@ class DialogueManager {
   DialogueManager({
     required this.model,
     required this.responses,
+    this.knowledge,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
@@ -227,6 +243,9 @@ class DialogueManager {
 
   /// Percy's lines.
   final PercyResponses responses;
+
+  /// Answers to questions about Percy and the app (null: none).
+  final KnowledgeBase? knowledge;
 
   final DateTime Function() _clock;
   _Pending? _pending;
@@ -310,6 +329,11 @@ class DialogueManager {
         if (answer == false) {
           return _declined(style, TurnOutcome.corrected, asked, score);
         }
+      case _ConfirmTopic(:final topic):
+        if (answer == true) return _answerTopic(topic, style, top.probability);
+        if (answer == false) {
+          return _knowledgeLine('knowledge_other', style, top.probability);
+        }
       case _OfferLibrary():
         if (answer == true) {
           return _act(
@@ -348,15 +372,9 @@ class DialogueManager {
       );
     }
 
-    // 2c. "Sino ka?" / "Ano ang kaya mo?": Percy introduces itself.
-    if (IntroRule.matches(text)) {
-      return PercyReply(
-        say: responses.dialogue('introduction', style.lang, style.politeness),
-        outcome: TurnOutcome.chat,
-        intent: PercyIntent.greeting,
-        confidence: top.probability,
-      );
-    }
+    // 2c. A question about Percy or the app ("Anong kaya mo?").
+    final asked = _askedQuestion(text, intent, top, style);
+    if (asked != null) return asked;
 
     // 3. A document named by title ("basahin ang Liham kay Nanay"): the
     // title words are new to the classifier, so the slot rule goes first —
@@ -390,6 +408,80 @@ class DialogueManager {
       );
     }
     return _act(intent, text, env, style, TurnOutcome.acted, top.probability);
+  }
+
+  /// Answers a question about Percy or the app from the knowledge base:
+  /// the classifier calls it a question, or it is almost word for word one
+  /// of the known questions. Null when [text] is not such a question.
+  PercyReply? _askedQuestion(
+    String text,
+    PercyIntent? intent,
+    IntentScore top,
+    PercyStyle style,
+  ) {
+    final base = knowledge;
+    if (base == null) return null;
+    final asks = intent == PercyIntent.askQuestion &&
+        top.probability >= PercyConfig.askThreshold;
+    final hits = base.rank(text);
+    final best = hits.isEmpty ? null : hits.first;
+    debugPrint('[PERCY] knowledge: ${hits.take(3).toList()}');
+    if (!asks &&
+        (best == null ||
+            best.score < PercyConfig.knowledgeRescue ||
+            !KnowledgeBase.looksLikeQuestion(text))) {
+      return null;
+    }
+    if (best != null && best.score >= PercyConfig.knowledgeAnswer) {
+      return _answerTopic(best.topic, style, best.score);
+    }
+    if (best != null && best.score >= PercyConfig.knowledgeAsk) {
+      _pending = _ConfirmTopic(_clock(), best.topic);
+      return PercyReply(
+        say: responses.dialogue(
+          'knowledge_confirm',
+          style.lang,
+          style.politeness,
+          {'topic': best.topic.title[style.lang] ?? best.topic.title['fil']!},
+        ),
+        outcome: TurnOutcome.asked,
+        intent: PercyIntent.askQuestion,
+        confidence: best.score,
+        topic: best.topic.id,
+      );
+    }
+    return _knowledgeLine('knowledge_none', style, best?.score ?? 0);
+  }
+
+  PercyReply _answerTopic(
+    KnowledgeTopic topic,
+    PercyStyle style,
+    double confidence,
+  ) => PercyReply(
+    say: knowledge!.answer(topic, style.lang, style.politeness),
+    outcome: TurnOutcome.knowledge,
+    intent: PercyIntent.askQuestion,
+    confidence: confidence,
+    topic: topic.id,
+  );
+
+  /// A line that suggests three example questions.
+  PercyReply _knowledgeLine(String key, PercyStyle style, double confidence) {
+    final ideas = knowledge?.suggestions(style.lang) ?? const <String>[];
+    return PercyReply(
+      say: responses.dialogue(key, style.lang, style.politeness, {
+        'suggestions': responses.joinOr(
+          ideas.take(3).map((s) => '“$s”').toList(),
+          style.lang,
+          style.politeness,
+        ),
+      }),
+      outcome: key == 'knowledge_none'
+          ? TurnOutcome.fallback
+          : TurnOutcome.declined,
+      intent: PercyIntent.askQuestion,
+      confidence: confidence,
+    );
   }
 
   /// The same spoken request has a different safe target while a described
@@ -493,6 +585,10 @@ class DialogueManager {
           intent: intent,
           confidence: confidence,
         );
+      case PercyIntent.askQuestion:
+        // Confirmed "did you mean …?" for a question: answer it.
+        return _askedQuestion(text, intent, IntentScore(intent.label, 1), style) ??
+            _knowledgeLine('knowledge_none', style, confidence ?? 0);
       case PercyIntent.outOfScope:
         return _fallback(env, style, intent, confidence ?? 0);
       default:

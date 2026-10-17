@@ -165,9 +165,22 @@
     "or": {
       "fil": {"po": ["o"], "casual": ["o"]},
       "en": {"po": ["or"], "casual": ["or"]}
+    },
+    "knowledge_confirm": {
+      "fil": {"po": ["Ito po ba ang tinatanong ninyo: {topic}?"], "casual": ["Ito ba ang tinatanong mo: {topic}?"]},
+      "en": {"po": ["Is this what you are asking about: {topic}?"], "casual": ["Is this what you're asking about: {topic}?"]}
+    },
+    "knowledge_none": {
+      "fil": {"po": ["Hindi ko po sigurado ang sagot diyan. Puwede po ninyong itanong: {suggestions}."], "casual": ["Hindi ko sigurado ang sagot diyan. Puwede mong itanong: {suggestions}."]},
+      "en": {"po": ["I'm not sure about that. You can ask: {suggestions}."], "casual": ["I'm not sure about that. You can ask: {suggestions}."]}
+    },
+    "knowledge_other": {
+      "fil": {"po": ["Sige po. Subukan po ninyong itanong sa ibang paraan, tulad ng: {suggestions}."], "casual": ["Sige. Subukan mong itanong sa ibang paraan, tulad ng: {suggestions}."]},
+      "en": {"po": ["Okay. Try asking in another way, like: {suggestions}."], "casual": ["Okay. Try asking another way, like: {suggestions}."]}
     }
   },
   "actions": {
+    "ask_question": {"fil": "magtanong tungkol sa app", "en": "asking about the app"},
     "open_home": {"fil": "pumunta sa Home", "en": "going to Home"},
     "open_library": {"fil": "buksan ang Aklatan", "en": "opening the Library"},
     "open_settings": {"fil": "buksan ang Mga Setting", "en": "opening Settings"},

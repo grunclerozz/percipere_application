@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'knowledge_base.dart';
 import 'percy_responses.dart';
 
 /// How a sentence is named in the bundled voice clips. The generation script
@@ -273,6 +274,11 @@ final percyClipStatsProvider = FutureProvider<PercyClipStats>((ref) async {
     await rootBundle.loadString('assets/percy/persona.json'),
     await rootBundle.loadString('assets/percy/responses.json'),
   );
-  final fixed = responses.fixedSentences();
+  final fixed = {
+    ...responses.fixedSentences(),
+    ...KnowledgeBase.parse(
+      await rootBundle.loadString('assets/percy/knowledge.json'),
+    ).fixedSentences(),
+  };
   return PercyClipStats(clips.countWithClips(fixed), fixed.length);
 });

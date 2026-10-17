@@ -180,6 +180,9 @@ class PercyResponses {
     'idle_end',
     'reprompt',
     'introduction',
+    'knowledge_confirm',
+    'knowledge_none',
+    'knowledge_other',
     'or',
   ];
 }

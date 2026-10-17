@@ -17,6 +17,31 @@ Format:
 
 ---
 
+## 2026-10-18 — Percy answers questions (knowledge base) + voice clip handoff
+- Agent: Claude Code
+- Branch: `feat/percy-knowledge` (from `main` `9dcdfa7`), merged into local `main`
+- Changed: **Percy ElevenLabs voice: ready, waiting for clips from teammate.** New `assets/percy/knowledge.json`
+  (32 topics, ~30 example questions each, Filipino po/casual + English answers with a follow-up);
+  `lib/core/percy/knowledge_base.dart` (own TF-IDF + cosine retrieval); `DialogueManager._askedQuestion`
+  (ask_question intent or a near-exact question; answer >= 0.55, ask back 0.35-0.55, else three example
+  questions; thresholds in `percy_config.dart`); new `PercyIntent.askQuestion`, `TurnOutcome.knowledge`,
+  `PercyReply.topic`; `IntroRule` removed; three new dialogue lines in `responses.json`; brain/controller load
+  the knowledge file (Percy still works if it fails). Dataset: +993 `ask_question` rows ("Generated (Claude)"),
+  `sino ka`-type rows moved from `greeting`, `tulungan mo ako` and `hindi ko alam ang gagawin` moved from `help`;
+  `validate_dataset.py` knows the intent and the new source. Provisional retrain (`train.py --provisional`):
+  team test set (58 sentences) accuracy 0.966 -> 0.914, macro F1 0.971 -> 0.939; `ask_question` has no team test
+  sentences yet. Voice: `generate_percy_voice.py` reads the knowledge answers and has `--check`; dry run 590 lines
+  (333 fil, 257 en), 23,762 characters; Settings > Percy count includes the answers; `docs/percy-voice-handoff.md`
+  for the teammate. Docs: `docs/thesis/algorithms.md` section 5, handoff 03/05/07. Tests: new
+  `test/core/percy/knowledge_test.dart`; updated dialogue manager and session tests.
+- Checks: `flutter analyze` no issues. Changed-area tests file by file: `test/core/percy/*` (6 files),
+  percy_analysis_panel, percy_flow, startup_screen, report_issue (2), assistant_flow all pass. Full suite and
+  release build **not run** (the task asked for analyze + changed-code tests only; no native change).
+  Leave-one-out retrieval accuracy 87.8 % of 345 held-out questions.
+- Commit: see `git log` (pushed: branch `feat/percy-knowledge` only, not `main`)
+- Follow-ups: teammate runs the handoff steps and pushes `assets/percy/voice`; team writes real test questions
+  for `ask_question` (then rerun `train.py` for the official score); tablet test of the answers.
+
 ## 2026-10-17 — Controls tutorial first (before Welcome)
 - Agent: Claude Code
 - Branch: `feat/tutorial-first` (from `main` `b7b035a`), not merged

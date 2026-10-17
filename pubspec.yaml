@@ -75,6 +75,7 @@ flutter:
     - assets/percy/model.json
     - assets/percy/persona.json
     - assets/percy/responses.json
+    - assets/percy/knowledge.json
     - assets/percy/voice/
 
   fonts:

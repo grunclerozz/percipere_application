@@ -264,7 +264,7 @@ void main() {
       expect(last.language.language, DocLanguage.filipino);
 
       expect(entries[1].heard, 'sino ka');
-      expect(entries[1].intent, 'greeting');
+      expect(entries[1].intent, 'ask_question');
     });
 
     test('nothing is recorded while the setting is off', () async {

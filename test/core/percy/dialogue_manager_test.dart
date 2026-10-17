@@ -13,6 +13,7 @@ import 'package:percipere_app/core/accessibility/nav_intent.dart';
 import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/percy/dialogue_manager.dart';
 import 'package:percipere_app/core/percy/intent_classifier.dart';
+import 'package:percipere_app/core/percy/knowledge_base.dart';
 import 'package:percipere_app/core/percy/percy_intent.dart';
 import 'package:percipere_app/core/percy/percy_responses.dart';
 import 'package:percipere_app/core/percy/slots.dart';
@@ -71,6 +72,7 @@ LibraryItem _item(String id, String title) => LibraryItem(
 
 void main() {
   late PercyResponses responses;
+  late KnowledgeBase knowledge;
   late _ScriptedModel model;
   late _Env env;
   late DialogueManager dm;
@@ -78,6 +80,9 @@ void main() {
   const style = PercyStyle();
 
   setUpAll(() {
+    knowledge = KnowledgeBase.parse(
+      File(PercyConfig.knowledgeAsset).readAsStringSync(),
+    );
     responses = PercyResponses.parse(
       File(PercyConfig.personaAsset).readAsStringSync(),
       File(PercyConfig.responsesAsset).readAsStringSync(),
@@ -97,46 +102,28 @@ void main() {
     return dm.handle(text, env, style);
   }
 
-  group('Percy introduces itself', () {
-    test('"Sino ka?" / "Ano ang kaya mo?" answer with the intro, even when '
-        'the model is unsure', () async {
-      for (final text in [
-        'sino ka',
-        'Sino ka ba?',
-        'ano ang kaya mo',
-        'Ano ang kaya mo, Percy?',
-        'who are you',
-        'what can you do',
+  group('Percy introduces itself (knowledge base)', () {
+    test('"Sino ka?" / "Ano ang kaya mo?" are answered, even when the '
+        'model is unsure', () async {
+      final withKnowledge = DialogueManager(
+        model: model,
+        responses: responses,
+        knowledge: knowledge,
+        clock: () => now,
+      );
+      for (final (text, mention) in [
+        ('sino ka', 'Percy'),
+        ('Sino ka ba?', 'Percy'),
+        ('ano ang kaya mo', 'Kaya ko po'),
+        ('Ano ang kaya mo, Percy?', 'internet'),
+        ('who are you', 'Percy'),
+        ('what can you do', 'internet'),
       ]) {
-        final r = await say(text);
-        expect(r.say, contains('Percy'), reason: text);
-        expect(r.say, contains('basahin mo'), reason: text);
-        expect(r.say, contains('walang internet'), reason: text);
+        final r = await withKnowledge.handle(text, env, style);
+        expect(r.say, contains(mention), reason: text);
+        expect(r.say, contains('“'), reason: 'follow-up: $text');
+        expect(r.outcome, TurnOutcome.knowledge, reason: text);
         expect(r.action, isNull, reason: 'only talks: $text');
-      }
-    });
-
-    test('other sentences are not asking who Percy is', () {
-      for (final text in [
-        'basahin mo',
-        'buksan ang aklatan',
-        'sino si Rizal',
-      ]) {
-        expect(IntroRule.matches(text), isFalse, reason: text);
-      }
-    });
-
-    test('every intro row of the dataset is caught by the rule', () {
-      final rows = File('data/percy/intents.csv')
-          .readAsLinesSync()
-          .where(
-            (l) =>
-                RegExp(r'^(sino ka|ano ang kaya mo|who are you)').hasMatch(l),
-          )
-          .map((l) => l.split(',greeting,').first);
-      expect(rows, isNotEmpty);
-      for (final text in rows) {
-        expect(IntroRule.matches(text), isTrue, reason: text);
       }
     });
   });

@@ -347,6 +347,82 @@ None measured on real photos yet (**unverified**).
 
 ---
 
+## 5. TF-IDF + cosine similarity — Percy's answers to questions (knowledge retrieval)
+
+### Objective
+Percy must answer questions about itself and the app ("Anong kaya mo?", "Paano mag-scan?"),
+not only obey commands. The answers are written by us (`assets/percy/knowledge.json`); the
+algorithm finds which answer fits what the user said. Offline, no AI service.
+
+### Input / output
+- **Input:** the user's question as heard (any mix of Filipino, English, Taglish and speech-recognition
+  spellings such as "anu", "pano", "ung", "kaya mu"), and the knowledge base: 32 topics, each with
+  about 30 example questions and a Filipino and English answer.
+- **Output:** the topics ranked by a score from 0 to 1. Score ≥ 0.55: answer it. 0.35–0.55: ask
+  "Ito ba ang tinatanong mo: …?" with the closest topic. Below 0.35: say it is not sure and suggest
+  three example questions.
+
+### Formula
+1. Normalize: lowercase, fold accents, drop apostrophes, other punctuation → space, map spellings
+   (`anu→ano`, `pano→paano`, `mu→mo`, `ung/yung→ang`), drop politeness words and the wake word
+   (`po, opo, nga, naman, ba, percy`) and a few function words (`ang, ng, sa, na, the, a, of, to`).
+2. Features: word 1–2-grams and character 3–4-grams inside each padded word (so "mag-scan",
+   "magscan" and "mag scan" share most features).
+3. Weight each feature of a question with `tf × idf`, `idf(f) = ln((1 + N) / (1 + df(f))) + 1`,
+   where `N` is the number of example questions (about 1,000) and `df(f)` how many contain `f`.
+   L2-normalize the word block and the character block separately.
+4. For the user's question `q` and one example question `d`:
+   `cos(q, d) = Σ q_f · d_f` per block, and `score(q, d) = (cos_word + cos_char) / 2`.
+   A feature of `q` that no example question has still counts in `q`'s norm (with the highest idf),
+   so a question made mostly of unknown words scores low instead of matching on one familiar word.
+5. `score(topic) = max over its example questions`.
+
+### Pseudocode
+```
+build():  for each example question d: counts[d] = features(normalize(d))
+          df[f] = number of questions containing f;  idf[f] = ln((1+N)/(1+df[f])) + 1
+          vector[d] = l2(tf*idf per block);  inverted index: feature -> (d, weight)
+rank(q):  v = l2(tf*idf of features(normalize(q)); unknown features add to the norm only)
+          for each feature f in v: for (d, w) in index[f]: dot[d] += v[f] * w
+          score[topic] = max(dot[d] / 2 for d in topic)      # two blocks, each at most 1
+          return topics sorted by score
+```
+
+### Why chosen
+- Same family as the intent classifier (TF-IDF), so the thesis explains one idea twice and the
+  code reuses the feature approach; no new library, pure Dart (scoring about 1,000 short questions is a few milliseconds on a PC; not measured on the tablet).
+- A classifier would need many examples **per answer** (32 classes); similarity to example questions
+  lets the team add or fix an answer by editing one JSON file, with no retraining.
+- The score is easy to explain and to threshold: "sure", "ask back" and "suggest examples" are three
+  bands of the same number. A neural sentence encoder would be more flexible but needs a model
+  download and is harder to defend with our small data.
+
+### Where in the code
+- `lib/core/percy/knowledge_base.dart` (`KnowledgeBase`: `rank`, `tokens`, `looksLikeQuestion`).
+- Thresholds: `lib/config/percy_config.dart` (`knowledgeAnswer` 0.55, `knowledgeAsk` 0.35,
+  `knowledgeRescue` 0.85).
+- Used by `lib/core/percy/dialogue_manager.dart` (`_askedQuestion`): the intent classifier has an
+  `ask_question` intent (all example questions are in `data/percy/intents.csv`); when it says
+  "question", or a sentence with a question word is almost word for word a known question (≥ 0.85), the
+  knowledge base answers. Commands stay commands.
+
+### How evaluated
+- `test/core/percy/knowledge_test.dart`: every example question returns its own topic (alone and
+  through the real classifier + dialogue manager, in Filipino and English); the questions named by the
+  team return the expected topic; wordings that are in no list; **leave-one-out** (each third question
+  is removed from the list, then asked); off-topic questions give three suggestions; no command row of
+  the dataset is answered as a question.
+
+### Results
+- Leave-one-out (a question that is **not** in the list): **87.8 %** of 345 questions reach the right
+  topic (2026-10-18). The misses are mostly neighbouring topics ("Do I need an account?" is both
+  *register* and *guest*; "what is your job" is *purpose* or *abilities*).
+- Off-topic sentences ("what is the weather today", "ano ang pinakamataas na bundok") score 0.07–0.18,
+  below the 0.35 line.
+- Not measured with real users or speech recognition output on the tablet (**unverified**).
+
+---
+
 ## Tools used (not developed by us)
 
 These are ready-made components; the thesis should name them and not claim them as our work.

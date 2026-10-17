@@ -19,7 +19,7 @@ Format:
 
 ## 2026-10-17 — Voice capture: half-duplex, noise floor, push-to-talk capture, one output voice
 - Agent: Claude Code
-- Branch: `fix/voice-capture` (from `main` `b751007`), merged into `main`
+- Branch: `fix/voice-capture` (from `main` `b751007`), now on `main` (see Commit)
 - Changed: root causes + fixes in `docs/handoff/03-voice-and-percy.md` → "Voice capture and one output
   voice". New `lib/core/voice/noise_monitor.dart` (`NoiseMonitor`, `VoiceCaptureStatus`);
   `voice_controller.dart` (half-duplex start guard, no barge-in, noise floor, noisy vs uncertain,
@@ -41,7 +41,9 @@ Format:
   outdated tests, the failed files and all of `test/core/voice` pass again (187 tests in the last
   rerun). **Release build NOT done**: started, stopped by Claude Code because the PC ran low on
   memory. Full suite not run (as asked). Kotlin change not compiled yet.
-- Commit: `11b65f8` on the branch, merge `11b65f8` into `main` (pushed: no)
+- Commit: `11b65f8`, directly on `main` (pushed: no). Another process switched the working copy to
+  `docs/database-masterlist-v3` and merged it into `main` (`a922881`) while this work was uncommitted, so the
+  commit landed on `main` without a merge commit; `fix/voice-capture` now points at `11b65f8`
 - Follow-ups: user builds the release APK (this also compiles `AudioBridge.kt`) and runs the tablet
   tests (quiet, TV on, Percy talking → hold, reading → hold, airplane mode); send `[VOICE …]`,
   `[TTS] …`, `[OFFLINE VOICE] microphone:` lines if problems remain.

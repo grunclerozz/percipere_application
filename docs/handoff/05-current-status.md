@@ -55,7 +55,7 @@ task: `docs/handoff/worklog.md`.
 |---|---|---|
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
-| `fix/voice-startup-ptt` | see worklog | from `main` `df31ebe`, merged `fix/voice-reliability` first (only docs conflicted), then the startup/PTT work; **merged into `main`**. Not pushed. |
+| `fix/voice-startup-ptt` | `fc2a5cc` (merge `87ddbaa`) | from `main` `df31ebe`, merged `fix/voice-reliability` first (only docs conflicted), then the startup/PTT work; **merged into `main`**. Not pushed. |
 | `fix/voice-reliability` | `f4a1a65` + docs commit | now contained in `main` (via `fix/voice-startup-ptt`). Not pushed. |
 | `origin/main` | `54b6567` | last pushed state of the app |
 | `origin/batumbakla-patch-1` | `ba0207c` (2026-09-27) | teammate's README edits from before the baseline; **no common history with `main`**. Do not merge; ask the user. |

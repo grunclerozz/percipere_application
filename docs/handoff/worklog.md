@@ -38,7 +38,7 @@ Format:
   fix disabled. **Release build NOT done**: started (a JDK is present now) but stopped by Claude Code because the
   PC ran low on memory. Full suite not run. **Cold-start load time not measured**: no `Percipere_Light` AVD on
   the PC any more; the app logs/shows it.
-- Commit: see git log (pushed: no)
+- Commit: `fc2a5cc` on the branch, merge `87ddbaa` into `main` (pushed: no)
 - Follow-ups: user builds the release APK and runs `docs/testing/voice-startup-ptt-checklist.md`, reports the
   load time; ML Kit main-thread photo decode left as is (06); TalkBack push-to-talk path unverified.
 

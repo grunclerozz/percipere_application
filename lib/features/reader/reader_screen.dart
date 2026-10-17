@@ -21,6 +21,7 @@ import '../../core/tts/speech_language.dart';
 import '../../core/understanding/document_insights.dart';
 import '../../core/voice/command_matcher.dart';
 import '../../core/voice/understanding.dart';
+import '../../core/voice/voice_controller.dart';
 import '../../core/widgets/document_box.dart';
 import '../../core/widgets/gesture_pad_layout.dart';
 import '../../l10n/app_localizations.dart';
@@ -138,12 +139,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   Future<void> _announceThenRead(String text) async {
+    final asked = DateTime.now();
     await _bus.say(text);
     if (!mounted) return;
     final s = ref.read(_provider);
-    // Not if the user already started, paused or left meanwhile.
+    // Not if the user already started, paused or left meanwhile â€” nor if
+    // they held the gesture area to speak (or gave a command) while it was
+    // being said: reading would close their listening session (2026-10-17
+    // tablet test: "voice not working" right after an upload).
     if (s.playing ||
         ref.read(activeScreenProvider)?.id != ReaderScreen.screenId) {
+      return;
+    }
+    if (ref.read(voiceControllerProvider.notifier).userTurnSince(asked)) {
+      debugPrint('[VOICE] auto-read skipped: the user is talking');
       return;
     }
     await _controller.play();

@@ -41,7 +41,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gestureAreaHintMenu =>
-      'Swipe right or left to move between options. Double-tap to choose. Long-press to speak a command.';
+      'Swipe right or left to move between options. Double-tap to choose. Press and hold while you speak, and let go when you are done.';
 
   @override
   String get gestureAreaHintReader =>
@@ -69,7 +69,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpWelcome =>
-      'Swipe right or left: move between Login, Register and Try first. Double-tap: press. Tap: repeat the question. Long-press: speak. Two-finger swipe right: go back.';
+      'Swipe right or left: move between Login, Register and Try first. Double-tap: press. Tap: repeat the question. Press and hold while you speak, and let go when you are done. Two-finger swipe right: go back.';
 
   @override
   String get modeChosenVoice => 'You chose voice navigation.';
@@ -118,7 +118,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpGesturesMenu =>
-      'Swipe right or left: move between options. Double-tap: choose. Tap: repeat the question. Two-finger swipe right: go back. Long-press: speak a command. Two-finger double-tap: stop speaking. Three-finger tap: help.';
+      'Swipe right or left: move between options. Double-tap: choose. Tap: repeat the question. Two-finger swipe right: go back. Press and hold while you speak, and let go when you are done. Two-finger double-tap: stop speaking. Three-finger tap: help.';
 
   @override
   String get talkBackNotice =>
@@ -422,7 +422,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back. While reading, you can say pause, stop, faster, slower, bigger, smaller, favorite, repeat, or back at any time. This works best with earphones. Long-press the gesture area to stop at once and listen.';
+      'Double-tap: read or pause. Swipe right or left: next or previous sentence. Two-finger swipe down or up: next or previous paragraph. Swipe up or down: faster or slower. Tap: repeat the sentence. Two-finger swipe right: go back. Tap A plus or A minus above the document, or pinch the document box, to make the text bigger or smaller. Voice commands: read, pause, resume, next, previous, next paragraph, faster, slower, bigger, smaller, repeat, from the beginning, save, and back. While reading, you can say pause, stop, faster, slower, bigger, smaller, favorite, repeat, or back at any time. This works best with earphones. Press and hold the gesture area while you speak and let go when you are done: reading stops at once and I listen.';
 
   @override
   String get captureDescribe => 'Describe';
@@ -878,7 +878,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpForm =>
-      'Speak to answer the question, or type it. Swipe right or left: move between fields. Tap: repeat the question. Long-press: speak. Double-tap, or say “submit” or “done”: submit. Say “clear”: clear the field. Two-finger swipe right: go back.';
+      'Speak to answer the question, or type it. Swipe right or left: move between fields. Tap: repeat the question. Press and hold while you speak, and let go when you are done. Double-tap, or say “submit” or “done”: submit. Say “clear”: clear the field. Two-finger swipe right: go back.';
 
   @override
   String get fieldFirstName => 'First Name';
@@ -2057,7 +2057,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialLongPress =>
-      'To say a command, press and hold the screen until you hear a sound. Try it.';
+      'To say a command: press and hold the screen while you speak, and let go when you are done. A tone plays when I am listening. Try it.';
 
   @override
   String get tutorialSay => 'Now say “help”.';
@@ -2068,7 +2068,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialDone =>
-      'All done! Remember: swipe to move, double-tap to choose, two fingers right to go back, and press and hold to talk. Say “how to use” any time to do this again. Double-tap to continue.';
+      'All done! Remember: swipe to move, double-tap to choose, two fingers right to go back, and press and hold while you speak, then let go. Say “how to use” any time to do this again. Double-tap to continue.';
 
   @override
   String get tutorialGood => 'Well done!';
@@ -3075,4 +3075,82 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get serverOffline =>
       'No connection to the server. Only offline books are available.';
+
+  @override
+  String get voiceBusyWait => 'One moment, please.';
+
+  @override
+  String get startupTitle => 'Getting Percipere ready';
+
+  @override
+  String get startupWait => 'Please wait, Percipere is getting ready.';
+
+  @override
+  String get startupReady => 'Ready.';
+
+  @override
+  String get startupStillLoading =>
+      'Some parts are still loading, but you can start now.';
+
+  @override
+  String startupProgress(String done, String total) {
+    return '$done of $total ready';
+  }
+
+  @override
+  String startupStepLine(String step, String status) {
+    return '$step: $status';
+  }
+
+  @override
+  String get startupStepSettings => 'Settings and data';
+
+  @override
+  String get startupStepVoice => 'App voice';
+
+  @override
+  String get startupStepRecognizer => 'Voice recognition';
+
+  @override
+  String get startupStepPercy => 'Percy';
+
+  @override
+  String get startupStepOcr => 'Reading pictures (OCR)';
+
+  @override
+  String get startupStepLoading => 'loading';
+
+  @override
+  String get startupStepReady => 'ready';
+
+  @override
+  String get startupStepFailed => 'not loaded';
+
+  @override
+  String get setVoiceStateOverlay => 'Voice state (developer)';
+
+  @override
+  String voiceStateLabel(String state) {
+    return 'Voice: $state';
+  }
+
+  @override
+  String get voiceStateLoading => 'loading';
+
+  @override
+  String get voiceStateReady => 'ready';
+
+  @override
+  String get voiceStateSpeaking => 'speaking';
+
+  @override
+  String get voiceStateListening => 'listening';
+
+  @override
+  String get voiceStateProcessing => 'processing';
+
+  @override
+  String voiceStateStartup(String seconds) {
+    return 'Startup: $seconds s';
+  }
 }

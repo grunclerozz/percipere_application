@@ -81,7 +81,9 @@ Silences on the Android path are timed by the app, never handed to Android (deci
 Earcons (`ToneGenerator`, channel `ph.bataan.percipere/sound`): "heard", "listening", "stopped".
 
 ## Hold to listen (2026-10-16, branch `feat/voice-hold-interrupt`)
-Holding one finger still on the gesture area (`VoiceConfig.holdToListen`, 650 ms) stops all speech
+(Since 2026-10-17 this is **push-to-talk**, hold time 450 ms: see "Startup loading screen, busy
+phases, push-to-talk" below.)
+Holding one finger still on the gesture area (`VoiceConfig.holdToListen`, then 650 ms) stops all speech
 (prompts, Percy, the Reader) and listens at once: `GestureType.longPress` → `NavIntent.listen` →
 `VoiceController.listenNow()`. It already worked this way; this change makes the hold time
 configurable in `voice_config.dart`, and:
@@ -165,6 +167,108 @@ Log lines to look for: `stale … restarting quietly`, `microphone live after �
 `"voice not working" message dropped`, `noisy room …`, `recognizer settling …ms`.
 **Not verified on the tablet** (no device run). The Android settle and the RMS-based tone depend
 on the phone's recognizer and are only tested with fakes.
+
+## Startup loading screen, busy phases, push-to-talk (2026-10-17, branch `fix/voice-startup-ptt`)
+**Tablet test after `fix/voice-reliability`:** at app start (login, register, "Subukan muna")
+holding kept saying the "not working / hihinto muna ako" message and commands had to be said 2â€“3
+times; responses were slow; Home was fine; right after an upload a hold gave "voice is not
+working" and was slow for a while. No `voice_log.txt` was in the repo, so the causes below come
+from the code and the plugin sources, each reproduced by a test that fails on the old code
+(`test/core/voice/voice_startup_ptt_test.dart`, `test/features/reader/reader_hold_test.dart`).
+
+**Root causes**
+1. **A failed recognizer set-up was final.** `VoiceController._createRecognizer` set
+   `_initialized = true` even when Android's `initialize()` returned false (it can, while the
+   app is starting and the phone is busy). From then on every hold went to `ensureReady` â†’
+   "Walang speech recognitionâ€¦" (and voice mode was switched to gestures) â€” until the app's
+   own Whisper model finished loading in the background and `commandsReady` turned true.
+   That is the "after a while it works".
+2. **Busy-time failures counted toward giving up.** At startup the offline voices and Whisper
+   load (`OfflineEngines.load`, unawaited in `bootstrap()`), Percy's model loads, the first
+   screens auto-listen (`autoListen: true` on every auth screen) and prompts start and cancel
+   sessions. Sessions that failed meanwhile (busy, no sound) counted toward
+   `voiceRepeatedError` like a broken recognizer.
+3. **The hold opened the microphone while the app's voice was still finishing.**
+   `Announcer.stop()` returned once `stop()` was sent, not when the sentence had ended. The
+   app's own voice (`OfflineSpeaker.speak`) only noticed the stop after the audio piece it was
+   generating was done (seconds for a long piece), and `HybridTtsService.speak` waited for the
+   voices to load (seconds at startup) even after a stop.
+4. **After an upload the Reader read over the hold.** `ReaderScreen._announceThenRead` awaited
+   the "document ready" announcement and then started reading. A hold during the
+   announcement stopped it â€” so the announcement returned early â€” and reading started at
+   once, closing the hold's listening session (`_onSpeechChanged`: "reading started: closing
+   the command session").
+5. **ML Kit decodes the photo on Android's main thread.** `google_mlkit_commons`
+   `InputImageConverter.handleFileImage` calls `InputImage.fromFilePath` in `onMethodCall`,
+   i.e. on the Android UI thread, which also carries the speech recognizer callbacks, TTS
+   callbacks and the app's mic bridge. The first OCR also creates the recognizer there.
+   (From the plugin source; the size of the effect on the tablet is **unverified**.)
+
+**Fixes**
+- **Loading screen** (`lib/features/startup/startup_screen.dart`, route `AppRoutes.startup`
+  `/start`, tasks in `lib/core/startup/startup_tasks.dart`): every cold start, after the
+  first-launch model download when that is needed, says "Pakihintay po, inihahanda ang
+  Percipere." and runs in parallel: settings/database (already open), the voice
+  (`engines.voicesLoaded` + voice check), the recognizers (`engines.loaded` â€” Whisper loads
+  with its silent warm-up decode â€” then Android's `warmUp()`), Percy's model, ML Kit (OCR and
+  image labeling each run once on a 64Ã—64 blank PNG). Progress bar + one line per step, with a
+  live-region Semantics label ("Inihahanda ang Percipere: 3 sa 5 ang handa na"). All done â†’
+  "Handa na po." + the "heard" tone â†’ the first screen. After `StartupConfig.timeout` (15 s) â†’
+  "May ilang bahagi pa pong naglo-load, pero puwede na po kayong magsimula." once, the first
+  screen, and the rest loads in the background. It never stays on the screen if a step throws
+  or a sentence never ends (10 s cap per sentence). Not a command screen (no actions, no
+  gesture area). The `[STARTUP]` log line gives the time per step and since launch
+  (`launchClock`, started in `main()`).
+- **Voice readiness** (`lib/core/voice/voice_readiness.dart`): `VoiceBusy.startup` (loading
+  screen open: no auto-listening, a hold says "Sandali lang po." once), `loading` (background
+  loading after the timeout) and `processing` (the Reader extracting a document). While any is
+  in force, or `OfflineEngines.loading`, and `VoiceConfig.busyGrace` (4 s) after, failed
+  sessions restart quietly every `busyRetry` (0.8 s, at most 20 in a row) and never count
+  toward "Hindi gumaganaâ€¦"; a pending give-up message is dropped.
+- **Recognizer set-up is retried** (`_initRecognizer`): a failed set-up is tried again after
+  `initRetryAfter` (1.5 s); only `initAttempts` (3) failures with nothing loading mean "no
+  recognizer". A hold meanwhile waits up to `busyWaitMax` (10 s), saying "Sandali lang po."
+  once; automatic listening just retries.
+- **Wait for speech to stop:** `Announcer.stopAndWait()` stops, waits until the sentence has
+  really returned (â‰¤ `speechStopWait` 1.5 s; not with TalkBack) and then
+  `audioFocusRelease` (200 ms). Used by `listenNow` and `dictate`. `OfflineSpeaker.speak` and
+  `HybridTtsService.speak` now return at once on `stop()`.
+- **Reader:** extraction runs with `VoiceBusy.processing`; auto-read is skipped when the user
+  held to speak or gave a command during the announcement (`VoiceController.userTurnSince`).
+  OCR itself was already native/async and the Dart-side heavy work already in isolates
+  (cleanup, insights, Otsu, quality check); the ML Kit warm-up moves the recognizer creation
+  to the loading screen. The main-thread photo decode (cause 5) is **not changed** (it is in
+  the plugin): see `06`.
+- **Push-to-talk** (`gesture_classifier.dart`, `gesture_map.dart`, `command_bus.dart`,
+  `voice_controller.dart`): a finger held still for `holdToListen` (now **450 ms**, just above
+  the longest tap, 400 ms; under 0.3 s never listens) sends `longPress` â†’ `CommandBus.onGesture`
+  calls `VoiceController.holdStarted()` then runs `NavIntent.listen` as before (screens that
+  dictate on a hold â€” login, register, report text â€” get it too). Any session opened while the
+  finger is down is a push-to-talk one: silences don't end it (`pushToTalkMax` 20 s), the
+  4 s noise cap is off. Lifting the finger sends `GestureType.holdRelease` â†’
+  `NavIntent.listenRelease` â†’ `releaseHold()`: after `pushToTalkReleaseGrace` (400 ms) the
+  session is stopped (`stop()`, keeps the words) and what was said runs; a lift before the
+  session opened gives an ordinary session; that end never counts as a failure. The release
+  is never a command of its own (handled first in `dispatch`, so it never ends Percy). The
+  hold is released if the touch is cancelled, the gesture area goes away, the screen changes
+  or the app goes to the background. **TalkBack:** the gesture area keeps a hold-only touch
+  listener (TalkBack's double-tap-and-hold passes a held touch through) and also offers
+  "listen now" as its long-press and custom action (no release from those: a silence ends
+  the session). **Unverified on the tablet** which of the two TalkBack delivers.
+- **Developer voice-state overlay:** Settings (developer build) â†’ "Estado ng boses
+  (developer)": a label at the bottom-left of every screen â€” loading / ready / speaking /
+  listening / processing (`voiceActivityProvider`, `lib/core/voice/voice_activity.dart`) and
+  the last cold start's load time. Every change is also logged as `[VOICE STATE] <state>`;
+  busy changes as `[VOICE STATE] busy: â€¦`.
+- Tutorial and help texts say "Pindutin nang matagal habang nagsasalita, bitawan kapag tapos
+  na." (`tutorialLongPress`, `tutorialDone`, `gestureAreaHintMenu`, `helpWelcome`,
+  `helpGesturesMenu`, `helpForm`, `helpReader`; English too).
+
+Not changed: Percy's thresholds, the speech engines, what leaves the phone (nothing).
+Log lines: `[STARTUP] ready|timed out after â€¦ms â€¦ steps: â€¦`, `while the app is busy: not
+counted`, `recognizer not ready yet: waiting`, `initialize() returned false (n/3)`,
+`push-to-talk released: finishing in 400ms`, `auto-read skipped: the user is talking`,
+`speech still finishing after â€¦ms`.
 
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein
@@ -254,7 +358,8 @@ the first model download.
   (45% word error rate on real Filipino sentences); real tablet accuracy unknown.
 - No partial results from the offline recognizer → reading is not paused ("ducked") while the
   user speaks over it.
-- First prompt after app start can be late while the offline voices load.
+- First prompt after app start can be late while the offline voices load (since 2026-10-17 this
+  happens on the loading screen, before the first screen).
 - Android path history (2026-10-14): slow responses and missed commands in noise were the
   reported problems; fixes are built but not tablet-tested.
 - 2026-10-17 reliability fix (above) not tablet-tested; the offline voice detector still splits a

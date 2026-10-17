@@ -61,6 +61,13 @@ class OfflineEngines {
   /// Waits for loading in progress, if any.
   Future<void> get loaded => _loading ?? Future.value();
 
+  /// Loads in progress (voices or the command recognizer).
+  int _pendingLoads = 0;
+
+  /// Whether an engine is being loaded now (heavy work: voice input is
+  /// busy, not broken, meanwhile).
+  bool get loading => _pendingLoads > 0;
+
   /// Waits until the voices are loaded (not the command recognizer, which
   /// loads after them).
   Future<void> get voicesLoaded => _voicesLoading ?? loaded;
@@ -71,7 +78,10 @@ class OfflineEngines {
     // Known at once (prompts can be Filipino before the voice has loaded).
     _voiceFiles = _installedVoices(store);
     final previous = _loading ?? Future<void>.value();
-    return _loading = previous.then((_) => _load(store));
+    _pendingLoads++;
+    return _loading = previous
+        .then((_) => _load(store))
+        .whenComplete(() => _pendingLoads--);
   }
 
   static Set<String> _installedVoices(ModelStore store) {

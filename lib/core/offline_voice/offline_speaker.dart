@@ -117,6 +117,11 @@ class OfflineSpeaker implements OfflineVoice {
   final Map<int, Completer<SpeechAudio?>> _pending = {};
   int _request = 0;
   int _generation = 0;
+
+  /// Completes on the next [stop]: a [speak] waiting for audio still being
+  /// generated returns at once instead of after the generation (seconds for
+  /// a long piece; a hold-to-listen waited for it).
+  Completer<void> _stopped = Completer<void>();
   final LinkedHashMap<String, SpeechAudio> _cache = LinkedHashMap();
 
   /// Longest piece generated at once (characters).
@@ -225,12 +230,13 @@ class OfflineSpeaker implements OfflineVoice {
     final lang = languageOf(tag);
     if (lang == null || !_languages.contains(lang)) return false;
     final generation = ++_generation;
+    final stopped = _stopped.future;
     final pieces = split(lang == 'fil' ? tagalogText(text) : text);
     if (pieces.isEmpty) return true;
     Future<SpeechAudio?> make(int i) => _audio(pieces[i], lang, rate);
     var next = make(0);
     for (var i = 0; i < pieces.length; i++) {
-      final audio = await next;
+      final audio = await Future.any([next, stopped.then((_) => null)]);
       if (generation != _generation) return false;
       if (i + 1 < pieces.length) next = make(i + 1);
       if (audio == null) {
@@ -248,6 +254,9 @@ class OfflineSpeaker implements OfflineVoice {
   @override
   Future<void> stop() async {
     _generation++;
+    final stopped = _stopped;
+    _stopped = Completer<void>();
+    stopped.complete();
     await _player.stop();
   }
 

@@ -407,6 +407,13 @@ List<SettingItem> settingItemsFor(
       adjust: (s, d) => s.copyWith(percyAnalysis: !s.percyAnalysis),
     ),
     SettingItem(
+      id: Ids.settingVoiceStateOverlay,
+      kind: SettingKind.toggle,
+      label: (l) => l.setVoiceStateOverlay,
+      value: (c) => c.settings.voiceStateOverlay ? c.l.valueOn : c.l.valueOff,
+      adjust: (s, d) => s.copyWith(voiceStateOverlay: !s.voiceStateOverlay),
+    ),
+    SettingItem(
       id: Ids.settingWerTest,
       kind: SettingKind.link,
       label: (l) => l.screenWerTest,

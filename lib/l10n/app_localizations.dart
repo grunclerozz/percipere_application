@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// Screen-reader hint of the Gesture Pad on menu screens.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal para magsalita.'**
+  /// **'Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na.'**
   String get gestureAreaHintMenu;
 
   /// Gesture Pad hint on the Reader.
@@ -209,7 +209,7 @@ abstract class AppLocalizations {
   /// Spoken help on Welcome.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpWelcome;
 
   /// Confirmation after choosing voice navigation.
@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// Default spoken help.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.'**
+  /// **'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.'**
   String get helpGesturesMenu;
 
   /// Spoken once per launch when TalkBack is on.
@@ -773,7 +773,7 @@ abstract class AppLocalizations {
   /// Spoken help on the Reader.
   ///
   /// In fil, this message translates to:
-  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area para huminto agad at makinig.'**
+  /// **'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area habang nagsasalita, bitawan kapag tapos na: hihinto agad ang pagbasa at makikinig po ako.'**
   String get helpReader;
 
   /// Capture button: describe what is in a picture.
@@ -1535,7 +1535,7 @@ abstract class AppLocalizations {
   /// Spoken help on form screens.
   ///
   /// In fil, this message translates to:
-  /// **'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
+  /// **'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
   String get helpForm;
 
   /// Field (mockup).
@@ -3323,7 +3323,7 @@ abstract class AppLocalizations {
   /// tutorialLongPress
   ///
   /// In fil, this message translates to:
-  /// **'Para magsalita ng utos, pindutin nang matagal ang screen hanggang may marinig kang tunog. Subukan mo.'**
+  /// **'Para magsalita ng utos: pindutin nang matagal ang screen habang nagsasalita, bitawan kapag tapos na. May tunog kapag nakikinig na po ako. Subukan mo po.'**
   String get tutorialLongPress;
 
   /// Voice practice.
@@ -3341,7 +3341,7 @@ abstract class AppLocalizations {
   /// Tutorial summary.
   ///
   /// In fil, this message translates to:
-  /// **'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal para magsalita. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.'**
+  /// **'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.'**
   String get tutorialDone;
 
   /// Correct gesture.
@@ -5024,6 +5024,144 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Walang koneksyon sa server. Offline na mga aklat lang ang magagamit.'**
   String get serverOffline;
+
+  /// Said once when the user holds to speak while the app is still loading or busy (instead of an error).
+  ///
+  /// In fil, this message translates to:
+  /// **'Sandali lang po.'**
+  String get voiceBusyWait;
+
+  /// Startup loading screen: title.
+  ///
+  /// In fil, this message translates to:
+  /// **'Inihahanda ang Percipere'**
+  String get startupTitle;
+
+  /// Startup loading screen: spoken when it opens.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakihintay po, inihahanda ang Percipere.'**
+  String get startupWait;
+
+  /// Startup loading screen: everything is loaded (a tone follows).
+  ///
+  /// In fil, this message translates to:
+  /// **'Handa na po.'**
+  String get startupReady;
+
+  /// Startup loading screen: the time limit passed; the rest loads in the background.
+  ///
+  /// In fil, this message translates to:
+  /// **'May ilang bahagi pa pong naglo-load, pero puwede na po kayong magsimula.'**
+  String get startupStillLoading;
+
+  /// Startup loading screen: progress.
+  ///
+  /// In fil, this message translates to:
+  /// **'{done} sa {total} ang handa na'**
+  String startupProgress(String done, String total);
+
+  /// Startup loading screen: one line per part being loaded.
+  ///
+  /// In fil, this message translates to:
+  /// **'{step}: {status}'**
+  String startupStepLine(String step, String status);
+
+  /// Startup step.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mga setting at datos'**
+  String get startupStepSettings;
+
+  /// Startup step: text-to-speech and its voice.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses ng app'**
+  String get startupStepVoice;
+
+  /// Startup step: speech recognizers.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pakikinig sa boses'**
+  String get startupStepRecognizer;
+
+  /// Startup step: the Percy assistant model.
+  ///
+  /// In fil, this message translates to:
+  /// **'Si Percy'**
+  String get startupStepPercy;
+
+  /// Startup step: ML Kit text recognition and image labeling.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagbasa ng larawan'**
+  String get startupStepOcr;
+
+  /// Startup step status.
+  ///
+  /// In fil, this message translates to:
+  /// **'naglo-load'**
+  String get startupStepLoading;
+
+  /// Startup step status.
+  ///
+  /// In fil, this message translates to:
+  /// **'handa na'**
+  String get startupStepReady;
+
+  /// Startup step status: failed, the app goes on without it.
+  ///
+  /// In fil, this message translates to:
+  /// **'hindi na-load'**
+  String get startupStepFailed;
+
+  /// Developer setting: show the voice state label on every screen.
+  ///
+  /// In fil, this message translates to:
+  /// **'Estado ng boses (developer)'**
+  String get setVoiceStateOverlay;
+
+  /// Developer voice-state overlay.
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses: {state}'**
+  String voiceStateLabel(String state);
+
+  /// Voice state.
+  ///
+  /// In fil, this message translates to:
+  /// **'naglo-load'**
+  String get voiceStateLoading;
+
+  /// Voice state.
+  ///
+  /// In fil, this message translates to:
+  /// **'handa'**
+  String get voiceStateReady;
+
+  /// Voice state.
+  ///
+  /// In fil, this message translates to:
+  /// **'nagsasalita'**
+  String get voiceStateSpeaking;
+
+  /// Voice state.
+  ///
+  /// In fil, this message translates to:
+  /// **'nakikinig'**
+  String get voiceStateListening;
+
+  /// Voice state.
+  ///
+  /// In fil, this message translates to:
+  /// **'nagpoproseso'**
+  String get voiceStateProcessing;
+
+  /// Developer voice-state overlay: how long the last cold start took.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pagbukas: {seconds} s'**
+  String voiceStateStartup(String seconds);
 }
 
 class _AppLocalizationsDelegate

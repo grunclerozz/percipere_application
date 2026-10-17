@@ -7,9 +7,30 @@ abstract final class VoiceConfig {
   // ── Hold to listen ───────────────────────────────────────────────────────
 
   /// How long one finger must stay still on the gesture area before the app
-  /// stops speaking and listens (long-press). Long enough that resting a
-  /// hand on the screen does not trigger it (0.6–0.8 s is sensible).
-  static const Duration holdToListen = Duration(milliseconds: 650);
+  /// stops speaking and listens (push-to-talk). Just above the longest tap
+  /// (`GestureTuning.tapMaxDuration`, 0.4 s), so a slow tap is still a tap
+  /// and a touch under 0.3 s never listens (2026-10-17: was 0.65 s; the
+  /// tablet test asked for the hold to stop speech at once).
+  static const Duration holdToListen = Duration(milliseconds: 450);
+
+  /// Push-to-talk: after the finger is lifted the app keeps listening this
+  /// long, so the last word isn't cut off, then finishes the session and
+  /// acts on what was said.
+  static const Duration pushToTalkReleaseGrace = Duration(milliseconds: 400);
+
+  /// Push-to-talk: longest session while the finger stays down. Silences do
+  /// not end it meanwhile (the release does).
+  static const Duration pushToTalkMax = Duration(seconds: 20);
+
+  /// Before listening, the app stops its own speech and waits up to this
+  /// long for it to have really stopped (the voice may be finishing a
+  /// piece of audio).
+  static const Duration speechStopWait = Duration(milliseconds: 1500);
+
+  /// After the app's own speech has stopped, the microphone opens only
+  /// after this gap: Android releases the speech's audio focus a moment
+  /// after it stops, and a recognizer opened before that hears nothing.
+  static const Duration audioFocusRelease = Duration(milliseconds: 200);
 
   // ── Pauses: how long a silence ends a listening session ──────────────────
 
@@ -195,6 +216,30 @@ abstract final class VoiceConfig {
   /// late result that arrives meanwhile is acted on and the message is
   /// dropped.
   static const Duration giveUpGrace = Duration(milliseconds: 1500);
+
+  // ── Startup and busy phases (2026-10-17, fix/voice-startup-ptt) ──────────
+
+  /// While the app is loading (startup, the offline models) or processing a
+  /// document (OCR), and this long after, failed sessions never count
+  /// toward "Hindi gumagana ang pakikinig…": the recognizer is busy, not
+  /// broken. Listening restarts quietly instead.
+  static const Duration busyGrace = Duration(seconds: 4);
+
+  /// A hold while the recognizer is still being prepared waits at most this
+  /// long for it (after saying "Sandali lang po" once).
+  static const Duration busyWaitMax = Duration(seconds: 10);
+
+  /// Restart delay after a failed session while busy (no fast loop).
+  static const Duration busyRetry = Duration(milliseconds: 800);
+
+  /// Android's recognizer that fails to start is set up again after this
+  /// long (it used to be marked as missing for the whole run when the first
+  /// try at startup failed).
+  static const Duration initRetryAfter = Duration(milliseconds: 1500);
+
+  /// Failed set-ups, while nothing is loading, before the phone counts as
+  /// having no speech recognition.
+  static const int initAttempts = 3;
 
   // ── Noise (2026-10-17) ───────────────────────────────────────────────────
 

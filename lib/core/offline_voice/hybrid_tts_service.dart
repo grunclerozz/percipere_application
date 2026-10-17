@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../tts/tts_service.dart';
@@ -39,6 +41,10 @@ class HybridTtsService implements TtsService {
   /// start talking over a hold-to-listen session).
   int _stops = 0;
 
+  /// Completes on the next [stop], so a [speak] still waiting for the
+  /// offline voices to load (seconds at startup) returns at once.
+  Completer<void> _stopped = Completer<void>();
+
   @override
   bool lastFailed = false;
 
@@ -65,7 +71,7 @@ class HybridTtsService implements TtsService {
   }
 
   Future<OfflineVoice?> _bundledFor(String languageTag) async {
-    await engines.voicesLoaded;
+    await Future.any([engines.voicesLoaded, _stopped.future]);
     final speaker = engines.speaker;
     return speaker != null && speaker.speaks(languageTag) ? speaker : null;
   }
@@ -118,6 +124,9 @@ class HybridTtsService implements TtsService {
   @override
   Future<void> stop() async {
     _stops++;
+    final stopped = _stopped;
+    _stopped = Completer<void>();
+    stopped.complete();
     final speaker = engines.speaker;
     // Both: a stop may race with the start of either.
     await Future.wait([

@@ -25,6 +25,7 @@ import '../core/settings/app_settings.dart';
 import '../core/settings/settings_controller.dart';
 import '../core/tts/tts_service.dart';
 import '../core/voice/voice_controller.dart';
+import '../core/voice/voice_readiness.dart';
 
 /// Startup work that must finish before the first frame: open the database,
 /// restore the session, load that account's settings (or the device's),
@@ -95,6 +96,7 @@ Future<List<Override>> bootstrap() async {
     modelStoreProvider.overrideWithValue(store),
     offlineVoiceSetupPendingProvider.overrideWithValue(setupPending),
     voiceStatusProvider.overrideWith(() => VoiceStatusNotifier(voices)),
+    startupScreenProvider.overrideWithValue(true),
   ];
 }
 

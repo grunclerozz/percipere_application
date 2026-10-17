@@ -26,6 +26,10 @@ enum NavIntent {
   /// Start listening for a voice command.
   listen,
 
+  /// The finger held for [listen] was lifted: finish a push-to-talk session
+  /// (never a command of its own).
+  listenRelease,
+
   /// Stop all speech.
   stopSpeech,
 

@@ -1,14 +1,17 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-17 by Claude Code (merged `feat/voice-hold-interrupt` and
-`docs/database-masterlist-v2` into `main`).** Every agent updates this file at the end of a
+**Last updated: 2026-10-17 by Claude Code (`fix/voice-startup-ptt`: loading screen,
+busy-voice fixes, push-to-talk; merged into `main` together with `fix/voice-reliability`).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
 ## At a glance
 - **App:** feature-complete for the thesis demo except the postponed phases (6D, 7, 8, 6E Part B).
   Almost everything built since 2026-10-07 **still waits for the user's tablet test**.
-- **Last code change:** merge `d306cac` (2026-10-17) — brings `feat/percy-smarter`,
+- **Last code change:** `fix/voice-startup-ptt` (2026-10-17), merged into `main` with
+  `fix/voice-reliability` inside it: startup loading screen, voice busy/startup fixes,
+  push-to-talk, developer voice-state overlay. Tablet test: `docs/testing/voice-startup-ptt-checklist.md`.
+- **Earlier:** merge `d306cac` (2026-10-17) — brings `feat/percy-smarter`,
   `feat/voice-hold-interrupt` and the database masterlist v2 docs into `main`. Both merges were
   clean (no conflicts).
 - **Last full test run:** 2026-10-15, `bash tool/test_each.sh`: 81 files, 981 tests, 0 failures.
@@ -23,6 +26,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| Voice at startup / after upload + push-to-talk + loading screen (`fix/voice-startup-ptt`, merged into `main` 2026-10-17, brings `fix/voice-reliability` too) | Claude Code → user | built; analyze clean; 43 changed-area test files / 530 tests pass; release build NOT done (stopped: PC low on memory). **Cold-start load time not measured** (no AVD on the PC, no device run): read it on the tablet (overlay or `[STARTUP]` log). Checklist `docs/testing/voice-startup-ptt-checklist.md` |
 | Voice reliability: "say it twice", "hold twice", false "not working", noise ask-back, 20-command CSV test (`fix/voice-reliability`) | Claude Code → user | built 2026-10-17, analyze clean, changed-code tests pass; **not merged into `main` yet** (user merges), release build not run (JDK not reachable from the agent session). Tablet test: `docs/testing/voice-reliability-checklist.md` |
 | App connection for the defense (`chore/app-connection`): runtime server address + Test connection + private-network cleartext rule + `docs/connection-guide-app.md` | Claude Code → user | built 2026-10-17; see worklog; tablet/MacBook test pending |
 | Final check + defense prep (A5, on `main`, 2026-10-17): analyze clean, changed-area tests pass, docs `defense-checklist.md` and `demo-script.md`, tablet list §19 | Claude Code → user | done except **release build (no JDK on the PC)**. `fix/voice-reliability` still **not merged** into `main` |
@@ -51,7 +55,8 @@ task: `docs/handoff/worklog.md`.
 |---|---|---|
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |
 | `feat/voice-hold-interrupt`, `feat/percy-smarter`, `docs/database-masterlist-v2`, `docs/database-masterlist` | — | fully contained in `main` now; safe to delete once the user confirms, kept for now |
-| `fix/voice-reliability` | `f4a1a65` + docs commit | voice reliability fix, from `main`; **merge into `main` pending (user)**. Not pushed. |
+| `fix/voice-startup-ptt` | see worklog | from `main` `df31ebe`, merged `fix/voice-reliability` first (only docs conflicted), then the startup/PTT work; **merged into `main`**. Not pushed. |
+| `fix/voice-reliability` | `f4a1a65` + docs commit | now contained in `main` (via `fix/voice-startup-ptt`). Not pushed. |
 | `origin/main` | `54b6567` | last pushed state of the app |
 | `origin/batumbakla-patch-1` | `ba0207c` (2026-09-27) | teammate's README edits from before the baseline; **no common history with `main`**. Do not merge; ask the user. |
 Pushing and merging are the user's call (`docs/agent-rules.md` §4).

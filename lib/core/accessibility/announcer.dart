@@ -310,6 +310,34 @@ class Announcer extends Notifier<SpeechState> {
     }
   }
 
+  /// Stops all speech like [stop], then waits until the voice has really
+  /// finished (the sentence being spoken has returned, at most [max]) and
+  /// Android has released its audio focus ([focusGap]), so the microphone
+  /// opened next hears the user and not the end of a prompt. Returns at
+  /// once when nothing was speaking.
+  Future<void> stopAndWait({
+    Duration max = VoiceConfig.speechStopWait,
+    Duration focusGap = VoiceConfig.audioFocusRelease,
+  }) async {
+    final wasSpeaking = _draining || _current != null || state.reading;
+    await stop();
+    if (!wasSpeaking || !ref.mounted) return;
+    // TalkBack speaks prompts itself; only its pacing pause would be waited
+    // for here.
+    final talkBack = ref.read(talkBackProvider);
+    final watch = Stopwatch()..start();
+    while (ref.mounted && !talkBack && _draining && watch.elapsed < max) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+    if (_draining && !talkBack) {
+      debugPrint(
+        '[VOICE] speech still finishing after ${watch.elapsedMilliseconds}ms: '
+        'listening anyway',
+      );
+    }
+    if (focusGap > Duration.zero) await Future<void>.delayed(focusGap);
+  }
+
   void _interrupt() {
     _endHold(speak: false);
     _clearQueue();

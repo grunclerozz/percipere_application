@@ -42,7 +42,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get gestureAreaHintMenu =>
-      'Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal para magsalita.';
+      'Mag-swipe pakanan o pakaliwa para lumipat ng pagpipilian. I-double tap para pumili. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na.';
 
   @override
   String get gestureAreaHintReader =>
@@ -70,7 +70,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpWelcome =>
-      'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+      'Mag-swipe pakanan o pakaliwa: lumipat sa Login, Register, o Subukan muna. I-double tap: pindutin. I-tap: ulitin ang tanong. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String get modeChosenVoice => 'Napili mo ang pa-boses.';
@@ -120,7 +120,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpGesturesMenu =>
-      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal: magsalita ng utos. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.';
+      'Mag-swipe pakanan o pakaliwa: lumipat ng pagpipilian. I-double tap: piliin. I-tap: ulitin ang tanong. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. I-double tap gamit ang dalawang daliri: patigilin ang pagsasalita. I-tap gamit ang tatlong daliri: tulong.';
 
   @override
   String get talkBackNotice =>
@@ -420,7 +420,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpReader =>
-      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area para huminto agad at makinig.';
+      'I-double tap: basahin o i-pause. Mag-swipe pakanan o pakaliwa: susunod o nakaraang pangungusap. Mag-swipe pababa o pataas gamit ang dalawang daliri: susunod o nakaraang talata. Mag-swipe pataas o pababa: bilisan o bagalan. I-tap: ulitin ang pangungusap. Mag-swipe pakanan gamit ang dalawang daliri: bumalik. Pindutin ang A plus o A minus sa taas ng kahon, o i-pinch ang kahon ng dokumento, para palakihin o paliitin ang teksto. Mga utos sa boses: basahin, i-pause, ituloy, susunod, nakaraan, susunod na talata, bilisan, bagalan, palakihin, paliitin, ulitin, mula sa simula, i-save, at bumalik. Habang nagbabasa, puwede mong sabihin agad ang i-pause, itigil, bilisan, bagalan, palakihin, paliitin, paborito, ulitin, o bumalik. Mas maaasahan ito kung naka-earphones ka. Pindutin nang matagal ang gesture area habang nagsasalita, bitawan kapag tapos na: hihinto agad ang pagbasa at makikinig po ako.';
 
   @override
   String get captureDescribe => 'Maglarawan';
@@ -865,7 +865,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get helpForm =>
-      'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal: magsalita. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
+      'Magsalita para sagutin ang tanong, o i-type ito. Mag-swipe pakanan o pakaliwa: lumipat ng field. I-tap: ulitin ang tanong. Pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Sabihin ang “burahin”: burahin ang field. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.';
 
   @override
   String get fieldFirstName => 'First Name';
@@ -2004,7 +2004,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get tutorialLongPress =>
-      'Para magsalita ng utos, pindutin nang matagal ang screen hanggang may marinig kang tunog. Subukan mo.';
+      'Para magsalita ng utos: pindutin nang matagal ang screen habang nagsasalita, bitawan kapag tapos na. May tunog kapag nakikinig na po ako. Subukan mo po.';
 
   @override
   String get tutorialSay => 'Ngayon, sabihin ang “tulong”.';
@@ -2015,7 +2015,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get tutorialDone =>
-      'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal para magsalita. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.';
+      'Tapos na! Tandaan: swipe para lumipat, double-tap para pumili, dalawang daliri pakanan para bumalik, at pindutin nang matagal habang nagsasalita, bitawan kapag tapos na. Sabihin ang “paano gamitin” anumang oras para ulitin ito. I-double tap para magpatuloy.';
 
   @override
   String get tutorialGood => 'Magaling!';
@@ -3031,4 +3031,82 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get serverOffline =>
       'Walang koneksyon sa server. Offline na mga aklat lang ang magagamit.';
+
+  @override
+  String get voiceBusyWait => 'Sandali lang po.';
+
+  @override
+  String get startupTitle => 'Inihahanda ang Percipere';
+
+  @override
+  String get startupWait => 'Pakihintay po, inihahanda ang Percipere.';
+
+  @override
+  String get startupReady => 'Handa na po.';
+
+  @override
+  String get startupStillLoading =>
+      'May ilang bahagi pa pong naglo-load, pero puwede na po kayong magsimula.';
+
+  @override
+  String startupProgress(String done, String total) {
+    return '$done sa $total ang handa na';
+  }
+
+  @override
+  String startupStepLine(String step, String status) {
+    return '$step: $status';
+  }
+
+  @override
+  String get startupStepSettings => 'Mga setting at datos';
+
+  @override
+  String get startupStepVoice => 'Boses ng app';
+
+  @override
+  String get startupStepRecognizer => 'Pakikinig sa boses';
+
+  @override
+  String get startupStepPercy => 'Si Percy';
+
+  @override
+  String get startupStepOcr => 'Pagbasa ng larawan';
+
+  @override
+  String get startupStepLoading => 'naglo-load';
+
+  @override
+  String get startupStepReady => 'handa na';
+
+  @override
+  String get startupStepFailed => 'hindi na-load';
+
+  @override
+  String get setVoiceStateOverlay => 'Estado ng boses (developer)';
+
+  @override
+  String voiceStateLabel(String state) {
+    return 'Boses: $state';
+  }
+
+  @override
+  String get voiceStateLoading => 'naglo-load';
+
+  @override
+  String get voiceStateReady => 'handa';
+
+  @override
+  String get voiceStateSpeaking => 'nagsasalita';
+
+  @override
+  String get voiceStateListening => 'nakikinig';
+
+  @override
+  String get voiceStateProcessing => 'nagpoproseso';
+
+  @override
+  String voiceStateStartup(String seconds) {
+    return 'Pagbukas: $seconds s';
+  }
 }

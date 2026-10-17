@@ -17,6 +17,31 @@ Format:
 
 ---
 
+## 2026-10-17 — Voice at startup / after upload, loading screen, push-to-talk
+- Agent: Claude Code
+- Branch: `fix/voice-startup-ptt` (from `main` `df31ebe`; `fix/voice-reliability` merged in first because the
+  tablet results came from it — only `05`/worklog conflicted), merged into `main`
+- Changed: root causes + fixes in `docs/handoff/03-voice-and-percy.md` → "Startup loading screen, busy phases,
+  push-to-talk". New `lib/features/startup/startup_screen.dart`, `lib/core/startup/startup_tasks.dart`,
+  `lib/config/startup_config.dart`, `lib/core/voice/voice_readiness.dart`, `lib/core/voice/voice_activity.dart`,
+  `lib/core/widgets/voice_state_overlay.dart`; `voice_controller.dart` (set-up retry, busy failures not counted,
+  push-to-talk, wait for speech to stop), `announcer.dart` (`stopAndWait`), `offline_speaker.dart` +
+  `hybrid_tts_service.dart` (stop returns at once), `offline_engines.dart` (`loading`), gestures
+  (`holdRelease`, hold-only TalkBack mode, hold 450 ms), `nav_intent.dart` (`listenRelease`), `command_bus.dart`,
+  Reader (processing busy, no auto-read over a hold), router/bootstrap/main (loading route, launch clock),
+  developer setting "Estado ng boses", ARB fil/en (new strings + push-to-talk wording in tutorial/help),
+  `.gitignore` (`voice_log.txt`). Tests: new `test/core/voice/voice_startup_ptt_test.dart`,
+  `test/features/startup_screen_test.dart`, `test/features/reader/reader_hold_test.dart`, classifier tests.
+  Docs 03/05/06/07, `docs/testing/voice-startup-ptt-checklist.md`. No `voice_log.txt` existed.
+- Checks: `flutter analyze` clean. Changed-area tests, one clean run file by file: 43 files, 530 tests, 0 failures
+  (an earlier run was invalid: an orphaned runner overlapped it). `reader_hold_test` checked to fail with the
+  fix disabled. **Release build NOT done**: started (a JDK is present now) but stopped by Claude Code because the
+  PC ran low on memory. Full suite not run. **Cold-start load time not measured**: no `Percipere_Light` AVD on
+  the PC any more; the app logs/shows it.
+- Commit: see git log (pushed: no)
+- Follow-ups: user builds the release APK and runs `docs/testing/voice-startup-ptt-checklist.md`, reports the
+  load time; ML Kit main-thread photo decode left as is (06); TalkBack push-to-talk path unverified.
+
 ## 2026-10-17 — Final check and defense prep (A5)
 - Agent: Claude Code
 - Branch: `main`

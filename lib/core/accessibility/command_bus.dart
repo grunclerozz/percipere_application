@@ -260,12 +260,21 @@ class CommandBus {
   /// Handles a recognized gesture.
   Future<void> onGesture(GestureType gesture) async {
     final intent = gestureMap[gesture];
-    if (intent != null) await dispatch(intent);
+    if (intent == null) return;
+    // Push-to-talk: the listen command of a held finger listens until the
+    // finger lifts ([NavIntent.listenRelease]).
+    if (intent == NavIntent.listen) _voice.holdStarted();
+    await dispatch(intent);
   }
 
   /// Handles [intent] on the active screen: a pending question first (for
   /// [NavIntent.activate]), then the screen's override, then the default.
   Future<void> dispatch(NavIntent intent) async {
+    if (intent == NavIntent.listenRelease) {
+      // Only finishes a push-to-talk session: never a command of its own
+      // (it must not end Percy or count as activity).
+      return _voice.releaseHold();
+    }
     final claimsAssistant =
         activeScreen?.intentHandlers.containsKey(NavIntent.assistant) ?? false;
     if (intent == NavIntent.assistant && !claimsAssistant) {
@@ -310,6 +319,8 @@ class CommandBus {
         return help(screen);
       case NavIntent.listen:
         return _voice.listenNow();
+      case NavIntent.listenRelease:
+        return _voice.releaseHold(); // (handled above already)
       case NavIntent.home:
         return _goHome();
       case NavIntent.camera:

@@ -7,6 +7,7 @@ import '../../app/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../percy/percy_controller.dart';
 import '../tts/tts_service.dart';
+import '../voice/voice_activity.dart';
 import '../voice/voice_controller.dart';
 import 'action_registry.dart';
 import 'announcer.dart';
@@ -43,6 +44,12 @@ class _AccessibilityHostState extends ConsumerState<AccessibilityHost>
     // Create the voice controller now so it follows speech from the start
     // (it re-arms listening whenever an announcement ends).
     ref.read(voiceControllerProvider);
+    // One log line per change of what voice input is doing (also without
+    // the developer overlay): loading / ready / speaking / listening /
+    // processing.
+    ref.listenManual(voiceActivityProvider, (previous, next) {
+      if (previous != next) debugPrint('[VOICE STATE] ${next.name}');
+    });
     ref.listenManual(activeScreenProvider, (previous, next) {
       // Same screen re-registering (e.g. its list changed): no re-announce.
       if (next == null || next.id == previous?.id) return;

@@ -26,6 +26,7 @@ import '../../core/tts/speed_control.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/understanding/document_insights.dart';
 import '../../core/voice/reading_duck.dart';
+import '../../core/voice/voice_readiness.dart';
 import '../../l10n/app_localizations.dart';
 
 /// What the Reader opens.
@@ -379,6 +380,10 @@ class ReaderController extends Notifier<ReaderState> {
   }
 
   Future<void> _load(DocumentFile file) async {
+    // OCR and text extraction are heavy: voice input is busy meanwhile, not
+    // broken (its failures don't count toward "not working").
+    final readiness = ref.read(voiceReadinessProvider.notifier)
+      ..begin(VoiceBusy.processing);
     try {
       final result = await ref
           .read(documentExtractorProvider)
@@ -436,6 +441,7 @@ class ReaderController extends Notifier<ReaderState> {
         );
       }
     } finally {
+      readiness.end(VoiceBusy.processing);
       // Camera photos are only needed to extract the text.
       if (file.fromCamera) {
         try {

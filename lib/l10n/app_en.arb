@@ -816,5 +816,17 @@
   "qualityTooDark": "The photo is too dark. Please move to a brighter place.",
   "qualityTooBright": "The photo is too bright. Please avoid direct light.",
   "qualityRetake": "Do you want to take it again?",
-  "qualityRetaking": "Okay, let's take it again."
+  "qualityRetaking": "Okay, let's take it again.",
+  "setServerTest": "Test the server connection",
+  "serverTestRunning": "Testing the server connection.",
+  "serverTestOk": "Connected to the server. Ready.",
+  "serverTestNotConfigured": "No server address yet. Enter the address first.",
+  "serverTestNoNetwork": "The tablet has no network. Turn on Wi-Fi or the hotspot.",
+  "serverTestWrongAddress": "The server address is wrong. Check the IP and the folder.",
+  "serverTestUnreachable": "Cannot reach the server. Make sure the tablet and the computer are on the same hotspot.",
+  "serverTestServerDown": "The computer answers but the server is not working. Start MAMP or XAMPP and the database.",
+  "serverTestHttpBlocked": "Plain http is not allowed for that address. Use an address on the local network, or https.",
+  "serverTestTimeout": "The server took too long to answer. Try again.",
+  "serverOnline": "Connected to the server.",
+  "serverOffline": "No connection to the server. Only offline books are available."
 }

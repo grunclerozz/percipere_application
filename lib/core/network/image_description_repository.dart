@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/env.dart';
+import 'api_dio.dart';
+import 'server_address.dart';
 
 /// The server's detailed description of an image.
 @immutable
@@ -69,11 +71,12 @@ class MockImageDescriptionRepository implements ImageDescriptionRepository {
   }
 }
 
-/// The real thing: `POST {API_BASE_URL}/api/describe-image` (multipart).
+/// The real thing: `POST {server address}/api/describe-image` (multipart).
 class HttpImageDescriptionRepository implements ImageDescriptionRepository {
-  /// Creates the repository over [dio].
-  HttpImageDescriptionRepository(this._dio);
+  /// Creates the repository for the web app at [baseUrl] over [dio].
+  HttpImageDescriptionRepository(this._baseUrl, this._dio);
 
+  final String _baseUrl;
   final Dio _dio;
 
   @override
@@ -84,7 +87,7 @@ class HttpImageDescriptionRepository implements ImageDescriptionRepository {
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '${Env.apiBaseUrl}/api/describe-image',
+        '${_baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/describe-image',
         data: FormData.fromMap({
           'image': MultipartFile.fromBytes(jpeg, filename: 'image.jpg'),
           'language': language,
@@ -111,12 +114,11 @@ final imageDescriptionRepositoryProvider = Provider<ImageDescriptionRepository>(
   (ref) => Env.useMockApi
       ? const MockImageDescriptionRepository()
       : HttpImageDescriptionRepository(
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 15),
-              sendTimeout: const Duration(seconds: 30),
-              receiveTimeout: const Duration(seconds: 40),
-            ),
+          ref.watch(serverAddressProvider),
+          apiDio(
+            connect: const Duration(seconds: 15),
+            send: const Duration(seconds: 30),
+            receive: const Duration(seconds: 40),
           ),
         ),
 );

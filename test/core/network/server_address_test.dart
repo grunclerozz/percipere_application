@@ -61,11 +61,38 @@ void main() {
       );
     });
 
-    test('plain http only to a host the build allows (none in tests)', () {
-      expect(Env.allowsCleartext('192.168.1.61'), isFalse);
-      final check = ServerAddressRules.check('http://192.168.1.61/dash');
-      expect(check.address, isNull);
-      expect(check.problem, ServerAddressProblem.cleartextNotAllowed);
+    test('plain http only on private networks and localhost', () {
+      for (final host in [
+        '192.168.1.61',
+        '10.0.0.5',
+        '172.16.0.1',
+        '172.31.255.1',
+        '127.0.0.1',
+        'localhost',
+      ]) {
+        expect(Env.allowsCleartext(host), isTrue, reason: host);
+      }
+      for (final host in [
+        '172.15.0.1',
+        '172.32.0.1',
+        '192.169.1.1',
+        '11.0.0.1',
+        '8.8.8.8',
+        '300.1.1.1',
+        'example.com',
+        'abc.trycloudflare.com',
+      ]) {
+        expect(Env.allowsCleartext(host), isFalse, reason: host);
+      }
+      final ok = ServerAddressRules.check('http://192.168.1.61/dash');
+      expect(ok.address, 'http://192.168.1.61/dash');
+      final bad = ServerAddressRules.check('http://x.trycloudflare.com');
+      expect(bad.address, isNull);
+      expect(bad.problem, ServerAddressProblem.cleartextNotAllowed);
+      expect(
+        ServerAddressRules.check('https://x.trycloudflare.com').address,
+        'https://x.trycloudflare.com',
+      );
     });
   });
 

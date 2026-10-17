@@ -137,6 +137,9 @@ abstract final class Ids {
   /// Settings (developer builds): export Percy's turn log as CSV.
   static const String settingPercyExport = 'settings.percyExport';
 
+  /// Settings (developer builds): test the connection to the web app.
+  static const String settingServerTest = 'settings.serverTest';
+
   /// Settings (developer builds): the web app's address.
   static const String settingServerAddress = 'settings.serverAddress';
 

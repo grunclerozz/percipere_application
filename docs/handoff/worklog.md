@@ -17,6 +17,22 @@ Format:
 
 ---
 
+## 2026-10-17 — App connection for the defense (A4)
+- Agent: Claude Code
+- Branch: `chore/app-connection`
+- Changed: `Env.allowsCleartext` now also allows private-network hosts and localhost
+  (`lib/config/env.dart`); new `lib/core/network/server_health.dart` +
+  `lib/features/settings/server_connection_test.dart` (dev Settings row "Subukan ang koneksyon sa
+  server", `GET /api/v1/health`, spoken reasons); image description now follows the saved server
+  address and uses `apiDio()` (`image_description_repository.dart`); Aklatan says whether the
+  server answered (`library_screen.dart`); ARB strings fil/en; `docs/connection-guide-app.md`;
+  `docs/handoff/04` audit. Dashboard not touched (read only).
+- Checks: `flutter analyze` clean; changed-area tests, see the report. Release build not run (no JDK
+  in the agent session).
+- Commit: see git log (pushed: no)
+- Follow-ups: dashboard lacks `GET /api/v1/models` and `POST /api/describe-image`; health reply has
+  no server version; test on the real tablet + MacBook (MAMP) before the defense.
+
 ## 2026-10-17 — Phase 6D algorithms (A3)
 - Agent: Claude Code
 - Branch: `feat/algorithms` (merged into `main`)

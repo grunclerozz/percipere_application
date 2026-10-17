@@ -32,6 +32,7 @@ import '../../l10n/app_localizations.dart';
 import '../setup/profiling_screen.dart';
 import '../setup/setup_labels.dart';
 import 'server_address_dialog.dart';
+import 'server_connection_test.dart';
 
 /// How a setting is changed.
 enum SettingKind {
@@ -429,6 +430,13 @@ List<SettingItem> settingItemsFor(
         return hasServer(address) ? address : c.l.serverAddressNone;
       },
       open: showServerAddressDialog,
+    ),
+    SettingItem(
+      id: Ids.settingServerTest,
+      kind: SettingKind.link,
+      label: (l) => l.setServerTest,
+      value: (c) => c.l.setServerTest,
+      open: testServerConnection,
     ),
   ],
   SettingItem(

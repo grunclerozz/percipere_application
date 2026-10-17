@@ -2614,5 +2614,18 @@
   "qualityRetake": "Gusto mo bang kunan ulit?",
   "@qualityRetake": {"description": "Offer after a poor capture; yes retakes, no keeps the photo."},
   "qualityRetaking": "Sige, kunan natin ulit.",
-  "@qualityRetaking": {"description": "After the user accepted the retake."}
+  "@qualityRetaking": {"description": "After the user accepted the retake."},
+  "setServerTest": "Subukan ang koneksyon sa server",
+  "@setServerTest": {"description": "Hidden developer row: test the connection to the web app."},
+  "serverTestRunning": "Sinusubukan ang koneksyon sa server.",
+  "serverTestOk": "Nakakonekta sa server. Handa na.",
+  "serverTestNotConfigured": "Wala pang address ng server. Ilagay muna ang address.",
+  "serverTestNoNetwork": "Walang network ang tablet. I-on ang Wi-Fi o ang hotspot.",
+  "serverTestWrongAddress": "Mali ang address ng server. Tingnan ang IP at ang folder.",
+  "serverTestUnreachable": "Hindi maabot ang server. Siguraduhing nasa parehong hotspot ang tablet at ang computer.",
+  "serverTestServerDown": "Bukas ang computer pero hindi gumagana ang server. Buksan ang MAMP o XAMPP at ang database.",
+  "serverTestHttpBlocked": "Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https.",
+  "serverTestTimeout": "Natagalan ang sagot ng server. Subukan ulit.",
+  "serverOnline": "Nakakonekta sa server.",
+  "serverOffline": "Walang koneksyon sa server. Offline na mga aklat lang ang magagamit."
 }

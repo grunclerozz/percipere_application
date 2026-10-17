@@ -24,6 +24,7 @@ import '../../core/db/daos/preferences_dao.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/library/library_models.dart';
 import '../../core/library/library_view.dart';
+import '../../core/network/server_address.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/command_matcher.dart';
 import '../../core/voice/voice_controller.dart';
@@ -95,12 +96,22 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   Future<void> _refreshCatalog() async {
     final diff = await _controller.refreshCatalog();
-    if (!mounted || diff == null) return;
+    if (!mounted) return;
+    final configured = hasServer(ref.read(serverAddressProvider));
+    if (diff == null && !configured) return;
     final l = _l;
     // After the screen's own announcement, queued behind it.
     final announcer = ref.read(announcerProvider.notifier);
     await announcer.idle();
     if (!mounted || ref.read(activeScreenProvider)?.id != Ids.library) return;
+    if (diff == null) {
+      // A server is set but did not answer: say so once, briefly.
+      await announcer.say(l.serverOffline, interrupt: false);
+      return;
+    }
+    if (diff.added.isEmpty && diff.removed.isEmpty && diff.updated.isEmpty) {
+      await announcer.say(l.serverOnline, interrupt: false);
+    }
     if (diff.added.isNotEmpty) {
       await announcer.say(l.libraryNewBooks, interrupt: false);
     }

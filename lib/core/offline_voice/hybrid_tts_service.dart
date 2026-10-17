@@ -34,6 +34,11 @@ class HybridTtsService implements TtsService {
   TtsRoute? _speaking;
   final Map<String, TtsRoute> _logged = {};
 
+  /// Counts [stop] calls: a stop that lands while [speak] is still picking
+  /// a voice must keep that text from being spoken afterwards (it used to
+  /// start talking over a hold-to-listen session).
+  int _stops = 0;
+
   @override
   bool lastFailed = false;
 
@@ -71,13 +76,16 @@ class HybridTtsService implements TtsService {
     required String languageTag,
     double rate = 1.0,
   }) async {
+    final stops = _stops;
     final route = await routeFor(languageTag);
+    if (stops != _stops) return false;
     if (_logged[languageTag] != route) {
       _logged[languageTag] = route;
       debugPrint('[TTS] $languageTag speaks with: ${route.name}');
     }
     if (route == TtsRoute.bundled) {
       final speaker = await _bundledFor(languageTag);
+      if (stops != _stops) return false;
       if (speaker != null) {
         _speaking = TtsRoute.bundled;
         final done = await speaker.speak(text, tag: languageTag, rate: rate);
@@ -92,11 +100,11 @@ class HybridTtsService implements TtsService {
       rate: rate,
     );
     lastFailed = android.lastFailed;
-    if (!done && android.lastFailed) {
+    if (!done && android.lastFailed && stops == _stops) {
       // A network voice without network (or a broken voice): the app's own
       // voice says it instead.
       final speaker = await _bundledFor(languageTag);
-      if (speaker != null) {
+      if (speaker != null && stops == _stops) {
         debugPrint('[TTS] Android voice failed: using the offline voice');
         _speaking = TtsRoute.bundled;
         final again = await speaker.speak(text, tag: languageTag, rate: rate);
@@ -109,6 +117,7 @@ class HybridTtsService implements TtsService {
 
   @override
   Future<void> stop() async {
+    _stops++;
     final speaker = engines.speaker;
     // Both: a stop may race with the start of either.
     await Future.wait([

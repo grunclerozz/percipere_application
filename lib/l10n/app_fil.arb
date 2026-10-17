@@ -208,6 +208,80 @@
       }
     }
   },
+  "voiceNoisyDidYouMean": "Medyo maingay po. Ito po ba ang ibig ninyong sabihin: “{phrase}”? Sabihin ang oo o hindi po.",
+  "@voiceNoisyDidYouMean": {
+    "description": "Ask-back in a noisy room (or an uncertain result) instead of 'not understood'.",
+    "placeholders": {
+      "phrase": {
+        "type": "String",
+        "example": "basahin"
+      }
+    }
+  },
+  "voiceTrialQuiet": "Pagsubok ng 20 utos: tahimik na kuwarto",
+  "@voiceTrialQuiet": {
+    "description": "Developer: start the 20-command reliability test, quiet room."
+  },
+  "voiceTrialNoisy": "Pagsubok ng 20 utos: maingay na kuwarto",
+  "@voiceTrialNoisy": {
+    "description": "Developer: start the 20-command reliability test, noisy room."
+  },
+  "voiceTrialSay": "Utos {number} ng {total}. Sabihin po: {phrase}",
+  "@voiceTrialSay": {
+    "description": "Developer test: which command to say.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "phrase": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceTrialAgain": "Hindi po tugma. Pakiulit po: {phrase}",
+  "@voiceTrialAgain": {
+    "description": "Developer test: the command was not recognized; say it again.",
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceTrialDone": "Tapos na po ang pagsubok. {correct} sa {total} ang tama. Naka-save po ang resulta.",
+  "@voiceTrialDone": {
+    "description": "Developer test finished.",
+    "placeholders": {
+      "correct": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceTrialStop": "Ihinto ang pagsubok",
+  "@voiceTrialStop": {
+    "description": "Developer test: stop the running test."
+  },
+  "voiceTrialStopped": "Inihinto po ang pagsubok. Naka-save po ang mga resulta hanggang dito.",
+  "@voiceTrialStopped": {
+    "description": "Developer test stopped by the user."
+  },
+  "voiceTrialExport": "I-share ang resulta ng pagsubok (CSV)",
+  "@voiceTrialExport": {
+    "description": "Developer test: share the CSV of the results."
+  },
+  "voiceTrialExportEmpty": "Wala pa pong resulta ng pagsubok.",
+  "@voiceTrialExportEmpty": {
+    "description": "Developer test: nothing to share yet."
+  },
+  "voiceTrialExportFailed": "Hindi po ma-share ang resulta.",
+  "@voiceTrialExportFailed": {
+    "description": "Developer test: sharing failed."
+  },
   "voiceCancelled": "Sige.",
   "@voiceCancelled": {
     "description": "User said no to an ask-back or offer."

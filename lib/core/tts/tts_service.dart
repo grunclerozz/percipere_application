@@ -177,6 +177,7 @@ class FlutterTtsService implements TtsService {
     required String languageTag,
     double rate = 1.0,
   }) async {
+    final stops = _stops;
     if (_currentLanguage != languageTag) {
       // Also resets the engine to the language's default voice.
       await _tts.setLanguage(languageTag);
@@ -188,6 +189,8 @@ class FlutterTtsService implements TtsService {
       await _tts.setSpeechRate(0.5 * rate);
       _currentRate = rate;
     }
+    // Stopped while the voice was being set up: say nothing.
+    if (stops != _stops) return false;
     // The engine's error path never resolves the call: an error ends the
     // wait at once (a network voice offline used to mean seconds of
     // silence per sentence); a generous estimate of the utterance length
@@ -210,8 +213,12 @@ class FlutterTtsService implements TtsService {
     return result == 1;
   }
 
+  /// Counts [stop] calls (see [speak]).
+  int _stops = 0;
+
   @override
   Future<void> stop() async {
+    _stops++;
     await _tts.stop();
   }
 

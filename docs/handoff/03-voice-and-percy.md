@@ -67,6 +67,16 @@ voice depends on Google packs as before.
 | `partialAcceptScore` / `partialRepeatScore` | 0.9 / 0.8 | act on partial results |
 | `answerWait` | 6 s | after a question, wait before giving instructions |
 | `afterSpeechGap` / `sessionGap` | 0.45 / 0.2 s | restart gaps (echo / silence) |
+| `recognizerSettle` | 0.3 s | Android recognizer left alone after a stop/cancel before the next session |
+| `cueFallback` | 1.5 s | "listening" tone waits for sound from the mic; plays anyway after this |
+| `errorAfterDone` | 0.2 s | wait for the error that follows Android's `done` |
+| `staleEventWindow` | 1 s | an end/error this soon after the app closed the previous session is stale |
+| `deadRecognizerAfter` | 5 | sessions in a row with no mic sound before "voice not working" (busy/client errors) |
+| `giveUpGrace` | 1.5 s | "voice not working" waits; a late result cancels it |
+| `noisyLevel` / `noisyShare` / `noisyMinReadings` | 4 / 0.5 / 5 | room counts as noisy (level readings before the words) |
+| `lowConfidence` | 0.5 | Android confidence below this counts like noise |
+| `noisyAskScore` | 0.45 | in noise, commands this similar are asked back (quiet: 0.6) |
+| `micNoiseSuppressor` / `micAutoGain` | on / off | phone noise suppressor / AGC on the app's own mic (offline commands) |
 Silences on the Android path are timed by the app, never handed to Android (decision 2026-10-14).
 Earcons (`ToneGenerator`, channel `ph.bataan.percipere/sound`): "heard", "listening", "stopped".
 
@@ -91,6 +101,70 @@ earlier, cancelled Android session was counted as the offline session failing; a
 second later. Fixes: stale Android errors are ignored during an offline session; `_giveUp` now also
 closes the session so a late result cannot run after the message. If it still happens, send the
 `[VOICE ...]` lines around "giving up" (`adb logcat -s flutter`).
+
+## Voice reliability (2026-10-17, branch `fix/voice-reliability`)
+Problems on the tablet: commands had to be said twice, the hold had to be done twice, and
+"Hindi gumagana ang pakikinig…" was said while commands still worked. Root causes, found by
+reading the code and the `speech_to_text` 7.5.0 plugin (Android side) and reproduced in
+`test/core/voice/voice_reliability_test.dart` (these tests fail on the old code):
+1. **Android events have no session id.** The plugin sends `done` *before* the error that
+   explains it (`onError` posts the error, sends the statuses at once), and a cancelled
+   session's late events land on the next session. The controller took every Android error
+   as "ended at once without result": a busy recognizer counted toward giving up, and language
+   and network errors never reached their own handling.
+2. **The hold cancelled its own session.** The hold ran as a command, and a command while
+   listening restarts the session after 0.2 s; the hold then closed that new session and
+   opened another at once, and the closed session's late `done` ended it → "Wala akong
+   narinig" → hold again.
+3. **The "listening" tone played before the mic was open.** The plugin reports `listening`
+   before Android starts recording (`onReadyForSpeech` is empty in the plugin); words said
+   right after the tone were lost → say it twice.
+4. **Offline mic open/close overlapped.** A new offline session could start its mic while the
+   old session's `micStop` was still on its way (native `micStart` returns true when already
+   recording), so the stop killed the new session's mic; a cancel during mic start left an
+   orphan session.
+5. **A stop during voice selection was lost.** `HybridTtsService.speak` / `FlutterTtsService.speak`
+   await voice lists / setup first; a stop meanwhile (the hold) was forgotten and the prompt
+   started over the listening.
+6. **Late results were thrown away** after giving up (the session was discarded).
+
+Fixes:
+- `SttSpeechInput` waits `recognizerSettle` after a stop/cancel and drops the old session's
+  events meanwhile (`lib/core/voice/speech_input.dart`).
+- `VoiceController` (`lib/core/voice/voice_controller.dart`): waits `errorAfterDone` after a
+  `done` for the real error; events of a session the app just closed are **stale** → quiet
+  restart (max 2 in a row); a session whose mic delivered sound never counts toward giving up;
+  `error_busy`/`error_client`/no-result need `deadRecognizerAfter` (5) sessions without any
+  sound; the give-up message waits `giveUpGrace` and a late result cancels it and runs; the
+  session is no longer discarded on giving up.
+- **Tone when the mic is live:** the "listening" earcon plays on the first sound level from the
+  mic (Android RMS or the offline mic's first chunk), after `cueFallback` at the latest.
+- **One hold = one session:** `listenNow` ignores a second call while it is opening a session;
+  no automatic restart may start meanwhile; the hold command no longer triggers the
+  command-while-listening restart.
+- `OfflineCommandListener`: mic opens and closes one after the other (`_serial`); a cancel
+  during mic start closes the mic again (`lib/core/offline_voice/offline_listener.dart`).
+- TTS: a `stop()` counter makes a stop that lands during voice selection stick
+  (`hybrid_tts_service.dart`, `tts_service.dart`).
+- Whisper is warmed up (one decode of 0.5 s of silence) when it loads, so the first command
+  isn't the slow one (`command_recognizer.dart`).
+- **Noise (low-risk only):** the app's own mic asks for the phone's `NoiseSuppressor` (AGC off by
+  default; `AudioBridge.kt`, `VoiceConfig.micNoiseSuppressor/micAutoGain`). The controller
+  judges the room (level readings before the words, words that never stop changing, Android
+  confidence < 0.5); in noise a command between 0.45 and 0.6 similar is asked back with
+  "Medyo maingay po. Ito po ba ang ibig ninyong sabihin: …?" (`voiceNoisyDidYouMean`) instead of
+  "not understood" (`CommandBus.handleUtterance(noisy:)`). Percy's thresholds are unchanged.
+  The offline mic's sound level is now measured from a quiet room (−60 dBFS) on about Android's
+  scale (`OfflineCommandListener.soundLevel`), not relative to a moving noise floor.
+- **Repeatable tablet test:** developer build, Settings → Pagsusuri ng boses → "Pagsubok ng 20
+  utos" (quiet / noisy) → `voice-trials.csv` (`lib/core/voice/voice_trial.dart`); checklist
+  `docs/testing/voice-reliability-checklist.md`.
+
+Log lines to look for: `stale … restarting quietly`, `microphone live after …ms`,
+`no sound from the microphone … cue anyway`, `giving up … (message in 1500ms …)`,
+`"voice not working" message dropped`, `noisy room …`, `recognizer settling …ms`.
+**Not verified on the tablet** (no device run). The Android settle and the RMS-based tone depend
+on the phone's recognizer and are only tested with fakes.
 
 ## Command matcher (`lib/core/voice/command_matcher.dart`)
 Normalize → phrase contained word for word (score 1 + 0.01/word, longer wins) or Levenshtein
@@ -183,4 +257,6 @@ the first model download.
 - First prompt after app start can be late while the offline voices load.
 - Android path history (2026-10-14): slow responses and missed commands in noise were the
   reported problems; fixes are built but not tablet-tested.
+- 2026-10-17 reliability fix (above) not tablet-tested; the offline voice detector still splits a
+  command at a pause longer than `offlineEndOfSpeech` (0.7 s), e.g. "buksan … ang aklatan".
 - TalkBack itself may read typed password characters (outside the app's control).

@@ -22,6 +22,7 @@ import '../../core/tts/tts_service.dart';
 import '../../core/voice/command_matcher.dart';
 import '../../core/voice/speech_input.dart';
 import '../../core/voice/voice_controller.dart';
+import '../../core/voice/voice_trial.dart';
 import '../../core/widgets/boxed_list.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/form_scaffold.dart';
@@ -210,7 +211,8 @@ class VoiceCheckTest {
 /// offline yes/no, voice installed or online, microphone) and runs a
 /// five-second test ("Sabihin: buksan ang Aklatan") that shows what was
 /// heard, the command and Percy intent, the confidence and the response
-/// time. A developer build (`PERCIPERE_DEV`) also lists the raw details.
+/// time. A developer build (`PERCIPERE_DEV`) also lists the raw details and
+/// runs the 20-command reliability test ([VoiceTrial]).
 class VoiceCheckScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const VoiceCheckScreen({super.key});
@@ -223,6 +225,11 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
   VoiceCheckFacts? _facts;
   VoiceCheckTest? _test;
   bool _testing = false;
+
+  /// The reliability round running, if any, and whether it was asked to
+  /// stop.
+  TrialRoom? _trialRoom;
+  bool _trialStop = false;
 
   static const String _test0 = '${Ids.voiceCheck}.test';
   static const String _readAgain = '${Ids.voiceCheck}.readAgain';
@@ -371,10 +378,114 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
     }
   }
 
-  static String _targetName(CommandTarget target) => switch (target) {
-    ActionTarget(:final actionId) => actionId,
-    ValueTarget(:final value) => value is Enum ? value.name : '$value',
-  };
+  static String _targetName(CommandTarget target) =>
+      VoiceTrial.targetName(target);
+
+  /// The 20-command reliability round in [room]: says each command, listens
+  /// (up to [VoiceTrial.maxAttempts] tries), and appends one CSV row per
+  /// command ([VoiceTrialLog]).
+  Future<void> _runTrial(CommandBus bus, TrialRoom room) async {
+    if (_testing || _trialRoom != null) return;
+    setState(() {
+      _trialRoom = room;
+      _trialStop = false;
+    });
+    final voice = ref.read(voiceControllerProvider.notifier);
+    var correct = 0;
+    var done = 0;
+    try {
+      final file = await VoiceTrialLog.file();
+      final total = VoiceTrial.commands.length;
+      for (var i = 0; i < total; i++) {
+        final command = VoiceTrial.commands[i];
+        final began = DateTime.now();
+        VoiceProbe? probe;
+        var matched = '';
+        var right = false;
+        var attempts = 0;
+        while (attempts < VoiceTrial.maxAttempts && !right) {
+          if (!mounted || _trialStop) break;
+          final l = bus.strings;
+          await bus.say(
+            attempts == 0
+                ? l.voiceTrialSay('${i + 1}', '$total', command.phrase)
+                : l.voiceTrialAgain(command.phrase),
+          );
+          if (!mounted || _trialStop) break;
+          attempts++;
+          probe = await voice.probe();
+          if (probe == null) {
+            matched = '';
+            continue;
+          }
+          final match = bus.matchOnly(probe.text);
+          matched = VoiceTrial.matchedName(match);
+          right = VoiceTrial.isCorrect(command, match);
+        }
+        if (attempts == 0) break; // stopped before trying
+        final now = DateTime.now();
+        final p = probe;
+        final row = TrialRow(
+          at: now,
+          room: room,
+          number: i + 1,
+          command: command,
+          heard: p?.text ?? '',
+          matched: matched,
+          correct: right,
+          attempts: attempts,
+          responseMs: p == null
+              ? -1
+              : p.decided.difference(p.endOfSpeech ?? p.decided).inMilliseconds,
+          listenMs: p?.sessionStart == null
+              ? -1
+              : p!.decided.difference(p.sessionStart!).inMilliseconds,
+          totalMs: now.difference(began).inMilliseconds,
+          engine: p == null ? 'none' : _engine(p.plan),
+          noisy: p?.noisy ?? false,
+          confidence: p?.confidence ?? -1,
+        );
+        debugPrint('[VOICE TRIAL] ${VoiceTrialLog.line(row)}');
+        await VoiceTrialLog.append(file, row);
+        done++;
+        if (right) correct++;
+        if (!mounted || _trialStop) break;
+      }
+      if (!mounted) return;
+      final l = bus.strings;
+      await bus.say(
+        _trialStop || done < VoiceTrial.commands.length
+            ? l.voiceTrialStopped
+            : l.voiceTrialDone('$correct', '$done'),
+      );
+    } on Object catch (e) {
+      debugPrint('[VOICE TRIAL] failed: $e');
+    } finally {
+      if (mounted) setState(() => _trialRoom = null);
+    }
+  }
+
+  static String _engine(ListenPlan plan) => plan.isNone
+      ? 'none'
+      : plan.offline
+      ? 'offline'
+      : plan.onDevice
+      ? 'android-device'
+      : 'android-online';
+
+  Future<void> _shareTrials(CommandBus bus) async {
+    final l = bus.strings;
+    try {
+      final file = await VoiceTrialLog.file();
+      if (!await file.exists() || await file.length() == 0) {
+        return await bus.say(l.voiceTrialExportEmpty);
+      }
+      await ref.read(voiceTrialSharerProvider)(file.path);
+    } on Object catch (e) {
+      debugPrint('[VOICE TRIAL] share failed: $e');
+      await bus.say(l.voiceTrialExportFailed);
+    }
+  }
 
   Future<void> _downloadOffline(CommandBus bus, String language) async {
     final started = await ref
@@ -472,6 +583,41 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
               ),
             ),
         ],
+        if (details) ...[
+          if (_trialRoom != null)
+            A11yAction(
+              id: '${Ids.voiceCheck}.trialStop',
+              label: (l) => l.voiceTrialStop,
+              voiceSynonyms: const ['ihinto', 'stop test'],
+              confirmation: (l) => '',
+              onActivate: (bus) async {
+                setState(() => _trialStop = true);
+                await ref
+                    .read(voiceControllerProvider.notifier)
+                    .stopListening();
+              },
+            )
+          else ...[
+            A11yAction(
+              id: '${Ids.voiceCheck}.trialQuiet',
+              label: (l) => l.voiceTrialQuiet,
+              confirmation: (l) => '',
+              onActivate: (bus) => _runTrial(bus, TrialRoom.quiet),
+            ),
+            A11yAction(
+              id: '${Ids.voiceCheck}.trialNoisy',
+              label: (l) => l.voiceTrialNoisy,
+              confirmation: (l) => '',
+              onActivate: (bus) => _runTrial(bus, TrialRoom.noisy),
+            ),
+          ],
+          A11yAction(
+            id: '${Ids.voiceCheck}.trialShare',
+            label: (l) => l.voiceTrialExport,
+            confirmation: (l) => '',
+            onActivate: _shareTrials,
+          ),
+        ],
         A11yAction(
           id: _voiceInput,
           label: (l) => l.voiceCheckVoiceInput,
@@ -500,7 +646,7 @@ class _VoiceCheckScreenState extends ConsumerState<VoiceCheckScreen> {
     final registration = _registration(ref);
     return AccessibleScreen(
       registration: _registration,
-      dependencies: [facts, _test],
+      dependencies: [facts, _test, _trialRoom],
       child: FormScaffold(
         screenId: Ids.voiceCheck,
         title: l10n.screenVoiceCheck,

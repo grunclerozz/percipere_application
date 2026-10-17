@@ -11,6 +11,8 @@ import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.AutomaticGainControl
+import android.media.audiofx.NoiseSuppressor
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -38,6 +40,8 @@ class AudioBridge(private val context: Context, messenger: BinaryMessenger) {
     private var recorder: AudioRecord? = null
     private var recordThread: Thread? = null
     private var echo: AcousticEchoCanceler? = null
+    private var noise: NoiseSuppressor? = null
+    private var gain: AutomaticGainControl? = null
 
     @Volatile private var playGeneration = 0
     private var track: AudioTrack? = null
@@ -57,7 +61,13 @@ class AudioBridge(private val context: Context, messenger: BinaryMessenger) {
         )
         MethodChannel(messenger, "ph.bataan.percipere/audio").setMethodCallHandler { call, result ->
             when (call.method) {
-                "micStart" -> result.success(micStart(call.argument<Int>("sampleRate") ?: 16000))
+                "micStart" -> result.success(
+                    micStart(
+                        call.argument<Int>("sampleRate") ?: 16000,
+                        call.argument<Boolean>("noiseSuppressor") ?: false,
+                        call.argument<Boolean>("autoGain") ?: false
+                    )
+                )
                 "micStop" -> {
                     micStop()
                     result.success(true)
@@ -78,7 +88,7 @@ class AudioBridge(private val context: Context, messenger: BinaryMessenger) {
 
     // ── Microphone ─────────────────────────────────────────────────────────
 
-    private fun micStart(sampleRate: Int): Boolean {
+    private fun micStart(sampleRate: Int, suppressNoise: Boolean, autoGain: Boolean): Boolean {
         if (recording) return true
         if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) !=
             PackageManager.PERMISSION_GRANTED
@@ -105,6 +115,26 @@ class AudioBridge(private val context: Context, messenger: BinaryMessenger) {
             echo = try {
                 if (AcousticEchoCanceler.isAvailable()) {
                     AcousticEchoCanceler.create(rec.audioSessionId)?.also { it.enabled = true }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+            // The phone's own noise suppressor and gain control, when it has
+            // them and Dart asks (VoiceConfig.micNoiseSuppressor / micAutoGain).
+            noise = try {
+                if (suppressNoise && NoiseSuppressor.isAvailable()) {
+                    NoiseSuppressor.create(rec.audioSessionId)?.also { it.enabled = true }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+            gain = try {
+                if (autoGain && AutomaticGainControl.isAvailable()) {
+                    AutomaticGainControl.create(rec.audioSessionId)?.also { it.enabled = true }
                 } else {
                     null
                 }
@@ -159,6 +189,10 @@ class AudioBridge(private val context: Context, messenger: BinaryMessenger) {
         recorder = null
         echo?.release()
         echo = null
+        noise?.release()
+        noise = null
+        gain?.release()
+        gain = null
     }
 
     // ── Playback ───────────────────────────────────────────────────────────

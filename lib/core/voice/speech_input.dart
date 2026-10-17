@@ -213,6 +213,13 @@ class SttSpeechInput implements SpeechInput {
   int _generation = 0;
   String _lastWords = '';
 
+  /// When the last session was stopped or cancelled.
+  DateTime? _endedAt;
+
+  /// Waiting for the recognizer to settle before the next session: what
+  /// arrives meanwhile belongs to the session that just ended.
+  bool _settling = false;
+
   @override
   Future<bool> initialize({
     required void Function(String code) onError,
@@ -220,8 +227,16 @@ class SttSpeechInput implements SpeechInput {
   }) async {
     try {
       return await _stt.initialize(
-        onError: (SpeechRecognitionError e) => onError(e.errorMsg),
-        onStatus: onStatus,
+        onError: (SpeechRecognitionError e) {
+          if (_settling) {
+            debugPrint('[VOICE] late ${e.errorMsg} of the ended session');
+            return;
+          }
+          onError(e.errorMsg);
+        },
+        onStatus: (status) {
+          if (!_settling) onStatus(status);
+        },
         finalTimeout: VoiceConfig.finalTimeout,
       );
     } on Object catch (e) {
@@ -286,8 +301,25 @@ class SttSpeechInput implements SpeechInput {
     ListenRequest request, {
     required SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
-  }) {
+  }) async {
     final generation = ++_generation;
+    final ended = _endedAt;
+    final wait = ended == null
+        ? Duration.zero
+        : VoiceConfig.recognizerSettle - DateTime.now().difference(ended);
+    if (wait > Duration.zero) {
+      // Started right after the previous session ended (a hold, a restart):
+      // let the recognizer finish with it first.
+      debugPrint('[VOICE] recognizer settling ${wait.inMilliseconds}ms');
+      _settling = true;
+      try {
+        await Future<void>.delayed(wait);
+      } finally {
+        if (generation == _generation) _settling = false;
+      }
+      if (generation != _generation) return; // stopped meanwhile
+    }
+    _settling = false;
     _lastWords = '';
     _window = request.pauseFor;
     _arm(generation);
@@ -330,6 +362,7 @@ class SttSpeechInput implements SpeechInput {
     if (window == null) return;
     _silence = Timer(window, () {
       if (generation != _generation || !_stt.isListening) return;
+      _endedAt = DateTime.now();
       unawaited(
         _stt.stop().catchError((Object e) {
           debugPrint('[VOICE] stop after silence failed: $e');
@@ -348,6 +381,7 @@ class SttSpeechInput implements SpeechInput {
   Future<void> stop() {
     _silence?.cancel();
     _generation++;
+    _endedAt = DateTime.now();
     return _stt.stop();
   }
 
@@ -355,6 +389,7 @@ class SttSpeechInput implements SpeechInput {
   Future<void> cancel() {
     _silence?.cancel();
     _generation++;
+    _endedAt = DateTime.now();
     return _stt.cancel();
   }
 }
@@ -362,5 +397,6 @@ class SttSpeechInput implements SpeechInput {
 /// The app's speech input: the app's own offline recognizer for commands
 /// once its model is installed, else the Android recognizer.
 final speechInputProvider = Provider<SpeechInput>(
-  (ref) => HybridSpeechInput(SttSpeechInput(), ref.read(offlineEnginesProvider)),
+  (ref) =>
+      HybridSpeechInput(SttSpeechInput(), ref.read(offlineEnginesProvider)),
 );

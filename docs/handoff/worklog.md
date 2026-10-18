@@ -17,6 +17,32 @@ Format:
 
 ---
 
+## 2026-10-18 — Voice: half-duplex turns, room calibration, mic pre-roll, tone player, debug overlay
+- Agent: Claude Code
+- Branch: `feature/no-email-profiling-describe` (on top of `d7a9920`)
+- Changed: new `lib/core/voice/mic_turn.dart` (turn state machine + watchdog); `voice_controller.dart` (turns,
+  guard after speech, tone mute, watchdog close, screen change / app pause cleanup, room calibration, speech
+  threshold, voice-detector speech holds back instructions, overlay data); `noise_monitor.dart` (calibration,
+  baseline, speech threshold, overlay fields); `speech_input.dart` + `hybrid_speech_input.dart` (`muteAudio`,
+  `releaseMic`, `measureRoom`, `ListenRequest.speechThreshold`); `offline_listener.dart` (mic lingers 1.5 s
+  between silent sessions and feeds the next one, mute, threshold gate, `measure`); `hybrid_tts_service.dart`
+  (quick Android failure retried once before switching); `announcer.dart` (output voice for the overlay);
+  `earcon.dart` (`stop`, awaits the tone end); new `TonePlayer.kt`, `MainActivity.kt` (no `ToneGenerator`, stop
+  on pause); `voice_config.dart` (new values; `voiceCommunication`, AGC on, `noiseSustain` 2 s,
+  `audioFocusRelease` 250 ms); `startup_tasks.dart` (warm-up calibration); overlay + `voice_activity.dart` +
+  `setting_items.dart` (debug builds too); ARB fil/en + l10n (5 overlay strings). Tests: new
+  `test/core/voice/voice_turns_test.dart` (29); updated `engine_selection_test.dart`, `voice_capture_test.dart`,
+  `voice_reliability_test.dart`, `phase6_flows_test.dart` (one more Settings row in debug builds),
+  `test/helpers/fakes.dart`. Docs 03/05/06/07.
+- Checks: `flutter analyze` no issues. Changed-area tests file by file (core voice ×12, offline_voice engine
+  selection, accessibility ×4, tts ×3, settings, percy clips/settings/session, startup, voice/voice check/smart
+  voice/percy/tutorial/tutorial-first/screens/assistant/phase6 flows, reader ×4): all pass (runner crashes
+  retried). Full suite **not run**. `flutter build apk --release` OK (253.3 MB; compiles `TonePlayer.kt`).
+  Emulator check not possible (no AVD on the PC). Nothing run on the tablet.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: user's tablet test (checklist in the report); `speech_to_text` can't get AEC/NS/AGC or pre-roll
+  (own recognizer bridge = ask first); tune `speechMargin` / AGC from the log.
+
 ## 2026-10-18 — No-email registration, name spelling, text size loop, loading animation, ImageDescriber
 - Agent: Claude Code
 - Branch: `feature/no-email-profiling-describe` (from `main` `9244954`)

@@ -865,5 +865,10 @@
   "voiceStateStartup": "Startup: {seconds} s",
   "voiceStateSource": "Listening via: {source}",
   "voiceStateNoise": "Sound level: {level} · room: {floor}",
-  "voiceStateNoisy": "NOISY"
+  "voiceStateNoisy": "NOISY",
+  "voiceStateMic": "Microphone: {phase}",
+  "voiceStateThreshold": "speech threshold: {value}",
+  "voiceStateHeard": "Last heard: {text} ({confidence})",
+  "voiceStateMatch": "Matched: {match}",
+  "voiceStateOutput": "App voice: {voice}"
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../config/voice_config.dart';
 import '../tts/tts_service.dart';
 import 'offline_engines.dart';
 import 'offline_speaker.dart';
@@ -128,19 +129,36 @@ class HybridTtsService implements TtsService {
       }
     }
     _speaking = route;
-    final done = await android.speak(
-      text,
-      languageTag: languageTag,
-      rate: rate,
-    );
+    final watch = Stopwatch()..start();
+    var done = await android.speak(text, languageTag: languageTag, rate: rate);
     lastFailed = android.lastFailed;
+    if (done) _androidFailures.remove(languageTag);
     if (!done && android.lastFailed && stops == _stops) {
+      final failures = (_androidFailures[languageTag] ?? 0) + 1;
+      _androidFailures[languageTag] = failures;
+      final quick = watch.elapsed < _quickFailure;
+      if (failures < VoiceConfig.ttsFailuresBeforeSwitch && quick) {
+        // One hiccup: the same voice says it again, so the voice doesn't
+        // change for good over one failure (2026-10-18 tablet test: "the
+        // voice changes between screens").
+        debugPrint(
+          '[TTS] android voice failed for $languageTag ($failures): '
+          'saying it again with the same voice',
+        );
+        done = await android.speak(text, languageTag: languageTag, rate: rate);
+        lastFailed = android.lastFailed;
+        if (done) _androidFailures.remove(languageTag);
+        if (done || !android.lastFailed || stops != _stops) return done;
+        _androidFailures[languageTag] = failures + 1;
+      }
       // A network voice without network (or a broken voice): the app's own
       // voice says it instead.
       final speaker = await _bundledFor(languageTag);
       if (speaker != null && stops == _stops) {
-        // From now on, not just for this sentence.
+        // Failed again (or never answered): from now on, not just for this
+        // sentence (no switching back and forth).
         _setRoute(languageTag, TtsRoute.bundled, 'Android voice failed');
+        _androidFailures.remove(languageTag);
         _speaking = TtsRoute.bundled;
         final again = await speaker.speak(text, tag: languageTag, rate: rate);
         lastFailed = false;
@@ -149,6 +167,15 @@ class HybridTtsService implements TtsService {
     }
     return done;
   }
+
+  /// Android voice failures in a row, per language
+  /// ([VoiceConfig.ttsFailuresBeforeSwitch]).
+  final Map<String, int> _androidFailures = {};
+
+  /// A failure this fast is an error (worth one more try with the same
+  /// voice); a slower one was a voice that never answered (not tried again:
+  /// the user already waited).
+  static const Duration _quickFailure = Duration(milliseconds: 1500);
 
   @override
   Future<void> stop() async {

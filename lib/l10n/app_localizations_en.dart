@@ -3169,4 +3169,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceStateNoisy => 'NOISY';
+
+  @override
+  String voiceStateMic(String phase) {
+    return 'Microphone: $phase';
+  }
+
+  @override
+  String voiceStateThreshold(String value) {
+    return 'speech threshold: $value';
+  }
+
+  @override
+  String voiceStateHeard(String text, String confidence) {
+    return 'Last heard: $text ($confidence)';
+  }
+
+  @override
+  String voiceStateMatch(String match) {
+    return 'Matched: $match';
+  }
+
+  @override
+  String voiceStateOutput(String voice) {
+    return 'App voice: $voice';
+  }
 }

@@ -9,10 +9,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/voice_config.dart';
 import '../assistant/assistant_controller.dart';
+import '../offline_voice/hybrid_tts_service.dart';
 import '../percy/percy_clips.dart';
 import '../tts/reading_rate.dart';
 import '../tts/speech_language.dart';
 import '../tts/tts_service.dart';
+import '../voice/noise_monitor.dart';
 import 'action_registry.dart';
 import 'navigation_mode.dart';
 
@@ -408,9 +410,11 @@ class Announcer extends Notifier<SpeechState> {
                       .play(u.text, u.languageTag, u.rate)
                 : ClipResult.notFound;
             if (clip == ClipResult.notFound || clip == ClipResult.failed) {
-              await ref
-                  .read(ttsServiceProvider)
-                  .speak(u.text, languageTag: u.languageTag, rate: u.rate);
+              final tts = ref.read(ttsServiceProvider);
+              await tts.speak(u.text, languageTag: u.languageTag, rate: u.rate);
+              _showVoice(u, tts is HybridTtsService ? tts.lastRoute?.name : null);
+            } else {
+              _showVoice(u, 'Percy clip');
             }
           }
         } on Object catch (e) {
@@ -423,6 +427,17 @@ class Announcer extends Notifier<SpeechState> {
       _draining = false;
       if (ref.mounted) state = state.withSpeaking(false);
     }
+  }
+
+  /// The developer overlay's "output voice" line: language, voice, speed.
+  void _showVoice(_Utterance u, String? route) {
+    if (!ref.mounted) return;
+    ref
+        .read(voiceCaptureProvider)
+        .setOutput(
+          '${u.languageTag} · ${route ?? 'Android TTS'} · '
+          '${u.rate.toStringAsFixed(2)}x',
+        );
   }
 
   Future<void> _announceToScreenReader(String text) async {

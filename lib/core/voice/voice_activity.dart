@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../accessibility/announcer.dart';
@@ -53,9 +54,9 @@ final _engineChangesProvider = Provider<bool>((ref) {
 });
 
 /// Whether the voice-state overlay is shown: the developer setting, in a
-/// developer build only (`PERCIPERE_DEV=true`).
+/// developer build (`PERCIPERE_DEV=true`) or a debug build only.
 final voiceStateOverlayOnProvider = Provider<bool>(
   (ref) =>
-      ref.watch(devBuildProvider) &&
+      (ref.watch(devBuildProvider) || kDebugMode) &&
       ref.watch(settingsProvider.select((s) => s.voiceStateOverlay)),
 );

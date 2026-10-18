@@ -188,7 +188,12 @@ void main() {
     /// once the app's own voice has died away ([VoiceConfig.noiseSettle]).
     Future<void> room(double level) async {
       await Future<void>.delayed(VoiceConfig.noiseSettle);
-      for (var i = 0; i < 13; i++) {
+      final span =
+          VoiceConfig.noiseSustain +
+          VoiceConfig.noiseToneSettle +
+          VoiceConfig.noiseOnsetLag +
+          const Duration(milliseconds: 400);
+      for (var i = 0; i < span.inMilliseconds ~/ 200; i++) {
         env.speech.soundLevel(level);
         await Future<void>.delayed(const Duration(milliseconds: 200));
       }

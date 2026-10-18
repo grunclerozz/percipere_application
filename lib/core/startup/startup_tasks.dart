@@ -24,7 +24,8 @@ enum StartupStep {
   voice,
 
   /// The offline command recognizer (loaded and warmed up with one silent
-  /// decode) and Android's recognizer (set up).
+  /// decode) and Android's recognizer (set up); then the room's noise is
+  /// measured for a second.
   recognizer,
 
   /// Percy's intent model.
@@ -51,7 +52,11 @@ final startupTasksProvider = Provider<Map<StartupStep, StartupTask>>(
     },
     StartupStep.recognizer: () async {
       await ref.read(offlineEnginesProvider).loaded;
-      await ref.read(voiceControllerProvider.notifier).warmUp();
+      final voice = ref.read(voiceControllerProvider.notifier);
+      await voice.warmUp();
+      // The room's noise, measured once while the loading screen is quiet:
+      // the speech threshold for the first commands.
+      await voice.calibrateNoise();
     },
     StartupStep.percy: () async => ref.read(percyBrainProvider.future),
     StartupStep.mlkit: () => warmUpMlKit(

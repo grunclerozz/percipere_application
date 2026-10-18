@@ -3124,4 +3124,29 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get voiceStateNoisy => 'MAINGAY';
+
+  @override
+  String voiceStateMic(String phase) {
+    return 'Mikropono: $phase';
+  }
+
+  @override
+  String voiceStateThreshold(String value) {
+    return 'hangganan ng boses: $value';
+  }
+
+  @override
+  String voiceStateHeard(String text, String confidence) {
+    return 'Huling narinig: $text ($confidence)';
+  }
+
+  @override
+  String voiceStateMatch(String match) {
+    return 'Tugma: $match';
+  }
+
+  @override
+  String voiceStateOutput(String voice) {
+    return 'Boses ng app: $voice';
+  }
 }

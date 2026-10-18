@@ -183,6 +183,12 @@ class FakeEarcon implements Earcon {
 
   @override
   Future<void> stopped() async => stoppedCues++;
+
+  /// Times a playing tone was silenced.
+  int stops = 0;
+
+  @override
+  Future<void> stop() async => stops++;
 }
 
 class FakeHaptics implements Haptics {
@@ -335,6 +341,30 @@ class FakeSpeechInput implements SpeechInput {
   Future<void> cancel() async {
     listening = false;
     cancels++;
+  }
+
+  /// Mutes asked for (one per "listening" tone, then the guard after it).
+  final List<Duration> mutes = [];
+
+  @override
+  void muteAudio(Duration duration) => mutes.add(duration);
+
+  /// Times the app's microphone was released (before the app speaks).
+  int micReleases = 0;
+
+  @override
+  Future<void> releaseMic() async => micReleases++;
+
+  /// What [measureRoom] "hears" (empty: it can't measure).
+  List<double> room = const [];
+
+  /// Room measurements taken.
+  int measurements = 0;
+
+  @override
+  Future<List<double>> measureRoom(Duration duration) async {
+    measurements++;
+    return room;
   }
 
   /// Delivers a partial result.

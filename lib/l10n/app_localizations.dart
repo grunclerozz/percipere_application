@@ -5180,6 +5180,36 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'MAINGAY'**
   String get voiceStateNoisy;
+
+  /// Developer voice-state overlay: the microphone's half-duplex turn state (technical name: idle, speaking, wait, listening, done, timeout).
+  ///
+  /// In fil, this message translates to:
+  /// **'Mikropono: {phase}'**
+  String voiceStateMic(String phase);
+
+  /// Developer voice-state overlay: the speech threshold set from the measured room noise (a dash when not measured).
+  ///
+  /// In fil, this message translates to:
+  /// **'hangganan ng boses: {value}'**
+  String voiceStateThreshold(String value);
+
+  /// Developer voice-state overlay: the last transcript and the recognizer's confidence (dots for passwords; a dash when none).
+  ///
+  /// In fil, this message translates to:
+  /// **'Huling narinig: {text} ({confidence})'**
+  String voiceStateHeard(String text, String confidence);
+
+  /// Developer voice-state overlay: what the last transcript matched (command or intent name, technical).
+  ///
+  /// In fil, this message translates to:
+  /// **'Tugma: {match}'**
+  String voiceStateMatch(String match);
+
+  /// Developer voice-state overlay: the output voice (language tag, engine route, speed; technical).
+  ///
+  /// In fil, this message translates to:
+  /// **'Boses ng app: {voice}'**
+  String voiceStateOutput(String voice);
 }
 
 class _AppLocalizationsDelegate

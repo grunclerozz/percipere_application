@@ -1,7 +1,5 @@
 package ph.bataan.percipere
 
-import android.media.AudioManager
-import android.media.ToneGenerator
 import android.os.StatFs
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,7 +7,7 @@ import io.flutter.plugin.common.MethodChannel
 
 // FragmentActivity: required by local_auth for the fingerprint dialog.
 class MainActivity : FlutterFragmentActivity() {
-    private var tones: ToneGenerator? = null
+    private val tones = TonePlayer()
     private var assistant: AssistantBridge? = null
     private var speechInfo: SpeechInfoBridge? = null
     private var audio: AudioBridge? = null
@@ -39,31 +37,30 @@ class MainActivity : FlutterFragmentActivity() {
         }
         // Short sounds: "heard you" the moment a voice command is recognized,
         // and a softer "listening" blip when the microphone opens after the
-        // app has spoken. ToneGenerator starts at once (no file to load).
+        // app has spoken. Fixed-length tones that always end (TonePlayer);
+        // each call answers when its tone has ended. "stop" silences one.
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "ph.bataan.percipere/sound"
         ).setMethodCallHandler { call, result ->
-            val (tone, millis) = when (call.method) {
-                "heard" -> ToneGenerator.TONE_PROP_BEEP to 70
-                "listening" -> ToneGenerator.TONE_PROP_ACK to 40
-                "stopped" -> ToneGenerator.TONE_PROP_NACK to 60
-                else -> null to 0
-            }
-            if (tone == null) {
-                result.notImplemented()
-            } else {
-                try {
-                    val generator = tones
-                        ?: ToneGenerator(AudioManager.STREAM_MUSIC, 70).also { tones = it }
-                    generator.startTone(tone, millis)
-                    result.success(true)
-                } catch (e: RuntimeException) {
+            when (call.method) {
+                "heard", "listening", "stopped" -> tones.play(call.method) { ok ->
                     // No audio right now: the vibration still confirms.
-                    result.success(false)
+                    result.success(ok)
                 }
+                "stop" -> {
+                    tones.stop()
+                    result.success(true)
+                }
+                else -> result.notImplemented()
             }
         }
+    }
+
+    override fun onPause() {
+        // A tone never sounds on after the app leaves the screen.
+        tones.stop()
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -73,8 +70,7 @@ class MainActivity : FlutterFragmentActivity() {
         speechInfo = null
         audio?.dispose()
         audio = null
-        tones?.release()
-        tones = null
+        tones.stop()
         super.onDestroy()
     }
 }

@@ -76,10 +76,16 @@ voice depends on Google packs as before.
 | `noisyLevel` / `noisyShare` / `noisyMinReadings` | 4 / 0.5 / 5 | room counts as noisy (level readings before the words) |
 | `lowConfidence` | 0.5 | Android confidence below this counts like noise |
 | `noisyAskScore` | 0.45 | in noise, commands this similar are asked back (quiet: 0.6) |
-| `micNoiseSuppressor` / `micAutoGain` | on / off | phone noise suppressor / AGC on the app's own mic (offline commands) |
+| `micNoiseSuppressor` / `micAutoGain` | on / **on** (2026-10-18; was off) | phone noise suppressor / AGC on the app's own mic (offline commands) |
 | `halfDuplex` | on | never listen while the app speaks; no barge-in (2026-10-17, `fix/voice-capture`) |
-| `micAudioSource` / `micEchoCanceller` | `voiceRecognition` / on | Android audio source and echo canceller of the app's own mic |
-| `noiseSettle` / `noiseSustain` / `noiseOnsetLag` / `noiseWindow` | 0.7 / 1 / 0.7 / 8 s | noise floor: ignore after app speech; stay high this long; drop before the user's words; forget |
+| `micAudioSource` / `micEchoCanceller` | **`voiceCommunication`** (2026-10-18; was `voiceRecognition`) / on | Android audio source and echo canceller of the app's own mic |
+| `noiseSettle` / `noiseSustain` / `noiseOnsetLag` / `noiseWindow` | 0.7 / **2** (was 1) / 0.7 / 8 s | noise floor: ignore after app speech; stay high this long; drop before the user's words; forget |
+| `speechGuard` / `toneGuard` / `toneMax` | 0.25 / 0.25 / 0.6 s | half-duplex: no audio this long after the app's speech / after a tone; longest tone mute |
+| `audioFocusRelease` | 0.25 s (was 0.2) | push-to-talk / dictation: gap after the speech stopped |
+| `preRoll` / `micLinger` | 0.3 / 1.5 s | the app's mic stays open this long after a silent session; what it hears goes to the next session |
+| `calibrationTime` / `speechMargin` / `noiseStale` | 1 s / 2 / 60 s | room measurement; speech threshold = room + margin; measure again after this (or when noisy) |
+| `listenWatchdogSlack` | 3 s | a session still open this long after its own limit is closed by force |
+| `ttsFailuresBeforeSwitch` | 2 | a quickly failing Android voice is tried once more before the app's own voice takes over |
 Silences on the Android path are timed by the app, never handed to Android (decision 2026-10-14).
 Earcons (`ToneGenerator`, channel `ph.bataan.percipere/sound`): "heard", "listening", "stopped".
 
@@ -402,6 +408,90 @@ Log lines: `start skipped: the app is speaking`, `noisy room (level …)`, `unce
 `push-to-talk: … while held: listening on`, `push-to-talk released between sessions`,
 `[OFFLINE VOICE] microphone: …`, `[TTS] engine switch …`, `[TTS] android voice: …`,
 `[TTS] no answer from the engine: stopping it`.
+
+## Half-duplex turns, room calibration, pre-roll, tone (2026-10-18, branch `feature/no-email-profiling-describe`)
+**Tablet test (Samsung Galaxy Tab S10 Lite):** the mic heard the app's own voice ("too much noise",
+false commands); the listening tone sometimes got stuck; commands had to be said 2–3 times (better
+on Home than elsewhere); the output voice changed between screens. These are the same symptoms
+`fix/voice-capture` (above) targeted; **unverified** whether the tested APK was built after `11b65f8`.
+No device log was available, so the causes below come from the code; the fixes are tested in
+`test/core/voice/voice_turns_test.dart` (29 tests) and `test/core/offline_voice/engine_selection_test.dart`.
+
+**Causes found in the code (not confirmed with a tablet log)**
+1. **The app's own mic closed and reopened every few seconds.** An automatic command session with no
+   speech ends after `waitForSpeech` (4 s); `OfflineCommandListener` then stopped the `AudioRecord`
+   and the next session opened a new one (permission check, recorder and effects set-up): words
+   said in that gap, or their first syllable, were lost.
+2. **On screens with a question, instructions were spoken over the user.** `Announcer.ask` holds
+   back its instructions for `answerWait` (6 s) and restarts the wait on the user's words
+   (`userResponding`), but only Android's partial results called it; the app's own recognizer
+   has no partials, so the instructions started while the user was talking and cancelled the
+   session (half-duplex). Home asks no question: "works better on Home".
+3. **"Medyo maingay po" from one loud second.** The room counted as noisy after 1 s of loud
+   readings, with one fixed level (4) whatever the room normally sounds like.
+4. **The tone could keep sounding.** `ToneGenerator.startTone(tone, ms)` relies on the device to
+   stop the tone; nothing stopped it on a screen change or app pause.
+5. **A session could stay "listening".** If the recognizer never ended a session (no `done`, no
+   result), nothing closed it.
+6. **One hiccup changed the voice for good.** One failed Android TTS call (an error) moved that
+   language to the app's own voice (MMS Tagalog / Piper) for the rest of the run.
+7. **The listening tone reached the app's own mic** (the cue plays once the mic is live).
+
+**Fixes**
+- **Turn state machine** `lib/core/voice/mic_turn.dart` (`MicTurn`, `MicPhase` idle / speaking /
+  wait / listening / done / timeout), driven by `VoiceController`: speaking → `speechGuard`
+  (250 ms) wait → listening. Automatic sessions don't start during the wait; push-to-talk and
+  dictation wait for it (`MicTurn.ready`) after `Announcer.stopAndWait` (250 ms focus gap). Every
+  session gets a **watchdog** (`listenFor` + 3 s → closed, phase `timeout`). A **screen change**
+  closes the open session (not a dictation or a held push-to-talk) and the pending tone; **app
+  paused** closes listening, the tone (`Earcon.stop`) and the app's mic. Log: `mic turn: …`,
+  `watchdog: the session never ended`, `screen changed: closing the open session`.
+- **The mic closes before the app talks:** each time speech starts, `SpeechInput.releaseMic()`.
+- **Pre-roll** (`OfflineCommandListener`): after a session that heard nothing the mic stays open
+  `micLinger` (1.5 s); the next session gets all audio heard meanwhile (always more than
+  `preRoll`, 300 ms), on top of the recognizer's own 0.4 s per-segment pre-roll. A heard command,
+  a cancel or `releaseMic` close the mic. Log: `[OFFLINE VOICE] microphone kept open: …ms before
+  the session`. Android's recognizer owns its mic: no pre-roll is possible there.
+- **Tone mute:** the "listening" cue still plays when the mic is live (so words right after it
+  aren't lost), but the app's mic drops its audio while the tone plays and `toneGuard` (250 ms)
+  after it (`SpeechInput.muteAudio`). Android's recognizer can't be muted (it hears the ~50 ms tone).
+- **Tone player:** `android/.../TonePlayer.kt` replaces `ToneGenerator`: fixed-length tones from a
+  static buffer, released after their own length at the latest; the call answers when the tone
+  has ended; `stop` and `MainActivity.onPause` silence it.
+- **Room calibration** (`NoiseMonitor.calibrate`, `VoiceController.calibrateNoise` / `_measureRoom`,
+  `SpeechInput.measureRoom`): 1 s measured with the app's mic on the loading screen (after the
+  recognizer step, once the screen is quiet), and again before the first automatic session on a
+  screen opened while the room was noisy or the last measurement is older than 60 s. A second of
+  quiet before the user speaks also updates it. **Speech threshold** = room + `speechMargin` (2,
+  about 6 dB), at least 3: the app's recognizer ignores speech no louder than that
+  (`ListenRequest.speechThreshold`; not for push-to-talk or dictation). Log: `room measured
+  (warm-up): level …, speech threshold …`, `[OFFLINE VOICE] ignored: level … below the speech
+  threshold …`. "Medyo maingay po" needs the room loud for `noiseSustain` (now 2 s).
+- **Mic source and effects:** `voiceCommunication` + echo canceller + noise suppressor + **AGC on**,
+  as asked (each only when the tablet has it; the overlay and the `[OFFLINE VOICE] microphone:` line
+  say which are on). **`speech_to_text` (Android's recognizer: dictation, Percy, and commands while
+  the model isn't downloaded) can't be given an audio source or effects by the app**: the plugin
+  has no option for it. That would need our own recognizer bridge feeding
+  `RecognizerIntent.EXTRA_AUDIO_SOURCE` (Android 13+) from our own recorder: a bigger change, not
+  done (ask first).
+- **The user's speech holds back instructions:** the voice detector's speech start now calls
+  `Announcer.userResponding()`.
+- **One output voice:** the settings source is unchanged (`settingsProvider`: rate, pitch, reading
+  voice → `TtsService`; per language one route kept for the run, `HybridTtsService._routes`;
+  prompts and the Reader both use `readingRateProvider`). New: an Android voice that fails
+  **quickly** is asked once more with the same voice; only a second failure (or one that never
+  answered) moves that language to the app's own voice for good. The overlay shows the voice of
+  every prompt.
+- **Debug overlay** ("Estado ng boses (developer)" in Settings; now also in every **debug** build):
+  mic turn state, source, sound level / room / speech threshold, last transcript + confidence,
+  what it matched, the app's output voice (`VoiceCaptureStatus` in `noise_monitor.dart`; ARB
+  `voiceStateMic`, `voiceStateThreshold`, `voiceStateHeard`, `voiceStateMatch`, `voiceStateOutput`).
+
+Not changed: push-to-talk (still stops the speech, waits, listens while held), the Whisper warm-up
+decode, Percy's thresholds, `waitForSpeech`, `afterSpeechGap` (450 ms, already above the guard).
+**Unverified on the tablet:** whether `voiceCommunication` + AGC helps or hurts Whisper; whether the
+speech margin (2) rejects quiet speakers (lower it if real commands show `ignored: level …`); the
+loudness of the new tones (0.32 of full scale).
 
 ## Percy answers questions (2026-10-18, branch `feat/percy-knowledge`)
 Percy used to understand commands only ("Anong kaya mo?" fell to "not yet"). Now it answers questions

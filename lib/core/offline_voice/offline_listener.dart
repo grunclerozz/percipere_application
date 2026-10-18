@@ -211,6 +211,25 @@ class OfflineCommandListener {
   Timer? _cap;
   Timer? _speechCap;
 
+  // ── 2026-10-18: mic kept open between sessions, tone mute, threshold ──
+
+  /// The microphone is still open after a session that heard nothing
+  /// ([VoiceConfig.micLinger]): what it hears is kept for the next one.
+  StreamSubscription<Uint8List>? _lingerSub;
+  Timer? _linger;
+  final List<Uint8List> _kept = [];
+  int _keptBytes = 0;
+
+  /// Audio is dropped until then (one of the app's tones).
+  DateTime? _mutedUntil;
+
+  /// The open session's speech threshold ([ListenRequest.speechThreshold]),
+  /// recent chunk levels, and the loudest level of the speech being heard
+  /// (null: no speech yet).
+  double? _threshold;
+  final List<(DateTime, double)> _recent = [];
+  double? _loudest;
+
   /// Whether a session is open.
   bool get listening => _open;
 
@@ -247,13 +266,29 @@ class OfflineCommandListener {
     return _serial(() async {
       await releasing;
       if (session != _session) return true; // cancelled or replaced
-      if (!await mic.start()) return false;
-      if (session != _session) {
-        // Cancelled while the microphone was opening.
-        await mic.stop();
-        return true;
+      // Still open from the session before: no gap, and what it heard
+      // meanwhile (the start of the command) goes to this session.
+      final kept = _takeLinger();
+      if (kept == null) {
+        if (!await mic.start()) return false;
+        if (session != _session) {
+          // Cancelled while the microphone was opening.
+          await mic.stop();
+          return true;
+        }
       }
-      return _begin(session, request, onResult, onSoundLevel, onSpeechStart);
+      final begun = _begin(
+        session,
+        request,
+        onResult,
+        onSoundLevel,
+        onSpeechStart,
+        kept?.$1 ?? const [],
+      );
+      // Only now: the audio stream always keeps a listener (the native
+      // side stops sending when the last one goes).
+      unawaited(kept?.$2.cancel());
+      return begun;
     });
   }
 
@@ -263,6 +298,7 @@ class OfflineCommandListener {
     SpeechResultCallback onResult,
     void Function(double level)? onSoundLevel,
     void Function()? onSpeechStart,
+    List<Uint8List> preRoll,
   ) {
     _open = true;
     _flushing = false;
@@ -271,11 +307,34 @@ class OfflineCommandListener {
     _onSpeechStart = onSpeechStart;
     _hold = request.pushToTalk;
     _heldWords.clear();
+    _mutedUntil = null;
+    _threshold = request.speechThreshold;
+    _recent.clear();
+    _loudest = null;
     recognizer.begin(session, languageFor(request.localeId), whole: _hold);
+    if (preRoll.isNotEmpty) {
+      debugPrint(
+        '[OFFLINE VOICE] microphone kept open: '
+        '${preRoll.fold<int>(0, (n, c) => n + c.length) ~/ 32}ms before the '
+        'session',
+      );
+    }
+    for (final chunk in preRoll) {
+      recognizer.feed(session, chunk);
+      _track(chunk);
+    }
     _audioSub = mic.audio.listen(
       (chunk) {
         if (session != _session || !_open) return;
+        final until = _mutedUntil;
+        if (until != null && DateTime.now().isBefore(until)) {
+          // The app's own tone: never heard as speech (half-duplex). Its
+          // level is still reported; the noise monitor ignores it.
+          _reportLevel(chunk);
+          return;
+        }
         recognizer.feed(session, chunk);
+        _track(chunk);
         _reportLevel(chunk);
       },
       onError: (Object e) {
@@ -308,10 +367,35 @@ class OfflineCommandListener {
   static double soundLevel(double dbfs) =>
       ((dbfs + 60) / 3).clamp(-2, 10).toDouble();
 
+  /// Keeps the recent levels and, while speech is heard, its loudest one.
+  void _track(Uint8List chunk) {
+    final level = soundLevel(levelOf(chunk));
+    final now = DateTime.now();
+    _recent.add((now, level));
+    final old = now.subtract(const Duration(seconds: 1));
+    while (_recent.isNotEmpty && _recent.first.$1.isBefore(old)) {
+      _recent.removeAt(0);
+    }
+    final loudest = _loudest;
+    if (loudest != null && level > loudest) _loudest = level;
+  }
+
+  /// The loudest level of the last half second (the voice detector is
+  /// sure of speech only a moment after it began).
+  double _recentLoudest() {
+    final from = DateTime.now().subtract(const Duration(milliseconds: 500));
+    var loudest = -2.0;
+    for (final (at, level) in _recent) {
+      if (!at.isBefore(from) && level > loudest) loudest = level;
+    }
+    return loudest;
+  }
+
   void _onEvent(RecognizerEvent event) {
     if (event.session != _session || !_open) return;
     switch (event) {
       case SpeechStarted():
+        _loudest = _recentLoudest();
         _onSpeechStart?.call();
         // Speech has begun: no more "nobody spoke".
         _wait?.cancel();
@@ -325,9 +409,29 @@ class OfflineCommandListener {
           '[OFFLINE VOICE] heard "${words.isEmpty ? '' : words}" '
           '(recognized in ${millis}ms)',
         );
+        final threshold = _threshold;
+        final loudest = _loudest;
+        // The next stretch of speech is measured afresh.
+        _loudest = _recentLoudest();
         if (_hold) {
           // Reported together once the release has flushed everything.
           if (words.isNotEmpty) _heldWords.add(words);
+        } else if (words.isNotEmpty &&
+            threshold != null &&
+            loudest != null &&
+            loudest < threshold) {
+          // About as loud as the room (the TV, people further away): not
+          // the user's command.
+          debugPrint(
+            '[OFFLINE VOICE] ignored: level ${loudest.toStringAsFixed(1)} '
+            'below the speech threshold ${threshold.toStringAsFixed(1)}',
+          );
+          if (_flushing) {
+            unawaited(_finish(''));
+          } else {
+            _speechCap?.cancel();
+            _speechCap = null;
+          }
         } else if (words.isNotEmpty) {
           unawaited(_finish(words));
         } else if (!_flushing) {
@@ -352,8 +456,10 @@ class OfflineCommandListener {
   Future<void> _finish(String words) async {
     if (!_open) return;
     final onResult = _onResult;
-    // The result goes out at once; the microphone closes meanwhile.
-    final closing = _close(report: true);
+    // The result goes out at once; the microphone closes meanwhile. After
+    // a session that heard nothing the next one usually follows at once:
+    // the microphone stays open for it ([VoiceConfig.micLinger]).
+    final closing = _close(report: true, keepMic: words.isEmpty);
     onResult?.call(words, true, confidence: -1);
     onStatus?.call('done');
     await closing;
@@ -362,14 +468,140 @@ class OfflineCommandListener {
   /// Ends the session, reporting what was said so far.
   Future<void> stop() async => _flush();
 
-  /// Ends the session silently.
-  Future<void> cancel() => _close(report: false);
+  /// Ends the session silently (and closes the microphone).
+  Future<void> cancel() async {
+    final closing = _close(report: false);
+    // Queued: a room measurement still running lingers when it ends.
+    await _serial(_stopLinger);
+    await closing;
+  }
+
+  /// Drops the microphone's audio from now for [duration] (one of the app's
+  /// tones). Ends with the session.
+  void muteAudio(Duration duration) {
+    _mutedUntil = duration <= Duration.zero
+        ? null
+        : DateTime.now().add(duration);
+  }
+
+  /// Closes the microphone now if it is still open between sessions (the
+  /// app is about to speak: half-duplex).
+  Future<void> releaseMic() async {
+    if (!_open) _session++; // ends a room measurement
+    await _serial(_stopLinger);
+  }
+
+  /// Keeps the open microphone running for the next session, keeping what
+  /// it hears (at most [VoiceConfig.micLinger]), and closes it after that.
+  void _startLinger() {
+    _linger?.cancel();
+    _kept.clear();
+    _keptBytes = 0;
+    // 16 kHz, 2 bytes per sample.
+    final maxBytes = VoiceConfig.micLinger.inMilliseconds * 32;
+    final old = _lingerSub;
+    late final StreamSubscription<Uint8List> sub;
+    sub = mic.audio.listen((chunk) {
+      if (!identical(_lingerSub, sub)) return;
+      _kept.add(chunk);
+      _keptBytes += chunk.length;
+      while (_keptBytes > maxBytes && _kept.length > 1) {
+        _keptBytes -= _kept.removeAt(0).length;
+      }
+    }, onError: (Object _) {});
+    _lingerSub = sub;
+    // The new listener first, then the old one goes (see [listen]).
+    unawaited(old?.cancel());
+    _linger = Timer(VoiceConfig.micLinger, () {
+      if (_lingerSub != null) unawaited(_serial(_stopLinger));
+    });
+  }
+
+  /// Ends the linger with the microphone still open: the audio kept
+  /// meanwhile and the linger's listener, which the caller cancels once it
+  /// listens itself. Null if the microphone isn't lingering.
+  (List<Uint8List>, StreamSubscription<Uint8List>)? _takeLinger() {
+    final sub = _lingerSub;
+    if (sub == null) return null;
+    _linger?.cancel();
+    _linger = null;
+    _lingerSub = null;
+    final kept = List.of(_kept);
+    _kept.clear();
+    _keptBytes = 0;
+    return (kept, sub);
+  }
+
+  Future<void> _stopLinger() async {
+    final taken = _takeLinger();
+    if (taken == null) return;
+    await taken.$2.cancel();
+    await mic.stop();
+  }
+
+  /// Measures the room for [duration] while no session is open (the
+  /// warm-up and noisy screens): the levels in order. Ends early, empty or
+  /// short, when a session opens or [cancel] / [releaseMic] is called. The
+  /// microphone then lingers for the next session.
+  Future<List<double>> measure(Duration duration) {
+    final mine = ++_session;
+    return _serial(() async {
+      if (_open || mine != _session) return const <double>[];
+      if (_lingerSub == null && !await mic.start()) return const <double>[];
+      // Lingers throughout: a session asked for meanwhile takes it over.
+      _startLinger();
+      if (mine != _session) return const <double>[];
+      final levels = await _collect(mic.audio, duration, () => mine != _session);
+      // The microphone stays open a little longer for the first session.
+      if (_lingerSub != null) _startLinger();
+      return levels;
+    });
+  }
+
+  /// Sound levels from [audio] for [duration] (until [stop] says so).
+  static Future<List<double>> _collect(
+    Stream<Uint8List> audio,
+    Duration duration,
+    bool Function() stop,
+  ) async {
+    final levels = <double>[];
+    final done = Completer<void>();
+    final sub = audio.listen((chunk) {
+      if (stop()) {
+        if (!done.isCompleted) done.complete();
+        return;
+      }
+      levels.add(soundLevel(levelOf(chunk)));
+    }, onError: (Object _) {});
+    await Future.any([done.future, Future<void>.delayed(duration)]);
+    await sub.cancel();
+    return levels;
+  }
+
+  /// Measures the room with [mic] alone (no offline recognizer loaded):
+  /// opens it, takes the levels for [duration] and closes it.
+  static Future<List<double>> measureWith(
+    MicStream mic,
+    Duration duration,
+  ) async {
+    if (!await mic.start()) return const [];
+    try {
+      return await _collect(mic.audio, duration, () => false);
+    } finally {
+      await mic.stop();
+    }
+  }
 
   /// Closes the session at once (no more results or statuses from it);
   /// the returned future completes once the microphone is released. With
   /// [queued], the release waits its turn behind a microphone being opened.
-  /// Also cancels a session whose microphone is still opening.
-  Future<void> _close({required bool report, bool queued = true}) {
+  /// Also cancels a session whose microphone is still opening. With
+  /// [keepMic] the microphone stays open for the next session.
+  Future<void> _close({
+    required bool report,
+    bool queued = true,
+    bool keepMic = false,
+  }) {
     final wasOpen = _open;
     _open = false;
     _flushing = false;
@@ -386,8 +618,16 @@ class OfflineCommandListener {
     _onSpeechStart = null;
     _hold = false;
     _heldWords.clear();
+    _mutedUntil = null;
+    _threshold = null;
+    _loudest = null;
     if (wasOpen && report) onStatus?.call('notListening');
     if (!wasOpen && sub == null) {
+      return queued ? _serial(() async {}) : Future.value();
+    }
+    if (wasOpen && keepMic) {
+      _startLinger();
+      unawaited(sub?.cancel());
       return queued ? _serial(() async {}) : Future.value();
     }
     Future<void> release() async {
@@ -400,7 +640,7 @@ class OfflineCommandListener {
 
   /// Stops listening for good.
   Future<void> dispose() async {
-    await _close(report: false);
+    await cancel();
     await _eventSub.cancel();
   }
 

@@ -30,7 +30,8 @@ abstract final class VoiceConfig {
   /// After the app's own speech has stopped, the microphone opens only
   /// after this gap: Android releases the speech's audio focus a moment
   /// after it stops, and a recognizer opened before that hears nothing.
-  static const Duration audioFocusRelease = Duration(milliseconds: 200);
+  /// Also the half-duplex guard ([speechGuard]).
+  static const Duration audioFocusRelease = Duration(milliseconds: 250);
 
   // ── Pauses: how long a silence ends a listening session ──────────────────
 
@@ -249,9 +250,11 @@ abstract final class VoiceConfig {
   static const bool micNoiseSuppressor = true;
 
   /// Ask the phone's automatic gain control for the app's own microphone.
-  /// Off: it also raises background noise between words, which keeps the
-  /// voice detector from hearing the end of a command.
-  static const bool micAutoGain = false;
+  /// 2026-10-18: on, as asked (it was off: it also raises background noise
+  /// between words). The speech threshold now follows the measured room
+  /// ([speechMargin]), so the raised background no longer counts as speech.
+  /// Switch off if the tablet log shows commands no longer ending.
+  static const bool micAutoGain = true;
 
   /// Microphone level (about −2 silent to 10 loud) that counts as a noisy
   /// room when heard before the user's words.
@@ -286,8 +289,10 @@ abstract final class VoiceConfig {
   /// `voiceRecognition` (tuned for speech recognition, little processing)
   /// or `voiceCommunication` (the phone's call processing: stronger echo
   /// cancelling, but its filtering can hurt recognition). If the chosen
-  /// source can't be opened, the other one is tried.
-  static const String micAudioSource = 'voiceRecognition';
+  /// source can't be opened, the other one is tried. 2026-10-18:
+  /// `voiceCommunication`, as asked: the tablet's microphone still heard
+  /// the app's own voice with `voiceRecognition`.
+  static const String micAudioSource = 'voiceCommunication';
 
   /// Ask the phone's acoustic echo canceller for the app's own microphone,
   /// when it has one.
@@ -303,8 +308,9 @@ abstract final class VoiceConfig {
 
   /// The room counts as noisy only when its level stayed high for at least
   /// this long (level readings taken while the app was silent and before
-  /// the user spoke).
-  static const Duration noiseSustain = Duration(seconds: 1);
+  /// the user spoke, the warm-up measurement included). 2026-10-18: was
+  /// 1 s; "too much noise" only when it is truly high for a while.
+  static const Duration noiseSustain = Duration(seconds: 2);
 
   /// Readings this long before the user's first words were recognized
   /// already hold the start of those words (recognizers report speech a
@@ -313,4 +319,54 @@ abstract final class VoiceConfig {
 
   /// Room readings older than this are forgotten.
   static const Duration noiseWindow = Duration(seconds: 8);
+
+  // ── Half-duplex turns, calibration, pre-roll (2026-10-18) ────────────────
+
+  /// Half-duplex guard: the microphone never takes audio until this long
+  /// after the app's speech (a prompt, Percy, the document) has ended
+  /// (`MicTurn`). Automatic listening waits [afterSpeechGap] (longer).
+  static const Duration speechGuard = Duration(milliseconds: 250);
+
+  /// The same after one of the app's tones (the "listening" cue): audio of
+  /// the app's own microphone is dropped while the tone plays and this long
+  /// after it ended.
+  static const Duration toneGuard = Duration(milliseconds: 250);
+
+  /// Longest a tone may hold the microphone muted if the phone never says
+  /// it ended.
+  static const Duration toneMax = Duration(milliseconds: 600);
+
+  /// Audio kept from just before a session opens (the app's own
+  /// microphone stays open between back-to-back sessions, [micLinger]),
+  /// so the first syllable of a command isn't cut off.
+  static const Duration preRoll = Duration(milliseconds: 300);
+
+  /// After a session ends with nothing heard, the app's own microphone
+  /// stays open this long for the next session (it used to close and
+  /// reopen every few seconds, and words said meanwhile were lost: "say it
+  /// 2–3 times"). Everything heard meanwhile is given to the next session.
+  /// Closed at once when the app starts speaking.
+  static const Duration micLinger = Duration(milliseconds: 1500);
+
+  /// How long the room's noise is measured at warm-up (loading screen) and
+  /// when a screen opens while the room was noisy.
+  static const Duration calibrationTime = Duration(seconds: 1);
+
+  /// A sound must be this much louder than the measured room (about 3 dB
+  /// per step) to count as the user's speech: speech at about the room's
+  /// level (the TV, people talking further away) is not a command.
+  static const double speechMargin = 2;
+
+  /// A room measurement older than this is taken again when the next
+  /// screen opens.
+  static const Duration noiseStale = Duration(seconds: 60);
+
+  /// A listening session still open this long after its own limit
+  /// (`listenFor`) is closed by force: no state may stay "listening".
+  static const Duration listenWatchdogSlack = Duration(seconds: 3);
+
+  /// The Android voice that fails is tried once more before the app's own
+  /// voice takes over for the rest of the run (one hiccup used to change
+  /// the voice for good).
+  static const int ttsFailuresBeforeSwitch = 2;
 }

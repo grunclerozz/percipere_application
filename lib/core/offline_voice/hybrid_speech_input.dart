@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../voice/speech_input.dart';
 import 'offline_engines.dart';
+import 'offline_listener.dart';
 
 /// Speech input that listens for **commands** with the app's own offline
 /// recognizer once its model is installed (works without internet, needs
@@ -83,6 +84,9 @@ class HybridSpeechInput implements SpeechInput {
       debugPrint('[OFFLINE VOICE] microphone busy: Android recognizer instead');
     }
     _offlineSession = false;
+    // The app's own microphone may still be open (between sessions, a room
+    // measurement): never two recordings at once.
+    await listener?.releaseMic();
     return android.listen(
       request,
       onResult: onResult,
@@ -111,5 +115,26 @@ class HybridSpeechInput implements SpeechInput {
       return;
     }
     return android.cancel();
+  }
+
+  @override
+  void muteAudio(Duration duration) {
+    if (_offlineSession) {
+      engines.listener?.muteAudio(duration);
+    } else {
+      android.muteAudio(duration);
+    }
+  }
+
+  @override
+  Future<void> releaseMic() async => engines.listener?.releaseMic();
+
+  @override
+  Future<List<double>> measureRoom(Duration duration) {
+    final listener = engines.listener;
+    if (listener != null) return listener.measure(duration);
+    // No offline recognizer yet: the app's microphone alone (nothing else
+    // uses it then; the caller measures only between sessions).
+    return OfflineCommandListener.measureWith(ChannelMicStream(), duration);
   }
 }

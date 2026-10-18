@@ -456,7 +456,32 @@ void main() {
       expect(await tts.routeFor('fil-PH'), TtsRoute.bundled);
     });
 
-    test('an Android voice that fails is replaced by the downloaded one',
+    /// The Android voice fails at once ([times] tries in a row).
+    Future<bool> failing(String text, {int times = 2}) async {
+      final done = tts.speak(text, languageTag: 'en-US');
+      for (var i = 0; i < times; i++) {
+        await pumpEventQueue();
+        android.lastFailed = true;
+        await android.stop();
+      }
+      return done;
+    }
+
+    test('an Android voice that fails twice is replaced by the downloaded one',
+        () async {
+      android
+        ..installedVoices = const [
+          TtsVoice(name: 'en-us-x-sfg-local', locale: 'en-US'),
+        ]
+        ..autoComplete = false;
+      expect(await failing('Next.'), isTrue);
+      expect(bundled.spoken.single.$1, 'Next.');
+      expect(android.spoken, ['Next.', 'Next.'], reason: 'tried once more');
+    });
+
+    // 2026-10-18 tablet test: "the output voice changes between screens".
+    // One hiccup of the Android voice switched the voice for good.
+    test('one quick failure: the same voice says it again, the voice stays',
         () async {
       android
         ..installedVoices = const [
@@ -464,34 +489,35 @@ void main() {
         ]
         ..autoComplete = false;
       final done = tts.speak('Next.', languageTag: 'en-US');
-      await Future<void>.delayed(Duration.zero);
+      await pumpEventQueue();
       android.lastFailed = true;
       await android.stop();
+      await pumpEventQueue();
+      android.lastFailed = false;
+      android.finishCurrent();
       expect(await done, isTrue);
-      expect(bundled.spoken.single.$1, 'Next.');
+      expect(android.spoken, ['Next.', 'Next.']);
+      expect(bundled.spoken, isEmpty);
+      expect(await tts.routeFor('en-US'), TtsRoute.androidLocal);
     });
 
     // 2026-10-17, fix/voice-capture: after a failure the next sentence went
     // back to the failed Android voice, so the voice kept changing.
-    test('after a failure the downloaded voice stays for that language',
+    test('after it failed again the downloaded voice stays for that language',
         () async {
       android
         ..installedVoices = const [
           TtsVoice(name: 'en-us-x-sfg-local', locale: 'en-US'),
         ]
         ..autoComplete = false;
-      final done = tts.speak('Next.', languageTag: 'en-US');
-      await Future<void>.delayed(Duration.zero);
-      android.lastFailed = true;
-      await android.stop();
-      await done;
+      await failing('Next.');
       android
         ..lastFailed = false
         ..autoComplete = true;
       await tts.speak('And then.', languageTag: 'en-US');
       expect(await tts.routeFor('en-US'), TtsRoute.bundled);
       expect(bundled.spoken.map((s) => s.$1), ['Next.', 'And then.']);
-      expect(android.spoken, ['Next.'], reason: 'only the failed try');
+      expect(android.spoken, ['Next.', 'Next.'], reason: 'only the failed tries');
     });
 
     test('the voice chosen for a language is kept for the run', () async {

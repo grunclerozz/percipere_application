@@ -50,14 +50,23 @@ void main() {
       noise = NoiseMonitor(clock: () => now);
     });
 
+    /// Just longer than the sustain time.
+    final sustained = VoiceConfig.noiseSustain.inMilliseconds + 200;
+
     test('steady loud room for longer than the sustain time: noisy', () {
-      loud(1200);
+      loud(sustained);
       expect(noise.noisy, isTrue);
       expect(noise.floor, 7);
     });
 
     test('a short loud moment is not a noisy room', () {
       loud(600);
+      expect(noise.noisy, isFalse);
+    });
+
+    // 2026-10-18: "too much noise" only when it is truly high for a while.
+    test('loud for a second and a half is not a noisy room yet', () {
+      loud(1500);
       expect(noise.noisy, isFalse);
     });
 
@@ -71,14 +80,14 @@ void main() {
     });
 
     test('the floor is measured afresh after the app spoke', () {
-      loud(1200);
+      loud(sustained);
       expect(noise.noisy, isTrue);
       noise
         ..appSpeaking(true)
         ..appSpeaking(false);
       expect(noise.noisy, isFalse);
       after(VoiceConfig.noiseSettle.inMilliseconds);
-      loud(1200, level: 0);
+      loud(sustained, level: 0);
       expect(noise.noisy, isFalse);
     });
 

@@ -9,15 +9,20 @@ abstract interface class Earcon {
   Future<void> heard();
 
   /// A softer, shorter blip the moment listening starts after the app has
-  /// spoken: "your turn".
+  /// spoken: "your turn". Completes when the tone has ended.
   Future<void> listening();
 
   /// A low, short tone when listening stops without having heard a
   /// command (a one-off listen that heard nothing, listening paused).
   Future<void> stopped();
+
+  /// Silences a tone that is playing (screen change, app paused).
+  Future<void> stop();
 }
 
-/// [Earcon] played by Android's `ToneGenerator` (no sound file to load).
+/// [Earcon] played by the app's native tone player: a fixed-length tone
+/// that always ends (2026-10-18: Android's `ToneGenerator` sometimes kept
+/// sounding on the tablet). Each call completes when its tone has ended.
 class DeviceEarcon implements Earcon {
   /// Creates the device earcon.
   const DeviceEarcon();
@@ -34,6 +39,9 @@ class DeviceEarcon implements Earcon {
 
   @override
   Future<void> stopped() => _play('stopped');
+
+  @override
+  Future<void> stop() => _play('stop');
 
   Future<void> _play(String sound) async {
     try {

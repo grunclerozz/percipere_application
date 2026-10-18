@@ -7,12 +7,15 @@ import '../startup/startup_tasks.dart';
 import '../voice/noise_monitor.dart';
 import '../voice/voice_activity.dart';
 
-/// "Estado ng boses" (developer setting, off by default): a small label at
-/// the bottom of every screen with what voice input is doing — loading,
-/// ready, speaking, listening or processing — the last cold start's load
-/// time, which recognizer and audio source the last session used, and the
-/// microphone level and the room's measured noise, so voice problems can
-/// be seen on the tablet. Touches pass through it.
+/// "Estado ng boses" (developer setting, off by default; debug builds and
+/// developer builds only): a small label at the bottom of every screen with
+/// what voice input is doing — loading, ready, speaking, listening or
+/// processing — the microphone's turn state, the last cold start's load
+/// time, which recognizer and audio source the last session used, the
+/// microphone level, the room's measured noise and the speech threshold,
+/// the last transcript with its confidence and what it matched, and the
+/// app's output voice, so voice problems can be seen on the tablet. Touches
+/// pass through it.
 class VoiceStateOverlay extends ConsumerWidget {
   /// Creates the overlay.
   const VoiceStateOverlay({super.key});
@@ -35,9 +38,13 @@ class VoiceStateOverlay extends ConsumerWidget {
       listenable: capture,
       builder: (context, _) {
         String shown(double? v) => v == null ? '–' : v.toStringAsFixed(0);
+        final confidence = capture.confidence < 0
+            ? '–'
+            : capture.confidence.toStringAsFixed(2);
         final text = [
           [
             l.voiceStateLabel(name),
+            l.voiceStateMic(capture.mic),
             if (startup != null)
               l.voiceStateStartup(
                 (startup.inMilliseconds / 1000).toStringAsFixed(1),
@@ -46,8 +53,12 @@ class VoiceStateOverlay extends ConsumerWidget {
           l.voiceStateSource(capture.source),
           [
             l.voiceStateNoise(shown(capture.level), shown(capture.floor)),
+            l.voiceStateThreshold(shown(capture.threshold)),
             if (capture.noisy) l.voiceStateNoisy,
           ].join(' · '),
+          l.voiceStateHeard(capture.heard, confidence),
+          l.voiceStateMatch(capture.match),
+          l.voiceStateOutput(capture.output),
         ].join('\n');
         return _label(context, text);
       },

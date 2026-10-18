@@ -425,6 +425,15 @@ List<SettingItem> settingItemsFor(
     value: (c) => c.settings.percyLogging ? c.l.valueOn : c.l.valueOff,
     adjust: (s, d) => s.copyWith(percyLogging: !s.percyLogging),
   ),
+  // The voice debug overlay: developer builds, and every debug build.
+  if (Env.devTools || kDebugMode)
+    SettingItem(
+      id: Ids.settingVoiceStateOverlay,
+      kind: SettingKind.toggle,
+      label: (l) => l.setVoiceStateOverlay,
+      value: (c) => c.settings.voiceStateOverlay ? c.l.valueOn : c.l.valueOff,
+      adjust: (s, d) => s.copyWith(voiceStateOverlay: !s.voiceStateOverlay),
+    ),
   if (Env.devTools) ...[
     SettingItem(
       id: Ids.settingPercyElevenLabs,
@@ -439,13 +448,6 @@ List<SettingItem> settingItemsFor(
       label: (l) => l.setPercyAnalysis,
       value: (c) => c.settings.percyAnalysis ? c.l.valueOn : c.l.valueOff,
       adjust: (s, d) => s.copyWith(percyAnalysis: !s.percyAnalysis),
-    ),
-    SettingItem(
-      id: Ids.settingVoiceStateOverlay,
-      kind: SettingKind.toggle,
-      label: (l) => l.setVoiceStateOverlay,
-      value: (c) => c.settings.voiceStateOverlay ? c.l.valueOn : c.l.valueOff,
-      adjust: (s, d) => s.copyWith(voiceStateOverlay: !s.voiceStateOverlay),
     ),
     SettingItem(
       id: Ids.settingWerTest,

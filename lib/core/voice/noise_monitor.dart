@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,16 +35,79 @@ class VoiceCaptureStatus extends ChangeNotifier {
   }
 
   /// Updates the noise numbers (notifies only when the shown value moves).
-  void setNoise({double? level, double? floor, required bool noisy}) {
+  void setNoise({
+    double? level,
+    double? floor,
+    required bool noisy,
+    double? threshold,
+  }) {
     String shown(double? v) => v?.toStringAsFixed(0) ?? '';
     final changed =
         shown(level) != shown(_level) ||
         shown(floor) != shown(_floor) ||
+        shown(threshold) != shown(_threshold) ||
         noisy != _noisy;
     _level = level;
     _floor = floor;
     _noisy = noisy;
+    _threshold = threshold;
     if (changed) notifyListeners();
+  }
+
+  // ── 2026-10-18: turn state, last result, output voice ───────────────────
+
+  double? _threshold;
+  String _mic = '–';
+  String _heard = '–';
+  double _confidence = -1;
+  String _match = '–';
+  String _output = '–';
+
+  /// The speech threshold from the measured room (null: not measured).
+  double? get threshold => _threshold;
+
+  /// The microphone's turn state (`MicPhase` name).
+  String get mic => _mic;
+
+  /// The last transcript (dots while a password is filled in).
+  String get heard => _heard;
+
+  /// Its confidence, 0..1; −1 when the recognizer gave none.
+  double get confidence => _confidence;
+
+  /// What the last transcript matched (a command, Percy, nothing).
+  String get match => _match;
+
+  /// The voice the app speaks with: language, engine route, speed.
+  String get output => _output;
+
+  /// Sets the microphone's turn state.
+  void setMic(String phase) {
+    if (phase == _mic) return;
+    _mic = phase;
+    notifyListeners();
+  }
+
+  /// Sets the last transcript and its confidence; the match is unknown yet.
+  void setHeard(String text, double confidence) {
+    _heard = text;
+    _confidence = confidence;
+    _match = '…';
+    notifyListeners();
+  }
+
+  /// Sets what the last transcript matched.
+  void setMatch(String match) {
+    if (match == _match) return;
+    _match = match;
+    notifyListeners();
+  }
+
+  /// Sets the output voice.
+  void setOutput(String output) {
+    if (output == _output) return;
+    _output = output;
+    notifyListeners();
   }
 }
 
@@ -129,11 +193,80 @@ class NoiseMonitor {
     final now = _clock();
     final from = _quietFrom;
     if (from != null && now.isBefore(from)) return;
-    _readings.add((now, level));
-    final old = now.subtract(VoiceConfig.noiseWindow);
+    _addReading(now, level);
+    // A second of the room's own sound: the room is measured.
+    if (_readings.last.$1.difference(_readings.first.$1) >=
+        VoiceConfig.calibrationTime) {
+      _setBaseline(floor!, now);
+    }
+  }
+
+  void _addReading(DateTime at, double level) {
+    _readings.add((at, level));
+    final old = at.subtract(VoiceConfig.noiseWindow);
     while (_readings.isNotEmpty && _readings.first.$1.isBefore(old)) {
       _readings.removeFirst();
     }
+  }
+
+  // ── Calibration (2026-10-18) ─────────────────────────────────────────────
+
+  double? _baseline;
+  DateTime? _baselineAt;
+
+  /// The room's calibrated level: from a [VoiceConfig.calibrationTime]
+  /// measurement ([calibrate], at warm-up and on noisy screens), or from a
+  /// second of quiet before the user spoke. Null: never measured.
+  double? get baseline => _baseline;
+
+  void _setBaseline(double level, DateTime at) {
+    _baseline = level;
+    _baselineAt = at;
+  }
+
+  /// Takes a measurement of the room ([levels] in order, the last one just
+  /// now, spread over [VoiceConfig.calibrationTime]). Ignored while the app
+  /// speaks or the user talks, or with fewer than 3 readings. The readings
+  /// count toward [noisy] like the ones before a session.
+  void calibrate(List<double> levels) {
+    if (levels.length < 3 || _appSpeaking || _userTalking) return;
+    final now = _clock();
+    final step =
+        VoiceConfig.calibrationTime.inMicroseconds ~/ (levels.length - 1);
+    for (var i = 0; i < levels.length; i++) {
+      final at = now.subtract(
+        Duration(microseconds: step * (levels.length - 1 - i)),
+      );
+      final from = _quietFrom;
+      if (from != null && at.isBefore(from)) continue;
+      _addReading(at, levels[i]);
+    }
+    final sorted = [...levels]..sort();
+    _setBaseline(sorted[sorted.length ~/ 2], now);
+  }
+
+  /// Whether the room should be measured again when a screen opens: never
+  /// measured, measured more than [VoiceConfig.noiseStale] ago, or it was
+  /// noisy (at or above [VoiceConfig.noisyLevel]).
+  bool get needsCalibration {
+    final at = _baselineAt;
+    final level = _baseline;
+    return at == null ||
+        level == null ||
+        _clock().difference(at) > VoiceConfig.noiseStale ||
+        level >= VoiceConfig.noisyLevel;
+  }
+
+  /// The level a sound must reach to count as the user's speech: the
+  /// measured room plus [VoiceConfig.speechMargin], at least
+  /// [VoiceConfig.speechStartLevel]. Null until the room was measured.
+  double? get speechThreshold {
+    final room = _baseline;
+    if (room == null) return null;
+    return math.max(
+      VoiceConfig.speechStartLevel,
+      room + VoiceConfig.speechMargin,
+    );
   }
 
   /// Whether the room is noisy: enough readings, spanning at least

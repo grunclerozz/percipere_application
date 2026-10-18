@@ -74,7 +74,8 @@ void main() {
       expect(env.tts.transcript, contains('Mga Setting.'));
 
       await tester.swipeRight();
-      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 29.');
+      // 30 rows: debug builds (tests) also list the voice debug overlay.
+      expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.0x, 1 sa 30.');
 
       await tester.swipeUp();
       expect(env.tts.spoken.last, 'Bilis ng pagbasa: 1.25x');

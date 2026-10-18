@@ -2753,5 +2753,15 @@
   "voiceStateNoise": "Lakas ng tunog: {level} · kuwarto: {floor}",
   "@voiceStateNoise": {"description": "Developer voice-state overlay: the last microphone level and the room's measured noise level (about -2 silent to 10 loud; a dash when not measured).", "placeholders": {"level": {"type": "String"}, "floor": {"type": "String"}}},
   "voiceStateNoisy": "MAINGAY",
-  "@voiceStateNoisy": {"description": "Developer voice-state overlay: shown when the room counts as noisy."}
+  "@voiceStateNoisy": {"description": "Developer voice-state overlay: shown when the room counts as noisy."},
+  "voiceStateMic": "Mikropono: {phase}",
+  "@voiceStateMic": {"description": "Developer voice-state overlay: the microphone's half-duplex turn state (technical name: idle, speaking, wait, listening, done, timeout).", "placeholders": {"phase": {"type": "String"}}},
+  "voiceStateThreshold": "hangganan ng boses: {value}",
+  "@voiceStateThreshold": {"description": "Developer voice-state overlay: the speech threshold set from the measured room noise (a dash when not measured).", "placeholders": {"value": {"type": "String"}}},
+  "voiceStateHeard": "Huling narinig: {text} ({confidence})",
+  "@voiceStateHeard": {"description": "Developer voice-state overlay: the last transcript and the recognizer's confidence (dots for passwords; a dash when none).", "placeholders": {"text": {"type": "String"}, "confidence": {"type": "String"}}},
+  "voiceStateMatch": "Tugma: {match}",
+  "@voiceStateMatch": {"description": "Developer voice-state overlay: what the last transcript matched (command or intent name, technical).", "placeholders": {"match": {"type": "String"}}},
+  "voiceStateOutput": "Boses ng app: {voice}",
+  "@voiceStateOutput": {"description": "Developer voice-state overlay: the output voice (language tag, engine route, speed; technical).", "placeholders": {"voice": {"type": "String"}}}
 }

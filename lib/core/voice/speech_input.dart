@@ -25,7 +25,14 @@ class ListenRequest {
     this.dictation = false,
     this.offline = false,
     this.pushToTalk = false,
+    this.speechThreshold,
   });
+
+  /// Sound level (about −2 silent .. 10 loud) a stretch of speech must
+  /// reach to count as the user's: set from the measured room
+  /// (`NoiseMonitor.speechThreshold`). The app's own recognizer ignores
+  /// quieter speech (the TV, people further away). Null: no threshold.
+  final double? speechThreshold;
 
   /// Recognizer locale, e.g. `fil-PH`. Null uses the device's default.
   final String? localeId;
@@ -201,6 +208,20 @@ abstract interface class SpeechInput {
 
   /// Ends the session and discards it.
   Future<void> cancel();
+
+  /// Drops the app's own microphone audio from now for [duration] (one of
+  /// the app's tones is playing: half-duplex). Android's recognizer can't
+  /// be muted: nothing happens there.
+  void muteAudio(Duration duration);
+
+  /// Closes the app's own microphone now if it is still open between two
+  /// sessions (the app is about to speak).
+  Future<void> releaseMic();
+
+  /// Measures the room for [duration] with the app's own microphone, while
+  /// no session is open: its sound levels in order (about −2 .. 10).
+  /// Empty if it can't (no microphone, a session opened meanwhile).
+  Future<List<double>> measureRoom(Duration duration);
 }
 
 /// [SpeechInput] backed by the Android recognizer via `speech_to_text`.
@@ -402,6 +423,18 @@ class SttSpeechInput implements SpeechInput {
     _endedAt = DateTime.now();
     return _stt.cancel();
   }
+
+  // Android's recognizer owns its microphone: it can't be muted, kept open
+  // or measured by the app.
+
+  @override
+  void muteAudio(Duration duration) {}
+
+  @override
+  Future<void> releaseMic() async {}
+
+  @override
+  Future<List<double>> measureRoom(Duration duration) async => const [];
 }
 
 /// The app's speech input: the app's own offline recognizer for commands

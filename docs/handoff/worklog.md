@@ -39,7 +39,7 @@ Format:
   voice/percy/tutorial/tutorial-first/screens/assistant/phase6 flows, reader ×4): all pass (runner crashes
   retried). Full suite **not run**. `flutter build apk --release` OK (253.3 MB; compiles `TonePlayer.kt`).
   Emulator check not possible (no AVD on the PC). Nothing run on the tablet.
-- Commit: see `git log` (pushed: no)
+- Commit: `6b1eab7` (pushed: no)
 - Follow-ups: user's tablet test (checklist in the report); `speech_to_text` can't get AEC/NS/AGC or pre-roll
   (own recognizer bridge = ask first); tune `speechMargin` / AGC from the log.
 

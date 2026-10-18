@@ -11,7 +11,7 @@ coming from the dashboard (Library page) instead of the old sample books.
    The dashboard's `docs/api-contract.md` explains how to find the PC's address (`ipconfig`)
    and allow Apache through the firewall.
 2. Build with the dashboard's address:
-   `flutter build apk --release --dart-define=API_BASE_URL=http://<PC LAN IP>/website/percipere_web/percipere_dashboard`
+   `flutter build apk --release --dart-define=API_BASE_URL=http://<PC LAN IP>/website/percipere_dashboard`
 3. Phone/tablet and PC on the same Wi-Fi.
 
 ## Checks

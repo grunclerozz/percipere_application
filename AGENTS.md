@@ -40,7 +40,7 @@ Details: `docs/handoff/01-architecture.md`.
   flutter analyze
   bash tool/test_each.sh
   flutter test test/core/voice/
-  flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard
+  flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=http://<PC_LAN_IP>/website/percipere_dashboard
   ```
 - The full suite takes ~1–1.5 h and a release build several minutes: allow long timeouts.
   Don't run tests and a build at the same time.

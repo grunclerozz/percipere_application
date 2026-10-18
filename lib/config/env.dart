@@ -7,7 +7,7 @@ abstract final class Env {
   static const String noServer = 'https://percipere-admin.invalid';
 
   /// Base URL of the Percipere web admin app (the dashboard folder, e.g.
-  /// `http://192.168.1.61/website/percipere_web/percipere_dashboard`).
+  /// `http://192.168.1.61/website/percipere_dashboard`).
   /// An `http://` address also lets the Android build use plain HTTP
   /// (`android/app/build.gradle.kts`); a public server must use `https://`.
   static const String apiBaseUrl = String.fromEnvironment(

@@ -3,7 +3,7 @@
 // books). Skipped unless PERCIPERE_LIVE_API is set, so the normal test run
 // (and tool/test_each.sh) never needs a server:
 //
-//   PERCIPERE_LIVE_API=http://localhost/website/percipere_web/percipere_dashboard \
+//   PERCIPERE_LIVE_API=http://localhost/website/percipere_dashboard \
 //   PERCIPERE_LIVE_HIDDEN_ID=12 flutter test test_live/books_live_test.dart
 //
 // It expects the dashboard's own test data: 11 active books ("Book number 1"

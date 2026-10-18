@@ -20,14 +20,14 @@ Write it down. It changes when you join another Wi-Fi, so check it again at the 
 3. Join the **tablet** to the same hotspot.
 4. Start **MAMP** (both Apache and MySQL must be green) and check the dashboard opens in the
    MacBook's browser.
-5. On the tablet's browser, open `http://<MacBook IP>/<dashboard folder>/api/v1/health`. You should
+5. On the tablet's browser, open `http://<MacBook IP>/website/percipere_dashboard/api/v1/health`. You should
    see `{"status":"ok", ...}`. If you do, the app will work too.
 
 ## 3. Set the server address in the app
 1. In the app open **Settings** (Mga Setting). In the developer build you will see
    **"Address ng server"** and **"Subukan ang koneksyon sa server"**.
 2. Open **Address ng server** and type the dashboard folder address, for example
-   `http://172.20.10.2/percipere_dashboard` (the folder where the dashboard's `index.php` lives;
+   `http://172.20.10.2/website/percipere_dashboard` (the folder where the dashboard's `index.php` lives;
    with or without a subfolder; do **not** add `/api/v1`). Press **I-save**. It is used at once.
 3. Open **Subukan ang koneksyon sa server**. The app says the result aloud.
 
@@ -56,7 +56,7 @@ If the hotspot does not work, the MacBook can publish the dashboard on the inter
 3. It prints an address like `https://something-random.trycloudflare.com`. It changes every time
    you start it, and stops when you close Terminal.
 4. In the app, set the **Address ng server** to that address plus the dashboard folder if the
-   dashboard is in a subfolder (for example `https://something-random.trycloudflare.com/percipere_dashboard`).
+   dashboard is in a subfolder (for example `https://something-random.trycloudflare.com/website/percipere_dashboard`).
    The tablet needs internet for this (mobile data or any Wi-Fi with internet).
 5. **Subukan ang koneksyon sa server**.
 
@@ -65,7 +65,7 @@ If the hotspot does not work, the MacBook can publish the dashboard on the inter
 - [ ] MacBook and tablet both joined to the hotspot.
 - [ ] MAMP: Apache and MySQL green; dashboard opens on the MacBook.
 - [ ] MacBook IP checked again (step 1).
-- [ ] Tablet browser opens `http://<IP>/<folder>/api/v1/health` and shows `"status":"ok"`.
+- [ ] Tablet browser opens `http://<IP>/website/percipere_dashboard/api/v1/health` and shows `"status":"ok"`.
 - [ ] App: **Address ng server** saved, **Subukan ang koneksyon sa server** says "Nakakonekta sa server."
 - [ ] Open **Aklatan**: it says it is connected, and the admin books appear.
 - [ ] Test account ready (or guest mode) and one admin book already downloaded, in case the
@@ -77,7 +77,7 @@ If the hotspot does not work, the MacBook can publish the dashboard on the inter
 From the project folder (Windows, PowerShell or Git Bash), with a JDK available to Flutter:
 
 ```
-flutter build apk --release --dart-define=PERCIPERE_DEV=true --dart-define=API_BASE_URL=http://<MacBook IP>/<dashboard folder>
+flutter build apk --release --dart-define=PERCIPERE_DEV=true --dart-define=API_BASE_URL=http://<MacBook IP>/website/percipere_dashboard
 ```
 `API_BASE_URL` is only the first default; the address can be changed in the app afterwards, so
 a wrong or old IP here does not need a rebuild. Leave `API_BASE_URL` out if you prefer to type

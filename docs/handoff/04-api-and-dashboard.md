@@ -1,13 +1,13 @@
 # 04 — API and dashboard
 
-The dashboard is a separate PHP/MySQL repo (`percipere_web`, folder `percipere_dashboard`),
-served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percipere_web\`).
+The dashboard is a separate PHP/MySQL repo (`percipere_web`), served from the folder
+`/website/percipere_dashboard/` (on the team's XAMPP PC: `C:\xampp\htdocs\website\percipere_dashboard`).
 **Its own `docs/api-contract.md` is the master API reference**; this file and the app's
 `docs/api-contract.md` describe what the app uses. Dashboard internals are out of scope here.
 
 ## Base address
 - Build flag `API_BASE_URL` = the dashboard folder URL, e.g.
-  `http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard`. REST base = `{API_BASE_URL}/api/v1/`.
+  `http://<PC_LAN_IP>/website/percipere_dashboard`. REST base = `{API_BASE_URL}/api/v1/`.
 - Without it the app uses `https://percipere-admin.invalid` (`Env.noServer`): accounts stay on
   the phone, the Library has no admin books, reports stay pending.
 - Developer builds (`PERCIPERE_DEV=true`) can change the address at runtime: Settings →
@@ -136,7 +136,7 @@ dashboard database had **no books yet** (unverified now).
 1. PC and tablet on the **same Wi-Fi**; start Apache and MySQL in XAMPP (the user does this).
 2. `ipconfig` on the PC → IPv4 address of the Wi-Fi adapter (`<PC_LAN_IP>`); it can change after
    a router restart (then rebuild or use the developer server-address setting).
-3. In the tablet's browser open `http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard/api/v1/health`
+3. In the tablet's browser open `http://<PC_LAN_IP>/website/percipere_dashboard/api/v1/health`
    before installing the app.
 4. Timeout → Windows Firewall blocks Apache or the network profile is Public: allow
    `C:\xampp\apache\bin\httpd.exe` on TCP 80 for the Private profile and set the Wi-Fi to Private.

@@ -2696,7 +2696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverAddressHelp =>
-      'The dashboard folder, for example http://192.168.1.61/website/percipere_web/percipere_dashboard';
+      'The dashboard folder, for example http://192.168.1.61/website/percipere_dashboard';
 
   @override
   String get serverAddressSave => 'Save';

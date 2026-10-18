@@ -4403,7 +4403,7 @@ abstract class AppLocalizations {
   /// Developer dialog help.
   ///
   /// In fil, this message translates to:
-  /// **'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard'**
+  /// **'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_dashboard'**
   String get serverAddressHelp;
 
   /// Developer dialog button.

@@ -2515,7 +2515,7 @@
   "@setServerAddress": {"description": "Hidden developer row: the web app address."},
   "serverAddressTitle": "Address ng server",
   "@serverAddressTitle": {"description": "Developer dialog title."},
-  "serverAddressHelp": "Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard",
+  "serverAddressHelp": "Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_dashboard",
   "@serverAddressHelp": {"description": "Developer dialog help."},
   "serverAddressSave": "I-save",
   "@serverAddressSave": {"description": "Developer dialog button."},

@@ -38,7 +38,7 @@ data in code or docs.**
 ## Build flags (`--dart-define`, defined in `lib/config/env.dart`)
 | Name | Meaning |
 |---|---|
-| `API_BASE_URL` | dashboard folder URL (`http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard`); http also enables cleartext to that host |
+| `API_BASE_URL` | dashboard folder URL (`http://<PC_LAN_IP>/website/percipere_dashboard`); http also enables cleartext to that host |
 | `API_CLEARTEXT_HOSTS` | extra comma-separated hosts allowed over http |
 | `USE_ACCOUNT_SERVER` | `false` = phone-only accounts |
 | `USE_MOCK_API` | default `true`: image description uses the mock |

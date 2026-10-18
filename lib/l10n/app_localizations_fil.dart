@@ -2648,7 +2648,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverAddressHelp =>
-      'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard';
+      'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_dashboard';
 
   @override
   String get serverAddressSave => 'I-save';

@@ -17,6 +17,14 @@ Format:
 
 ---
 
+## 2026-10-19 — Dashboard folder moved to /website/percipere_dashboard/
+- Agent: Claude Code
+- Branch: `chore/dashboard-path` (from `main` `41d5b43`)
+- Changed: the A4 connection work (`chore/app-connection`, 2026-10-17) was already built and merged, so only the address examples changed: `website/percipere_web/percipere_dashboard` -> `website/percipere_dashboard` in `lib/config/env.dart`, the "Server address" help text (ARB fil/en + generated l10n), `test_live/*`, `AGENTS.md`, `docs/connection-guide-app.md` (examples now include `/website/percipere_dashboard`), handoff 04/09, testing guides. Health check was already `{base}/api/v1/health`. The app has no hard-coded default folder (default = `--dart-define=API_BASE_URL`).
+- Checks: `flutter analyze` no issues; `server_address_test.dart` and `server_health_test.dart` pass. Full suite and release build not run (string and docs change only).
+- Commit: see git log (pushed: no)
+- Follow-ups: build with `API_BASE_URL=http://<MacBook IP>/website/percipere_dashboard`.
+
 ## 2026-10-18 — Voice: half-duplex turns, room calibration, mic pre-roll, tone player, debug overlay
 - Agent: Claude Code
 - Branch: `feature/no-email-profiling-describe` (on top of `d7a9920`)

@@ -25,7 +25,7 @@ The XAMPP folder is the Git checkout, so it only needs to follow `main`. Open **
 **PowerShell** and run:
 
 ```bash
-cd /c/xampp/htdocs/website/percipere_web
+cd /c/xampp/htdocs/website/percipere_dashboard
 git status
 ```
 
@@ -49,7 +49,7 @@ Start **Apache and MySQL** in the XAMPP Control Panel (you do this; the tools ne
 MySQL). Then:
 
 ```bash
-cd /c/xampp/htdocs/website/percipere_web/percipere_dashboard
+cd /c/xampp/htdocs/website/percipere_dashboard
 /c/xampp/mysql/bin/mysqldump.exe -u root percipere_dashboard > backups/db-before-first-tablet-test.sql
 ```
 
@@ -57,10 +57,10 @@ The `backups/` folder is ignored by Git. The file should be several KB, not 0. (
 database is already at schema 12; the backup is for safety.)
 
 ### A4. Check the dashboard on the PC
-1. Open `http://localhost/website/percipere_web/percipere_dashboard/check.php` in the PC's
+1. Open `http://localhost/website/percipere_dashboard/check.php` in the PC's
    browser. Every row should be green. A red row says exactly what to fix (a PHP extension to
    switch on in `php.ini`, a missing folder, …).
-2. Open `http://localhost/website/percipere_web/percipere_dashboard/login.php` and log in with
+2. Open `http://localhost/website/percipere_dashboard/login.php` and log in with
    your admin account.
 3. Open **Library**. Add a category, then 2 or 3 books (a PDF, an EPUB, one without a cover) and
    leave them **Active**. Only active books reach the app.
@@ -85,7 +85,7 @@ On the PC open **Command Prompt**, run `ipconfig`, and read **IPv4 Address** und
 adapter, for example `192.168.1.61`. From here on this guide writes `PC` for that number.
 
 ### B2. Open the health page in the **tablet's browser**
-`http://PC/website/percipere_web/percipere_dashboard/api/v1/health`
+`http://PC/website/percipere_dashboard/api/v1/health`
 
 It must show something like `{"status":"ok","time":"2026-10-11T12:28:59+08:00"}`.
 
@@ -109,7 +109,7 @@ Apache in one step.
 On the PC, in the app folder:
 
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=http://PC/website/percipere_web/percipere_dashboard --dart-define=PERCIPERE_DEV=true
+flutter build apk --release --dart-define=API_BASE_URL=http://PC/website/percipere_dashboard --dart-define=PERCIPERE_DEV=true
 ```
 
 (Replace `PC` with the number from B1.) Copy `build\app\outputs\flutter-apk\app-release.apk` to the
@@ -164,7 +164,7 @@ For when the PC gets a new address, or you want to try another server.
 1. Install a build with `PERCIPERE_DEV=true`.
 2. Settings > **Server address (developer)** (it is near the Percy developer rows).
 3. Type the dashboard folder, for example
-   `http://192.168.1.70/website/percipere_web/percipere_dashboard`, then **Save**. The Library,
+   `http://192.168.1.70/website/percipere_dashboard`, then **Save**. The Library,
    accounts and reports use it straight away. **Back to the original** returns to the address the
    app was built with.
 

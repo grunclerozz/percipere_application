@@ -737,7 +737,7 @@
   "reportServerClosed": "Closed",
   "setServerAddress": "Server address (developer)",
   "serverAddressTitle": "Server address",
-  "serverAddressHelp": "The dashboard folder, for example http://192.168.1.61/website/percipere_web/percipere_dashboard",
+  "serverAddressHelp": "The dashboard folder, for example http://192.168.1.61/website/percipere_dashboard",
   "serverAddressSave": "Save",
   "serverAddressReset": "Back to the original",
   "serverAddressCancel": "Cancel",

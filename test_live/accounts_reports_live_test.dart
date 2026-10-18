@@ -4,7 +4,7 @@
 // so a new account must come back "active" (no approval needed) for the
 // login steps to work.
 //
-//   PERCIPERE_LIVE_API=http://localhost/website/percipere_web/percipere_dashboard \
+//   PERCIPERE_LIVE_API=http://localhost/website/percipere_dashboard \
 //   flutter test test_live/accounts_reports_live_test.dart
 
 import 'dart:io';

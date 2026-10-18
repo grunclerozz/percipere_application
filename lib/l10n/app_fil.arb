@@ -597,6 +597,10 @@
       }
     }
   },
+  "describeSure": "May {items} sa larawan.",
+  "@describeSure": {"description": "Offline description of what the app is sure of. Items are already joined (a, b, at c).", "placeholders": {"items": {"type": "String"}}},
+  "describeAlso": "Mukhang may {items} din.",
+  "@describeAlso": {"description": "Offline description of what the app is less sure of, after the sure part. Items are already joined.", "placeholders": {"items": {"type": "String"}}},
   "describeAnd": "at",
   "@describeAnd": {
     "description": "Joins the last two labels."
@@ -1503,14 +1507,24 @@
   "@setupSeesQuestion": {
     "description": "Sight question."
   },
-  "setupSizeQuestion": "Nababasa mo ba ng maayos ang texto?",
+  "setupSizeQuestion": "Lakihan, liitan, o tama na?",
   "@setupSizeQuestion": {
     "description": "Step 2 (mockup)."
   },
-  "setupSizeHow": "Mag-swipe pataas o sabihin ang “palakihin” para lumaki; mag-swipe pababa o sabihin ang “paliitin” para lumiit. I-double tap o sabihin ang “okay” kapag tama na.",
+  "setupSizeHow": "Sabihin ang “lakihan” para lumaki o ang “liitan” para lumiit, o mag-swipe pataas o pababa. Sabihin ang “tama na” o i-double tap kapag okay na.",
   "@setupSizeHow": {
     "description": "Step 2 how."
   },
+  "setupSizeMax": "Pinakamalaki na ito.",
+  "@setupSizeMax": {"description": "Text size step: already the biggest size."},
+  "setupSizeMin": "Pinakamaliit na ito.",
+  "@setupSizeMin": {"description": "Text size step: already the smallest size."},
+  "setupSizeBigger": "Lakihan",
+  "@setupSizeBigger": {"description": "Text size step button: make the text one step bigger."},
+  "setupSizeSmaller": "Liitan",
+  "@setupSizeSmaller": {"description": "Text size step button: make the text one step smaller."},
+  "setupSizeDone": "Tama na",
+  "@setupSizeDone": {"description": "Text size step button: keep this size."},
   "setupSizeValue": "Laki ng teksto: {size}.",
   "@setupSizeValue": {
     "description": "Step 2 value.",
@@ -1737,7 +1751,7 @@
   "@setupFinished": {
     "description": "Setup completed."
   },
-  "setupSample": "Ang Percipere ay tumutulong sa iyo na mabasa ang mga liham, resibo, at aklat. Ganito ang magiging hitsura ng teksto.",
+  "setupSample": "Magandang umaga! Ang Bataan ay kilala sa mga bundok, sa dagat, at sa mababait nitong mamamayan. Ganito ang laki ng teksto na babasahin mo.",
   "@setupSample": {
     "description": "Preview paragraph."
   },
@@ -2299,26 +2313,6 @@
   "valueVoicePreview": "I-play ang halimbawa",
   "voicePreviewSample": "Ganito ang tunog ng boses na babasa ng iyong mga dokumento.",
   "@voicePreviewSample": {"description": "Sample sentence spoken by the voice preview."},
-  "screenVerifyEmail": "I-verify ang email",
-  "@screenVerifyEmail": {"description": "Title of the screen where the emailed code is entered."},
-  "fieldCode": "Code",
-  "@fieldCode": {"description": "Field: the 6-digit code from the email."},
-  "askCode": "Ano ang 6 na numerong code na ipinadala sa iyong email?",
-  "@askCode": {"description": "Question for the code field."},
-  "verifyIntro": "Nagpadala kami ng 6 na numerong code sa {email}. Tingnan ang iyong email.",
-  "@verifyIntro": {"description": "Verify email screen: where the code went.", "placeholders": {"email": {"type": "String"}}},
-  "codeNotSent": "Hindi naipadala ang code. Sabihin ang “ipadala ulit” para subukan muli.",
-  "@codeNotSent": {"description": "The code email failed."},
-  "actionResendCode": "Ipadala ulit ang code",
-  "@actionResendCode": {"description": "Action: email a new code."},
-  "codeResent": "Nagpadala kami ng bagong code.",
-  "@codeResent": {"description": "After a new code was emailed."},
-  "codeWrong": "Mali o luma na ang code. Subukan ulit.",
-  "@codeWrong": {"description": "Wrong or expired code."},
-  "codeVoided": "Masyadong maraming maling code. Sabihin ang “ipadala ulit” para sa bagong code.",
-  "@codeVoided": {"description": "The 5th wrong code cancelled it."},
-  "codeFormat": "Ang code ay 6 na numero.",
-  "@codeFormat": {"description": "The code is not 6 digits."},
   "accountPendingApproval": "Hinihintay pa ang pag-apruba ng administrator sa iyong account.",
   "@accountPendingApproval": {"description": "Login refused: waiting for approval."},
   "accountSuspended": "Naka-suspend ang account na ito. Makipag-ugnayan sa administrator.",
@@ -2333,18 +2327,18 @@
   "@loginOffline": {"description": "Logged in offline with the copy on the phone."},
   "loginNeedsInternet": "Kailangan ng internet sa unang pag-login sa tablet na ito.",
   "@loginNeedsInternet": {"description": "Offline and the account was never used on this phone."},
-  "accountMoving": "Inililipat namin sa server ang iyong account. Nagpadala kami ng code sa iyong email.",
-  "@accountMoving": {"description": "A phone-only account is being registered on the web app."},
+  "registerCreatedTryLogin": "Nagawa na ang iyong account. Subukan mong mag-log in.",
+  "@registerCreatedTryLogin": {"description": "Register: the account was created but the automatic login did not work (e.g. it waits for approval)."},
+  "forgotNotAvailable": "Hindi pa available ang pag-reset ng password. Makipag-ugnayan sa administrator.",
+  "@forgotNotAvailable": {"description": "Login: forgot password is not available for web app accounts yet."},
+  "spellConfirm": "{spelled}, tama ba?",
+  "@spellConfirm": {"description": "A dictated name spelled letter by letter, asking if it is right.", "placeholders": {"spelled": {"type": "String", "example": "J-U-A-N"}}},
+  "spellOk": "Sige po.",
+  "@spellOk": {"description": "After the user confirmed a spelled name."},
+  "spellRetry": "Sige po. Sabihin ulit ang {field}, o i-spell ito letra por letra.",
+  "@spellRetry": {"description": "After the user said the spelled name is wrong.", "placeholders": {"field": {"type": "String", "example": "First Name"}}},
   "emailTakenServer": "May account na ang email na iyan. Mag-login ka, o gumamit ng ibang email.",
   "@emailTakenServer": {"description": "Register: the web app already has this email."},
-  "resetIntro": "Magpapadala kami ng code sa iyong email para makagawa ka ng bagong password.",
-  "@resetIntro": {"description": "Forgot password (server): intro."},
-  "resetCodeSent": "Kung may account ang {email}, nagpadala na kami ng code. Sabihin ang code, pagkatapos ang bagong password.",
-  "@resetCodeSent": {"description": "Forgot password (server): code sent.", "placeholders": {"email": {"type": "String"}}},
-  "resetDone": "Napalitan na ang password, at naka-login ka na.",
-  "@resetDone": {"description": "Forgot password (server): done."},
-  "helpVerify": "Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.",
-  "@helpVerify": {"description": "Help on the code screens."},
   "screenReportIssue": "Mag-report ng problema",
   "@screenReportIssue": {"description": "Title of the report flow, Settings row and Home link."},
   "reportIntro": "Sasagutin mo ang ilang tanong, isa-isa.",

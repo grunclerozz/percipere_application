@@ -17,6 +17,14 @@ Format:
 
 ---
 
+## 2026-10-18 — No-email registration, name spelling, text size loop, loading animation, ImageDescriber
+- Agent: Claude Code
+- Branch: `feature/no-email-profiling-describe` (from `main` `9244954`)
+- Changed: (1) removed `verify_email_screen.dart` and `reset_password_screen.dart`, the `verify`/`resend`/`forgotPassword`/`resetPassword` API and service methods, routes and ids; `AccountApi.register` returns `RegisterStatus`; `AccountService.register` returns `RegisterResult` and tries a login at once; phone-only accounts moving to the server log in directly; Register says "Nagawa na ang iyong account. Subukan mong mag-log in." and goes to Login if the login fails; "Nakalimutan ang password" hidden for web app accounts (voice says "hindi pa available"); `serverErrorText` moved to `server_error_text.dart`. (2) `core/auth/name_spelling.dart` + `VoiceForm` spelling confirmation for name fields. (3) `TextSize.change`, `_changeSize` loop, buttons, new sample sentence in `profiling_screen.dart`. (4) `core/widgets/pulsing_logo.dart` on `startup_screen.dart`. (5) `core/describe/image_describer.dart`, rewritten `label_description.dart`, `config/image_label_groups.dart`, `LabelResult.count`. ARB strings added/removed (fil + en). Docs 02, 04, 05, 06, 07, `specs/profiling.md`.
+- Checks: `flutter analyze` no issues. Changed-area tests file by file (features, core/auth, describe, widgets, app, settings, accessibility): all pass except `test/features/library/library_flow_test.dart`, which crashes the test runner every time **on `main` too** (not caused by this branch; assertions never failed). Full suite and release build **not run**; nothing run on the tablet or emulator.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: user decides on counts (ML Kit object detection plugin) and on spelling emails back; register reply shape unverified; web app password reset not available; tablet tests (see 05).
+
 ## 2026-10-18 — Percy answers questions (knowledge base) + voice clip handoff
 - Agent: Claude Code
 - Branch: `feat/percy-knowledge` (from `main` `9dcdfa7`), merged into local `main`

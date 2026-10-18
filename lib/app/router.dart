@@ -11,10 +11,8 @@ import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/legacy_account_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
-import '../features/auth/reset_password_screen.dart';
 import '../features/auth/security_question_screen.dart';
 import '../features/auth/upgrade_account_screen.dart';
-import '../features/auth/verify_email_screen.dart';
 import '../features/camera/camera_screen.dart';
 import '../features/capture/capture_screen.dart';
 import '../features/describe/describe_controller.dart';
@@ -60,13 +58,6 @@ abstract final class AppRoutes {
 
   /// Forgot password (security question).
   static const String forgotPassword = '/login/forgot';
-
-  /// The code emailed by the web app (after registering, or logging in to
-  /// an unverified or just-moved account). `extra`: [VerifyEmailArgs].
-  static const String verifyEmail = '/register/verify';
-
-  /// Forgot password with an emailed code (web app accounts).
-  static const String resetPassword = '/login/reset';
 
   /// "Mag-report ng problema". `extra`: the id of the screen it was opened
   /// from.
@@ -182,20 +173,6 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => ForgotPasswordScreen(
-          email: state.extra is String ? state.extra! as String : null,
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.verifyEmail,
-        builder: (context, state) => VerifyEmailScreen(
-          args: state.extra is VerifyEmailArgs
-              ? state.extra! as VerifyEmailArgs
-              : const VerifyEmailArgs(email: '', password: ''),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.resetPassword,
-        builder: (context, state) => ResetPasswordScreen(
           email: state.extra is String ? state.extra! as String : null,
         ),
       ),

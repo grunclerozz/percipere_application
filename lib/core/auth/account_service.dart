@@ -27,23 +27,6 @@ class LoggedIn extends LoginOutcome {
   final bool offline;
 }
 
-/// The email must be confirmed with the emailed code first: an account that
-/// was never verified, or one that only existed on this phone and was just
-/// [moved] to the web app.
-class NeedsEmailCode extends LoginOutcome {
-  /// Creates the outcome.
-  const NeedsEmailCode(this.email, {this.moved = false, this.emailSent = true});
-
-  /// The account's email.
-  final String email;
-
-  /// A phone-only account was just registered on the web app.
-  final bool moved;
-
-  /// Whether the code email went out.
-  final bool emailSent;
-}
-
 /// Refused: wrong password, suspended, waiting for approval, locked
 /// ([retryAfter]), no connection with no phone copy to fall back on, ….
 class LoginRefused extends LoginOutcome {
@@ -55,6 +38,22 @@ class LoginRefused extends LoginOutcome {
 
   /// How long to wait ([AccountApiError.tooManyAttempts]).
   final Duration retryAfter;
+}
+
+/// What registering on the web app came to.
+class RegisterResult {
+  /// Creates the result.
+  const RegisterResult(this.status, this.account);
+
+  /// What the web app said about the new account.
+  final RegisterStatus status;
+
+  /// The logged-in local account; null when the login after registering
+  /// didn't work (waiting for approval, no connection).
+  final Account? account;
+
+  /// Whether the user is logged in.
+  bool get loggedIn => account != null;
 }
 
 /// What the web app says about a saved session.
@@ -108,10 +107,6 @@ class AccountService {
         case AccountApiError.invalidCredentials:
           return await _moveToServer(email, password) ??
               const LoginRefused(AccountApiError.invalidCredentials);
-        case AccountApiError.verifyEmail:
-          // A fresh code; if one was sent a moment ago, that one still works.
-          await _quietly(() => _server.resend(email));
-          return NeedsEmailCode(email);
         case AccountApiError.offline:
           final local = await _repo.verifyPassword(email, password);
           if (local != null) return LoggedIn(local, offline: true);
@@ -128,18 +123,24 @@ class AccountService {
   }
 
   /// A phone-only account (made before the web app) whose password is right
-  /// here: registered on the web app with the same name and password.
+  /// here: registered on the web app with the same name and password, then
+  /// logged in (or refused, e.g. while it waits for an administrator).
   Future<LoginOutcome?> _moveToServer(String email, String password) async {
     final local = await _repo.findByEmail(email);
     if (local == null || local.isGuest || local.serverId != null) return null;
     if (await _repo.verifyPassword(email, password) == null) return null;
     try {
-      final sent = await _server.register(
+      await _server.register(
         fullName: local.name,
         email: email,
         password: password,
       );
-      return NeedsEmailCode(email, moved: true, emailSent: sent);
+      final session = await _server.login(
+        email: email,
+        password: password,
+        device: await _deviceLabel(),
+      );
+      return LoggedIn(await _keep(session, password));
     } on AccountApiException catch (e) {
       // Already on the server (with another password): just a wrong password.
       if (e.error == AccountApiError.emailTaken) return null;
@@ -147,61 +148,41 @@ class AccountService {
     }
   }
 
-  /// Registers on the web app; returns whether the code email went out.
-  /// Throws [AccountApiException].
-  Future<bool> register({
+  /// Registers on the web app and tries to log in right away: an active
+  /// account is logged in; one waiting for approval is tried too, and
+  /// [RegisterResult.account] stays null when that doesn't work (yet).
+  /// Throws [AccountApiException] when the registration itself is refused.
+  Future<RegisterResult> register({
     required String firstName,
     required String lastName,
     required String email,
     required String password,
-  }) => _server.register(
-    fullName: [
-      firstName.trim(),
-      lastName.trim(),
-    ].where((s) => s.isNotEmpty).join(' '),
-    email: email,
-    password: password,
-  );
-
-  /// Checks the emailed code and links (or creates) the local account.
-  /// Returns null when the account now waits for an administrator.
-  /// Throws [AccountApiException].
-  Future<Account?> verifyEmail({
-    required String email,
-    required String code,
-    required String password,
-    String? firstName,
-    String? lastName,
   }) async {
-    final session = await _server.verify(
+    final status = await _server.register(
+      fullName: [
+        firstName.trim(),
+        lastName.trim(),
+      ].where((s) => s.isNotEmpty).join(' '),
       email: email,
-      code: code,
-      device: await _deviceLabel(),
-    );
-    if (session == null) return null;
-    return _keep(session, password, firstName: firstName, lastName: lastName);
-  }
-
-  /// Emails a new registration code. Throws [AccountApiException].
-  Future<void> resendCode(String email) => _server.resend(email);
-
-  /// Emails a code for a new password. Throws [AccountApiException].
-  Future<void> forgotPassword(String email) => _server.forgotPassword(email);
-
-  /// Sets a new password with the emailed code and returns the (linked)
-  /// local account. Throws [AccountApiException].
-  Future<Account> resetPassword({
-    required String email,
-    required String code,
-    required String password,
-  }) async {
-    final session = await _server.resetPassword(
-      email: email,
-      code: code,
       password: password,
-      device: await _deviceLabel(),
     );
-    return _keep(session, password);
+    Account? account;
+    try {
+      final session = await _server.login(
+        email: email,
+        password: password,
+        device: await _deviceLabel(),
+      );
+      account = await _keep(
+        session,
+        password,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      );
+    } on AccountApiException catch (e) {
+      debugPrint('Login after register: ${e.error.name}');
+    }
+    return RegisterResult(status, account);
   }
 
   /// Ends [account]'s web session (best effort: logging out never waits on

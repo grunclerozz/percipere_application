@@ -11,6 +11,7 @@ import '../../core/startup/startup_tasks.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/voice_readiness.dart';
 import '../../core/widgets/page_padding.dart';
+import '../../core/widgets/pulsing_logo.dart';
 import '../../l10n/app_localizations.dart';
 import '../offline_voice/offline_voice_setup_screen.dart';
 
@@ -35,6 +36,9 @@ enum StepStatus {
 /// [StartupConfig.timeout] it goes on with what is ready, says once "May
 /// ilang bahagi pa pong naglo-load," and the rest loads in the background
 /// ([VoiceBusy.loading]: voice works, its failures don't count).
+///
+/// A pulsing logo ([PulsingLogo]) shows it is working; it stops with the
+/// system "remove animations" setting. The spoken messages are unchanged.
 ///
 /// Not a command screen: there is nothing to choose, so it registers no
 /// actions and the gesture area is not shown.
@@ -178,7 +182,11 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              // A calm pulse while loading; still when the system asks for
+              // no animations, and once everything is ready.
+              PulsingLogo(active: done < total),
+              const SizedBox(height: 16),
               Semantics(
                 header: true,
                 child: Text(l.startupTitle, style: textTheme.headlineMedium),

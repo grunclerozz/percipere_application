@@ -280,24 +280,6 @@ abstract final class Ids {
   /// Forgot password: submit the current step.
   static const String forgotSubmit = 'forgotPassword.submit';
 
-  /// Verify email (the emailed code, web app accounts).
-  static const String verifyEmail = 'verifyEmail';
-
-  /// Verify email: submit.
-  static const String verifySubmit = 'verifyEmail.submit';
-
-  /// Verify email: send a new code.
-  static const String verifyResend = 'verifyEmail.resend';
-
-  /// Forgot password with an emailed code (web app accounts).
-  static const String resetPassword = 'resetPassword';
-
-  /// Reset password: submit.
-  static const String resetSubmit = 'resetPassword.submit';
-
-  /// Reset password: send a new code.
-  static const String resetResend = 'resetPassword.resend';
-
   /// Old PIN account: claim screen.
   static const String legacyAccount = 'legacyAccount';
 

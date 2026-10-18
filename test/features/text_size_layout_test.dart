@@ -103,7 +103,7 @@ void main() {
       await pumpApp(tester, env);
       expect(find.byType(ProfilingScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
-      final sample = find.textContaining('Ang Percipere ay tumutulong');
+      final sample = find.textContaining('Magandang umaga!');
       expect(tester.widget<Text>(sample).style!.fontSize, size);
       return tester.getRect(
         find.ancestor(of: sample, matching: find.byType(Scrollbar)),

@@ -13,12 +13,13 @@ import '../../core/accessibility/screen_registration.dart';
 import '../../core/auth/account_api.dart';
 import '../../core/auth/account_repository.dart';
 import '../../core/auth/account_service.dart';
+import '../../core/auth/biometrics.dart';
 import '../../core/auth/session.dart';
 import '../../core/auth/validators.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
-import 'verify_email_screen.dart';
+import 'server_error_text.dart';
 import 'voice_form.dart';
 
 /// Register: First Name, Last Name, Email Address, Password, then Submit.
@@ -28,8 +29,10 @@ import 'voice_form.dart';
 /// Submit with a double-tap on the Gesture Pad or "submit" / "tapos na".
 /// A guest who registers keeps their settings and history.
 ///
-/// With web app accounts the account is created on the server, which emails
-/// a code; the code screen ([VerifyEmailScreen]) finishes the registration.
+/// With web app accounts the account is created on the server (no email, no
+/// code) and the user is logged in right away. An account that waits for an
+/// administrator is tried too; when that doesn't work yet, the user is told
+/// to try logging in and goes back to Welcome.
 class RegisterScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const RegisterScreen({super.key});
@@ -150,28 +153,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final l = bus.strings;
     final email = AuthRules.normalizeEmail(_email.value);
     try {
-      final sent = await service.register(
+      final result = await service.register(
         firstName: _first.value,
         lastName: _last.value,
         email: email,
         password: _password.value,
       );
       if (!mounted) return;
-      unawaited(
-        ref
-            .read(routerProvider)
-            .push(
-              AppRoutes.verifyEmail,
-              extra: VerifyEmailArgs(
-                email: email,
-                password: _password.value,
-                firstName: _first.value,
-                lastName: _last.value,
-                registering: true,
-                emailSent: sent,
-              ),
-            ),
-      );
+      final router = ref.read(routerProvider);
+      final account = result.account;
+      if (account == null) {
+        // Created, but the login didn't work (yet): never get stuck here.
+        unawaited(ref.read(hapticsProvider).confirm());
+        await bus.say(l.registerCreatedTryLogin, protect: true);
+        if (mounted) router.go(AppRoutes.login);
+        return;
+      }
+      await ref
+          .read(currentAccountProvider.notifier)
+          .completeRegistration(account);
+      unawaited(ref.read(hapticsProvider).confirm());
+      await bus.say(l.registerDone(account.firstName), protect: true);
+      final fingerprint = await ref.read(biometricsProvider).available();
+      if (mounted) {
+        router.go(fingerprint ? AppRoutes.fingerprintOffer : AppRoutes.setup);
+      }
     } on AccountApiException catch (e) {
       if (!mounted) return;
       if (e.error == AccountApiError.emailTaken) {

@@ -10,6 +10,7 @@ import 'package:percipere_app/app/locale_provider.dart';
 import 'package:percipere_app/config/startup_config.dart';
 import 'package:percipere_app/core/startup/startup_tasks.dart';
 import 'package:percipere_app/core/voice/voice_readiness.dart';
+import 'package:percipere_app/core/widgets/pulsing_logo.dart';
 import 'package:percipere_app/features/offline_voice/offline_voice_setup_screen.dart';
 import 'package:percipere_app/features/startup/startup_screen.dart';
 import 'package:percipere_app/l10n/app_localizations.dart';
@@ -107,6 +108,49 @@ void main() {
     expect(find.text('first screen'), findsOneWidget);
     expect(container.read(voiceReadinessProvider).busy, isEmpty);
     expect(container.read(startupReportProvider), isNotNull);
+  });
+
+  testWidgets('a pulsing logo shows it is working, and it is still when '
+      'the system asks for no animations or loading is done', (tester) async {
+    await pumpStartup(tester);
+    expect(find.byType(PulsingLogo), findsOneWidget);
+    expect(tester.hasRunningAnimations, isTrue);
+
+    for (final g in gates.values) {
+      g.complete();
+    }
+    await tester.pump();
+    await tester.pump();
+    expect(
+      tester.widget<PulsingLogo>(find.byType(PulsingLogo)).active,
+      isFalse,
+    );
+    await tester.pump(StartupConfig.afterReady);
+    await tester.pumpAndSettle();
+    expect(find.text('first screen'), findsOneWidget);
+  });
+
+  testWidgets('with "remove animations" the loading screen does not move', (
+    tester,
+  ) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    final env = await pumpStartup(tester);
+    await tester.pump();
+    expect(find.byType(PulsingLogo), findsOneWidget);
+    expect(tester.hasRunningAnimations, isFalse);
+    expect(
+      env.tts.transcript,
+      contains('Pakihintay po, inihahanda ang Percipere.'),
+      reason: 'the spoken status is unchanged',
+    );
+    for (final g in gates.values) {
+      g.complete();
+    }
+    await tester.pump();
+    await tester.pump(StartupConfig.afterReady);
+    await tester.pumpAndSettle();
   });
 
   testWidgets('after the time limit it goes on, says once that some parts '

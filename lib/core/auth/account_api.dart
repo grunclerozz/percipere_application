@@ -12,9 +12,6 @@ enum AccountApiError {
   /// Wrong email or password.
   invalidCredentials,
 
-  /// The password is right but the email isn't verified yet.
-  verifyEmail,
-
   /// Waiting for an administrator.
   pendingApproval,
 
@@ -24,17 +21,11 @@ enum AccountApiError {
   /// The email belongs to another account.
   emailTaken,
 
-  /// Wrong or expired email code.
-  invalidCode,
-
   /// Rate limit or lockout; see [AccountApiException.retryAfter].
   tooManyAttempts,
 
   /// Token missing, expired or revoked.
   unauthorized,
-
-  /// The code email couldn't be sent.
-  emailUnavailable,
 
   /// A field was refused; see [AccountApiException.fields].
   validationFailed,
@@ -42,19 +33,17 @@ enum AccountApiError {
   /// No connection to the web app (no internet, server off, timeout).
   offline,
 
-  /// Anything else (server error, unexpected reply).
+  /// Anything else (server error, unexpected reply; the dashboard answers
+  /// 501 to the email-code endpoints).
   server;
 
   static AccountApiError _fromCode(String? code) => switch (code) {
     'invalid_credentials' => invalidCredentials,
-    'verify_email' => verifyEmail,
     'pending_approval' => pendingApproval,
     'account_suspended' => accountSuspended,
     'email_taken' => emailTaken,
-    'invalid_code' => invalidCode,
     'too_many_attempts' => tooManyAttempts,
     'unauthorized' => unauthorized,
-    'email_unavailable' => emailUnavailable,
     'validation_failed' => validationFailed,
     _ => server,
   };
@@ -118,6 +107,25 @@ class ServerUser {
   final String status;
 }
 
+/// What the web app made of a new account.
+enum RegisterStatus {
+  /// Ready to log in.
+  active,
+
+  /// Waits for an administrator (or the reply didn't say): logging in may
+  /// not work yet.
+  pendingApproval;
+
+  /// Reads the register reply's `status` (also under `user`); anything but
+  /// `active` is treated as waiting.
+  static RegisterStatus fromReply(Map<String, dynamic> data) {
+    final user = data['user'];
+    final status =
+        data['status'] ?? (user is Map<String, dynamic> ? user['status'] : null);
+    return status == 'active' ? active : pendingApproval;
+  }
+}
+
 /// A signed-in session on the web app.
 @immutable
 class ServerSession {
@@ -134,24 +142,13 @@ class ServerSession {
 /// Accounts on the web app (the dashboard's REST `api/v1/auth/*`). Every method throws
 /// [AccountApiException]; nothing here touches the phone's database.
 abstract interface class AccountApi {
-  /// Creates an account and emails a code; returns whether the email went
-  /// out. The same email + password of an unverified account resends.
-  Future<bool> register({
+  /// Creates an account. No email is sent: the reply says whether the
+  /// account is active or waits for an administrator.
+  Future<RegisterStatus> register({
     required String fullName,
     required String email,
     required String password,
   });
-
-  /// Checks the emailed code. Returns the session, or null when the account
-  /// now waits for an administrator.
-  Future<ServerSession?> verify({
-    required String email,
-    required String code,
-    required String device,
-  });
-
-  /// Emails a new registration code.
-  Future<void> resend(String email);
 
   /// Signs in.
   Future<ServerSession> login({
@@ -165,18 +162,6 @@ abstract interface class AccountApi {
 
   /// Ends [token]'s session.
   Future<void> logout(String token);
-
-  /// Emails a code for a new password (same reply for every email).
-  Future<void> forgotPassword(String email);
-
-  /// Sets a new password with the emailed code; signs out every other
-  /// device and returns this one's session.
-  Future<ServerSession> resetPassword({
-    required String email,
-    required String code,
-    required String password,
-    required String device,
-  });
 }
 
 /// [AccountApi] over HTTP (dio).
@@ -273,7 +258,7 @@ class HttpAccountApi implements AccountApi {
   }
 
   @override
-  Future<bool> register({
+  Future<RegisterStatus> register({
     required String fullName,
     required String email,
     required String password,
@@ -283,26 +268,8 @@ class HttpAccountApi implements AccountApi {
       'auth/register',
       body: {'full_name': fullName, 'email': email, 'password': password},
     );
-    return data['email_sent'] == true;
+    return RegisterStatus.fromReply(data);
   }
-
-  @override
-  Future<ServerSession?> verify({
-    required String email,
-    required String code,
-    required String device,
-  }) async {
-    final data = await _call(
-      'POST',
-      'auth/verify',
-      body: {'email': email, 'code': code, 'device': device},
-    );
-    return data['token'] is String ? _session(data) : null;
-  }
-
-  @override
-  Future<void> resend(String email) =>
-      _call('POST', 'auth/resend', body: {'email': email});
 
   @override
   Future<ServerSession> login({
@@ -325,29 +292,6 @@ class HttpAccountApi implements AccountApi {
   @override
   Future<void> logout(String token) =>
       _call('POST', 'auth/logout', token: token);
-
-  @override
-  Future<void> forgotPassword(String email) =>
-      _call('POST', 'auth/password-reset/request', body: {'email': email});
-
-  @override
-  Future<ServerSession> resetPassword({
-    required String email,
-    required String code,
-    required String password,
-    required String device,
-  }) async => _session(
-    await _call(
-      'POST',
-      'auth/password-reset',
-      body: {
-        'email': email,
-        'code': code,
-        'password': password,
-        'device': device,
-      },
-    ),
-  );
 }
 
 /// The web app's accounts, or null when accounts stay on the phone

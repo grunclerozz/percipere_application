@@ -11,6 +11,7 @@ import '../../core/accessibility/focus_controller.dart';
 import '../../core/accessibility/haptics.dart';
 import '../../core/accessibility/nav_intent.dart';
 import '../../core/accessibility/screen_registration.dart';
+import '../../core/auth/name_spelling.dart';
 import '../../core/auth/validators.dart';
 import '../../core/gestures/gesture_surface.dart';
 import '../../core/tts/speech_language.dart';
@@ -75,6 +76,11 @@ class VoiceField {
   /// Whether nothing was entered.
   bool get isEmpty => value.isEmpty;
 
+  /// Whether a dictated value is read back letter by letter and confirmed
+  /// ("J-U-A-N, tama ba?"): names, which a recognizer often gets wrong and a
+  /// blind user can't check on screen.
+  bool get confirmBySpelling => kind == FieldKind.name;
+
   /// "Email Address: juan@gmail.com" / "Password: 9 titik" / "First Name,
   /// walang laman".
   String describe(AppLocalizations l) {
@@ -91,7 +97,8 @@ class VoiceField {
 
   /// Cleans up dictated [heard] for this field.
   String fromSpeech(String heard) => switch (kind) {
-    FieldKind.name => AuthRules.spokenName(heard),
+    FieldKind.name =>
+      NameSpelling.parseSpelled(heard) ?? AuthRules.spokenName(heard),
     FieldKind.email => AuthRules.spokenEmail(heard),
     FieldKind.password => AuthRules.spokenPassword(heard),
     FieldKind.text => heard.trim(),
@@ -134,6 +141,9 @@ class VoiceForm {
   final ValueNotifier<bool> passwordHidden = ValueNotifier<bool>(false);
 
   bool _passwordNoticeSpoken = false;
+
+  /// The name field whose spelling waits for "tama" or "mali".
+  VoiceField? _spelling;
 
   /// A password field got the keyboard: say once that it is visible (never
   /// the password itself).
@@ -187,6 +197,7 @@ class VoiceForm {
   }
 
   void _focus(VoiceField? f) {
+    if (f != _spelling) _spelling = null;
     ref.read(focusControllerProvider.notifier).focus(f?.id);
     ref.read(voiceControllerProvider.notifier).sensitive =
         f?.kind == FieldKind.password;
@@ -199,10 +210,24 @@ class VoiceForm {
   }
 
   /// Fills the focused field with [text] (spoken or typed), reads it back
-  /// and asks the next empty field.
-  Future<void> fill(VoiceField f, String text, CommandBus bus) async {
+  /// and asks the next empty field. With [confirm] the value is spelled
+  /// out instead ("J-U-A-N, tama ba?") and the field waits for "tama" (go
+  /// on), "mali" (say it again) or a new value.
+  Future<void> fill(
+    VoiceField f,
+    String text,
+    CommandBus bus, {
+    bool confirm = false,
+  }) async {
     f.controller.text = text;
     unawaited(ref.read(hapticsProvider).tick());
+    if (confirm && text.trim().isNotEmpty) {
+      _focus(f);
+      _spelling = f;
+      await bus.say(_l.spellConfirm(NameSpelling.spell(text)));
+      return;
+    }
+    _spelling = null;
     final next = firstEmpty;
     _focus(next);
     final l = _l;
@@ -231,9 +256,44 @@ class VoiceForm {
     // Focus can be reset when the screen registers; the question asked
     // was then for the first empty field.
     final f = focused ?? firstEmpty;
+    final pending = _spelling;
+    if (pending != null && (f == null || f == pending)) {
+      switch (NameSpelling.answer(text)) {
+        case SpellAnswer.yes:
+          await _spellingRight(pending, bus);
+          return true;
+        case SpellAnswer.no:
+          await _spellingWrong(pending, bus);
+          return true;
+        case SpellAnswer.none:
+          break;
+      }
+    }
     if (f == null || _isCommand(text, bus.activeScreen)) return false;
-    await fill(f, f.fromSpeech(text), bus);
+    await fill(f, f.fromSpeech(text), bus, confirm: f.confirmBySpelling);
     return true;
+  }
+
+  /// "tama": keep the name and ask the next empty field.
+  Future<void> _spellingRight(VoiceField f, CommandBus bus) async {
+    _spelling = null;
+    unawaited(ref.read(hapticsProvider).confirm());
+    final l = _l;
+    final next = firstEmpty;
+    _focus(next);
+    await bus.say(
+      '${l.spellOk} '
+      '${next == null ? l.formComplete(l.formSubmitHint) : next.prompt(l)}',
+    );
+  }
+
+  /// "mali": forget the name and ask again (it can be spelled).
+  Future<void> _spellingWrong(VoiceField f, CommandBus bus) async {
+    _spelling = null;
+    f.controller.clear();
+    unawaited(ref.read(hapticsProvider).error());
+    _focus(f);
+    await bus.say(_l.spellRetry(f.label(_l)));
   }
 
   /// Exact command phrases win over dictation ("tapos na" submits, it is
@@ -261,13 +321,14 @@ class VoiceForm {
     if (_isCommand(heard, bus.activeScreen)) {
       return bus.handleUtterance(heard);
     }
-    await fill(f, f.fromSpeech(heard), bus);
+    await fill(f, f.fromSpeech(heard), bus, confirm: f.confirmBySpelling);
   }
 
   /// Clears the focused field.
   Future<void> clear(CommandBus bus) async {
     final f = focused;
     if (f == null) return bus.notAvailable();
+    _spelling = null;
     f.controller.clear();
     await bus.say(_l.formCleared(f.label(_l), f.prompt(_l)));
   }

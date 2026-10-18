@@ -99,14 +99,18 @@ void main() {
         contains('Ano ang iyong pangalan (first name)?'),
       );
 
+      // A dictated name is spelled back and confirmed ("tama").
       await tester.say('juan');
-      expect(env.tts.transcript, contains('First Name: Juan.'));
+      expect(env.tts.transcript, contains('J-U-A-N, tama ba?'));
+      await tester.say('tama');
       expect(
         env.tts.transcript,
         contains('Ano ang iyong apelyido (last name)?'),
       );
       await tester.say('dela cruz');
-      expect(env.tts.transcript, contains('Last Name: Dela Cruz.'));
+      expect(env.tts.transcript, contains('D-E-L-A, C-R-U-Z, tama ba?'));
+      await tester.say('tama');
+      expect(env.tts.transcript, contains('Ano ang iyong email address?'));
       await tester.say('juan at gmail dot com');
       expect(env.tts.transcript, contains('Email Address: juan@gmail.com.'));
       expect(
@@ -181,7 +185,9 @@ void main() {
       expect(env.haptics.events, contains('error'));
 
       await tester.say('Ana');
+      await tester.say('tama');
       await tester.say('Cruz');
+      await tester.say('tama');
       await tester.say('ana at gmail');
       await tester.say('abc123');
       await tester.say('submit');
@@ -221,6 +227,51 @@ void main() {
       await tester.pumpAndSettle();
       expect(env.tts.transcript, contains('First Name: Maria.'));
       expect(env.tts.transcript, contains('Ano ang iyong apelyido'));
+      expect(
+        env.tts.transcript,
+        isNot(contains('tama ba?')),
+        reason: 'typed names are not spelled back',
+      );
+    });
+
+    testWidgets('a dictated name is spelled back: "mali" asks again, a '
+        'spelled-out name is accepted, a new name replaces it', (
+      tester,
+    ) async {
+      final env = await _open(tester, 'Register');
+      TextField firstName() => tester.widget<TextField>(
+        find.byType(TextField).first,
+      );
+
+      await tester.say('jon');
+      expect(env.tts.transcript, contains('J-O-N, tama ba?'));
+      await tester.say('mali');
+      expect(
+        env.tts.transcript,
+        contains(
+          'Sige po. Sabihin ulit ang First Name, o i-spell ito letra por '
+          'letra.',
+        ),
+      );
+      expect(firstName().controller!.text, isEmpty);
+
+      // Spelled out, letter by letter.
+      await tester.say('j u a n');
+      expect(firstName().controller!.text, 'Juan');
+      expect(env.tts.transcript, contains('J-U-A-N, tama ba?'));
+
+      // Another name instead of an answer: spelled back again.
+      await tester.say('Juana');
+      expect(firstName().controller!.text, 'Juana');
+      expect(env.tts.transcript, contains('J-U-A-N-A, tama ba?'));
+
+      await tester.say('oo');
+      expect(env.tts.transcript, contains('Sige po.'));
+      expect(
+        env.tts.spoken.last,
+        contains('Ano ang iyong apelyido (last name)?'),
+      );
+      expect(firstName().controller!.text, 'Juana');
     });
   });
 

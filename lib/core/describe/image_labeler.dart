@@ -5,14 +5,18 @@ import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 /// One thing ML Kit thinks is in the picture.
 @immutable
 class LabelResult {
-  /// Creates a label result.
-  const LabelResult(this.label, this.confidence);
+  /// Creates a label result ([count] is how many were seen, when the source
+  /// can count; ML Kit's image labeling can't, so it stays 1).
+  const LabelResult(this.label, this.confidence, {this.count = 1});
 
   /// English label, as the model names it ("Plate").
   final String label;
 
   /// Model confidence, 0..1.
   final double confidence;
+
+  /// How many of it are in the picture (1 when unknown).
+  final int count;
 }
 
 /// On-device image labeling. Abstract so tests can script what is "seen".

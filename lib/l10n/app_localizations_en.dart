@@ -450,6 +450,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String describeSure(String items) {
+    return 'There is $items in the picture.';
+  }
+
+  @override
+  String describeAlso(String items) {
+    return 'It also looks like there is $items.';
+  }
+
+  @override
   String get describeAnd => 'and';
 
   @override
@@ -1126,11 +1136,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can you see at least some text on the screen?';
 
   @override
-  String get setupSizeQuestion => 'Can you read the text well?';
+  String get setupSizeQuestion => 'Bigger, smaller, or okay?';
 
   @override
   String get setupSizeHow =>
-      'Swipe up or say “bigger” to enlarge; swipe down or say “smaller” to shrink. Double-tap or say “okay” when it\'s right.';
+      'Say “bigger” or “smaller”, or swipe up or down. Say “okay” or double-tap when it\'s right.';
+
+  @override
+  String get setupSizeMax => 'That is the biggest.';
+
+  @override
+  String get setupSizeMin => 'That is the smallest.';
+
+  @override
+  String get setupSizeBigger => 'Bigger';
+
+  @override
+  String get setupSizeSmaller => 'Smaller';
+
+  @override
+  String get setupSizeDone => 'Okay';
 
   @override
   String setupSizeValue(int size) {
@@ -1290,7 +1315,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupSample =>
-      'Percipere helps you read letters, receipts and books. This is how the text will look.';
+      'Good morning! Bataan is known for its mountains, its sea and its kind people. This is the size of the text you will read.';
 
   @override
   String get setupPreviewLabel => 'Sample text';
@@ -2309,40 +2334,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This is how the voice that reads your documents sounds.';
 
   @override
-  String get screenVerifyEmail => 'Verify email';
-
-  @override
-  String get fieldCode => 'Code';
-
-  @override
-  String get askCode => 'What is the 6-digit code we emailed you?';
-
-  @override
-  String verifyIntro(String email) {
-    return 'We sent a 6-digit code to $email. Check your email.';
-  }
-
-  @override
-  String get codeNotSent =>
-      'The code could not be sent. Say “send again” to try again.';
-
-  @override
-  String get actionResendCode => 'Send a new code';
-
-  @override
-  String get codeResent => 'We sent a new code.';
-
-  @override
-  String get codeWrong => 'That code is wrong or expired. Try again.';
-
-  @override
-  String get codeVoided =>
-      'Too many wrong codes. Say “send again” for a new code.';
-
-  @override
-  String get codeFormat => 'The code has 6 digits.';
-
-  @override
   String get accountPendingApproval =>
       'Your account is waiting for an administrator\'s approval.';
 
@@ -2370,28 +2361,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'The first login on this tablet needs the internet.';
 
   @override
-  String get accountMoving =>
-      'We\'re moving your account to the server. We emailed you a code.';
+  String get registerCreatedTryLogin =>
+      'Your account was created. Please try logging in.';
+
+  @override
+  String get forgotNotAvailable =>
+      'Resetting a password is not available yet. Please contact the administrator.';
+
+  @override
+  String spellConfirm(String spelled) {
+    return '$spelled, is that right?';
+  }
+
+  @override
+  String get spellOk => 'Okay.';
+
+  @override
+  String spellRetry(String field) {
+    return 'Okay. Say the $field again, or spell it letter by letter.';
+  }
 
   @override
   String get emailTakenServer =>
       'That email already has an account. Log in, or use another email.';
-
-  @override
-  String get resetIntro =>
-      'We\'ll email you a code so you can make a new password.';
-
-  @override
-  String resetCodeSent(String email) {
-    return 'If $email has an account, we\'ve emailed a code. Say the code, then the new password.';
-  }
-
-  @override
-  String get resetDone => 'Your password is changed, and you\'re logged in.';
-
-  @override
-  String get helpVerify =>
-      'Say the 6 digits of the code, or type them. Say “send again”: a new code. Double-tap, or say “submit” or “done”: submit. Two-finger swipe right: go back.';
 
   @override
   String get screenReportIssue => 'Report an issue';

@@ -162,16 +162,22 @@ void main() {
     await tester.doubleTapPad();
 
     // Step 2: text size, previewed live.
-    expect(env.tts.transcript, contains('Nababasa mo ba ng maayos ang texto?'));
+    expect(env.tts.transcript, contains('Lakihan, liitan, o tama na?'));
     expect(env.tts.transcript, contains('Laki ng teksto: 18.'));
     await tester.swipeUp();
-    expect(env.tts.spoken.last, 'Laki ng teksto: 20.');
+    expect(env.tts.spoken.last, 'Lakihan, liitan, o tama na?');
+    expect(
+      env.tts.spoken[env.tts.spoken.length - 2],
+      'Laki ng teksto: 20.',
+    );
     expect(tester.scope.read(settingsProvider).textSize, 20);
-    expect(find.text('Laki ng teksto: 20.'), findsWidgets);
+    expect(find.text('Lakihan, liitan, o tama na?'), findsWidgets);
     await tester.swipeDown();
     await tester.swipeDown();
-    expect(env.tts.spoken.last, 'Laki ng teksto: 18.');
-    expect(env.tts.transcript, contains('Hanggang dito na lang.'));
+    expect(
+      env.tts.transcript,
+      contains('Pinakamaliit na ito. Laki ng teksto: 18.'),
+    );
     expect(env.haptics.events, contains('error'));
     await tester.swipeUp();
     await tester.doubleTapPad();
@@ -212,6 +218,88 @@ void main() {
     expect(env.tts.transcript, contains('Hakbang 6 ng 10.'));
     expect(tester.scope.read(settingsProvider).textSize, 20);
     expect(tester.scope.read(settingsProvider).themeId, ThemeId.darkYellow);
+  });
+
+  testWidgets('text size loop: "lakihan" / "liitan" by voice, the buttons, '
+      'a spoken message at each limit, "tama na" saves and moves on', (
+    tester,
+  ) async {
+    final env = await createEnv(
+      tester,
+      permissions: _noMic(),
+      loggedIn: true,
+      setupDone: false,
+    );
+    await tester.runAsync(
+      () => PreferencesDao(
+        env.database.db,
+      ).set(PrefKeys.setupStep, 'textSize', userId: env.account!.id),
+    );
+    await pumpApp(tester, env);
+    expect(find.byType(ProfilingScreen), findsOneWidget);
+
+    // A real reading sentence in the sample box, and the question.
+    expect(find.textContaining('Magandang umaga!'), findsOneWidget);
+    expect(
+      env.tts.transcript,
+      contains('Laki ng teksto: 18. Lakihan, liitan, o tama na?'),
+    );
+    int size() => tester.scope.read(settingsProvider).textSize.round();
+    expect(size(), 18);
+
+    // The smallest already: said so, nothing changes, the loop goes on.
+    await tester.say('liitan');
+    expect(size(), 18);
+    expect(
+      env.tts.transcript,
+      contains('Pinakamaliit na ito. Laki ng teksto: 18.'),
+    );
+    expect(env.tts.spoken.last, 'Lakihan, liitan, o tama na?');
+
+    await tester.say('lakihan');
+    expect(size(), 20);
+    expect(
+      env.tts.spoken[env.tts.spoken.length - 2],
+      'Laki ng teksto: 20.',
+    );
+    expect(env.tts.spoken.last, 'Lakihan, liitan, o tama na?');
+    await tester.say('bigger');
+    expect(size(), 22);
+    await tester.say('smaller');
+    expect(size(), 20);
+
+    // The same by the buttons.
+    await tester.tap(find.text('Lakihan'));
+    await tester.pumpAndSettle();
+    expect(size(), 22);
+    await tester.tap(find.text('Liitan'));
+    await tester.pumpAndSettle();
+    expect(size(), 20);
+
+    // To the biggest: 48.
+    for (var i = 0; i < 14; i++) {
+      await tester.say('lakihan');
+    }
+    expect(size(), 48);
+    await tester.say('lakihan');
+    expect(size(), 48);
+    expect(
+      env.tts.transcript,
+      contains('Pinakamalaki na ito. Laki ng teksto: 48.'),
+    );
+    await tester.say('liitan');
+    expect(size(), 46);
+
+    // "tama na" keeps it and goes to the next step.
+    await tester.say('tama na');
+    expect(env.tts.transcript, contains('Hakbang 3 ng 10.'));
+    expect(size(), 46);
+    final saved = await tester.runAsync(
+      () => PreferencesDao(
+        env.database.db,
+      ).get(PrefKeys.setupDone, userId: env.account!.id),
+    );
+    expect(saved, contains('textSize'));
   });
 
   testWidgets('an interrupted setup resumes at the saved step', (tester) async {

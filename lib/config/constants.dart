@@ -59,6 +59,10 @@ abstract final class AppDurations {
   /// How long a Document Box caption ("Bilis: 1.2x") stays before fading.
   static const Duration captionVisible = Duration(seconds: 2);
 
+  /// One slow breath (grow, then shrink) of the pulsing logo on the loading
+  /// screen.
+  static const Duration logoPulse = Duration(milliseconds: 1800);
+
   /// Fade in/out of transient UI such as captions and the "heard" line.
   static const Duration fade = Duration(milliseconds: 250);
 

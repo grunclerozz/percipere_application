@@ -46,26 +46,30 @@ with an HTTP status. The app chooses its own spoken words from `error.code`.
 ## Accounts — `lib/core/auth/account_api.dart` (`HttpAccountApi`), `account_service.dart`
 | Method + path | Body | Reply |
 |---|---|---|
-| `POST auth/register` | `full_name`, `email`, `password` | created; a 6-digit code is emailed |
-| `POST auth/verify` | `email`, `code`, `device` | `{token, user}` |
-| `POST auth/resend` | `email` | new code emailed |
+| `POST auth/register` | `full_name`, `email`, `password` | created; `status` is `active` or `pending_approval`. **No email is sent** |
 | `POST auth/login` | `email`, `password`, `device` | `{token, user}` |
 | `POST auth/logout` | — (Bearer token) | — |
 | `GET auth/me` | — (Bearer token) | `{user}` (status check) |
-| `POST auth/password-reset/request` | `email` | code emailed |
-| `POST auth/password-reset` | `email`, `code`, `password`, `device` | `{token, user}` |
 `user` = `{id, full_name, email, status}`. Error codes the app knows: `invalid_credentials`,
-`verify_email`, `pending_approval`, `account_suspended`, `email_taken`, `invalid_code`,
-`too_many_attempts` (+ `retry_after`), `unauthorized`, `email_unavailable`, `validation_failed`.
+`pending_approval`, `account_suspended`, `email_taken`, `too_many_attempts` (+ `retry_after`),
+`unauthorized`, `validation_failed`. **Retired (2026-10-18):** `auth/verify`, `auth/resend`,
+`auth/password-reset/request` and `auth/password-reset` answer 501 on the dashboard; the app no
+longer calls them (no code screens, no password reset for web app accounts yet).
+The shape of the register reply beyond `status` is **unverified** (the dashboard repo is not on this
+PC): the app reads `status` at the top level or under `user`, and anything but `active` counts as
+"waiting", which is tried as a login anyway.
 
 **Flow** (decision log 2026-10-10 (3)):
-- Register → emailed code → `VerifyEmailScreen` (code dictated or typed) → token.
+- Register → `RegisterStatus` (`active` / `pending_approval`) → login is tried at once either way →
+  logged in and on to the setup; if the login fails: "Nagawa na ang iyong account. Subukan mong
+  mag-log in." and back to Login (`AccountService.register` → `RegisterResult`).
 - Login → token stored in secure storage as `api.token.<localUserId>` (never in SQLite). Each
   server account has one local account (`users.server_id`) holding settings and Library; its
   password hash is refreshed at each server login so **offline login** works for accounts
   already used on the tablet.
-- Phone-only account logging in with the right password → registered on the server, then code.
-- Unverified → new code sent. Suspended / waiting for approval → reason spoken.
+- Phone-only account logging in with the right password → registered on the server, then logged in.
+- Suspended / waiting for approval → reason spoken. "Nakalimutan ang password" is hidden for web app
+  accounts (saying it gives "hindi pa available"); phone-only accounts keep the security question.
 - `SessionGuard` (`lib/core/auth/session_guard.dart`) calls `auth/me` at start, after login and
   on resume: suspended → logged out; invalid token → token forgotten.
 - Wrong passwords: phone lockout (30 s, doubling, max 1 h) still counts; server 429 uses

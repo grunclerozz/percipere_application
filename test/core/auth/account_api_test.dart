@@ -88,13 +88,11 @@ void main() {
     () async {
       final cases = {
         'invalid_credentials': AccountApiError.invalidCredentials,
-        'verify_email': AccountApiError.verifyEmail,
         'pending_approval': AccountApiError.pendingApproval,
         'account_suspended': AccountApiError.accountSuspended,
         'email_taken': AccountApiError.emailTaken,
-        'invalid_code': AccountApiError.invalidCode,
         'unauthorized': AccountApiError.unauthorized,
-        'email_unavailable': AccountApiError.emailUnavailable,
+        'not_implemented': AccountApiError.server,
         'something_new': AccountApiError.server,
       };
       for (final MapEntry(:key, :value) in cases.entries) {
@@ -199,57 +197,48 @@ void main() {
     }
   });
 
-  test('verify: a token signs in; pending approval returns null', () async {
-    final (api, _) = _api(
-      (_) => (
-        200,
-        {'status': 'active', 'token': 'c' * 64, 'user': _user},
-      ),
-    );
-    expect(
-      (await api.verify(
-        email: 'juan@example.com',
-        code: '123456',
-        device: 'd',
-      ))?.token,
-      'c' * 64,
-    );
-    final (api2, _) = _api(
-      (_) => (200, {'status': 'pending_approval'}),
-    );
-    expect(
-      await api2.verify(email: 'juan@example.com', code: '123456', device: 'd'),
-      isNull,
-    );
-  });
-
-  test('register reports whether the email went out; reset sends all '
-      'fields to auth/password-reset', () async {
+  test('register reads the status of the new account and sends no email '
+      'step', () async {
     final (api, adapter) = _api(
-      (o) => (
-        200,
-        o.path.contains('register')
-            ? {'email_sent': false}
-            : {'token': 'd' * 64, 'user': _user},
-      ),
+      (_) => (201, {'status': 'active', 'user': _user}),
     );
     expect(
       await api.register(fullName: 'Juan', email: 'j@x.co', password: 'p'),
-      isFalse,
+      RegisterStatus.active,
     );
-    await api.resetPassword(
-      email: 'j@x.co',
-      code: '123456',
-      password: 'bago12345',
-      device: 'Tablet',
-    );
-    expect(adapter.sent.last.path, 'auth/password-reset');
-    expect(adapter.bodies.last, {
+    expect(adapter.sent.single.path, 'auth/register');
+    expect(adapter.bodies.single, {
+      'full_name': 'Juan',
       'email': 'j@x.co',
-      'code': '123456',
-      'password': 'bago12345',
-      'device': 'Tablet',
+      'password': 'p',
     });
+    final (api2, _) = _api((_) => (201, {'status': 'pending_approval'}));
+    expect(
+      await api2.register(fullName: 'J', email: 'j@x.co', password: 'p'),
+      RegisterStatus.pendingApproval,
+    );
+    final (api3, _) = _api((_) => (201, <String, Object?>{}));
+    expect(
+      await api3.register(fullName: 'J', email: 'j@x.co', password: 'p'),
+      RegisterStatus.pendingApproval,
+      reason: 'a reply without a status waits, so login is tried',
+    );
+  });
+
+  test('the retired email-code endpoints (501) are a server error', () async {
+    final (api, _) = _api(
+      (_) => (501, {'error': {'code': 'not_implemented', 'message': 'x'}}),
+    );
+    await expectLater(
+      api.register(fullName: 'J', email: 'j@x.co', password: 'p'),
+      throwsA(
+        isA<AccountApiException>().having(
+          (e) => e.error,
+          'error',
+          AccountApiError.server,
+        ),
+      ),
+    );
   });
 
   test('every call goes to its REST address with the right method', () async {
@@ -258,35 +247,20 @@ void main() {
         200,
         o.path.endsWith('auth/me')
             ? {'user': _user}
-            : o.path.contains('verify') ||
-                  o.path.endsWith('auth/login') ||
-                  o.path.endsWith('auth/password-reset')
+            : o.path.endsWith('auth/login')
             ? {'token': 'e' * 64, 'user': _user}
             : <String, Object?>{},
       ),
     );
     await api.register(fullName: 'J', email: 'j@x.co', password: 'p');
-    await api.verify(email: 'j@x.co', code: '123456', device: 'd');
-    await api.resend('j@x.co');
     await api.login(email: 'j@x.co', password: 'p', device: 'd');
     await api.me('t' * 64);
     await api.logout('t' * 64);
-    await api.forgotPassword('j@x.co');
-    await api.resetPassword(
-      email: 'j@x.co',
-      code: '123456',
-      password: 'p',
-      device: 'd',
-    );
     expect([for (final o in adapter.sent) '${o.method} ${o.path}'], [
       'POST auth/register',
-      'POST auth/verify',
-      'POST auth/resend',
       'POST auth/login',
       'GET auth/me',
       'POST auth/logout',
-      'POST auth/password-reset/request',
-      'POST auth/password-reset',
     ]);
   });
 

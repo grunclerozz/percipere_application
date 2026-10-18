@@ -1184,18 +1184,12 @@ class FakeServerAccount {
   /// Password (test values only).
   String password;
 
-  /// `pending_verification`, `pending_approval`, `active`, `suspended`.
+  /// `pending_approval`, `active`, `suspended`.
   String status;
-
-  /// The code emailed last, if any.
-  String? code;
-
-  /// Wrong codes in a row.
-  int wrongCodes = 0;
 }
 
 /// The web app's accounts (the dashboard's `api/v1/`), in memory, with the
-/// same rules: codes, statuses, tokens, password reset.
+/// same rules: statuses and tokens (no emailed codes, no password reset).
 class FakeAccountApi implements AccountApi {
   /// Accounts by email.
   final Map<String, FakeServerAccount> accounts = {};
@@ -1203,7 +1197,7 @@ class FakeAccountApi implements AccountApi {
   /// Live tokens → account email.
   final Map<String, String> tokens = {};
 
-  /// Every call, by name ("login", "verify", …).
+  /// Every call, by name ("login", "register", …).
   final List<String> calls = [];
 
   /// Tokens ended by logout.
@@ -1212,19 +1206,13 @@ class FakeAccountApi implements AccountApi {
   /// No connection: every call fails with [AccountApiError.offline].
   bool offline = false;
 
-  /// New accounts wait for an administrator after verifying.
+  /// New accounts wait for an administrator (`pending_approval`).
   bool approval = false;
-
-  /// Whether code emails "go out".
-  bool emailsWork = true;
-
-  /// The code every email carries (test value).
-  static const String code = '246810';
 
   int _nextId = 1;
   int _nextToken = 1;
 
-  /// Adds an account directly (as if registered and verified before).
+  /// Adds an account directly (as if registered before).
   FakeServerAccount add({
     required String email,
     required String password,
@@ -1258,70 +1246,23 @@ class FakeAccountApi implements AccountApi {
     return ServerSession(token: token, user: _user(a));
   }
 
-  bool _sendCode(FakeServerAccount a) {
-    a
-      ..code = code
-      ..wrongCodes = 0;
-    return emailsWork;
-  }
-
-  FakeServerAccount _checkCode(FakeServerAccount? a, String given) {
-    if (a == null || a.code == null) _fail(AccountApiError.invalidCode);
-    if (a.code != given) {
-      if (++a.wrongCodes >= 5) {
-        a.code = null;
-        _fail(AccountApiError.tooManyAttempts);
-      }
-      _fail(AccountApiError.invalidCode);
-    }
-    a.code = null;
-    return a;
-  }
-
   @override
-  Future<bool> register({
+  Future<RegisterStatus> register({
     required String fullName,
     required String email,
     required String password,
   }) async {
     _call('register');
-    final existing = accounts[email];
-    if (existing != null) {
-      if (existing.status != 'pending_verification' ||
-          existing.password != password) {
-        _fail(AccountApiError.emailTaken);
-      }
-      return _sendCode(existing);
-    }
+    if (accounts.containsKey(email)) _fail(AccountApiError.emailTaken);
     final a = add(
       email: email,
       password: password,
       fullName: fullName,
-      status: 'pending_verification',
+      status: approval ? 'pending_approval' : 'active',
     );
-    return _sendCode(a);
-  }
-
-  @override
-  Future<ServerSession?> verify({
-    required String email,
-    required String code,
-    required String device,
-  }) async {
-    _call('verify');
-    final a = accounts[email];
-    final ok = _checkCode(a?.status == 'pending_verification' ? a : null, code);
-    ok.status = approval ? 'pending_approval' : 'active';
-    return approval ? null : _session(ok);
-  }
-
-  @override
-  Future<void> resend(String email) async {
-    _call('resend');
-    final a = accounts[email];
-    if (a != null && a.status == 'pending_verification') {
-      if (!_sendCode(a)) _fail(AccountApiError.emailUnavailable);
-    }
+    return a.status == 'active'
+        ? RegisterStatus.active
+        : RegisterStatus.pendingApproval;
   }
 
   @override
@@ -1336,8 +1277,6 @@ class FakeAccountApi implements AccountApi {
       _fail(AccountApiError.invalidCredentials);
     }
     switch (a.status) {
-      case 'pending_verification':
-        _fail(AccountApiError.verifyEmail);
       case 'pending_approval':
         _fail(AccountApiError.pendingApproval);
       case 'suspended':
@@ -1361,30 +1300,6 @@ class FakeAccountApi implements AccountApi {
     _call('logout');
     if (tokens.remove(token) == null) _fail(AccountApiError.unauthorized);
     loggedOut.add(token);
-  }
-
-  @override
-  Future<void> forgotPassword(String email) async {
-    _call('forgotPassword');
-    final a = accounts[email];
-    if (a != null && a.status == 'active' && !_sendCode(a)) {
-      _fail(AccountApiError.emailUnavailable);
-    }
-  }
-
-  @override
-  Future<ServerSession> resetPassword({
-    required String email,
-    required String code,
-    required String password,
-    required String device,
-  }) async {
-    _call('resetPassword');
-    final a = accounts[email];
-    final ok = _checkCode(a?.status == 'active' ? a : null, code);
-    ok.password = password;
-    tokens.removeWhere((_, e) => e == email);
-    return _session(ok);
   }
 }
 

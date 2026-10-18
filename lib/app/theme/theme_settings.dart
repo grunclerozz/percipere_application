@@ -39,6 +39,15 @@ abstract final class TextSize {
   static double normalize(double size) =>
       ((size.clamp(min, max) - min) / step).round() * step + min;
 
+  /// One step bigger ([direction] > 0) or smaller from [current]. At the end
+  /// of the range the size stays and [atLimit] is true (the screen then says
+  /// "pinakamalaki na" / "pinakamaliit na").
+  static ({double size, bool atLimit}) change(double current, int direction) {
+    final from = normalize(current);
+    final to = normalize(from + (direction >= 0 ? step : -step));
+    return (size: to, atLimit: to == from);
+  }
+
   /// Converts the pre-6B percentage multiplier (0.8–2.0) to a size.
   static double fromLegacyScale(double scale) => normalize(standard * scale);
 }

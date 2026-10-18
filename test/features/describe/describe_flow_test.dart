@@ -32,7 +32,8 @@ const _shortLine =
     'Pwede mo ring gamitin ang bago naming feature: Maglarawan. Sasabihin '
     'nito kung ano ang nasa isang larawan.';
 
-const _offlineSentence = 'Mukhang may pagkain, plato, at mesa sa larawan.';
+const _offlineSentence =
+    'May pagkain at plato sa larawan. Mukhang may mesa din.';
 
 ProviderContainer _scope(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
@@ -290,7 +291,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('larawan (Maglarawan)'), findsWidgets);
-      await tester.tap(find.textContaining('Mukhang may pagkain').first);
+      await tester.tap(find.textContaining('May pagkain').first);
       await tester.pumpAndSettle();
       expect(find.byType(ItemDetailsScreen), findsOneWidget);
       await tester.tap(find.text('Basahin'));

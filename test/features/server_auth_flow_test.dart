@@ -1,6 +1,7 @@
-// Accounts on the web app, through the screens: register → emailed code →
-// setup; login (unverified, suspended, offline); forgot password by code;
-// an account suspended in the dashboard is logged out with an explanation.
+// Accounts on the web app, through the screens: register (no email code) →
+// logged in → setup, or "try logging in" while waiting for approval; login
+// (suspended, offline); forgot password is not available; an account
+// suspended in the dashboard is logged out with an explanation.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +12,7 @@ import 'package:percipere_app/core/auth/account_repository.dart';
 import 'package:percipere_app/core/auth/session.dart';
 import 'package:percipere_app/core/platform/permissions.dart';
 import 'package:percipere_app/features/auth/login_screen.dart';
-import 'package:percipere_app/features/auth/reset_password_screen.dart';
 import 'package:percipere_app/features/auth/security_question_screen.dart';
-import 'package:percipere_app/features/auth/verify_email_screen.dart';
 import 'package:percipere_app/features/home/home_screen.dart';
 import 'package:percipere_app/features/setup/profiling_screen.dart';
 import 'package:percipere_app/features/welcome/welcome_screen.dart';
@@ -62,49 +61,20 @@ Future<void> _login(WidgetTester tester, String password) async {
 }
 
 void main() {
-  testWidgets('register: created on the web app, the emailed code by '
-      'voice (wrong, new code, right), then straight to the setup', (
-    tester,
-  ) async {
+  testWidgets('register: created on the web app and logged in at once (no '
+      'email, no code), then straight to the setup', (tester) async {
     final (env, api) = await _open(tester, 'Register');
     await tester.say('juan');
+    await tester.say('tama');
     await tester.say('dela cruz');
+    await tester.say('tama');
     await tester.say('juan at example dot com');
     await tester.say('mango tree 123');
     await tester.say('tapos na');
 
-    expect(find.byType(VerifyEmailScreen), findsOneWidget);
     expect(api.accounts[_email]!.fullName, 'Juan Dela Cruz');
-    expect(api.accounts[_email]!.status, 'pending_verification');
-    expect(
-      env.tts.transcript,
-      contains(
-        'Nagpadala kami ng 6 na numerong code sa juan@example.com. '
-        'Tingnan ang iyong email.',
-      ),
-    );
-    expect(
-      env.tts.transcript,
-      contains('Ano ang 6 na numerong code na ipinadala sa iyong email?'),
-    );
-    expect(tester.scope.read(currentAccountProvider), isNull);
-
-    await tester.say('isa dalawa tatlo apat lima anim');
-    expect(env.tts.transcript, contains('Code: 1 2 3 4 5 6.'));
-    await tester.say('tapos na');
-    expect(
-      env.tts.transcript,
-      contains('Mali o luma na ang code. Subukan ulit.'),
-    );
-
-    await tester.say('ipadala ulit');
-    expect(env.tts.transcript, contains('Nagpadala kami ng bagong code.'));
-    expect(api.calls.where((c) => c == 'resend'), hasLength(1));
-
-    await tester.say('2 4 6 8 1 0');
-    await tester.say('tapos na');
+    expect(api.calls.take(2), ['register', 'login']);
     expect(env.tts.transcript, contains('Nagawa na ang iyong account, Juan.'));
-    // The emailed code replaces the security question.
     expect(find.byType(SecurityQuestionScreen), findsNothing);
     expect(find.byType(ProfilingScreen), findsOneWidget);
 
@@ -121,6 +91,30 @@ void main() {
     );
   });
 
+  testWidgets('register while the account waits for approval: no stuck '
+      'screen, "try logging in", back at Login', (tester) async {
+    final (env, api) = await _open(
+      tester,
+      'Register',
+      before: (api) => api.approval = true,
+    );
+    await tester.say('juan');
+    await tester.say('tama');
+    await tester.say('dela cruz');
+    await tester.say('tama');
+    await tester.say('juan at example dot com');
+    await tester.say('mango tree 123');
+    await tester.say('tapos na');
+
+    expect(api.calls.take(2), ['register', 'login'], reason: 'it tried to log in');
+    expect(
+      env.tts.transcript,
+      contains('Nagawa na ang iyong account. Subukan mong mag-log in.'),
+    );
+    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(tester.scope.read(currentAccountProvider), isNull);
+  });
+
   testWidgets('register with an email the web app already has', (tester) async {
     final (env, _) = await _open(
       tester,
@@ -128,11 +122,12 @@ void main() {
       before: (api) => api.add(email: _email, password: 'other-pass1'),
     );
     await tester.say('juan');
+    await tester.say('tama');
     await tester.say('cruz');
+    await tester.say('tama');
     await tester.say('juan at example dot com');
     await tester.say('mango tree 123');
     await tester.say('tapos na');
-    expect(find.byType(VerifyEmailScreen), findsNothing);
     expect(
       env.tts.transcript,
       contains(
@@ -194,26 +189,6 @@ void main() {
     expect(tester.scope.read(currentAccountProvider), isNull);
   });
 
-  testWidgets('login to an unverified account asks for the emailed code, '
-      'then logs in', (tester) async {
-    final (env, api) = await _open(
-      tester,
-      'Login',
-      before: (api) => api.add(
-        email: _email,
-        password: _password,
-        status: 'pending_verification',
-      ),
-    );
-    await _login(tester, _password);
-    expect(find.byType(VerifyEmailScreen), findsOneWidget);
-    expect(api.calls, ['login', 'resend']);
-    await tester.say('246810');
-    await tester.say('tapos na');
-    expect(env.tts.transcript, contains('Maligayang pagbabalik, Ana.'));
-    expect(tester.scope.read(currentAccountProvider)?.email, _email);
-  });
-
   testWidgets('offline: an account used here before logs in with the copy '
       'on the phone; a new one needs the internet', (tester) async {
     final (env, api) = await _open(
@@ -240,7 +215,7 @@ void main() {
     expect(tester.scope.read(currentAccountProvider)?.email, _email);
   });
 
-  testWidgets('forgot password: email → code + new password → logged in', (
+  testWidgets('forgot password: not offered for web app accounts yet', (
     tester,
   ) async {
     final (env, api) = await _open(
@@ -248,34 +223,17 @@ void main() {
       'Login',
       before: (api) => api.add(email: _email, password: 'old-password1'),
     );
-    await tester.say('juan at example dot com');
+    expect(find.text('Nakalimutan ang password'), findsNothing);
     await tester.say('nakalimutan');
-    expect(find.byType(ResetPasswordScreen), findsOneWidget);
     expect(
       env.tts.transcript,
       contains(
-        'Magpapadala kami ng code sa iyong email para makagawa ka ng bagong '
-        'password.',
+        'Hindi pa available ang pag-reset ng password. '
+        'Makipag-ugnayan sa administrator.',
       ),
     );
-    await tester.say('tapos na');
-    expect(api.calls, contains('forgotPassword'));
-    expect(
-      env.tts.transcript,
-      contains(
-        'Kung may account ang juan@example.com, nagpadala na kami ng code. '
-        'Sabihin ang code, pagkatapos ang bagong password.',
-      ),
-    );
-    await tester.say('246810');
-    await tester.say('bagong lihim 9');
-    await tester.say('tapos na');
-    expect(
-      env.tts.transcript,
-      contains('Napalitan na ang password, at naka-login ka na.'),
-    );
-    expect(api.accounts[_email]!.password, 'bagonglihim9');
-    expect(tester.scope.read(currentAccountProvider)?.email, _email);
+    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(api.calls, isEmpty, reason: 'nothing was sent to the server');
   });
 
   testWidgets('suspended in the dashboard while logged in: logged out with '

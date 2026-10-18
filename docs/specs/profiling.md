@@ -22,9 +22,11 @@ Mockups: `docs/ui/customization_1.png` (text color), `customization_2.png` (text
 **Look of the text** — first ask "Nakakakita ka ba ng kahit kaunting teksto sa screen?"
 If **no**: skip Steps 2–3, keep defaults.
 
-2. **Text size** — "Nababasa mo ba ng maayos ang texto?" Sample paragraph. Swipe up /
-   "palakihin" = bigger; swipe down / "paliitin" = smaller. Announce "Laki ng teksto: 24".
-   Range **18–48 sp**.
+2. **Text size** — a sample reading sentence in the preview box. A loop (2026-10-18): Percy says
+   "Laki ng teksto: 18. Lakihan, liitan, o tama na?" "lakihan" / "bigger" / swipe up = one step
+   bigger; "liitan" / "smaller" / swipe down = one step smaller; "tama na" / "okay" / double-tap
+   saves. Buttons Liitan / Lakihan / Tama na do the same. Range **18–48 sp**, step 2; at either
+   end Percy says "Pinakamaliit na ito." / "Pinakamalaki na ito." and asks again.
 3. **Text color** — "Anong kulay ang nais mo sa texto?" Swipe left/right or "susunod" /
    "nakaraan" through the colors; sample updates live; each color's Filipino name spoken.
    Only the **current theme's list**, in order; first = theme default. Lists live in

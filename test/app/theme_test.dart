@@ -109,6 +109,24 @@ void main() {
     expect(TextSize.fromLegacyScale(1.5), 28);
   });
 
+  test('text size loop: one step each way, and the limit is reported', () {
+    expect(TextSize.change(18, 1), (size: 20.0, atLimit: false));
+    expect(TextSize.change(20, -1), (size: 18.0, atLimit: false));
+    expect(TextSize.change(18, -1), (size: 18.0, atLimit: true));
+    expect(TextSize.change(48, 1), (size: 48.0, atLimit: true));
+    expect(TextSize.change(46, 1), (size: 48.0, atLimit: false));
+    // An odd size is first brought onto a step.
+    expect(TextSize.change(23, 1).size, 26);
+    // From the first to the last step and back: 15 steps each way.
+    var size = TextSize.min;
+    var steps = 0;
+    while (!TextSize.change(size, 1).atLimit) {
+      size = TextSize.change(size, 1).size;
+      steps++;
+    }
+    expect((size, steps), (TextSize.max, 15));
+  });
+
   test('the text size sets the reading text only; UI text keeps its size', () {
     final small = AppTheme.build(const ThemeSettings());
     final big = AppTheme.build(const ThemeSettings(textSize: 48));

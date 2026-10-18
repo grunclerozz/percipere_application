@@ -1,9 +1,8 @@
 // The app's account and report clients against a running dashboard (REST
 // routes under /api/v1). Skipped unless PERCIPERE_LIVE_API is set. The
-// dashboard must run on a SCRATCH database in dev-mail mode
-// (`MAIL_DRIVER log`, see the dashboard's docs/testing/README.md): emailed
-// codes are then read from the Apache error log, PERCIPERE_MAIL_LOG
-// (default C:/xampp/apache/logs/error.log).
+// dashboard must run on a SCRATCH database. It sends no email codes any more,
+// so a new account must come back "active" (no approval needed) for the
+// login steps to work.
 //
 //   PERCIPERE_LIVE_API=http://localhost/website/percipere_web/percipere_dashboard \
 //   flutter test test_live/accounts_reports_live_test.dart
@@ -17,21 +16,7 @@ import 'package:percipere_app/core/report/issue_report_api.dart';
 
 void main() {
   final base = Platform.environment['PERCIPERE_LIVE_API'];
-  final logPath =
-      Platform.environment['PERCIPERE_MAIL_LOG'] ??
-      'C:/xampp/apache/logs/error.log';
   final skip = base == null ? 'set PERCIPERE_LIVE_API to run this' : false;
-
-  /// The last code "emailed" to [email] (dev mail goes to the error log).
-  String codeFor(String email) {
-    final lines = File(logPath).readAsLinesSync().reversed;
-    for (final line in lines) {
-      final m = RegExp('DEV mail to ${RegExp.escape(email)}: code (\\d{6})')
-          .firstMatch(line);
-      if (m != null) return m.group(1)!;
-    }
-    fail('no code for $email in $logPath');
-  }
 
   IssueReport report(String ticket, {String? userId}) => IssueReport(
     id: 'local-$ticket',
@@ -63,23 +48,21 @@ void main() {
       reports = HttpIssueReportApi(base);
     });
 
-    test('register, verify, me, logout, login, wrong password', () async {
+    test('register, login, me, logout, login, wrong password', () async {
       expect(
         await accounts.register(
           fullName: 'Live Tester',
           email: email,
           password: password,
         ),
-        isTrue,
-        reason: 'the code email "went out"',
+        RegisterStatus.active,
       );
-      final session = await accounts.verify(
+      final session = await accounts.login(
         email: email,
-        code: codeFor(email),
+        password: password,
         device: 'Live Test',
       );
-      expect(session, isNotNull);
-      expect(session!.token, hasLength(64));
+      expect(session.token, hasLength(64));
       expect(session.user.email, email);
       expect(session.user.fullName, 'Live Tester');
 
@@ -145,45 +128,6 @@ void main() {
         );
       },
     );
-
-    test('forgot password: the emailed code sets a new password', () async {
-      // The server waits 60 s between emailed codes, as the app does.
-      try {
-        await accounts.forgotPassword(email);
-      } on AccountApiException catch (e) {
-        expect(e.error, AccountApiError.tooManyAttempts);
-        await Future<void>.delayed(e.retryAfter + const Duration(seconds: 2));
-        await accounts.forgotPassword(email);
-      }
-      final session = await accounts.resetPassword(
-        email: email,
-        code: codeFor(email),
-        password: 'New-Pass-456',
-        device: 'Live Test',
-      );
-      expect(session.user.email, email);
-      final login = await accounts.login(
-        email: email,
-        password: 'New-Pass-456',
-        device: 'd',
-      );
-      expect(login.token, hasLength(64));
-      await expectLater(
-        accounts.resetPassword(
-          email: email,
-          code: '000000',
-          password: 'Another-789',
-          device: 'd',
-        ),
-        throwsA(
-          isA<AccountApiException>().having(
-            (e) => e.error,
-            'error',
-            AccountApiError.invalidCode,
-          ),
-        ),
-      );
-    }, timeout: const Timeout(Duration(minutes: 3)));
 
     test(
       'a report reaches the dashboard, once, and a refused one says so',

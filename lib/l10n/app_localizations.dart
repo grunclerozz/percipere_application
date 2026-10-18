@@ -818,6 +818,18 @@ abstract class AppLocalizations {
   /// **'Mukhang may {items} sa larawan.'**
   String describeLooksLike(String items);
 
+  /// Offline description of what the app is sure of. Items are already joined (a, b, at c).
+  ///
+  /// In fil, this message translates to:
+  /// **'May {items} sa larawan.'**
+  String describeSure(String items);
+
+  /// Offline description of what the app is less sure of, after the sure part. Items are already joined.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang may {items} din.'**
+  String describeAlso(String items);
+
   /// Joins the last two labels.
   ///
   /// In fil, this message translates to:
@@ -1931,14 +1943,44 @@ abstract class AppLocalizations {
   /// Step 2 (mockup).
   ///
   /// In fil, this message translates to:
-  /// **'Nababasa mo ba ng maayos ang texto?'**
+  /// **'Lakihan, liitan, o tama na?'**
   String get setupSizeQuestion;
 
   /// Step 2 how.
   ///
   /// In fil, this message translates to:
-  /// **'Mag-swipe pataas o sabihin ang “palakihin” para lumaki; mag-swipe pababa o sabihin ang “paliitin” para lumiit. I-double tap o sabihin ang “okay” kapag tama na.'**
+  /// **'Sabihin ang “lakihan” para lumaki o ang “liitan” para lumiit, o mag-swipe pataas o pababa. Sabihin ang “tama na” o i-double tap kapag okay na.'**
   String get setupSizeHow;
+
+  /// Text size step: already the biggest size.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinakamalaki na ito.'**
+  String get setupSizeMax;
+
+  /// Text size step: already the smallest size.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pinakamaliit na ito.'**
+  String get setupSizeMin;
+
+  /// Text size step button: make the text one step bigger.
+  ///
+  /// In fil, this message translates to:
+  /// **'Lakihan'**
+  String get setupSizeBigger;
+
+  /// Text size step button: make the text one step smaller.
+  ///
+  /// In fil, this message translates to:
+  /// **'Liitan'**
+  String get setupSizeSmaller;
+
+  /// Text size step button: keep this size.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tama na'**
+  String get setupSizeDone;
 
   /// Step 2 value.
   ///
@@ -2177,7 +2219,7 @@ abstract class AppLocalizations {
   /// Preview paragraph.
   ///
   /// In fil, this message translates to:
-  /// **'Ang Percipere ay tumutulong sa iyo na mabasa ang mga liham, resibo, at aklat. Ganito ang magiging hitsura ng teksto.'**
+  /// **'Magandang umaga! Ang Bataan ay kilala sa mga bundok, sa dagat, at sa mababait nitong mamamayan. Ganito ang laki ng teksto na babasahin mo.'**
   String get setupSample;
 
   /// Screen-reader label of the preview.
@@ -3746,66 +3788,6 @@ abstract class AppLocalizations {
   /// **'Ganito ang tunog ng boses na babasa ng iyong mga dokumento.'**
   String get voicePreviewSample;
 
-  /// Title of the screen where the emailed code is entered.
-  ///
-  /// In fil, this message translates to:
-  /// **'I-verify ang email'**
-  String get screenVerifyEmail;
-
-  /// Field: the 6-digit code from the email.
-  ///
-  /// In fil, this message translates to:
-  /// **'Code'**
-  String get fieldCode;
-
-  /// Question for the code field.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ano ang 6 na numerong code na ipinadala sa iyong email?'**
-  String get askCode;
-
-  /// Verify email screen: where the code went.
-  ///
-  /// In fil, this message translates to:
-  /// **'Nagpadala kami ng 6 na numerong code sa {email}. Tingnan ang iyong email.'**
-  String verifyIntro(String email);
-
-  /// The code email failed.
-  ///
-  /// In fil, this message translates to:
-  /// **'Hindi naipadala ang code. Sabihin ang “ipadala ulit” para subukan muli.'**
-  String get codeNotSent;
-
-  /// Action: email a new code.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ipadala ulit ang code'**
-  String get actionResendCode;
-
-  /// After a new code was emailed.
-  ///
-  /// In fil, this message translates to:
-  /// **'Nagpadala kami ng bagong code.'**
-  String get codeResent;
-
-  /// Wrong or expired code.
-  ///
-  /// In fil, this message translates to:
-  /// **'Mali o luma na ang code. Subukan ulit.'**
-  String get codeWrong;
-
-  /// The 5th wrong code cancelled it.
-  ///
-  /// In fil, this message translates to:
-  /// **'Masyadong maraming maling code. Sabihin ang “ipadala ulit” para sa bagong code.'**
-  String get codeVoided;
-
-  /// The code is not 6 digits.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ang code ay 6 na numero.'**
-  String get codeFormat;
-
   /// Login refused: waiting for approval.
   ///
   /// In fil, this message translates to:
@@ -3848,41 +3830,41 @@ abstract class AppLocalizations {
   /// **'Kailangan ng internet sa unang pag-login sa tablet na ito.'**
   String get loginNeedsInternet;
 
-  /// A phone-only account is being registered on the web app.
+  /// Register: the account was created but the automatic login did not work (e.g. it waits for approval).
   ///
   /// In fil, this message translates to:
-  /// **'Inililipat namin sa server ang iyong account. Nagpadala kami ng code sa iyong email.'**
-  String get accountMoving;
+  /// **'Nagawa na ang iyong account. Subukan mong mag-log in.'**
+  String get registerCreatedTryLogin;
+
+  /// Login: forgot password is not available for web app accounts yet.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi pa available ang pag-reset ng password. Makipag-ugnayan sa administrator.'**
+  String get forgotNotAvailable;
+
+  /// A dictated name spelled letter by letter, asking if it is right.
+  ///
+  /// In fil, this message translates to:
+  /// **'{spelled}, tama ba?'**
+  String spellConfirm(String spelled);
+
+  /// After the user confirmed a spelled name.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige po.'**
+  String get spellOk;
+
+  /// After the user said the spelled name is wrong.
+  ///
+  /// In fil, this message translates to:
+  /// **'Sige po. Sabihin ulit ang {field}, o i-spell ito letra por letra.'**
+  String spellRetry(String field);
 
   /// Register: the web app already has this email.
   ///
   /// In fil, this message translates to:
   /// **'May account na ang email na iyan. Mag-login ka, o gumamit ng ibang email.'**
   String get emailTakenServer;
-
-  /// Forgot password (server): intro.
-  ///
-  /// In fil, this message translates to:
-  /// **'Magpapadala kami ng code sa iyong email para makagawa ka ng bagong password.'**
-  String get resetIntro;
-
-  /// Forgot password (server): code sent.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kung may account ang {email}, nagpadala na kami ng code. Sabihin ang code, pagkatapos ang bagong password.'**
-  String resetCodeSent(String email);
-
-  /// Forgot password (server): done.
-  ///
-  /// In fil, this message translates to:
-  /// **'Napalitan na ang password, at naka-login ka na.'**
-  String get resetDone;
-
-  /// Help on the code screens.
-  ///
-  /// In fil, this message translates to:
-  /// **'Sabihin ang 6 na numero ng code, o i-type ito. Sabihin ang “ipadala ulit”: bagong code. I-double tap, o sabihin ang “submit” o “tapos na”: ipasa. Mag-swipe pakanan gamit ang dalawang daliri: bumalik.'**
-  String get helpVerify;
 
   /// Title of the report flow, Settings row and Home link.
   ///

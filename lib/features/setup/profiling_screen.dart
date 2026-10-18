@@ -249,6 +249,25 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
         .say(spoken(_l, after), rate: useRate ? after.readingRate : rate);
   }
 
+  /// One step bigger ([direction] 1) or smaller (-1), then Percy asks again
+  /// "Lakihan, liitan, o tama na?". At either end of the range it says so.
+  Future<void> _changeSize(int direction) async {
+    final result = TextSize.change(_s.textSize, direction);
+    final l = _l;
+    final then = '${l.setupSizeValue(result.size.round())} '
+        '${l.setupSizeQuestion}';
+    if (result.atLimit) {
+      unawaited(ref.read(hapticsProvider).error());
+      return _bus.say(
+        '${direction > 0 ? l.setupSizeMax : l.setupSizeMin} $then',
+      );
+    }
+    await _settings.update((s) => s.copyWith(textSize: result.size));
+    unawaited(ref.read(hapticsProvider).tick());
+    if (!mounted) return;
+    await ref.read(announcerProvider.notifier).say(then);
+  }
+
   Future<void> _cycleColor(int d) => _change((s) {
     final options = TextColors.forTheme(s.themeId);
     final i = options.indexOf(s.resolvedTextColor);
@@ -319,8 +338,11 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       voiceSynonyms: const [
         'okay',
         'ok',
+        'okay na',
+        'ok na',
         'sige',
         'tama',
+        'tama na',
         'tapos na',
         'confirm',
       ],
@@ -396,20 +418,29 @@ class _ProfilingScreenState extends ConsumerState<ProfilingScreen> {
       case SetupStep.textSize:
         return _adjust(
           title: title,
+          // The loop: the size, then "Lakihan, liitan, o tama na?" again
+          // after every change, until "tama na".
           prompt: (l) =>
-              '${l.setupSizeQuestion} '
-              '${l.setupSizeValue(_s.textSize.round())}',
+              '${l.setupSizeValue(_s.textSize.round())} '
+              '${l.setupSizeQuestion}',
           followUp: (l) => l.setupSizeHow,
-          up: () => _change(
-            (s) => s.copyWith(textSize: s.textSize + TextSize.step),
-            (l, s) => l.setupSizeValue(s.textSize.round()),
-          ),
-          down: () => _change(
-            (s) => s.copyWith(textSize: s.textSize - TextSize.step),
-            (l, s) => l.setupSizeValue(s.textSize.round()),
-          ),
-          upWords: const ['palakihin', 'lakihan', 'bigger', 'zoom in'],
-          downWords: const ['paliitin', 'liitan', 'smaller', 'zoom out'],
+          up: () => _changeSize(1),
+          down: () => _changeSize(-1),
+          upWords: const [
+            'lakihan',
+            'palakihin',
+            'mas malaki',
+            'bigger',
+            'larger',
+            'zoom in',
+          ],
+          downWords: const [
+            'liitan',
+            'paliitin',
+            'mas maliit',
+            'smaller',
+            'zoom out',
+          ],
           vertical: true,
           skip: skip,
           confirm: confirm,
@@ -954,6 +985,32 @@ class _StepView extends ConsumerWidget {
       SetupStep.voiceLanguage => [
         pill('$screenId.fil', l10n.langTagalog, primary: true),
         pill('$screenId.en', l10n.langEnglishBoth),
+      ],
+      // The same actions as by voice: smaller, bigger, keep this size.
+      SetupStep.textSize => [
+        Row(
+          children: [
+            Expanded(
+              child: PillButton(
+                label: l10n.setupSizeSmaller,
+                variant: PillVariant.secondary,
+                focused: focused == '$screenId.down',
+                onPressed: () => bus.activate('$screenId.down'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: PillButton(
+                label: l10n.setupSizeBigger,
+                variant: PillVariant.secondary,
+                focused: focused == '$screenId.up',
+                onPressed: () => bus.activate('$screenId.up'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppDimens.buttonGap),
+        pill('$screenId.confirm', l10n.setupSizeDone, primary: true),
       ],
       // The list scrolls inside its own box (below); Finish stays visible.
       SetupStep.summary => [

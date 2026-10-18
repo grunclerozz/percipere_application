@@ -18,7 +18,8 @@ import '../../helpers/fakes.dart';
 
 const _subject = NewImage('picture.jpg');
 
-const _offlineSentence = 'Mukhang may pagkain, plato, at mesa sa larawan.';
+const _offlineSentence =
+    'May pagkain at plato sa larawan. Mukhang may mesa din.';
 
 void main() {
   late TestEnv env;

@@ -8,7 +8,6 @@ import 'package:percipere_app/core/auth/account_api.dart';
 import 'package:percipere_app/core/auth/account_repository.dart';
 import 'package:percipere_app/core/auth/account_service.dart';
 import 'package:percipere_app/core/auth/session_store.dart';
-import 'package:percipere_app/core/auth/validators.dart';
 
 import '../../helpers/fakes.dart';
 
@@ -84,24 +83,6 @@ void main() {
     expect(await repo.findByEmail(_email), isNull, reason: 'nothing linked');
   });
 
-  test('an unverified account: a fresh code is sent and the code is '
-      'asked for', () async {
-    await api.register(fullName: 'Juan', email: _email, password: _password);
-    api.calls.clear();
-    final outcome = await service.login(_email, _password);
-    expect(outcome, isA<NeedsEmailCode>());
-    expect((outcome as NeedsEmailCode).moved, isFalse);
-    expect(api.calls, ['login', 'resend']);
-
-    final account = await service.verifyEmail(
-      email: _email,
-      code: FakeAccountApi.code,
-      password: _password,
-    );
-    expect(account!.serverId, isNotNull);
-    expect(await sessions.readApiToken(account.id), isNotNull);
-  });
-
   test('a phone-only account with the right password moves to the web '
       'app (same name and password), keeping its local data', () async {
     final local = await repo.register(
@@ -110,18 +91,13 @@ void main() {
       email: _email,
       password: _password,
     );
-    final outcome = await service.login(_email, _password) as NeedsEmailCode;
-    expect(outcome.moved, isTrue);
+    final outcome = await service.login(_email, _password) as LoggedIn;
     expect(api.accounts[_email]!.fullName, 'Maria Santos');
     expect(api.accounts[_email]!.password, _password);
-
-    final account = await service.verifyEmail(
-      email: _email,
-      code: FakeAccountApi.code,
-      password: _password,
-    );
-    expect(account!.id, local.id, reason: 'same local account');
+    final account = outcome.account;
+    expect(account.id, local.id, reason: 'same local account');
     expect(account.serverId, '1');
+    expect(await sessions.readApiToken(account.id), isNotNull);
 
     // A wrong local password never moves anything.
     final other = await repo.register(
@@ -159,78 +135,105 @@ void main() {
     );
   });
 
-  test('register sends the full name; verify with approval on waits', () async {
-    api.approval = true;
-    expect(
-      await service.register(
-        firstName: ' Juan ',
-        lastName: 'dela Cruz',
-        email: _email,
-        password: _password,
-      ),
-      isTrue,
+  test('register: an active account is created and logged in at once', () async {
+    final result = await service.register(
+      firstName: ' Juan ',
+      lastName: 'dela Cruz',
+      email: _email,
+      password: _password,
     );
+    expect(result.status, RegisterStatus.active);
+    expect(result.loggedIn, isTrue);
     expect(api.accounts[_email]!.fullName, 'Juan dela Cruz');
-    expect(
-      await service.verifyEmail(
-        email: _email,
-        code: FakeAccountApi.code,
-        password: _password,
-        firstName: 'Juan',
-        lastName: 'dela Cruz',
-      ),
-      isNull,
-    );
-    expect(await repo.findByEmail(_email), isNull);
+    expect(result.account!.firstName, 'Juan');
+    expect(result.account!.lastName, 'dela Cruz');
+    expect(result.account!.serverId, isNotNull);
+    expect(await sessions.readApiToken(result.account!.id), isNotNull);
+    expect(api.calls, ['register', 'login'], reason: 'no code step');
   });
 
-  test('wrong codes: invalid, then the 5th voids it', () async {
-    await service.register(
+  test('register: waiting for approval is tried, and is not logged in '
+      'when the login is refused', () async {
+    api.approval = true;
+    final result = await service.register(
       firstName: 'Juan',
       lastName: '',
       email: _email,
       password: _password,
     );
-    for (var i = 0; i < 4; i++) {
-      await expectLater(
-        service.verifyEmail(email: _email, code: '000000', password: _password),
-        throwsA(
-          isA<AccountApiException>().having(
-            (e) => e.error,
-            'error',
-            AccountApiError.invalidCode,
-          ),
-        ),
-      );
-    }
+    expect(result.status, RegisterStatus.pendingApproval);
+    expect(result.loggedIn, isFalse);
+    expect(api.calls, ['register', 'login'], reason: 'it did try to log in');
+    expect(await repo.findByEmail(_email), isNull);
+  });
+
+  test('register: approved at once (login works) is logged in even if the '
+      'reply said pending', () async {
+    // A server that answers "pending_approval" but already lets them in.
+    final lenient = _LenientApi(api);
+    final svc = AccountService(
+      lenient,
+      repo,
+      sessions,
+      () async => 'test device',
+    );
+    final result = await svc.register(
+      firstName: 'Ana',
+      lastName: '',
+      email: 'x@example.com',
+      password: _password,
+    );
+    expect(result.status, RegisterStatus.pendingApproval);
+    expect(result.loggedIn, isTrue);
+  });
+
+  test('register: no connection after creating still ends without a crash',
+      () async {
+    final flaky = _FlakyLoginApi(api);
+    final svc = AccountService(flaky, repo, sessions, () async => 'device');
+    final result = await svc.register(
+      firstName: 'Juan',
+      lastName: '',
+      email: _email,
+      password: _password,
+    );
+    expect(result.status, RegisterStatus.active);
+    expect(result.loggedIn, isFalse);
+  });
+
+  test('register: an email already on the server is refused', () async {
+    api.add(email: _email, password: _password);
     await expectLater(
-      service.verifyEmail(email: _email, code: '000000', password: _password),
+      service.register(
+        firstName: 'Juan',
+        lastName: '',
+        email: _email,
+        password: 'another-pass1',
+      ),
       throwsA(
         isA<AccountApiException>().having(
           (e) => e.error,
           'error',
-          AccountApiError.tooManyAttempts,
+          AccountApiError.emailTaken,
         ),
       ),
     );
   });
 
-  test('password reset: new password on the server and the phone, '
-      'other sessions ended, logged in', () async {
-    api.add(email: _email, password: _password);
-    final before = await service.login(_email, _password) as LoggedIn;
-    final oldToken = await sessions.readApiToken(before.account.id);
-    await service.forgotPassword(_email);
-    final account = await service.resetPassword(
-      email: _email,
-      code: FakeAccountApi.code,
-      password: 'bagongLihim9',
+  test('the register reply: only "active" is active; the status may sit '
+      'under user; anything else waits', () {
+    expect(RegisterStatus.fromReply({'status': 'active'}), RegisterStatus.active);
+    expect(
+      RegisterStatus.fromReply({
+        'user': {'status': 'active'},
+      }),
+      RegisterStatus.active,
     );
-    expect(account.id, before.account.id);
-    expect(api.tokens.containsKey(oldToken), isFalse);
-    expect(await sessions.readApiToken(account.id), isNot(oldToken));
-    expect(await repo.verifyPassword(_email, 'bagongLihim9'), isNotNull);
-    expect(await repo.verifyPassword(_email, _password), isNull);
+    expect(
+      RegisterStatus.fromReply({'status': 'pending_approval'}),
+      RegisterStatus.pendingApproval,
+    );
+    expect(RegisterStatus.fromReply({}), RegisterStatus.pendingApproval);
   });
 
   test('session check: fine, suspended, token gone (forgotten), or '
@@ -276,18 +279,64 @@ void main() {
     expect(local.usesServer, isFalse);
   });
 
-  test('names and spoken codes', () {
+  test('names', () {
     expect(AccountService.splitName('Juan'), ('Juan', ''));
     expect(AccountService.splitName('  Juan   dela  Cruz '), (
       'Juan',
       'dela Cruz',
     ));
-    expect(AuthRules.spokenCode('2 4 6 8 1 0'), '246810');
-    expect(AuthRules.spokenCode('246-810'), '246810');
-    expect(AuthRules.spokenCode('dalawa apat anim walo isa sero'), '246810');
-    expect(AuthRules.spokenCode('two four six eight one zero'), '246810');
-    expect(AuthRules.spokenCode('ang code ay 24 68 10'), '246810');
-    expect(AuthRules.isValidCode('246810'), isTrue);
-    expect(AuthRules.isValidCode('24681'), isFalse);
   });
+}
+
+/// Says "pending_approval" for an account that can log in right away.
+class _LenientApi extends _DelegatingApi {
+  _LenientApi(super.inner);
+
+  @override
+  Future<RegisterStatus> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    await inner.register(fullName: fullName, email: email, password: password);
+    return RegisterStatus.pendingApproval;
+  }
+}
+
+/// Registers, then the connection drops before the login.
+class _FlakyLoginApi extends _DelegatingApi {
+  _FlakyLoginApi(super.inner);
+
+  @override
+  Future<ServerSession> login({
+    required String email,
+    required String password,
+    required String device,
+  }) => throw const AccountApiException(AccountApiError.offline);
+}
+
+class _DelegatingApi implements AccountApi {
+  _DelegatingApi(this.inner);
+
+  final FakeAccountApi inner;
+
+  @override
+  Future<RegisterStatus> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) => inner.register(fullName: fullName, email: email, password: password);
+
+  @override
+  Future<ServerSession> login({
+    required String email,
+    required String password,
+    required String device,
+  }) => inner.login(email: email, password: password, device: device);
+
+  @override
+  Future<ServerUser> me(String token) => inner.me(token);
+
+  @override
+  Future<void> logout(String token) => inner.logout(token);
 }

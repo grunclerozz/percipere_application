@@ -1,7 +1,7 @@
 # 05 — Current status (shared status board)
 
-**Last updated: 2026-10-18 by Claude Code (`feat/percy-knowledge`: Percy answers questions about itself and the app,
-merged into `main` locally; `feat/tutorial-first` still not merged).** Every agent updates this file at the end of a
+**Last updated: 2026-10-18 by Claude Code (`feature/no-email-profiling-describe`: registration without email codes,
+name spelling, text size loop, calm loading animation, ImageDescriber; not merged, not pushed).** Every agent updates this file at the end of a
 task (`docs/agent-rules.md` §1). Newest facts at the top of each section. History of each
 task: `docs/handoff/worklog.md`.
 
@@ -31,6 +31,7 @@ task: `docs/handoff/worklog.md`.
 ## In progress / waiting
 | Item | Who | State |
 |---|---|---|
+| No-email registration, name spelling, text size loop, loading animation, `ImageDescriber` (`feature/no-email-profiling-describe`, from `main` `9244954`, 2026-10-18): (1) no code screens; register -> `active`/`pending_approval` -> login tried at once, else "Nagawa na ang iyong account. Subukan mong mag-log in."; "Nakalimutan ang password" hidden for web app accounts; (2) dictated first/last names are spelled back ("J-U-A-N, tama ba?"), "mali" retries, a spelled-out name is accepted, typing is not asked; (3) text size loop with sample sentence, "Lakihan, liitan, o tama na?", buttons, spoken limits; (4) pulsing logo on the loading screen, still with "remove animations"; (5) `ImageDescriber` + `MlKitImageDescriber`, grouped wording, "Mukhang..." only when unsure | Claude Code -> user | built; analyze clean; changed-area tests pass (see worklog); **no release build, nothing run on the tablet or emulator**; **not merged, not pushed**. Open: register reply shape beyond `status` unverified; counts need ML Kit object detection (user decides); web app password reset not available. Tablet: register by voice with a name, say "mali", spell a name, text size step by voice and buttons, loading screen with "remove animations" on, Maglarawan on a food photo |
 | Percy answers questions (`feat/percy-knowledge`, merged into `main` locally 2026-10-18): offline knowledge base (32 topics, `assets/percy/knowledge.json`), TF-IDF + cosine retrieval, `ask_question` intent, provisional retrain (team set accuracy 0.966 -> 0.914, macro F1 0.971 -> 0.939), `--check` and a handoff guide for the clips | Claude Code -> user | built; analyze clean; Percy/settings/startup/report test files pass; no release build (per the task: analyze + changed-code tests only). **Percy ElevenLabs voice: ready, waiting for clips from teammate** (`docs/percy-voice-handoff.md`: 590 lines, 23,762 characters). Tablet: ask "Anong kaya mo?", "Paano mag-scan?", "nakikita mo ba ang password ko"; watch the log line `[PERCY] knowledge:` |
 | Tutorial first (`feat/tutorial-first`, from `main` `b7b035a`): tutorial after the loading screen and **before Welcome** on the first launch (device flag), not after profiling any more; skip + double-tap blocked on step one until Percy's intro was heard (60 s safety timeout); replay from Settings unchanged | Claude Code → user | built; analyze clean; 18 changed-area test files pass; **release build OK** (252.8 MB); **not merged, not pushed**. Tablet: `docs/testing/tutorial-first-checklist.md` (first launch without voice models: unverified, test with and without internet) |
 | Voice capture + one output voice (`fix/voice-capture`, merged into `main` 2026-10-17) | Claude Code → user | built; analyze clean; changed-area tests pass (see worklog); **release build not done (stopped: PC low on memory), so the `AudioBridge.kt` change is not compiled yet**. Causes found by reading code (no `voice_log.txt`). Tablet: quiet room, TV on, Percy talking → hold, Reader reading → hold, airplane mode; read the overlay's source/noise lines |
@@ -62,6 +63,7 @@ task: `docs/handoff/worklog.md`.
 ## Branches (checked 2026-10-17 with `git branch -a`, `git log`)
 | Branch | Tip | State |
 |---|---|---|
+| `feature/no-email-profiling-describe` | see worklog | from `main` `9244954`; **not merged, not pushed** |
 | `feat/percy-knowledge` | see worklog | from `main` `9dcdfa7`; merged into local `main` 2026-10-18; **not pushed** unless the worklog says otherwise |
 | `feat/tutorial-first` | `c4135c7` | from `main` `b7b035a`; tutorial before Welcome; **not merged, not pushed** |
 | `main` (local) | `d306cac` | **merged** `feat/voice-hold-interrupt` (brings in `feat/percy-smarter`) then `docs/database-masterlist-v2` (brings in `docs/database-masterlist`) — both clean, no conflicts. 16 commits **not pushed** beyond `origin/main` (`54b6567`). |

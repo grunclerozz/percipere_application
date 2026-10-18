@@ -27,7 +27,7 @@ import '../../core/widgets/small_link.dart';
 import '../../l10n/app_localizations.dart';
 import 'form_scaffold.dart';
 import 'lockout_countdown.dart';
-import 'verify_email_screen.dart';
+import 'server_error_text.dart';
 import 'voice_form.dart';
 
 /// Login: Email Address and Password, then Submit (double-tap the Gesture
@@ -262,21 +262,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await ref.read(loginThrottleProvider).reset(ThrottleKind.login, email);
         if (offline) await bus.say(l.loginOffline);
         await _loggedIn(account);
-      case NeedsEmailCode(:final moved, :final emailSent):
-        _password.controller.clear();
-        unawaited(
-          ref
-              .read(routerProvider)
-              .push(
-                AppRoutes.verifyEmail,
-                extra: VerifyEmailArgs(
-                  email: email,
-                  password: password,
-                  moved: moved,
-                  emailSent: emailSent,
-                ),
-              ),
-        );
       case LoginRefused(reason: AccountApiError.invalidCredentials):
         await _wrongPassword(email, bus);
       case LoginRefused(:final reason, :final retryAfter):
@@ -325,16 +310,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             'forgot password',
             'forgot',
           ],
-          onActivate: (_) => unawaited(
-            ref
-                .read(routerProvider)
-                .push(
-                  ref.read(accountServiceProvider).usesServer
-                      ? AppRoutes.resetPassword
-                      : AppRoutes.forgotPassword,
-                  extra: _email.value,
-                ),
-          ),
+          onActivate: (_) {
+            // Web app accounts can't be reset yet (no emailed codes).
+            if (ref.read(accountServiceProvider).usesServer) {
+              unawaited(_bus.say(_bus.strings.forgotNotAvailable));
+              return;
+            }
+            unawaited(
+              ref
+                  .read(routerProvider)
+                  .push(AppRoutes.forgotPassword, extra: _email.value),
+            );
+          },
         ),
         if (fingerprint != null)
           A11yAction(
@@ -396,6 +383,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final bus = ref.read(commandBusProvider);
     if (!_loaded) return const Scaffold();
     final seconds = _countdown.seconds;
+    final usesServer = ref.watch(accountServiceProvider).usesServer;
 
     return AccessibleScreen(
       registration: _registration,
@@ -444,11 +432,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     l10n.actionUseFingerprint,
                     Icons.fingerprint,
                   ),
-                (
-                  Ids.loginForgot,
-                  l10n.actionForgotPassword,
-                  Icons.help_outline,
-                ),
+                if (!usesServer)
+                  (
+                    Ids.loginForgot,
+                    l10n.actionForgotPassword,
+                    Icons.help_outline,
+                  ),
                 if (_hasLegacy)
                   (
                     Ids.loginLegacy,

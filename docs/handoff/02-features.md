@@ -12,11 +12,11 @@ full tablet test, so "tablet-tested" is never claimed below.
 |---|---|---|---|
 | Welcome | Login / Register / "Subukan muna" (guest); asks for the mic once | `lib/features/welcome/welcome_screen.dart` | Done |
 | First-launch voice download | Downloads offline voices + command model before Welcome, spoken progress | `lib/features/offline_voice/`, `lib/core/offline_voice/` | Done, not tablet-tested (models not yet uploaded) |
-| Registration (server) | Name, email, password (≥ 8), 6-digit emailed code (dictated or typed) | `features/auth/register_screen.dart`, `verify_email_screen.dart`, `core/auth/account_service.dart` | Done, not tablet-tested |
+| Registration (server) | Name (dictated names are spelled back letter by letter and confirmed), email, password (≥ 8); no email code: logged in at once, or "try logging in" while waiting for approval | `features/auth/register_screen.dart`, `voice_form.dart`, `core/auth/name_spelling.dart`, `core/auth/account_service.dart` | Done 2026-10-18, not tablet-tested |
 | Registration (phone-only mode) | Local account + security question (when no server) | `features/auth/security_question_screen.dart` | Done |
 | Login | Email + password, stay logged in, fingerprint, lockout 30 s doubling to 1 h | `features/auth/login_screen.dart`, `core/auth/login_throttle.dart`, `biometrics.dart` | Done |
 | Offline login | Accounts already used on the tablet log in without internet | `core/auth/account_service.dart` | Done |
-| Password reset | Emailed code (server) or security question (phone-only) | `features/auth/reset_password_screen.dart`, `forgot_password_screen.dart` | Done |
+| Password reset | Security question (phone-only accounts). Web app accounts: not available yet (no emailed codes) | `features/auth/forgot_password_screen.dart` | Done; server accounts: open |
 | Suspension check | Asks the server at start/login/resume; suspended → logged out with reason | `core/auth/session_guard.dart` | Done, not tablet-tested |
 | Visible password + hide toggle | Visible by default (adviser), eye button; never spoken | `features/auth/voice_form.dart` | Done |
 | Guest mode + upgrade | Full use without account; data moves to a new account | `core/auth/guest_reminders.dart`, `account_repository.dart` | Done |
@@ -64,7 +64,7 @@ full tablet test, so "tablet-tested" is never claimed below.
 ## Maglarawan (image description)
 | Feature | Code | Status |
 |---|---|---|
-| Offline labels → Filipino sentence, safety wording, read text found | `core/describe/`, `features/describe/` | Done |
+| Offline labels → grouped Filipino/English sentence ("May…" when sure, "Mukhang may…" when unsure), safety wording, read text found; behind `ImageDescriber` (`MlKitImageDescriber`) | `core/describe/`, `config/image_label_groups.dart`, `features/describe/` | Done 2026-10-18 |
 | Consent before upload | `core/settings/app_settings.dart` (`DescribeConsent`) | Done |
 | Detailed online description (Gemini via the dashboard) | `core/network/image_description_repository.dart` | Mocked (`USE_MOCK_API` default true; server endpoint not built) |
 | Save a description to the Library | `features/describe/describe_controller.dart` | Done, not tablet-tested |

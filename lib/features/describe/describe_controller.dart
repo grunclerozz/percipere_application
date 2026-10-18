@@ -12,9 +12,8 @@ import '../../core/accessibility/haptics.dart';
 import '../../core/auth/guest_reminders.dart';
 import '../../core/auth/session.dart';
 import '../../core/db/daos/library_dao.dart';
-import '../../core/describe/image_labeler.dart';
+import '../../core/describe/image_describer.dart';
 import '../../core/describe/image_prep.dart';
-import '../../core/describe/label_description.dart';
 import '../../core/library/chaptered_text.dart';
 import '../../core/library/library_models.dart';
 import '../../core/network/connectivity.dart';
@@ -210,15 +209,15 @@ class DescribeController extends Notifier<DescribeState> {
     });
     try {
       final results = await Future.wait<Object?>([
-        ref.read(imageLabelerProvider).label(path),
+        ref.read(imageDescriberProvider).describe(path, _l),
         _findText(path),
       ]);
       if (!ref.mounted) return;
       _progress?.cancel();
-      final labels = results[0]! as List<LabelResult>;
+      final described = results[0]! as ImageDescription;
       state = state.copyWith(
         phase: DescribePhase.ready,
-        description: offlineDescription(labels, _l),
+        description: described.text,
         foundText: results[1] as String?,
       );
     } on Object catch (e) {

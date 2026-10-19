@@ -17,6 +17,14 @@ Format:
 
 ---
 
+## 2026-10-19 — Fixed dashboard address, Maglarawan online first, object counting
+- Agent: Claude Code
+- Branch: `feat/online-describe-counting` (on top of `41d5b43`)
+- Changed: address fixed at build time (`lib/config/env.dart`, `core/network/server_address.dart`, `bootstrap.dart`, `android/app/build.gradle.kts` default cleartext host; removed `server_address_dialog.dart`, setting row, pref key, ARB strings, `USE_MOCK_API`). New `core/describe/vision_availability.dart`, `OnlineImageDescriber` in `image_describer.dart`, rewritten `image_description_repository.dart` (`POST /api/v1/describe`, anonymous), `uploadMaxSide` 1280. Controller: source label, consent offered after the first offline description, `_fetchOnline`. New `object_detector.dart`, `object_counting.dart`, `config/count_words.dart`; plugin `google_mlkit_object_detection ^0.17.1`. ARB fil/en. Tests: new `online_image_describer_test.dart`, `object_counting_test.dart`, `server_address_test.dart`; updated describe controller/flow, image prep, fakes. Docs 01, 02, 04, 05, 06, 07, 09, connection guide, defense checklist.
+- Checks: `flutter analyze` no issues. `bash tool/test_each.sh`: 101/102 files pass, 1164 tests; `library_details_flow_test.dart` fails ("Collections rename and delete", `FakeSpeechInput.hear` null check) and fails the same with my changes stashed. `flutter build apk --release` OK (256.4 MB). Nothing run on a device.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: tablet test; object side uses file width (EXIF-rotated photos guessed); fix the pre-existing library_details_flow failure.
+
 ## 2026-10-18 — Voice: half-duplex turns, room calibration, mic pre-roll, tone player, debug overlay
 - Agent: Claude Code
 - Branch: `feature/no-email-profiling-describe` (on top of `d7a9920`)

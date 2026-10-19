@@ -1,5 +1,12 @@
 # Defense checklist
 
+> **Changed 2026-10-19:** the app no longer has an "Address ng server" setting. The dashboard
+> address is fixed when the app is built: `flutter build apk --release --dart-define=API_BASE_URL=http://<IP>/website/percipere_dashboard`
+> (without it the app uses the emulator's `http://10.0.2.2/website/percipere_dashboard`). A new
+> IP means a new build. Ignore checklist lines below that type the address in the app.
+
+
+
 Plain steps for the team. Network details: `docs/connection-guide-app.md`. Demo order:
 `docs/demo-script.md`. Tablet tests to finish first: §19 of `docs/testing/system-test-checklist.md`.
 

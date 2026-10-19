@@ -31,6 +31,8 @@ void main() {
 
   Future<void> setUpWith({
     bool online = true,
+    bool serverVision = true,
+    bool serverFails = false,
     AppSettings? settings,
     bool guest = false,
   }) async {
@@ -40,7 +42,9 @@ void main() {
             mode: NavMode.gestures,
             appSettings: settings,
           )
-          ..online = online;
+          ..online = online
+          ..vision.enabled = online && serverVision
+          ..describeRepo.fail = serverFails;
     container = ProviderContainer(overrides: env.overrides);
     addTearDown(container.dispose);
     container
@@ -56,24 +60,29 @@ void main() {
   }
 
   group('offline description', () {
-    test('speaks the Filipino labels first, then offers more detail', () async {
+    test('speaks the Filipino labels first, then asks for consent', () async {
       await setUpWith();
       expect(state().phase, DescribePhase.ready);
       expect(state().description, _offlineSentence);
+      expect(state().online, isFalse);
       expect(env.labeler.labeled, ['picture.jpg']);
-      expect(env.tts.transcript, contains(_offlineSentence));
-      expect(
-        env.tts.transcript,
-        contains('Gusto mo ba ng mas detalyadong paglalarawan?'),
-      );
+      expect(env.tts.transcript, contains('(offline) $_offlineSentence'));
+      expect(env.tts.transcript, contains('ipapadala ang larawan sa Google'));
+      expect(env.describeRepo.languages, isEmpty, reason: 'not before consent');
     });
 
-    test('offline: says detail needs internet and offers nothing', () async {
+    test('offline: no error message, no question', () async {
       await setUpWith(online: false);
       expect(env.tts.transcript, contains(_offlineSentence));
-      expect(env.tts.transcript, contains('Kailangan ng internet'));
+      expect(env.tts.transcript, isNot(contains('Kailangan ng internet')));
+      expect(env.tts.transcript, isNot(contains('Payagan?')));
       expect(env.describeRepo.languages, isEmpty);
-      expect(env.tts.transcript, isNot(contains('Gusto mo ba')));
+    });
+
+    test('server without vision: no question either', () async {
+      await setUpWith(serverVision: false);
+      expect(env.tts.transcript, contains(_offlineSentence));
+      expect(env.tts.transcript, isNot(contains('Payagan?')));
     });
 
     test('nothing confident enough: asks to try again', () async {
@@ -107,6 +116,7 @@ void main() {
   group('text check', () {
     Future<void> withText() async {
       env = await TestEnv.create(tts: FakeTts(), mode: NavMode.gestures);
+      env.vision.enabled = true;
       env.ocr.page = const OcrPage(
         text:
             'Ang pagbabasa ay karapatan ng lahat. Sa tulong ng Percipere, '
@@ -133,6 +143,7 @@ void main() {
       await bus().handleUtterance('hindi');
       await pumpEventQueue();
       expect(env.tts.transcript, contains('mas detalyadong paglalarawan'));
+      expect(env.tts.transcript, contains('Payagan?'));
     });
 
     test('no text found: nothing is offered', () async {
@@ -155,52 +166,36 @@ void main() {
     });
   });
 
-  group('detailed description and consent', () {
-    test(
-      'first request asks for consent, yes sends and saves the answer',
-      () async {
-        await setUpWith();
-        await bus().handleUtterance('oo'); // yes to "mas detalyado?"
-        await pumpEventQueue();
-        expect(
-          env.tts.transcript,
-          contains(
-            'Ipapadala ang larawan sa aming server at sa serbisyo ng Google '
-            'para mailarawan ito. Sige ba?',
-          ),
-        );
-        expect(
-          env.describeRepo.languages,
-          isEmpty,
-          reason: 'not before consent',
-        );
+  group('online description and consent', () {
+    test('yes to the consent question sends the picture once', () async {
+      await setUpWith();
+      expect(env.describeRepo.languages, isEmpty, reason: 'not before consent');
 
-        await bus().handleUtterance('oo'); // yes to consent
-        await pumpEventQueue();
+      await bus().handleUtterance('oo'); // yes to the consent question
+      await pumpEventQueue();
 
-        expect(env.describeRepo.languages, ['fil']);
-        expect(env.describeRepo.userIds, [env.account!.id]);
-        expect(env.imagePrep.uploads, 1);
-        expect(state().detailed, startsWith('Mukhang isang mesa'));
-        expect(
-          env.tts.transcript,
-          contains('Mukhang isang mesa na may pagkain.'),
-        );
-        expect(
-          container.read(settingsProvider).describeConsent,
-          DescribeConsent.allowed,
-        );
-        final saved = await PreferencesDao(env.database.db)
-            .getAll(userId: env.account!.id);
-        expect(saved[PrefKeys.describeConsent], 'allowed');
-      },
-    );
+      expect(env.describeRepo.languages, ['fil']);
+      expect(env.describeRepo.details, [false]);
+      expect(env.imagePrep.uploads, 1);
+      expect(state().online, isTrue);
+      expect(state().description, startsWith('Mukhang isang mesa'));
+      expect(state().detailed, isNull);
+      expect(
+        env.tts.transcript,
+        contains('(online) Mukhang isang mesa na may pagkain.'),
+      );
+      expect(
+        container.read(settingsProvider).describeConsent,
+        DescribeConsent.allowed,
+      );
+      final saved = await PreferencesDao(env.database.db)
+          .getAll(userId: env.account!.id);
+      expect(saved[PrefKeys.describeConsent], 'allowed');
+    });
 
     test('saying no sends nothing and is remembered', () async {
       await setUpWith();
-      await bus().handleUtterance('oo');
-      await pumpEventQueue();
-      await bus().handleUtterance('hindi'); // no to consent
+      await bus().handleUtterance('hindi'); // no to the consent question
       await pumpEventQueue();
 
       expect(env.describeRepo.languages, isEmpty);
@@ -218,25 +213,32 @@ void main() {
       expect(env.describeRepo.languages, isEmpty);
     });
 
-    test('with consent already given, it just sends', () async {
+    test('with consent already given, the first description is online', () async {
       await setUpWith(
         settings: const AppSettings(describeConsent: DescribeConsent.allowed),
       );
-      await controller().requestDetail();
-      expect(env.tts.transcript, isNot(contains('Sige ba?')));
+      expect(env.tts.transcript, isNot(contains('Payagan?')));
       expect(env.describeRepo.languages, ['fil']);
+      expect(state().online, isTrue);
+      expect(env.labeler.labeled, isEmpty, reason: 'ML Kit not needed');
+      // "Mas detalyado" asks for the longer answer and adds it.
+      await controller().requestDetail();
+      expect(env.describeRepo.details, [false, true]);
+      expect(state().detailed, startsWith('Mukhang isang mesa'));
     });
 
-    test('a guest\'s request is anonymous', () async {
+    test('the server failing falls back to ML Kit without a message', () async {
       await setUpWith(
-        guest: true,
+        serverFails: true,
         settings: const AppSettings(describeConsent: DescribeConsent.allowed),
       );
-      await controller().requestDetail();
-      expect(env.describeRepo.userIds, [null]);
+      expect(state().online, isFalse);
+      expect(state().description, _offlineSentence);
+      expect(env.tts.transcript, contains('(offline) $_offlineSentence'));
+      expect(env.tts.transcript, isNot(contains('Hindi ko makuha')));
     });
 
-    test('asking while offline says it needs internet', () async {
+    test('asking for detail while offline says it needs internet', () async {
       await setUpWith(online: false);
       env.tts.spoken.clear();
       await controller().requestDetail();
@@ -244,11 +246,11 @@ void main() {
       expect(env.describeRepo.languages, isEmpty);
     });
 
-    test('a server failure is reported, the offline text stays', () async {
+    test('a failing detail request is reported, the text stays', () async {
       await setUpWith(
+        serverFails: true,
         settings: const AppSettings(describeConsent: DescribeConsent.allowed),
       );
-      env.describeRepo.fail = true;
       await controller().requestDetail();
       expect(env.tts.transcript, contains('Hindi ko makuha ang detalyadong'));
       expect(state().detailed, isNull);

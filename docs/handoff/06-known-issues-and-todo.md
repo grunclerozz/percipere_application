@@ -56,7 +56,7 @@ Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-qu
 | Percy dataset small (many intents 7–8 sentences); add team sentences and retrain | `data/percy/intents.csv`, `docs/percy-dataset-guide.md` |
 | Offline recognizer gives no partial results → no reading pause while the user speaks over it | `lib/core/offline_voice/offline_listener.dart` |
 | First prompt after app start can wait for the offline voices to load (emulator: 5–20 s). Since 2026-10-17 this wait is on the loading screen (15 s limit, then the rest loads in the background) | `lib/core/offline_voice/offline_engines.dart`, `lib/features/startup/startup_screen.dart` |
-| Detailed image description is mocked (`USE_MOCK_API` default true; dashboard `describe-image` not built) | `lib/core/network/image_description_repository.dart` |
+| Online describe + object counting built 2026-10-19 but **never run on a device**; object positions use the file's width (EXIF-rotated photos are guessed); the emulator address is only right on the emulator — the tablet needs `--dart-define=API_BASE_URL=...` | `lib/core/describe/` |
 | Dashboard `GET /api/v1/models` route not built (static `models/manifest.json` works) | dashboard repo; `docs/api-contract.md` |
 | Dashboard DB has no books yet (as of 2026-10-13) | dashboard |
 | Dashboard privacy: drop personal columns, old personal data in git history (user decision) | `docs/database/open-questions.md` item 6, `05-current-status.md` |

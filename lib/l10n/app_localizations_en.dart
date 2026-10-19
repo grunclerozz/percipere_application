@@ -487,7 +487,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get describeConsentAsk =>
-      'The picture will be sent to our server and to Google\'s service to describe it. Is that okay?';
+      'For a more detailed description, the picture will be sent to Google Gemini through the Percipere server. Percipere does not store it. Allow?';
 
   @override
   String get describeConsentDeclined =>
@@ -496,6 +496,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get describeDetailFailed =>
       'I can\'t get the detailed description right now. Try again later.';
+
+  @override
+  String get describeOnline => '(online)';
+
+  @override
+  String get describeOffline => '(offline)';
+
+  @override
+  String describeCountSure(int n, String count, String items) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'There are $n objects: $items.',
+      one: 'There is 1 object: $items.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String describeCountUnsure(int n, String count, String items) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'It looks like there are $n objects, such as $items.',
+      one: 'It looks like there is 1 object, such as $items.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String describeCountOnly(int n, String count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'There are $n objects in the picture.',
+      one: 'There is 1 object in the picture.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String describeCountItem(String name, String article) {
+    return '$article $name';
+  }
+
+  @override
+  String describeCountItemUnsure(String name, String article) {
+    return '$article $name';
+  }
+
+  @override
+  String describeCountLeft(String words) {
+    return '$words on the left';
+  }
+
+  @override
+  String describeCountMiddle(String words) {
+    return '$words in the middle';
+  }
+
+  @override
+  String describeCountRight(String words) {
+    return '$words on the right';
+  }
 
   @override
   String get describeUnreadable => 'I can\'t open this picture.';
@@ -2689,43 +2753,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportServerClosed => 'Closed';
 
   @override
-  String get setServerAddress => 'Server address (developer)';
-
-  @override
-  String get serverAddressTitle => 'Server address';
-
-  @override
-  String get serverAddressHelp =>
-      'The dashboard folder, for example http://192.168.1.61/website/percipere_web/percipere_dashboard';
-
-  @override
-  String get serverAddressSave => 'Save';
-
-  @override
-  String get serverAddressReset => 'Back to the original';
-
-  @override
-  String get serverAddressCancel => 'Cancel';
-
-  @override
-  String get serverAddressInvalid =>
-      'That is not a valid address. It must start with http:// or https://.';
-
-  @override
-  String get serverAddressCleartext =>
-      'This build does not allow http:// to that host. Use https://, or make a new build with API_CLEARTEXT_HOSTS.';
-
-  @override
-  String get serverAddressSaved => 'Server address saved.';
-
-  @override
-  String get serverAddressResetDone =>
-      'Server address set back to the original.';
-
-  @override
-  String get serverAddressNone => 'No server';
-
-  @override
   String get voiceOfflineNone =>
       'There\'s no internet and no offline speech recognition is installed, so I can\'t hear you right now. Please use gestures for now. To make it work offline, download an offline language in the voice input settings; Settings, Voice check, has the guide.';
 
@@ -3046,7 +3073,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverTestNotConfigured =>
-      'No server address yet. Enter the address first.';
+      'No server is set in this app. Make a new build with API_BASE_URL.';
 
   @override
   String get serverTestNoNetwork =>
@@ -3054,7 +3081,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverTestWrongAddress =>
-      'The server address is wrong. Check the IP and the folder.';
+      'This is not the Percipere server. Check the API_BASE_URL used for the build.';
 
   @override
   String get serverTestUnreachable =>
@@ -3066,7 +3093,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverTestHttpBlocked =>
-      'Plain http is not allowed for that address. Use an address on the local network, or https.';
+      'Plain http is not allowed for that address. Use an address on the local network, or https, and make a new build.';
 
   @override
   String get serverTestTimeout =>

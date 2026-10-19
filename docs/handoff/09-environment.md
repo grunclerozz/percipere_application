@@ -38,11 +38,10 @@ data in code or docs.**
 ## Build flags (`--dart-define`, defined in `lib/config/env.dart`)
 | Name | Meaning |
 |---|---|
-| `API_BASE_URL` | dashboard folder URL (`http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard`); http also enables cleartext to that host |
+| `API_BASE_URL` | dashboard folder URL, **fixed at build time** (no setting screen); default `http://10.0.2.2/website/percipere_dashboard` (emulator → the PC's XAMPP); tablet example `http://<PC_LAN_IP>/website/percipere_dashboard`; http also enables cleartext to that host |
 | `API_CLEARTEXT_HOSTS` | extra comma-separated hosts allowed over http |
 | `USE_ACCOUNT_SERVER` | `false` = phone-only accounts |
-| `USE_MOCK_API` | default `true`: image description uses the mock |
-| `PERCIPERE_DEV` | developer build: server address, ElevenLabs switch, Percy analysis panel, log export |
+| `PERCIPERE_DEV` | developer build: ElevenLabs switch, Percy analysis panel, log export |
 | `ELEVENLABS_AGENT_ID`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_USE_OVERRIDES`, `ELEVENLABS_TOKEN_URL`, `ELEVENLABS_APP_KEY` | developer-only ElevenLabs Percy; `ELEVENLABS_APP_KEY` is a secret — pass at build time, never commit |
 
 ## Environment variables

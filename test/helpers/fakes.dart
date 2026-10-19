@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:percipere_app/config/percy_config.dart';
@@ -24,6 +25,8 @@ import 'package:percipere_app/core/db/app_database.dart';
 import 'package:percipere_app/core/db/daos/preferences_dao.dart';
 import 'package:percipere_app/core/describe/image_labeler.dart';
 import 'package:percipere_app/core/describe/image_prep.dart';
+import 'package:percipere_app/core/describe/object_detector.dart';
+import 'package:percipere_app/core/describe/vision_availability.dart';
 import 'package:percipere_app/core/extraction/document_extractor.dart';
 import 'package:percipere_app/core/extraction/extraction_exception.dart';
 import 'package:percipere_app/core/library/admin_book_repository.dart';
@@ -615,6 +618,12 @@ class TestEnv {
   /// Fake web app.
   final FakeDescriptionRepository describeRepo = FakeDescriptionRepository();
 
+  /// Whether the server can describe pictures (health `vision_enabled`).
+  final FakeVisionAvailability vision = FakeVisionAvailability();
+
+  /// What the object detector finds (nothing by default).
+  final FakeObjectDetector objectDetector = FakeObjectDetector();
+
   /// Whether the phone is online.
   bool online = true;
 
@@ -693,6 +702,8 @@ class TestEnv {
     ocrServiceProvider.overrideWithValue(ocr),
     imagePrepProvider.overrideWithValue(imagePrep),
     imageDescriptionRepositoryProvider.overrideWithValue(describeRepo),
+    visionAvailabilityProvider.overrideWithValue(vision),
+    objectDetectorProvider.overrideWithValue(objectDetector),
     isOnlineProvider.overrideWithValue(() async => online),
     documentPickerProvider.overrideWithValue(picker),
     documentExtractorProvider.overrideWithValue(extractor),
@@ -1090,20 +1101,52 @@ class FakeDescriptionRepository implements ImageDescriptionRepository {
   /// Languages of the requests.
   final List<String> languages = [];
 
-  /// User ids of the requests (null = anonymous guest).
-  final List<String?> userIds = [];
+  /// Whether each request asked for the longer answer.
+  final List<bool> details = [];
 
   @override
   Future<DescriptionResult> describe({
     required Uint8List jpeg,
     required String language,
-    String? userId,
+    bool detail = false,
   }) async {
     languages.add(language);
-    userIds.add(userId);
+    details.add(detail);
     if (fail) throw const DescriptionException('offline');
     return result;
   }
+}
+
+/// Stands in for the health check: the test says whether the server can
+/// describe pictures.
+class FakeVisionAvailability extends VisionAvailability {
+  /// Creates a check that is off until the test turns it on.
+  FakeVisionAvailability()
+    : super(baseUrl: '', dio: Dio(), isOnline: () async => true);
+
+  /// Whether `vision_enabled` is true and the phone is online.
+  bool enabled = false;
+
+  @override
+  Future<bool> check() async => enabled;
+}
+
+/// Scripted object detection.
+class FakeObjectDetector implements ObjectDetectorService {
+  /// What detection returns.
+  List<FoundObject> results = const [];
+
+  /// Throws instead, if set.
+  bool fail = false;
+
+  @override
+  Future<List<FoundObject>> detect(String path) async {
+    if (fail) throw StateError('detector failed');
+    return results;
+  }
+
+  @override
+  Future<void> close() async {}
 }
 
 /// Free space on the phone, set by the test.

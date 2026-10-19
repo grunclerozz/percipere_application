@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 /// Longest side of an image sent to the server.
-const int uploadMaxSide = 1600;
+const int uploadMaxSide = 1280;
 
 /// Longest side of a history thumbnail.
 const int thumbnailMaxSide = 320;

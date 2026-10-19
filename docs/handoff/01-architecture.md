@@ -36,7 +36,7 @@ Full table/column reference: `docs/database/table-list.md`, `docs/database/datab
 | `lib/core/auth/` | Accounts (local + server), sessions, PBKDF2 hashing, lockout, biometrics |
 | `lib/core/report/` | Report an Issue: model, local repository, HTTP API, retry sync |
 | `lib/core/db/` | `app_database.dart`, `migrations.dart`, `daos/` |
-| `lib/core/network/` | `api_dio.dart` (dio + `CleartextGuard`), connectivity, server address, image description repo |
+| `lib/core/network/` | `api_dio.dart` (dio + `CleartextGuard`), connectivity, the fixed server address, image description repo |
 | `lib/core/settings/`, `lib/core/platform/`, `lib/core/widgets/`, `lib/core/understanding/` | Settings model/controller; permissions, storage, system settings; shared widgets (Gesture Pad, Speaking Zone, speed strip…); document insights for Percy |
 | `lib/features/<screen>/` | One folder per screen group: welcome, auth, setup, tutorial, home, capture, camera, upload, describe, reader, library, settings, report, offline_voice |
 | `lib/l10n/` | `app_fil.arb` (template), `app_en.arb`, generated `app_localizations*.dart` |
@@ -114,7 +114,7 @@ session in `flutter_secure_storage`.
 | `AccountApi` (`core/auth/account_api.dart`) | `HttpAccountApi` | phone-only accounts | `Env.accountServer` (on when `API_BASE_URL` set) |
 | `AdminBookRepository` (`core/library/`) | `HttpAdminBookRepository` | `UnconfiguredBookRepository` (no server); `FakeAdminBookRepository` is test-only | `API_BASE_URL` |
 | `IssueReportApi` (`core/report/issue_report_api.dart`) | `HttpIssueReportApi` | none (reports stay pending) | `API_BASE_URL` |
-| `ImageDescriptionRepository` (`core/network/`) | `HttpImageDescriptionRepository` | `MockImageDescriptionRepository` | `USE_MOCK_API` (default **true** → mock) |
+| `ImageDescriptionRepository` (`core/network/`) | `HttpImageDescriptionRepository` (`POST /api/v1/describe`) | none (the describer falls back to ML Kit); `FakeDescriptionRepository` is test-only | `API_BASE_URL` (the mock and `USE_MOCK_API` were removed 2026-10-19) |
 | `LibrarySyncRepository` (`core/library/`) | — | `MockLibrarySyncRepository` | always mock (Phase 7) |
 | `AccountSyncRepository` (`core/auth/`) | — | `MockAccountSyncRepository` | old design, unused by server accounts |
 | `ModelSource` (`core/offline_voice/model_installer.dart`) | `HttpModelSource` | built-in GitHub list | dashboard reachable or not |

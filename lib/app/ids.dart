@@ -146,9 +146,6 @@ abstract final class Ids {
   /// Settings (developer builds): test the connection to the web app.
   static const String settingServerTest = 'settings.serverTest';
 
-  /// Settings (developer builds): the web app's address.
-  static const String settingServerAddress = 'settings.serverAddress';
-
   /// Home: what do you want to do?
   static const String home = 'home';
 

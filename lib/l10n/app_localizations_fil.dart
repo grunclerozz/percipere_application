@@ -485,7 +485,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get describeConsentAsk =>
-      'Ipapadala ang larawan sa aming server at sa serbisyo ng Google para mailarawan ito. Sige ba?';
+      'Para sa mas detalyadong paglalarawan, ipapadala ang larawan sa Google Gemini sa pamamagitan ng Percipere server. Hindi ito iniimbak ng Percipere. Payagan?';
 
   @override
   String get describeConsentDeclined =>
@@ -494,6 +494,52 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get describeDetailFailed =>
       'Hindi ko makuha ang detalyadong paglalarawan ngayon. Subukan ulit mamaya.';
+
+  @override
+  String get describeOnline => '(online)';
+
+  @override
+  String get describeOffline => '(offline)';
+
+  @override
+  String describeCountSure(int n, String count, String items) {
+    return 'May $count bagay: $items.';
+  }
+
+  @override
+  String describeCountUnsure(int n, String count, String items) {
+    return 'Mukhang may $count bagay, mga $items.';
+  }
+
+  @override
+  String describeCountOnly(int n, String count) {
+    return 'May $count bagay sa larawan.';
+  }
+
+  @override
+  String describeCountItem(String name, String article) {
+    return 'isang $name';
+  }
+
+  @override
+  String describeCountItemUnsure(String name, String article) {
+    return '$name';
+  }
+
+  @override
+  String describeCountLeft(String words) {
+    return '$words sa kaliwa';
+  }
+
+  @override
+  String describeCountMiddle(String words) {
+    return '$words sa gitna';
+  }
+
+  @override
+  String describeCountRight(String words) {
+    return '$words sa kanan';
+  }
 
   @override
   String get describeUnreadable => 'Hindi ko mabasa ang larawang ito.';
@@ -2296,7 +2342,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverUnreachable =>
-      'Hindi makakonekta sa server. Tiyaking may internet, at subukan ulit.';
+      'Hindi maabot ang server. Tiyaking may internet, at subukan ulit.';
 
   @override
   String get serverProblem => 'May problema sa server. Subukan ulit mamaya.';
@@ -2641,43 +2687,6 @@ class AppLocalizationsFil extends AppLocalizations {
   String get reportServerClosed => 'Sarado';
 
   @override
-  String get setServerAddress => 'Address ng server (developer)';
-
-  @override
-  String get serverAddressTitle => 'Address ng server';
-
-  @override
-  String get serverAddressHelp =>
-      'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard';
-
-  @override
-  String get serverAddressSave => 'I-save';
-
-  @override
-  String get serverAddressReset => 'Ibalik sa orihinal';
-
-  @override
-  String get serverAddressCancel => 'Kanselahin';
-
-  @override
-  String get serverAddressInvalid =>
-      'Hindi ito tamang address. Dapat nagsisimula ito sa http:// o https://.';
-
-  @override
-  String get serverAddressCleartext =>
-      'Hindi pinapayagan ng build na ito ang http:// sa host na iyon. Gumamit ng https://, o gumawa ng bagong build na may API_CLEARTEXT_HOSTS.';
-
-  @override
-  String get serverAddressSaved => 'Nai-save ang address ng server.';
-
-  @override
-  String get serverAddressResetDone =>
-      'Ibinalik ang address ng server sa orihinal.';
-
-  @override
-  String get serverAddressNone => 'Walang server';
-
-  @override
   String get voiceOfflineNone =>
       'Walang internet, at walang naka-install na offline na pagkilala sa boses, kaya hindi kita marinig ngayon. Gumamit muna ng mga galaw. Para gumana ito offline, i-download ang offline na wika sa voice input settings; nasa Settings, Pagsusuri ng boses, ang gabay.';
 
@@ -3001,7 +3010,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverTestNotConfigured =>
-      'Wala pang address ng server. Ilagay muna ang address.';
+      'Walang server na naka-set sa app na ito. Gumawa ng bagong build na may API_BASE_URL.';
 
   @override
   String get serverTestNoNetwork =>
@@ -3009,7 +3018,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverTestWrongAddress =>
-      'Mali ang address ng server. Tingnan ang IP at ang folder.';
+      'Hindi ito ang server ng Percipere. Tingnan ang API_BASE_URL na ginamit sa build.';
 
   @override
   String get serverTestUnreachable =>
@@ -3021,7 +3030,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get serverTestHttpBlocked =>
-      'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https.';
+      'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https, at gumawa ng bagong build.';
 
   @override
   String get serverTestTimeout =>

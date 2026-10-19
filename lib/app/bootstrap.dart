@@ -6,7 +6,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../config/env.dart';
 import '../core/auth/account.dart';
 import '../core/auth/account_repository.dart';
 import '../core/auth/password_hasher.dart';
@@ -14,7 +13,6 @@ import '../core/auth/session.dart';
 import '../core/auth/session_store.dart';
 import '../core/db/app_database.dart';
 import '../core/db/daos/preferences_dao.dart';
-import '../core/network/server_address.dart';
 import '../core/offline_voice/hybrid_tts_service.dart';
 import '../core/offline_voice/model_catalog.dart';
 import '../core/offline_voice/model_store.dart';
@@ -63,17 +61,6 @@ Future<List<Override>> bootstrap() async {
   // re-checked on every launch and on resume.
   await prefs.set(PrefKeys.ttsFilipinoFallback, !voices.filipinoReady);
 
-  // A developer build can point at another web app address (Settings); a
-  // saved address the build does not allow (plain http to another host) is
-  // ignored.
-  var serverAddress = Env.apiBaseUrl;
-  if (Env.devTools) {
-    final saved = await readSavedServerAddress(prefs);
-    if (saved != null && ServerAddressRules.check(saved).address != null) {
-      serverAddress = saved;
-    }
-  }
-
   // First launch (on this tablet): download the offline voices first.
   final setupPending =
       store != null &&
@@ -100,7 +87,6 @@ Future<List<Override>> bootstrap() async {
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
     initialTutorialSeenProvider.overrideWithValue(tutorialSeen),
-    initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
     percyClipsProvider.overrideWithValue(

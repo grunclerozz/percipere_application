@@ -875,7 +875,7 @@ abstract class AppLocalizations {
   /// Privacy consent, asked before the first detailed description.
   ///
   /// In fil, this message translates to:
-  /// **'Ipapadala ang larawan sa aming server at sa serbisyo ng Google para mailarawan ito. Sige ba?'**
+  /// **'Para sa mas detalyadong paglalarawan, ipapadala ang larawan sa Google Gemini sa pamamagitan ng Percipere server. Hindi ito iniimbak ng Percipere. Payagan?'**
   String get describeConsentAsk;
 
   /// The user said no to sending the image.
@@ -889,6 +889,66 @@ abstract class AppLocalizations {
   /// In fil, this message translates to:
   /// **'Hindi ko makuha ang detalyadong paglalarawan ngayon. Subukan ulit mamaya.'**
   String get describeDetailFailed;
+
+  /// Short label, shown and spoken, when the description came from the server (Google Gemini).
+  ///
+  /// In fil, this message translates to:
+  /// **'(online)'**
+  String get describeOnline;
+
+  /// Short label, shown and spoken, when the description was made on the phone (ML Kit).
+  ///
+  /// In fil, this message translates to:
+  /// **'(offline)'**
+  String get describeOffline;
+
+  /// Object counting, sure. count is the number with its ligature (tatlong, apat na); items are already joined.
+  ///
+  /// In fil, this message translates to:
+  /// **'May {count} bagay: {items}.'**
+  String describeCountSure(int n, String count, String items);
+
+  /// Object counting, unsure of what they are.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mukhang may {count} bagay, mga {items}.'**
+  String describeCountUnsure(int n, String count, String items);
+
+  /// Object counting when no name could be given.
+  ///
+  /// In fil, this message translates to:
+  /// **'May {count} bagay sa larawan.'**
+  String describeCountOnly(int n, String count);
+
+  /// One named object (sure).
+  ///
+  /// In fil, this message translates to:
+  /// **'isang {name}'**
+  String describeCountItem(String name, String article);
+
+  /// One named object (unsure; follows 'mga').
+  ///
+  /// In fil, this message translates to:
+  /// **'{name}'**
+  String describeCountItemUnsure(String name, String article);
+
+  /// How many objects are on the left.
+  ///
+  /// In fil, this message translates to:
+  /// **'{words} sa kaliwa'**
+  String describeCountLeft(String words);
+
+  /// How many objects are in the middle.
+  ///
+  /// In fil, this message translates to:
+  /// **'{words} sa gitna'**
+  String describeCountMiddle(String words);
+
+  /// How many objects are on the right.
+  ///
+  /// In fil, this message translates to:
+  /// **'{words} sa kanan'**
+  String describeCountRight(String words);
 
   /// The image file could not be opened.
   ///
@@ -3809,7 +3869,7 @@ abstract class AppLocalizations {
   /// No connection to the web app.
   ///
   /// In fil, this message translates to:
-  /// **'Hindi makakonekta sa server. Tiyaking may internet, at subukan ulit.'**
+  /// **'Hindi maabot ang server. Tiyaking may internet, at subukan ulit.'**
   String get serverUnreachable;
 
   /// The web app answered with an error.
@@ -4388,72 +4448,6 @@ abstract class AppLocalizations {
   /// **'Sarado'**
   String get reportServerClosed;
 
-  /// Hidden developer row: the web app address.
-  ///
-  /// In fil, this message translates to:
-  /// **'Address ng server (developer)'**
-  String get setServerAddress;
-
-  /// Developer dialog title.
-  ///
-  /// In fil, this message translates to:
-  /// **'Address ng server'**
-  String get serverAddressTitle;
-
-  /// Developer dialog help.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ang folder ng dashboard, halimbawa http://192.168.1.61/website/percipere_web/percipere_dashboard'**
-  String get serverAddressHelp;
-
-  /// Developer dialog button.
-  ///
-  /// In fil, this message translates to:
-  /// **'I-save'**
-  String get serverAddressSave;
-
-  /// Developer dialog button: back to the address the app was built with.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ibalik sa orihinal'**
-  String get serverAddressReset;
-
-  /// Developer dialog button.
-  ///
-  /// In fil, this message translates to:
-  /// **'Kanselahin'**
-  String get serverAddressCancel;
-
-  /// Developer dialog error.
-  ///
-  /// In fil, this message translates to:
-  /// **'Hindi ito tamang address. Dapat nagsisimula ito sa http:// o https://.'**
-  String get serverAddressInvalid;
-
-  /// Developer dialog error.
-  ///
-  /// In fil, this message translates to:
-  /// **'Hindi pinapayagan ng build na ito ang http:// sa host na iyon. Gumamit ng https://, o gumawa ng bagong build na may API_CLEARTEXT_HOSTS.'**
-  String get serverAddressCleartext;
-
-  /// Spoken after saving.
-  ///
-  /// In fil, this message translates to:
-  /// **'Nai-save ang address ng server.'**
-  String get serverAddressSaved;
-
-  /// Spoken after reset.
-  ///
-  /// In fil, this message translates to:
-  /// **'Ibinalik ang address ng server sa orihinal.'**
-  String get serverAddressResetDone;
-
-  /// Value shown when no web app is configured.
-  ///
-  /// In fil, this message translates to:
-  /// **'Walang server'**
-  String get serverAddressNone;
-
   /// No network and no offline recognizer language: listening stops (followed by the offer hint).
   ///
   /// In fil, this message translates to:
@@ -4974,7 +4968,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverTestNotConfigured.
   ///
   /// In fil, this message translates to:
-  /// **'Wala pang address ng server. Ilagay muna ang address.'**
+  /// **'Walang server na naka-set sa app na ito. Gumawa ng bagong build na may API_BASE_URL.'**
   String get serverTestNotConfigured;
 
   /// No description provided for @serverTestNoNetwork.
@@ -4986,7 +4980,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverTestWrongAddress.
   ///
   /// In fil, this message translates to:
-  /// **'Mali ang address ng server. Tingnan ang IP at ang folder.'**
+  /// **'Hindi ito ang server ng Percipere. Tingnan ang API_BASE_URL na ginamit sa build.'**
   String get serverTestWrongAddress;
 
   /// No description provided for @serverTestUnreachable.
@@ -5004,7 +4998,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverTestHttpBlocked.
   ///
   /// In fil, this message translates to:
-  /// **'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https.'**
+  /// **'Hindi pinapayagan ang http sa address na iyan. Gumamit ng address sa lokal na network o ng https, at gumawa ng bagong build.'**
   String get serverTestHttpBlocked;
 
   /// No description provided for @serverTestTimeout.

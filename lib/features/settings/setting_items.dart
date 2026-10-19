@@ -20,7 +20,6 @@ import '../../core/auth/account_repository.dart';
 import '../../core/auth/biometrics.dart';
 import '../../core/auth/session.dart';
 import '../../core/auth/session_store.dart';
-import '../../core/network/server_address.dart';
 import '../../core/percy/percy_clips.dart';
 import '../../core/percy/percy_log_export.dart';
 import '../../core/percy/percy_responses.dart';
@@ -33,7 +32,6 @@ import '../../core/tts/tts_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../setup/profiling_screen.dart';
 import '../setup/setup_labels.dart';
-import 'server_address_dialog.dart';
 import 'server_connection_test.dart';
 
 /// How a setting is changed.
@@ -463,16 +461,6 @@ List<SettingItem> settingItemsFor(
       label: (l) => l.setPercyExport,
       value: (c) => c.l.setPercyExport,
       open: exportPercyLog,
-    ),
-    SettingItem(
-      id: Ids.settingServerAddress,
-      kind: SettingKind.link,
-      label: (l) => l.setServerAddress,
-      value: (c) {
-        final address = c.ref.watch(serverAddressProvider);
-        return hasServer(address) ? address : c.l.serverAddressNone;
-      },
-      open: showServerAddressDialog,
     ),
     SettingItem(
       id: Ids.settingServerTest,

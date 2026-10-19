@@ -14,6 +14,7 @@ import '../../core/auth/session.dart';
 import '../../core/db/daos/library_dao.dart';
 import '../../core/describe/image_describer.dart';
 import '../../core/describe/image_prep.dart';
+import '../../core/describe/vision_availability.dart';
 import '../../core/library/chaptered_text.dart';
 import '../../core/library/library_models.dart';
 import '../../core/network/connectivity.dart';
@@ -87,6 +88,7 @@ class DescribeState {
     this.imagePath,
     this.thumbnailPath,
     this.description = '',
+    this.online,
     this.detailed,
     this.foundText,
     this.documentId,
@@ -105,6 +107,10 @@ class DescribeState {
   /// The offline description (or the saved text).
   final String description;
 
+  /// Whether [description] came from the server (true) or from the phone's
+  /// ML Kit (false); null before it is ready or for a saved description.
+  final bool? online;
+
   /// The server's detailed description, once asked for.
   final String? detailed;
 
@@ -121,6 +127,19 @@ class DescribeState {
   String get fullText =>
       detailed == null ? description : '$description $detailed';
 
+  /// "(online)" or "(offline)" for a fresh description, else null.
+  String? sourceLabel(AppLocalizations l) => switch (online) {
+    true => l.describeOnline,
+    false => l.describeOffline,
+    null => null,
+  };
+
+  /// [fullText] with the source label in front, as shown and spoken.
+  String shownText(AppLocalizations l) {
+    final label = sourceLabel(l);
+    return label == null ? fullText : '$label $fullText';
+  }
+
   /// The picture to show: the live image, or the saved thumbnail.
   String? get picturePath => imagePath ?? thumbnailPath;
 
@@ -130,6 +149,7 @@ class DescribeState {
   DescribeState copyWith({
     DescribePhase? phase,
     String? description,
+    bool? online,
     Object? detailed = _keep,
     Object? foundText = _keep,
     String? documentId,
@@ -139,6 +159,7 @@ class DescribeState {
     imagePath: imagePath,
     thumbnailPath: thumbnailPath,
     description: description ?? this.description,
+    online: online ?? this.online,
     detailed: identical(detailed, _keep) ? this.detailed : detailed as String?,
     foundText: identical(foundText, _keep)
         ? this.foundText
@@ -148,8 +169,10 @@ class DescribeState {
   );
 }
 
-/// Describes one picture: offline labels first (always), the existing OCR for
-/// text, and — only if the user agrees — the web app's detailed description.
+/// Describes one picture: online first when the user agreed and the server
+/// can (the describer falls back to ML Kit by itself), the existing OCR for
+/// text. Until the user has agreed to send pictures, the first description is
+/// offline and the consent question follows.
 class DescribeController extends Notifier<DescribeState> {
   /// Creates the controller for [subject].
   DescribeController(this.subject);
@@ -162,7 +185,6 @@ class DescribeController extends Notifier<DescribeState> {
 
   Timer? _progress;
   Timer? _captionTimer;
-  bool _offlineNoticeGiven = false;
   bool _saving = false;
 
   AppLocalizations get _l => ref.read(speechLanguageProvider).strings;
@@ -218,6 +240,7 @@ class DescribeController extends Notifier<DescribeState> {
       state = state.copyWith(
         phase: DescribePhase.ready,
         description: described.text,
+        online: described.online,
         foundText: results[1] as String?,
       );
     } on Object catch (e) {
@@ -229,7 +252,7 @@ class DescribeController extends Notifier<DescribeState> {
       await _announcer.say(_l.describeUnreadable, interrupt: false);
       return;
     }
-    await _announcer.say(state.description, interrupt: false);
+    await _announcer.say(state.shownText(_l), interrupt: false);
     if (!ref.mounted) return;
     final text = state.foundText;
     if (text != null) {
@@ -295,7 +318,7 @@ class DescribeController extends Notifier<DescribeState> {
   /// "Ulitin": say the description again.
   Future<void> repeat() async {
     if (state.phase != DescribePhase.ready) return _bus.notAvailable();
-    await _announcer.say(state.fullText);
+    await _announcer.say(state.shownText(_l));
   }
 
   /// Whether the phone is online; a failing check counts as offline.
@@ -308,27 +331,45 @@ class DescribeController extends Notifier<DescribeState> {
     }
   }
 
-  /// Offered after the offline description when online.
+  /// After a description made on the phone: until the user has agreed to
+  /// send pictures, asks (once) when the server could describe it. Said no
+  /// before, or already online: nothing (Settings can change the answer).
   Future<void> _offerDetail() async {
     if (!ref.mounted || state.phase != DescribePhase.ready) return;
-    if (subject is! NewImage) return;
-    final online = await _online();
-    if (!ref.mounted) return;
-    if (!online) {
-      if (!_offlineNoticeGiven) {
-        _offlineNoticeGiven = true;
-        await _announcer.say(_l.describeNeedsInternet, interrupt: false);
-      }
+    final subject = this.subject;
+    if (subject is! NewImage || (state.online ?? false)) return;
+    if (ref.read(settingsProvider).describeConsent != DescribeConsent.ask) {
       return;
     }
-    if (ref.read(settingsProvider).describeConsent ==
-        DescribeConsent.declined) {
-      return; // Said no before: don't ask again, Settings can change it.
-    }
-    await _bus.offer(_l.describeDetailOffer, requestDetail);
+    if (!await _visionAvailable() || !ref.mounted) return;
+    await _askConsent(subject.path);
   }
 
-  /// "Mas detalyado": the web app's description, after consent.
+  /// Whether the server can describe pictures now (a failing check = no).
+  Future<bool> _visionAvailable() async {
+    try {
+      return await ref.read(visionAvailabilityProvider).check();
+    } on Object catch (e) {
+      debugPrint('Vision check failed: $e');
+      return false;
+    }
+  }
+
+  /// The consent question; yes sends this picture and replaces the phone's
+  /// description with the server's.
+  Future<void> _askConsent(String path) => _bus.offer(
+    _l.describeConsentAsk,
+    () async {
+      await _setConsent(DescribeConsent.allowed);
+      await _fetchOnline(path, replace: true);
+    },
+    onDecline: () async {
+      await _setConsent(DescribeConsent.declined);
+      await _announcer.say(_l.describeConsentDeclined);
+    },
+  );
+
+  /// "Mas detalyado": the longer description from the server, after consent.
   Future<void> requestDetail() async {
     final subject = this.subject;
     if (state.phase != DescribePhase.ready || subject is! NewImage) {
@@ -342,21 +383,11 @@ class DescribeController extends Notifier<DescribeState> {
     }
     switch (ref.read(settingsProvider).describeConsent) {
       case DescribeConsent.allowed:
-        return _fetchDetail(subject.path);
+        return _fetchOnline(subject.path, detail: true);
       case DescribeConsent.declined:
         await _announcer.say(_l.describeConsentDeclined);
       case DescribeConsent.ask:
-        await _bus.offer(
-          _l.describeConsentAsk,
-          () async {
-            await _setConsent(DescribeConsent.allowed);
-            await _fetchDetail(subject.path);
-          },
-          onDecline: () async {
-            await _setConsent(DescribeConsent.declined);
-            await _announcer.say(_l.describeConsentDeclined);
-          },
-        );
+        await _askConsent(subject.path);
     }
   }
 
@@ -364,7 +395,14 @@ class DescribeController extends Notifier<DescribeState> {
       .read(settingsProvider.notifier)
       .update((s) => s.copyWith(describeConsent: value));
 
-  Future<void> _fetchDetail(String path) async {
+  /// Asks the server about the picture at [path]. [replace]: its answer
+  /// becomes the description (labelled online); otherwise [detail] asks for
+  /// the longer answer, which is added after the description.
+  Future<void> _fetchOnline(
+    String path, {
+    bool replace = false,
+    bool detail = false,
+  }) async {
     final timer = Timer(progressAfter, () {
       if (ref.mounted) {
         unawaited(_announcer.say(_l.describeWorking, interrupt: false));
@@ -377,26 +415,33 @@ class DescribeController extends Notifier<DescribeState> {
         timer.cancel();
         return;
       }
-      final account = ref.read(currentAccountProvider);
       final result = await ref
           .read(imageDescriptionRepositoryProvider)
           .describe(
             jpeg: jpeg,
             language: _l.localeName == 'fil' ? 'fil' : 'en',
-            // Guests are anonymous.
-            userId: account == null || account.isGuest ? null : account.id,
-          );
+            detail: detail,
+          )
+          .timeout(const Duration(seconds: 8));
       timer.cancel();
       if (!ref.mounted) return;
-      state = state.copyWith(detailed: result.description);
+      state = replace
+          ? state.copyWith(
+              description: result.description,
+              online: true,
+              detailed: null,
+            )
+          : state.copyWith(detailed: result.description);
       final id = state.documentId;
       if (id != null) {
         await ref.read(libraryDaoProvider).updateText(id, state.fullText);
       }
-      await _announcer.say(result.description);
+      await _announcer.say(
+        replace ? state.shownText(_l) : result.description,
+      );
     } on Object catch (e) {
       timer.cancel();
-      debugPrint('Detailed description failed: $e');
+      debugPrint('Online description failed: $e');
       if (!ref.mounted) return;
       unawaited(ref.read(hapticsProvider).error());
       await _announcer.say(_l.describeDetailFailed);

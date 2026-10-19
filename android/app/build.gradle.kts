@@ -10,7 +10,7 @@ plugins {
 // Plain HTTP is allowed only to the host of an http:// web app address
 // (`--dart-define=API_BASE_URL=http://192.168.1.61/...`, a PC on the same
 // Wi-Fi) plus any hosts listed in `--dart-define=API_CLEARTEXT_HOSTS=a,b`.
-// Every other host, and a build with an https:// server or none, keeps
+// Every other host, and a build with an https:// server, keeps
 // Android's default: no cleartext traffic. The app checks the same rule for
 // its own requests (lib/core/network/api_dio.dart, lib/config/env.dart).
 fun dartDefine(name: String): String =
@@ -22,7 +22,9 @@ fun dartDefine(name: String): String =
         ?: ""
 
 val cleartextHosts: List<String> = buildList {
-    val uri = runCatching { URI(dartDefine("API_BASE_URL")) }.getOrNull()
+    // No API_BASE_URL: the app uses the emulator's address (lib/config/env.dart).
+    val base = dartDefine("API_BASE_URL").ifBlank { "http://10.0.2.2/website/percipere_dashboard" }
+    val uri = runCatching { URI(base) }.getOrNull()
     if (uri?.scheme == "http" && !uri.host.isNullOrBlank()) add(uri.host)
     addAll(dartDefine("API_CLEARTEXT_HOSTS").split(",").map { it.trim() })
 }.filter { Regex("[A-Za-z0-9.-]+").matches(it) }.distinct()

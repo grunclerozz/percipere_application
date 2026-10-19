@@ -10,26 +10,26 @@ Uint8List _png(int width, int height) =>
     Uint8List.fromList(img.encodePng(img.Image(width: width, height: height)));
 
 void main() {
-  test('a large image is shrunk to 1600 on its longest side, as JPEG', () {
+  test('a large image is shrunk to 1280 on its longest side, as JPEG', () {
     final out = resizeToJpeg(_png(3200, 1200), uploadMaxSide)!;
     final decoded = img.decodeJpg(out)!;
-    expect(decoded.width, 1600);
-    expect(decoded.height, 600);
+    expect(decoded.width, 1280);
+    expect(decoded.height, 480);
   });
 
   test('a tall image is limited by its height', () {
-    final decoded = img.decodeJpg(resizeToJpeg(_png(900, 2400), 1600)!)!;
-    expect(decoded.height, 1600);
-    expect(decoded.width, 600);
+    final decoded = img.decodeJpg(resizeToJpeg(_png(900, 2400), 1280)!)!;
+    expect(decoded.height, 1280);
+    expect(decoded.width, 480);
   });
 
   test('a small image is never enlarged', () {
-    final decoded = img.decodeJpg(resizeToJpeg(_png(400, 300), 1600)!)!;
+    final decoded = img.decodeJpg(resizeToJpeg(_png(400, 300), 1280)!)!;
     expect([decoded.width, decoded.height], [400, 300]);
   });
 
   test('bytes that are not an image give null', () {
-    expect(resizeToJpeg(Uint8List.fromList([1, 2, 3]), 1600), isNull);
+    expect(resizeToJpeg(Uint8List.fromList([1, 2, 3]), 1280), isNull);
   });
 
   group('deleteThumbnail', () {

@@ -106,7 +106,7 @@ class DescribeScreen extends ConsumerWidget {
       child: GesturePadLayout(
         padHint: l10n.gestureAreaHintMenu,
         content: DocumentBox(
-          text: ready ? s.fullText : null,
+          text: ready ? s.shownText(l10n) : null,
           isLoading: s.phase == DescribePhase.working,
           loadingMessage: l10n.describeWorking,
           emptyMessage: s.phase == DescribePhase.failed

@@ -2,11 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../config/env.dart';
 import 'api_dio.dart';
 import 'server_address.dart';
 
-/// The server's detailed description of an image.
+/// The server's description of an image.
 @immutable
 class DescriptionResult {
   /// Creates a result.
@@ -15,11 +14,11 @@ class DescriptionResult {
   /// Spoken-ready description in the requested language.
   final String description;
 
-  /// Whether the image shows readable text.
+  /// Whether the image shows readable text (the server does not say; false).
   final bool hasText;
 }
 
-/// Why a detailed description could not be had.
+/// Why a description could not be had.
 class DescriptionException implements Exception {
   /// Creates the exception.
   const DescriptionException(this.message);
@@ -31,47 +30,20 @@ class DescriptionException implements Exception {
   String toString() => 'DescriptionException: $message';
 }
 
-/// Detailed image descriptions, from the web app. The app never talks to
-/// Gemini and never holds an API key: see `docs/api-contract.md`.
+/// Picture descriptions, from the web app (`POST /api/v1/describe`). The app
+/// never talks to Gemini and never holds an API key: the server does.
 abstract interface class ImageDescriptionRepository {
-  /// Describes [jpeg] (already resized) in [language] (`fil` or `en`).
-  /// [userId] is null for a guest, whose request is sent as anonymous.
+  /// Describes [jpeg] (already resized) in [language] (`fil` or `en`);
+  /// [detail] asks for the longer answer. Nothing identifies the user: the
+  /// request is anonymous.
   Future<DescriptionResult> describe({
     required Uint8List jpeg,
     required String language,
-    String? userId,
+    bool detail = false,
   });
 }
 
-/// Stand-in until the web app exists: a sample description after a pause.
-class MockImageDescriptionRepository implements ImageDescriptionRepository {
-  /// Creates the mock; [delay] simulates the network.
-  const MockImageDescriptionRepository({
-    this.delay = const Duration(milliseconds: 800),
-  });
-
-  /// Simulated waiting time.
-  final Duration delay;
-
-  @override
-  Future<DescriptionResult> describe({
-    required Uint8List jpeg,
-    required String language,
-    String? userId,
-  }) async {
-    await Future<void>.delayed(delay);
-    return DescriptionResult(
-      description: language == 'en'
-          ? 'It looks like a table with a plate of food, a glass of water '
-                'and a spoon, in a brightly lit room.'
-          : 'Mukhang isang mesa na may plato ng pagkain, baso ng tubig at '
-                'kutsara, sa isang maliwanag na silid.',
-      hasText: false,
-    );
-  }
-}
-
-/// The real thing: `POST {server address}/api/describe-image` (multipart).
+/// The real thing: `POST {server address}/api/v1/describe` (multipart).
 class HttpImageDescriptionRepository implements ImageDescriptionRepository {
   /// Creates the repository for the web app at [baseUrl] over [dio].
   HttpImageDescriptionRepository(this._baseUrl, this._dio);
@@ -83,42 +55,43 @@ class HttpImageDescriptionRepository implements ImageDescriptionRepository {
   Future<DescriptionResult> describe({
     required Uint8List jpeg,
     required String language,
-    String? userId,
+    bool detail = false,
   }) async {
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        '${_baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/describe-image',
+      final response = await _dio.post<Object?>(
+        '${_baseUrl.replaceAll(RegExp(r'/+$'), '')}/api/v1/describe',
         data: FormData.fromMap({
-          'image': MultipartFile.fromBytes(jpeg, filename: 'image.jpg'),
-          'language': language,
-          if (userId != null) 'user_id': userId else 'guest': 'true',
+          'image': MultipartFile.fromBytes(
+            jpeg,
+            filename: 'photo.jpg',
+            contentType: DioMediaType('image', 'jpeg'),
+          ),
+          'lang': language,
+          if (detail) 'detail': 'true',
         }),
       );
       final body = response.data;
-      final text = body?['description'];
+      final text = body is Map ? body['description'] : null;
       if (text is! String || text.trim().isEmpty) {
         throw const DescriptionException('empty description');
       }
-      return DescriptionResult(
-        description: text.trim(),
-        hasText: body?['has_text'] == true,
-      );
+      return DescriptionResult(description: text.trim(), hasText: false);
     } on DioException catch (e) {
-      throw DescriptionException('${e.type}: ${e.message}');
+      throw DescriptionException(
+        '${e.type.name} ${e.response?.statusCode ?? ''}: ${e.message}',
+      );
     }
   }
 }
 
-/// The app's description service: the mock while `USE_MOCK_API` is true.
+/// The app's description service.
 final imageDescriptionRepositoryProvider = Provider<ImageDescriptionRepository>(
-  (ref) => Env.useMockApi
-      ? const MockImageDescriptionRepository()
-      : HttpImageDescriptionRepository(
-          ref.watch(serverAddressProvider),
-          apiDio(
-            connect: const Duration(seconds: 15),
-            send: const Duration(seconds: 30),
-            receive: const Duration(seconds: 40),
-          ),
-        ),
+  (ref) => HttpImageDescriptionRepository(
+    ref.watch(serverAddressProvider),
+    apiDio(
+      connect: const Duration(seconds: 8),
+      send: const Duration(seconds: 8),
+      receive: const Duration(seconds: 8),
+    ),
+  ),
 );

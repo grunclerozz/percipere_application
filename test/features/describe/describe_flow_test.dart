@@ -170,7 +170,7 @@ void main() {
       expect(env.picker.picks, 0, reason: 'images only, not documents');
       expect(env.labeler.labeled, ['picture.jpg']);
       expect(env.tts.transcript, contains(_offlineSentence));
-      expect(find.text(_offlineSentence), findsOneWidget);
+      expect(find.text('(offline) $_offlineSentence'), findsOneWidget);
       expect(find.bySemanticsLabel('Ang larawan'), findsOneWidget);
       expect(find.byType(DocumentBox), findsOneWidget);
     });

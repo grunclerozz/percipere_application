@@ -1,18 +1,26 @@
 /// Build-time environment configuration.
 ///
 /// Override at build/run time, e.g.
-/// `flutter run --dart-define=API_BASE_URL=https://admin.example.ph --dart-define=USE_MOCK_API=false`
+/// `flutter run --dart-define=API_BASE_URL=http://192.168.1.61/website/percipere_dashboard`
 abstract final class Env {
-  /// [apiBaseUrl] when no web app is configured.
+  /// [apiBaseUrl] when no web app is configured (kept for the `hasServer`
+  /// check; no build uses it any more).
   static const String noServer = 'https://percipere-admin.invalid';
 
-  /// Base URL of the Percipere web admin app (the dashboard folder, e.g.
-  /// `http://192.168.1.61/website/percipere_web/percipere_dashboard`).
-  /// An `http://` address also lets the Android build use plain HTTP
-  /// (`android/app/build.gradle.kts`); a public server must use `https://`.
+  /// The emulator's address for the PC's XAMPP: `10.0.2.2` is the host
+  /// machine seen from the Android emulator.
+  static const String emulatorBaseUrl =
+      'http://10.0.2.2/website/percipere_dashboard';
+
+  /// Base URL of the Percipere web admin app (the dashboard folder), fixed
+  /// at build time: `--dart-define=API_BASE_URL=http://192.168.1.61/website/percipere_dashboard`.
+  /// There is no setting screen for it. Without the define the emulator's
+  /// address ([emulatorBaseUrl]) is used. An `http://` address also lets the
+  /// Android build use plain HTTP (`android/app/build.gradle.kts`); a public
+  /// server must use `https://`.
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: noServer,
+    defaultValue: emulatorBaseUrl,
   );
 
   /// Extra hosts (comma separated, e.g. `192.168.1.70,192.168.1.71`) that
@@ -115,10 +123,4 @@ abstract final class Env {
   /// Developer build: shows hidden Settings rows (the ElevenLabs Percy
   /// switch, exporting Percy's turn log). `--dart-define=PERCIPERE_DEV=true`.
   static const bool devTools = bool.fromEnvironment('PERCIPERE_DEV');
-
-  /// When true, the network layer uses an in-memory mock instead of [apiBaseUrl].
-  static const bool useMockApi = bool.fromEnvironment(
-    'USE_MOCK_API',
-    defaultValue: true,
-  );
 }

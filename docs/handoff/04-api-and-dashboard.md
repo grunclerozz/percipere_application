@@ -8,11 +8,12 @@ served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percip
 ## Base address
 - Build flag `API_BASE_URL` = the dashboard folder URL, e.g.
   `http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard`. REST base = `{API_BASE_URL}/api/v1/`.
-- Without it the app uses `https://percipere-admin.invalid` (`Env.noServer`): accounts stay on
-  the phone, the Library has no admin books, reports stay pending.
-- Developer builds (`PERCIPERE_DEV=true`) can change the address at runtime: Settings →
-  "Server address (developer)" (`lib/core/network/server_address.dart`,
-  `lib/features/settings/server_address_dialog.dart`).
+- **Fixed at build time (2026-10-19):** there is no setting screen for the address. Without
+  `--dart-define=API_BASE_URL=...` the app uses the emulator's `http://10.0.2.2/website/percipere_dashboard`
+  (`Env.emulatorBaseUrl`; the Android build allows plain http to that host too). Every API client
+  (accounts, books, reports, health, describe, voice models) reads the one
+  `serverAddressProvider` (`lib/core/network/server_address.dart`). An unreachable server is
+  spoken as "Hindi maabot ang server…" (`serverUnreachable`).
 - Requirement (as of 2026-10-13, per the status history in `05-current-status.md`): the app needs the dashboard branch
   **`fix/webapp-api`** (REST routes). It was **not merged** then; current state **unverified**.
 - HTTP client: `apiDio()` in `lib/core/network/api_dio.dart` (timeouts + `CleartextGuard`).
@@ -29,15 +30,14 @@ served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percip
 - Guide for the students: `docs/connection-guide-app.md`.
 
 ### Audit of the app's calls (2026-10-17)
-All use the saved server address (changing it applies at once) and `apiDio()` (timeouts, guard):
+All use the fixed server address and `apiDio()` (timeouts, guard):
 accounts, books (list/file/cover), reports, the offline-voice model list, image description.
 Fixed: image description used the build-time address and a plain `Dio`.
 Dashboard endpoints the app uses that the dashboard router (`api/v1/index.php`, branch
 `feat/admin-roles`) does **not** have:
 - `GET /api/v1/models` (voice-model manifest): the app falls back to `models/manifest.json`, then
   to the GitHub release.
-- `POST /api/describe-image` (Maglarawan online detail): not found; the app uses the mock unless
-  built with `USE_MOCK_API=false`, and would fail without it.
+- ~~`POST /api/describe-image`~~ replaced 2026-10-19 by `POST /api/v1/describe` (see below).
 
 ## Errors
 Success = the plain JSON resource. Failure = `{"error": {"code", "message", "fields"?, "retry_after"?}}`
@@ -117,10 +117,11 @@ dashboard database had **no books yet** (unverified now).
   the `GET /api/v1/models` route does not exist in the dashboard (the static file is enough).
 
 ## Planned / mocked
-- `POST /api/describe-image` (multipart: `image`, `language`, `user_id` or `guest`) →
-  `{description, has_text}`; the dashboard would call Gemini. App side uses
-  `MockImageDescriptionRepository` while `USE_MOCK_API` is true (default). **The app never calls
-  Gemini directly.**
+- **Used (2026-10-19):** `GET /api/v1/health` → `vision_enabled` (missing = false, cached 60 s) and
+  `POST /api/v1/describe` (multipart `image`, `lang` `fil`|`en`, optional `detail`) →
+  `{description, source, model}`; contract in the dashboard repo, `docs/api/describe.md`. Anonymous
+  (no user id, no token sent); 10 requests/minute/IP; any non-200 → ML Kit. **The app never calls
+  Gemini directly and holds no key.**
 - Library sync (`PUT /api/library/progress|favorites|collections`, `GET /api/library?since=`) —
   Phase 7, `MockLibrarySyncRepository`. Own documents never sync.
 - Health check used in testing: `GET {base}/api/v1/health` (`docs/testing/first-tablet-test.md`).

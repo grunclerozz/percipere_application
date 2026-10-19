@@ -8,12 +8,21 @@ served by XAMPP on the team's PC (checkout under `C:\xampp\htdocs\website\percip
 ## Base address
 - Build flag `API_BASE_URL` = the dashboard folder URL, e.g.
   `http://<PC_LAN_IP>/website/percipere_web/percipere_dashboard`. REST base = `{API_BASE_URL}/api/v1/`.
-- **Fixed at build time (2026-10-19):** there is no setting screen for the address. Without
-  `--dart-define=API_BASE_URL=...` the app uses the emulator's `http://10.0.2.2/website/percipere_dashboard`
-  (`Env.emulatorBaseUrl`; the Android build allows plain http to that host too). Every API client
-  (accounts, books, reports, health, describe, voice models) reads the one
-  `serverAddressProvider` (`lib/core/network/server_address.dart`). An unreachable server is
-  spoken as "Hindi maabot ang server…" (`serverUnreachable`).
+- **No setting screen (2026-10-19).** The start address is `--dart-define=API_BASE_URL=...`, default
+  the emulator's `http://10.0.2.2/website/percipere_dashboard` (`Env.emulatorBaseUrl`), unless an
+  earlier search saved another one (`PrefKeys.serverAddress`, device scope). Every API client
+  (accounts, books, reports, health, describe, voice models) watches the one
+  `serverAddressProvider` (`lib/core/network/server_address.dart`).
+- **Auto-discovery (2026-10-19, `lib/core/network/server_connection.dart`, `server_discovery.dart`,
+  `lib/config/discovery_config.dart`):** at startup (after the loading screen, in the background) and
+  whenever a request to the server's host fails before any answer (`UnreachableReporter` in
+  `api_dio.dart`): try the saved address, then `API_BASE_URL`; if neither answers and the tablet is
+  on Wi-Fi, scan every address `x.x.x.1-254` of its own private subnet(s) on ports 80 and 8888 for
+  `/website/percipere_dashboard/api/v1/health` = `{"status":"ok"}` (96 requests at once, 0.9 s each,
+  5 s in all). The first match is saved and used. After a miss the next search waits 30 s. Says
+  "Hinahanap ang server…" when a scan starts and "Hindi maabot ang server." when nothing is found
+  (also after a failed call off Wi-Fi). Nothing waits for it; offline features never use it. The
+  dashboard folder must be `/website/percipere_dashboard` for the scan to find it.
 - Requirement (as of 2026-10-13, per the status history in `05-current-status.md`): the app needs the dashboard branch
   **`fix/webapp-api`** (REST routes). It was **not merged** then; current state **unverified**.
 - HTTP client: `apiDio()` in `lib/core/network/api_dio.dart` (timeouts + `CleartextGuard`).

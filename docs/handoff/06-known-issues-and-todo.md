@@ -56,6 +56,7 @@ Collected from `docs/specs/decisions.md`, `docs/todo.md`, `docs/database/open-qu
 | Percy dataset small (many intents 7–8 sentences); add team sentences and retrain | `data/percy/intents.csv`, `docs/percy-dataset-guide.md` |
 | Offline recognizer gives no partial results → no reading pause while the user speaks over it | `lib/core/offline_voice/offline_listener.dart` |
 | First prompt after app start can wait for the offline voices to load (emulator: 5–20 s). Since 2026-10-17 this wait is on the loading screen (15 s limit, then the rest loads in the background) | `lib/core/offline_voice/offline_engines.dart`, `lib/features/startup/startup_screen.dart` |
+| Auto-discovery and the language screen (2026-10-19) never run on a device; the scan assumes the dashboard folder is `/website/percipere_dashboard` and a /24 subnet; a school Wi-Fi with client isolation will find nothing (then use a hotspot); the language chosen on the device is not re-checked against a later account's own setting | `lib/core/network/`, `lib/features/language/` |
 | Online describe + object counting built 2026-10-19 but **never run on a device**; object positions use the file's width (EXIF-rotated photos are guessed); the emulator address is only right on the emulator — the tablet needs `--dart-define=API_BASE_URL=...` | `lib/core/describe/` |
 | Dashboard `GET /api/v1/models` route not built (static `models/manifest.json` works) | dashboard repo; `docs/api-contract.md` |
 | Dashboard DB has no books yet (as of 2026-10-13) | dashboard |

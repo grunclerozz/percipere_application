@@ -111,6 +111,14 @@ abstract final class PrefKeys {
   /// The controls tutorial was finished or skipped on this device.
   static const String tutorialDone = 'tutorial.done';
 
+  /// Device scope: the language was chosen on the first launch (never asked
+  /// again; Settings can change it).
+  static const String languageChosen = 'language.chosen';
+
+  /// Device scope: the dashboard address that last answered (found by the
+  /// search on the local Wi-Fi, or the one the app was built with).
+  static const String serverAddress = 'net.serverAddress';
+
   /// Camera auto-capture on/off.
   static const String autoCapture = 'camera.autoCapture';
 

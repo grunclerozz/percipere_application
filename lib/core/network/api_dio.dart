@@ -37,16 +37,51 @@ class CleartextGuard extends Interceptor {
   }
 }
 
-/// The HTTP client the app's web-app clients use: timeouts and the
-/// [CleartextGuard].
+/// Called when a request to the web app could not reach it (no connection,
+/// timeout). Set by the server connection (`serverConnectionProvider`) to look
+/// for the server again; null in tests. Gets the address that failed.
+void Function(Uri failed)? serverUnreachableHook;
+
+/// Tells [serverUnreachableHook] when a request fails before any answer.
+class UnreachableReporter extends Interceptor {
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    const unreachable = {
+      DioExceptionType.connectionError,
+      DioExceptionType.connectionTimeout,
+      DioExceptionType.sendTimeout,
+      DioExceptionType.receiveTimeout,
+    };
+    // A request refused by our own guard says nothing about the server.
+    if (unreachable.contains(err.type) &&
+        err.error != 'cleartext_not_allowed') {
+      try {
+        serverUnreachableHook?.call(err.requestOptions.uri);
+      } on Object {
+        // Looking for the server must never hide the request's own error.
+      }
+    }
+    handler.next(err);
+  }
+}
+
+/// The HTTP client the app's web-app clients use: timeouts, the
+/// [CleartextGuard] and (unless [reportUnreachable] is false) the
+/// [UnreachableReporter].
 Dio apiDio({
   Duration connect = const Duration(seconds: 10),
   Duration receive = const Duration(seconds: 20),
   Duration send = const Duration(seconds: 20),
-}) => Dio(
-  BaseOptions(
-    connectTimeout: connect,
-    receiveTimeout: receive,
-    sendTimeout: send,
-  ),
-)..interceptors.add(CleartextGuard());
+  bool reportUnreachable = true,
+}) =>
+    Dio(
+        BaseOptions(
+          connectTimeout: connect,
+          receiveTimeout: receive,
+          sendTimeout: send,
+        ),
+      )
+      ..interceptors.addAll([
+        CleartextGuard(),
+        if (reportUnreachable) UnreachableReporter(),
+      ]);

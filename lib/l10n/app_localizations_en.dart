@@ -562,6 +562,49 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get serverSearching => 'Looking for the server…';
+
+  @override
+  String get serverNotFound => 'Can\'t reach the server.';
+
+  @override
+  String get screenLanguage => 'Wika / Language';
+
+  @override
+  String get languagePromptFil =>
+      'Pumili ng wika. Sabihin ang \"Tagalog\" o \"English\".';
+
+  @override
+  String get languagePromptEn =>
+      'Choose a language. Say \"Tagalog\" or \"English\".';
+
+  @override
+  String get languageGestureFil =>
+      'Mag-swipe pakaliwa o pakanan para pumili, at mag-double tap para piliin.';
+
+  @override
+  String get languageGestureEn =>
+      'Swipe left or right to choose, then double-tap to select.';
+
+  @override
+  String get languageChosenFil =>
+      'Tagalog ang napili. Tagalog ang gagamitin sa buong app.';
+
+  @override
+  String get languageChosenEn =>
+      'English selected. English will be used throughout the app.';
+
+  @override
+  String get languageOptionTagalog => 'Tagalog';
+
+  @override
+  String get languageOptionEnglish => 'English';
+
+  @override
+  String get helpLanguage =>
+      'Pumili ng wika. Choose a language. Swipe left or right, then double-tap. Mag-swipe pakaliwa o pakanan, tapos mag-double tap.';
+
+  @override
   String get describeUnreadable => 'I can\'t open this picture.';
 
   @override

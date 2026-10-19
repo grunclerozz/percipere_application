@@ -17,6 +17,14 @@ Format:
 
 ---
 
+## 2026-10-19 — Auto-discovery, first-launch language screen, consent before description
+- Agent: Claude Code
+- Branch: `feat/online-describe-counting` (on top of `436e515`)
+- Changed: new `core/network/server_discovery.dart`, `server_connection.dart`, `config/discovery_config.dart`; `server_address.dart` is a saved-address notifier again (`PrefKeys.serverAddress`); `api_dio.dart` (`UnreachableReporter`, `serverUnreachableHook`); `bootstrap.dart`; `startup_screen.dart` (background search). New `features/language/language_screen.dart`, route/ids, `PrefKeys.languageChosen`, `initialLanguageChosenProvider`, router start location. `describe_controller.dart`: consent asked before the first description. ARB fil/en. Tests: new `server_discovery_test.dart`, `language_first_test.dart`; updated describe controller test and fakes. Docs 02, 04, 05, 06, 07, 09, connection guide.
+- Checks: `flutter analyze` no issues. `bash tool/test_each.sh`: 103/104 files, 1203 tests; `library_details_flow_test.dart` fails as before (fails without these changes too). `flutter build apk --release` OK (256.5 MB). Nothing run on a device.
+- Commit: see `git log` (pushed: no)
+- Follow-ups: tablet test; TalkBack check of the language screen; scan assumes folder `/website/percipere_dashboard` and a /24 subnet.
+
 ## 2026-10-19 — Fixed dashboard address, Maglarawan online first, object counting
 - Agent: Claude Code
 - Branch: `feat/online-describe-counting` (on top of `41d5b43`)

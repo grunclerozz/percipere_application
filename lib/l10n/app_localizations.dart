@@ -950,6 +950,78 @@ abstract class AppLocalizations {
   /// **'{words} sa kanan'**
   String describeCountRight(String words);
 
+  /// No description provided for @serverSearching.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hinahanap ang server…'**
+  String get serverSearching;
+
+  /// No description provided for @serverNotFound.
+  ///
+  /// In fil, this message translates to:
+  /// **'Hindi maabot ang server.'**
+  String get serverNotFound;
+
+  /// No description provided for @screenLanguage.
+  ///
+  /// In fil, this message translates to:
+  /// **'Wika / Language'**
+  String get screenLanguage;
+
+  /// No description provided for @languagePromptFil.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pumili ng wika. Sabihin ang \"Tagalog\" o \"English\".'**
+  String get languagePromptFil;
+
+  /// No description provided for @languagePromptEn.
+  ///
+  /// In fil, this message translates to:
+  /// **'Choose a language. Say \"Tagalog\" or \"English\".'**
+  String get languagePromptEn;
+
+  /// No description provided for @languageGestureFil.
+  ///
+  /// In fil, this message translates to:
+  /// **'Mag-swipe pakaliwa o pakanan para pumili, at mag-double tap para piliin.'**
+  String get languageGestureFil;
+
+  /// No description provided for @languageGestureEn.
+  ///
+  /// In fil, this message translates to:
+  /// **'Swipe left or right to choose, then double-tap to select.'**
+  String get languageGestureEn;
+
+  /// No description provided for @languageChosenFil.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tagalog ang napili. Tagalog ang gagamitin sa buong app.'**
+  String get languageChosenFil;
+
+  /// No description provided for @languageChosenEn.
+  ///
+  /// In fil, this message translates to:
+  /// **'English selected. English will be used throughout the app.'**
+  String get languageChosenEn;
+
+  /// No description provided for @languageOptionTagalog.
+  ///
+  /// In fil, this message translates to:
+  /// **'Tagalog'**
+  String get languageOptionTagalog;
+
+  /// No description provided for @languageOptionEnglish.
+  ///
+  /// In fil, this message translates to:
+  /// **'English'**
+  String get languageOptionEnglish;
+
+  /// No description provided for @helpLanguage.
+  ///
+  /// In fil, this message translates to:
+  /// **'Pumili ng wika. Choose a language. Swipe left or right, then double-tap. Mag-swipe pakaliwa o pakanan, tapos mag-double tap.'**
+  String get helpLanguage;
+
   /// The image file could not be opened.
   ///
   /// In fil, this message translates to:

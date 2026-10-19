@@ -224,6 +224,8 @@ class DescribeController extends Notifier<DescribeState> {
 
   Future<void> _analyse() async {
     final path = (subject as NewImage).path;
+    await _askConsentFirst();
+    if (!ref.mounted) return;
     _progress = Timer(progressAfter, () {
       if (ref.mounted && state.phase == DescribePhase.working) {
         unawaited(_announcer.say(_l.describeWorking, interrupt: false));
@@ -255,11 +257,7 @@ class DescribeController extends Notifier<DescribeState> {
     await _announcer.say(state.shownText(_l), interrupt: false);
     if (!ref.mounted) return;
     final text = state.foundText;
-    if (text != null) {
-      await _bus.offer(_l.describeTextFound, readText, onDecline: _offerDetail);
-    } else {
-      await _offerDetail();
-    }
+    if (text != null) await _bus.offer(_l.describeTextFound, readText);
   }
 
   /// OCR on the same image; the text only if it reads like text.
@@ -331,18 +329,33 @@ class DescribeController extends Notifier<DescribeState> {
     }
   }
 
-  /// After a description made on the phone: until the user has agreed to
-  /// send pictures, asks (once) when the server could describe it. Said no
-  /// before, or already online: nothing (Settings can change the answer).
-  Future<void> _offerDetail() async {
-    if (!ref.mounted || state.phase != DescribePhase.ready) return;
-    final subject = this.subject;
-    if (subject is! NewImage || (state.online ?? false)) return;
+  /// Before the first description: until the user has agreed to send
+  /// pictures, asks (once) when the server could describe this one, and
+  /// waits for the answer. Yes: the description is online from the start. No,
+  /// or no answer: it is made on the phone (a "no" is remembered).
+  Future<void> _askConsentFirst() async {
     if (ref.read(settingsProvider).describeConsent != DescribeConsent.ask) {
       return;
     }
     if (!await _visionAvailable() || !ref.mounted) return;
-    await _askConsent(subject.path);
+    final answered = Completer<void>();
+    await _bus.offer(
+      _l.describeConsentAsk,
+      () async {
+        await _setConsent(DescribeConsent.allowed);
+        if (!answered.isCompleted) answered.complete();
+      },
+      onDecline: () async {
+        await _setConsent(DescribeConsent.declined);
+        await _announcer.say(_l.describeConsentDeclined, interrupt: false);
+        if (!answered.isCompleted) answered.complete();
+      },
+    );
+    // No answer: the offer lapses by itself; do not wait for ever.
+    await answered.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {},
+    );
   }
 
   /// Whether the server can describe pictures now (a failing check = no).

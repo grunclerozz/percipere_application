@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/startup_config.dart';
 import '../../core/accessibility/announcer.dart';
 import '../../core/accessibility/earcon.dart';
+import '../../core/network/server_connection.dart';
 import '../../core/startup/startup_tasks.dart';
 import '../../core/tts/speech_language.dart';
 import '../../core/voice/voice_readiness.dart';
@@ -82,6 +83,10 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
     if (!mounted || _left) return;
     _left = true;
     readiness.end(VoiceBusy.startup);
+    // Look for the dashboard in the background; nothing waits for it.
+    if (ref.read(serverSearchAtStartupProvider)) {
+      unawaited(ref.read(serverConnectionProvider).ensure());
+    }
     GoRouter.of(context).go(widget.next.location, extra: widget.next.extra);
   }
 

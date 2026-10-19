@@ -88,6 +88,11 @@ final userPrefsProvider = Provider<PreferencesDao>(
 /// app shows the first-launch tutorial.
 final initialTutorialSeenProvider = Provider<bool>((ref) => true);
 
+/// Whether the language was already chosen on this device (the first-launch
+/// language screen comes before the tutorial). True by default so only
+/// `bootstrap()` makes a fresh install ask.
+final initialLanguageChosenProvider = Provider<bool>((ref) => true);
+
 /// True when a saved session was dropped at startup because the account has
 /// "stay logged in" off. Set by `bootstrap()`.
 final initialSessionExpiredProvider = Provider<bool>((ref) => false);

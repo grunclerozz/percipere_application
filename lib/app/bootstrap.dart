@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../config/env.dart';
 import '../core/auth/account.dart';
 import '../core/auth/account_repository.dart';
 import '../core/auth/password_hasher.dart';
@@ -13,6 +14,7 @@ import '../core/auth/session.dart';
 import '../core/auth/session_store.dart';
 import '../core/db/app_database.dart';
 import '../core/db/daos/preferences_dao.dart';
+import '../core/network/server_address.dart';
 import '../core/offline_voice/hybrid_tts_service.dart';
 import '../core/offline_voice/model_catalog.dart';
 import '../core/offline_voice/model_store.dart';
@@ -61,6 +63,10 @@ Future<List<Override>> bootstrap() async {
   // re-checked on every launch and on resume.
   await prefs.set(PrefKeys.ttsFilipinoFallback, !voices.filipinoReady);
 
+  // The dashboard address: the one the last search found (device scope), else
+  // the one the build has. The search itself runs after startup.
+  final serverAddress = await readSavedServerAddress(prefs) ?? Env.apiBaseUrl;
+
   // First launch (on this tablet): download the offline voices first.
   final setupPending =
       store != null &&
@@ -75,6 +81,14 @@ Future<List<Override>> bootstrap() async {
     debugPrint('Reading tutorialDone failed: $e');
   }
 
+  // First launch: the language is asked before the tutorial.
+  var languageChosen = true;
+  try {
+    languageChosen = await prefs.get(PrefKeys.languageChosen) == true;
+  } on Object catch (e) {
+    debugPrint('Reading languageChosen failed: $e');
+  }
+
   final micGranted =
       await const DevicePermissionService().status(AppPermission.microphone) ==
       PermissionAccess.granted;
@@ -87,6 +101,8 @@ Future<List<Override>> bootstrap() async {
     initialAccountProvider.overrideWithValue(restored.account),
     initialSessionExpiredProvider.overrideWithValue(restored.expired),
     initialTutorialSeenProvider.overrideWithValue(tutorialSeen),
+    initialLanguageChosenProvider.overrideWithValue(languageChosen),
+    initialServerAddressProvider.overrideWithValue(serverAddress),
     initialMicGrantedProvider.overrideWithValue(micGranted),
     ttsServiceProvider.overrideWithValue(tts),
     percyClipsProvider.overrideWithValue(

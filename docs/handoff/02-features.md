@@ -67,7 +67,7 @@ full tablet test, so "tablet-tested" is never claimed below.
 | Offline labels → grouped Filipino/English sentence ("May…" when sure, "Mukhang may…" when unsure), safety wording, read text found; behind `ImageDescriber` (`MlKitImageDescriber`) | `core/describe/`, `config/image_label_groups.dart`, `features/describe/` | Done 2026-10-18 |
 | **Online first** (`OnlineImageDescriber`): internet + `GET /api/v1/health` `vision_enabled` (cached 60 s) + consent → `POST /api/v1/describe` (1280 px, JPEG 85, 8 s); any error / 429 / 503 / timeout / no internet → ML Kit at once, no message; "(online)" / "(offline)" shown and spoken | `core/describe/image_describer.dart`, `vision_availability.dart`, `core/network/image_description_repository.dart` | Done 2026-10-19, not tablet-tested |
 | **Object counting** (offline): ML Kit object detection + image labels → "May tatlong bagay: isang tasa, isang libro, at isang bote. Isa sa kaliwa, …"; "Mukhang… mga…" when unsure | `core/describe/object_detector.dart`, `object_counting.dart`, `config/count_words.dart` | Done 2026-10-19, not tablet-tested |
-| Consent before upload (asked once after the first offline description when the server could describe it; default off until agreed; Settings → "Detalyadong paglalarawan" changes it) | `core/settings/app_settings.dart` (`DescribeConsent`), `features/describe/describe_controller.dart` | Done |
+| Consent before upload (asked once, BEFORE the first description, when the server could describe it; no answer in 30 s = describe offline; default off until agreed; Settings → "Detalyadong paglalarawan" changes it) | `core/settings/app_settings.dart` (`DescribeConsent`), `features/describe/describe_controller.dart` | Done |
 | "Mas detalyado" (`detail=true`, longer answer added after the description) | `features/describe/describe_controller.dart` | Done 2026-10-19 (server endpoint exists: `docs/api/describe.md` in the dashboard repo) |
 | Save a description to the Library | `features/describe/describe_controller.dart` | Done, not tablet-tested |
 
@@ -88,7 +88,9 @@ full tablet test, so "tablet-tested" is never claimed below.
 | Aking mga report (ticket status from dashboard) | `features/report/my_reports_screen.dart` | Done, not tablet-tested |
 | Settings (all rows, per account) | `features/settings/settings_screen.dart`, `setting_items.dart` | Done |
 | Pagsusuri ng boses (Voice check, test, model status, re-download, delete) | `features/settings/voice_check_screen.dart` | Done, not tablet-tested |
-| ~~Server address (developer builds)~~ | removed 2026-10-19: the address is fixed at build time (`API_BASE_URL`) | — |
+| ~~Server address (developer builds)~~ | removed 2026-10-19: no address screen; start address = `API_BASE_URL`, then auto-discovery (see `04-api-and-dashboard.md`) | — |
+| Auto-discovery of the dashboard on the Wi-Fi (saved → `API_BASE_URL` → subnet scan, ports 80/8888, Wi-Fi only) | `core/network/server_discovery.dart`, `server_connection.dart` | Done 2026-10-19, not tablet-tested |
+| Language choice on the first launch (before the tutorial): spoken in both languages; voice "Tagalog"/"English"/"Filipino"/"Ingles", swipe left/right (each option read aloud) + double-tap, or two large labelled buttons; repeats once after 10 s, then Tagalog; asked once per device (`PrefKeys.languageChosen`) | `features/language/language_screen.dart`, `app/router.dart` | Done 2026-10-19, not tablet-tested |
 
 ## Not built / postponed
 | Item | Where planned | Status |

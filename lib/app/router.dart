@@ -19,6 +19,7 @@ import '../features/describe/describe_controller.dart';
 import '../features/describe/describe_screen.dart';
 import '../features/describe/describe_source_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/language/language_screen.dart';
 import '../features/library/chapters_screen.dart';
 import '../features/library/favorites_screen.dart';
 import '../features/library/item_details_screen.dart';
@@ -40,6 +41,9 @@ import '../features/welcome/welcome_screen.dart';
 abstract final class AppRoutes {
   /// Welcome: Login, Register, Subukan muna.
   static const String welcome = '/';
+
+  /// First launch: choose Tagalog or English (before the tutorial).
+  static const String language = '/language';
 
   /// Controls tutorial. `extra`: true when replayed (finishing goes back).
   static const String tutorial = '/tutorial';
@@ -148,6 +152,10 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.language,
+        builder: (context, state) => const LanguageScreen(),
       ),
       GoRoute(
         path: AppRoutes.tutorial,
@@ -305,13 +313,16 @@ final routerProvider = Provider<GoRouter>((ref) {
   final account = ref.read(initialAccountProvider);
   final expired = ref.read(initialSessionExpiredProvider);
   final tutorialSeen = ref.read(initialTutorialSeenProvider);
+  final languageChosen = ref.read(initialLanguageChosenProvider);
   final location = account != null
       ? AppRoutes.landing(account)
       : expired
       ? AppRoutes.authChoice
       : tutorialSeen
       ? AppRoutes.welcome
-      : AppRoutes.tutorial;
+      : languageChosen
+      ? AppRoutes.tutorial
+      : AppRoutes.language;
   final extra = account == null && expired ? true : null;
   // Every cold start: the loading screen first (then the first screen).
   final loading = ref.read(startupScreenProvider);

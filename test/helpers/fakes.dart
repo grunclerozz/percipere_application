@@ -36,6 +36,7 @@ import 'package:percipere_app/core/library/library_models.dart';
 import 'package:percipere_app/core/library/library_paths.dart';
 import 'package:percipere_app/core/network/connectivity.dart';
 import 'package:percipere_app/core/network/image_description_repository.dart';
+import 'package:percipere_app/core/network/server_connection.dart';
 import 'package:percipere_app/core/ocr/ocr_service.dart';
 import 'package:percipere_app/core/ocr/text_cleanup.dart';
 import 'package:percipere_app/core/percy/intent_classifier.dart';
@@ -703,6 +704,7 @@ class TestEnv {
     imagePrepProvider.overrideWithValue(imagePrep),
     imageDescriptionRepositoryProvider.overrideWithValue(describeRepo),
     visionAvailabilityProvider.overrideWithValue(vision),
+    serverSearchAtStartupProvider.overrideWithValue(false),
     objectDetectorProvider.overrideWithValue(objectDetector),
     isOnlineProvider.overrideWithValue(() async => online),
     documentPickerProvider.overrideWithValue(picker),

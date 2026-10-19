@@ -8,7 +8,16 @@ abstract final class Ids {
   /// Settings: replay the controls tutorial.
   static const String settingTutorial = 'settings.tutorial';
 
-  /// Welcome screen.
+  /// Language screen (first launch).
+  static const String language = 'language';
+
+  /// Language screen: Tagalog.
+  static const String languageTagalog = 'language.tagalog';
+
+  /// Language screen: English.
+  static const String languageEnglish = 'language.english';
+
+  /// Welcome.
   static const String welcome = 'welcome';
 
   /// Welcome: log in.

@@ -3,7 +3,10 @@
 > **Changed 2026-10-19:** the app no longer has an "Address ng server" setting. The dashboard
 > address is fixed when the app is built: `flutter build apk --release --dart-define=API_BASE_URL=http://<IP>/website/percipere_dashboard`
 > (without it the app uses the emulator's `http://10.0.2.2/website/percipere_dashboard`). A new
-> IP means a new build. Ignore the steps below that type the address in the app.
+> IP means a new build. **Update (later 2026-10-19):** on the same Wi-Fi the app now finds the
+> dashboard by itself (saved address, then `API_BASE_URL`, then a scan of the Wi-Fi for
+> `/website/percipere_dashboard`, ports 80 and 8888), so a new IP needs no rebuild. Ignore the steps
+> below that type the address in the app.
 
 For students, no programming needed. The app talks to the dashboard (the website part) over the
 network. **Only the server address changes** between places; you do **not** rebuild the app.

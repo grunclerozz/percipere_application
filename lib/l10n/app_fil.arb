@@ -661,6 +661,18 @@
   "@describeCountMiddle": {"description": "How many objects are in the middle.", "placeholders": {"words": {"type": "String"}}},
   "describeCountRight": "{words} sa kanan",
   "@describeCountRight": {"description": "How many objects are on the right.", "placeholders": {"words": {"type": "String"}}},
+  "serverSearching": "Hinahanap ang server…",
+  "serverNotFound": "Hindi maabot ang server.",
+  "screenLanguage": "Wika / Language",
+  "languagePromptFil": "Pumili ng wika. Sabihin ang \"Tagalog\" o \"English\".",
+  "languagePromptEn": "Choose a language. Say \"Tagalog\" or \"English\".",
+  "languageGestureFil": "Mag-swipe pakaliwa o pakanan para pumili, at mag-double tap para piliin.",
+  "languageGestureEn": "Swipe left or right to choose, then double-tap to select.",
+  "languageChosenFil": "Tagalog ang napili. Tagalog ang gagamitin sa buong app.",
+  "languageChosenEn": "English selected. English will be used throughout the app.",
+  "languageOptionTagalog": "Tagalog",
+  "languageOptionEnglish": "English",
+  "helpLanguage": "Pumili ng wika. Choose a language. Swipe left or right, then double-tap. Mag-swipe pakaliwa o pakanan, tapos mag-double tap.",
   "describeUnreadable": "Hindi ko mabasa ang larawang ito.",
   "@describeUnreadable": {
     "description": "The image file could not be opened."

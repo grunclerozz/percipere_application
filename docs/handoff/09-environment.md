@@ -38,7 +38,7 @@ data in code or docs.**
 ## Build flags (`--dart-define`, defined in `lib/config/env.dart`)
 | Name | Meaning |
 |---|---|
-| `API_BASE_URL` | dashboard folder URL, **fixed at build time** (no setting screen); default `http://10.0.2.2/website/percipere_dashboard` (emulator → the PC's XAMPP); tablet example `http://<PC_LAN_IP>/website/percipere_dashboard`; http also enables cleartext to that host |
+| `API_BASE_URL` | dashboard folder URL, **fixed at build time** (no setting screen); default `http://10.0.2.2/website/percipere_dashboard` (emulator → the PC's XAMPP); it is only the start address: on the same Wi-Fi the app finds the dashboard by itself (auto-discovery, folder must be `/website/percipere_dashboard`); http also enables cleartext to that host |
 | `API_CLEARTEXT_HOSTS` | extra comma-separated hosts allowed over http |
 | `USE_ACCOUNT_SERVER` | `false` = phone-only accounts |
 | `PERCIPERE_DEV` | developer build: ElevenLabs switch, Percy analysis panel, log export |
